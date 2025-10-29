@@ -1,0 +1,16 @@
+:root {
+  --hl-color-bg: hsl(0 0% 100%);
+  --hl-color-fg: hsl(222 47% 11%);
+  --hl-color-muted: hsl(220 14% 96%);
+  --hl-color-accent: hsl(221 75% 55%);
+
+  --hl-radius-2: 0.25rem;
+  --hl-radius-3: 0.5rem;
+
+  --hl-spacing-1: 0.25rem;
+  --hl-spacing-2: 0.5rem;
+  --hl-spacing-3: 0.75rem;
+  --hl-spacing-4: 1rem;
+
+  --hl-focus-ring: 2px solid hsl(221 80% 55%);
+}

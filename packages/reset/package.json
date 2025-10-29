@@ -1,0 +1,14 @@
+{
+  "name": "@hydrateless/reset",
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "files": ["dist"],
+  "style": "dist/reset.css",
+  "sideEffects": ["**/*.css"],
+  "scripts": {
+    "build": "postcss src/reset.css -o dist/reset.css",
+    "dev": "npm run build -- --watch"
+  },
+  "publishConfig": { "access": "public" }
+}

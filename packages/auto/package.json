@@ -1,0 +1,21 @@
+{
+  "name": "@hydrateless/auto",
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm --clean",
+    "dev": "npm run build -- --watch"
+  },
+  "dependencies": {
+    "@hydrateless/enhancers": "workspace:*"
+  },
+  "publishConfig": { "access": "public" }
+}

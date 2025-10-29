@@ -1,0 +1,33 @@
+/* Hydrateless Disclosure (CSS-first) */
+details.hydrateless-disclosure {
+  border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
+  border-radius: var(--hl-radius-3, 0.5rem);
+  background: var(--hl-color-bg);
+}
+
+details.hydrateless-disclosure > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: var(--hl-spacing-3, 0.75rem) var(--hl-spacing-4, 1rem);
+}
+
+details.hydrateless-disclosure > summary::-webkit-details-marker { display: none; }
+
+details.hydrateless-disclosure > summary:focus-visible {
+  outline: var(--hl-focus-ring, 2px solid #1f6feb);
+  outline-offset: 2px;
+}
+
+details.hydrateless-disclosure > summary::after {
+  content: "▸";
+  float: right;
+  transition: transform 150ms ease;
+}
+
+details.hydrateless-disclosure[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+details.hydrateless-disclosure > .disclosure-panel {
+  padding: var(--hl-spacing-3, 0.75rem) var(--hl-spacing-4, 1rem) var(--hl-spacing-4, 1rem);
+}

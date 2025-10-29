@@ -1,0 +1,9 @@
+:root {
+  color-scheme: light;
+}
+
+/* Example token aliasing or overrides can live here. */
+body {
+  background-color: var(--hl-color-bg);
+  color: var(--hl-color-fg);
+}

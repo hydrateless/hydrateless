@@ -1,0 +1,17 @@
+{
+  "name": "@hydrateless/theme-default",
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "files": ["dist"],
+  "style": "dist/theme.css",
+  "sideEffects": ["**/*.css"],
+  "scripts": {
+    "build": "postcss src/theme.css -o dist/theme.css",
+    "dev": "npm run build -- --watch"
+  },
+  "dependencies": {
+    "@hydrateless/tokens": "workspace:*"
+  },
+  "publishConfig": { "access": "public" }
+}

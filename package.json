@@ -1,0 +1,28 @@
+{
+  "name": "hydrateless-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm -ws run build",
+    "dev": "npm -ws run dev --if-present",
+    "lint": "npm -ws run lint --if-present",
+    "test": "npm -ws run test --if-present",
+    "clean": "npm -ws run clean --if-present",
+    "changeset": "changeset",
+    "release": "changeset version && npm install -ws && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.9",
+    "autoprefixer": "^10.4.20",
+    "cssnano": "^6.1.2",
+    "postcss": "^8.4.49",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.1.0",
+    "postcss-preset-env": "^10.0.5",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "npm@10"
+}
