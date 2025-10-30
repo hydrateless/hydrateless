@@ -12,7 +12,9 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm --clean",
-    "dev": "npm run build -- --watch"
+    "dev": "npm run build -- --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
     "@hydrateless/enhancers": "workspace:*"

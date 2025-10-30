@@ -45,10 +45,10 @@ accessible interactions with minimal runtime cost.
 - [x] Changesets configured for independent versions
 - [x] Base `tsconfig` and ESM outputs across TS packages
 - [x] PostCSS config for CSS build (tokens/theme/components)
-- [ ] Add `.github/workflows`:
-  - [ ] CI: typecheck + build matrix (Node LTS)
-  - [ ] Release: Changesets version/publish with provenance
-- [ ] Add lint/format (ESLint + Prettier) and pre-commit hooks (optional)
+- [x] Add `.github/workflows`:
+  - [x] CI: typecheck + build matrix (Node LTS)
+  - [x] Release: Changesets version/publish with provenance
+- [x] Add lint/format (ESLint + Prettier) and pre-commit hooks (optional)
 
 #### 2) Package layout and entry points
 - [x] `@hydrateless/components`: per-component CSS with subpath exports

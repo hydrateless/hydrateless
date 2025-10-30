@@ -21,7 +21,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts src/disclosure/index.ts src/tabs/index.ts src/accordion/index.ts src/modal/index.ts src/toc/index.ts src/drawer/index.ts src/popover/index.ts src/tooltip/index.ts --dts --format esm --clean",
-    "dev": "npm run build -- --watch"
+    "dev": "npm run build -- --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@hydrateless/utils": "workspace:*"
