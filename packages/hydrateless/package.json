@@ -11,10 +11,10 @@
     "dev": "npm run build -- --watch"
   },
   "dependencies": {
-    "@hydrateless/reset": "workspace:*",
-    "@hydrateless/tokens": "workspace:*",
-    "@hydrateless/theme-default": "workspace:*",
-    "@hydrateless/components": "workspace:*"
+    "@hydrateless/reset": "^0.0.0",
+    "@hydrateless/tokens": "^0.0.0",
+    "@hydrateless/theme-default": "^0.0.0",
+    "@hydrateless/components": "^0.0.0"
   },
   "publishConfig": { "access": "public" }
 }

@@ -11,7 +11,7 @@
     "dev": "npm run build -- --watch"
   },
   "dependencies": {
-    "@hydrateless/tokens": "workspace:*"
+    "@hydrateless/tokens": "^0.0.0"
   },
   "publishConfig": { "access": "public" }
 }

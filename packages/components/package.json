@@ -27,8 +27,8 @@
     "./switch.css": "./dist/switch/switch.css"
   },
   "dependencies": {
-    "@hydrateless/tokens": "workspace:*",
-    "@hydrateless/theme-default": "workspace:*"
+    "@hydrateless/tokens": "^0.0.0",
+    "@hydrateless/theme-default": "^0.0.0"
   },
   "publishConfig": { "access": "public" }
 }
