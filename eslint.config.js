@@ -9,7 +9,7 @@ module.exports = [
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
-      'no-console': 'warn'
-    }
-  }
+      'no-console': 'warn',
+    },
+  },
 ];

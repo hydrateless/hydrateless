@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Lint, Typecheck, Build (Node ${{ matrix.node }})
+    name: Lint, Format, Typecheck, Build, Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,7 +26,11 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Format check
+        run: npm run format:check
       - name: Typecheck
         run: npm run typecheck
       - name: Build
         run: npm run build
+      - name: Test
+        run: npm test

@@ -1,0 +1,55 @@
+/* Hydrateless Drawer (off-canvas) based on <dialog> */
+dialog.hydrateless-drawer {
+  border: none;
+  padding: 0;
+  width: min(90vw, 360px);
+  max-height: 100dvh;
+  margin: 0;
+}
+
+dialog.hydrateless-drawer::backdrop {
+  background: color-mix(in oklab, var(--hl-color-fg) 40%, transparent);
+}
+
+/* Start hidden off-screen; slide in when open */
+.hydrateless-drawer[open] {
+  animation: hl-drawer-in 160ms ease-out;
+}
+
+@keyframes hl-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+/* Placement variants */
+.hydrateless-drawer[data-side='right'] {
+  inline-size: auto;
+}
+.hydrateless-drawer[data-side='left'] {
+  inline-size: auto;
+}
+
+.hydrateless-drawer[data-side='left'] {
+  inset: 0 auto 0 0;
+}
+.hydrateless-drawer[data-side='right'] {
+  inset: 0 0 0 auto;
+}
+
+.hydrateless-drawer .hl-drawer-header,
+.hydrateless-drawer .hl-drawer-body,
+.hydrateless-drawer .hl-drawer-footer {
+  padding: var(--hl-spacing-4, 1rem);
+}
+
+.hydrateless-drawer .hl-drawer-header {
+  border-bottom: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+}
+
+.hydrateless-drawer .hl-drawer-footer {
+  border-top: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+}

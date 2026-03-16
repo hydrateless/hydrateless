@@ -1,97 +1,157 @@
-## Hydrateless Roadmap (TypeScript monorepo)
+## Hydrateless Roadmap
 
-This roadmap tracks high-level goals for the first five releases, with a
-detailed step-by-step plan to reach 0.1.0. Hydrateless ships accessible,
-themeable UI primitives that work with semantic HTML and modern CSS first,
-then optionally auto-loads tiny, framework-agnostic JS enhancers only when
-needed.
-
-Current snapshot (already in repo):
-- Monorepo via npm workspaces, Changesets configured (independent versions)
-- Base TypeScript config, ESM outputs, PostCSS config
-- Packages present: `@hydrateless/components` (CSS), `@hydrateless/enhancers` (TS),
-  `@hydrateless/auto` (auto-init loader), `@hydrateless/utils` (focus trap/tabbables),
-  `@hydrateless/tokens`, `@hydrateless/theme-default`, `@hydrateless/reset`, and `hydrateless`
-- CSS for: disclosure, tabs, accordion, modal, toc, drawer, popover, tooltip, skip-link, switch
-- Enhancers for: disclosure, tabs, accordion, modal, toc, drawer, popover, tooltip
-
-### Release goals
-
-- **0.1.0 — MVP foundation**: Solidify component CSS + JS enhancers, ship `auto`
-  lazy-init, publishable ESM builds, per-component CSS subpath exports, quickstart
-  docs and minimal examples, basic CI, and Changesets release workflow.
-- **0.2.0 — A11y + coverage**: Accessibility audit and keyboard/ARIA polish across
-  components, additional primitives and options, improved docs with usage recipes,
-  SSR-safe patterns and guidance.
-- **0.3.0 — DX + integrations**: Per-component entry points and typings docs,
-  playground and examples gallery, framework integration guides (React/Vue/Svelte
-  usage without hydration), CDN-friendly bundles.
-- **0.4.0 — Performance + theming**: Smaller CSS with layered/contained rules,
-  dark mode and theme packs, token scale and semantic aliases, container-query
-  patterns and visual regression tests.
-- **0.5.0 — Ecosystem + stability**: Templates/starters, versioned docs site,
-  CI hardening and release automation, contribution guides and governance.
+Hydrateless ships accessible, themeable UI primitives built on semantic HTML and
+modern CSS. JavaScript is optional — tiny, framework-agnostic enhancers load
+only when needed. No build step required. No framework lock-in. No hydration
+overhead.
 
 ---
 
-### 0.1.0 detailed plan (MVP)
+### Package architecture (target for 0.1.0)
 
-Focus: Deliver a usable MVP where teams can install Hydrateless, import CSS
-and optionally enable tiny JS enhancers (or `@hydrateless/auto`) to get
-accessible interactions with minimal runtime cost.
+The monorepo should consolidate from 8 workspace packages to **3 published
+packages** before anything is published.
 
-#### 1) Monorepo, builds, and release
-- [x] Root `package.json` with `private: true` and workspaces
-- [x] Changesets configured for independent versions
-- [x] Base `tsconfig` and ESM outputs across TS packages
-- [x] PostCSS config for CSS build (tokens/theme/components)
-- [x] Add `.github/workflows`:
-  - [x] CI: typecheck + build matrix (Node LTS)
-  - [x] Release: Changesets version/publish with provenance
-- [x] Add lint/format (ESLint + Prettier) and pre-commit hooks (optional)
+| Package                  | What it ships                                                                               | Install                        |
+| ------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------ |
+| `hydrateless`            | All CSS — reset, tokens, theme, components. Subpath exports for granular imports.           | `npm i hydrateless`            |
+| `@hydrateless/enhancers` | Optional JS enhancers with internal utilities. Subpath exports per component.               | `npm i @hydrateless/enhancers` |
+| `@hydrateless/auto`      | Drop-in auto-initializer. Detects `data-hl-*` attributes and lazy-loads matching enhancers. | `npm i @hydrateless/auto`      |
 
-#### 2) Package layout and entry points
-- [x] `@hydrateless/components`: per-component CSS with subpath exports
-- [x] `@hydrateless/enhancers`: per-component enhancers with subpath exports
-- [x] `@hydrateless/auto`: lazy auto-init based on DOM presence
-- [x] `@hydrateless/utils`: focus trap + tabbables
-- [x] `@hydrateless/tokens`, `@hydrateless/theme-default`, `@hydrateless/reset`, `hydrateless`
-- [ ] Verify tree-shaking friendliness and subpath export completeness
-  - [ ] Document per-component import patterns for CSS and JS
+#### Why consolidate?
 
-#### 3) Components readiness and a11y baseline
-- [x] CSS present: disclosure, tabs, accordion, modal, toc, drawer, popover, tooltip, skip-link, switch
-- [x] Enhancers present: disclosure, tabs, accordion, modal, toc, drawer, popover, tooltip
-- [ ] Verify ARIA roles/attributes and keyboard interactions by component
-- [ ] Add minimal unit/e2e smoke tests for interactive enhancers
-- [ ] Cross-browser sanity (Chromium/Firefox/WebKit) for core interactions
+- `@hydrateless/tokens` (16 lines), `@hydrateless/theme-default` (9 lines),
+  and `@hydrateless/reset` (15 lines) don't justify separate npm packages.
+  They're implementation layers, not independent libraries.
+- `@hydrateless/components` depends on tokens and theme-default transitively,
+  so users can never install it without them. A separate package adds friction
+  with no benefit.
+- `@hydrateless/utils` (focus trap, tabbable) is an internal dependency of
+  enhancers. End users should never install it directly.
+- Installing CSS today requires pulling in **5 npm packages**. After
+  consolidation: **1**.
 
-#### 4) Auto-init and SSR guidance
-- [x] `@hydrateless/auto` imports enhancers on-demand by DOM query
-- [ ] Document SSR-safe usage (defer to `DOMContentLoaded`, progressive enhancement)
-- [ ] Provide snippet for selective opt-in per component
+#### Import patterns after consolidation
 
-#### 5) Docs and examples (minimal for 0.1.0)
-- [x] Roadmap (this file)
-- [ ] Quickstart doc: install, import CSS, enable `auto`, per-component usage
-- [ ] Minimal examples directory (Node + static HTML) with 2–3 components
-- [ ] Contribution notes for local dev, build, version, publish
+```css
+/* All CSS */
+@import 'hydrateless';
 
-#### 6) Acceptance checklist
-- [ ] A static HTML sample can import CSS and enable an enhancer to pass a11y checks
-- [ ] `@hydrateless/auto` correctly initializes only the components present
-- [ ] Per-component CSS and JS subpath imports work and tree-shake
-- [ ] CI builds succeed; release workflow publishes prerelease or stable 0.1.0
+/* Granular CSS */
+@import 'hydrateless/reset.css';
+@import 'hydrateless/tokens.css';
+@import 'hydrateless/accordion.css';
+```
 
-#### 7) Release and versioning
-- [ ] Create changesets per package with meaningful entries
-- [ ] Tag and publish initial versions using the workflow
-- [ ] Ensure `exports`, `types`, and `sideEffects` fields are correct per package
+```ts
+// JS enhancers (tree-shakeable barrel)
+import { enhanceAccordion } from '@hydrateless/enhancers';
+
+// JS enhancers (direct subpath — zero barrel overhead)
+import { enhanceAccordion } from '@hydrateless/enhancers/accordion';
+
+// Auto-init — just import, nothing else needed
+import '@hydrateless/auto';
+```
+
+#### Progressive enhancement tiers
+
+| Tier              | What to install                          | Result                                                                                   |
+| ----------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| CSS-only          | `hydrateless`                            | Semantic HTML styled with modern CSS. Disclosure, accordion, switch, etc. work natively. |
+| CSS + targeted JS | `hydrateless` + `@hydrateless/enhancers` | Import specific enhancers for components that need JS (tabs, modal focus trap, etc.).    |
+| CSS + auto JS     | `hydrateless` + `@hydrateless/auto`      | One import auto-detects `data-hl-*` attributes and lazy-loads only what's on the page.   |
+
+---
+
+### Release goals
+
+- **0.1.0 — Solid foundation**: Consolidate packages, fix known issues, ship
+  clean subpath exports, smoke tests, and a quickstart guide.
+- **0.2.0 — Accessibility + primitives**: Deep a11y audit (ARIA, keyboard,
+  screen readers), additional components (dropdown menu, toast, breadcrumb),
+  SSR patterns and guidance.
+- **0.3.0 — DX + integrations**: Interactive playground, framework integration
+  guides (React, Vue, Svelte, Astro), CDN-friendly bundles, TypeDoc for
+  enhancer APIs.
+- **0.4.0 — Theming + performance**: Dark mode, theme packs, CSS `@layer`
+  usage, container queries, visual regression tests, bundle size tracking.
+- **0.5.0 — Ecosystem + stability**: Docs site, starter templates, contributor
+  governance, breaking-change policy, 1.0 planning.
+
+---
+
+### 0.1.0 detailed plan
+
+#### 1) Package consolidation
+
+- [x] Merge `@hydrateless/reset`, `@hydrateless/tokens`,
+      `@hydrateless/theme-default`, and `@hydrateless/components` into the
+      `hydrateless` package
+  - Move all CSS source into `packages/hydrateless/src/`
+  - Add subpath exports: `./reset.css`, `./tokens.css`, `./theme.css`, and
+    per-component exports (`./accordion.css`, `./modal.css`, etc.)
+  - Remove the 4 old workspace directories
+- [x] Fold `@hydrateless/utils` into `@hydrateless/enhancers` as internal
+      modules
+  - Move `focusTrap.ts` and `tabbable.ts` into `packages/enhancers/src/utils/`
+  - Do not re-export from the package entry point
+  - Remove `packages/utils/`
+- [x] Update `@hydrateless/auto` imports (should require no changes if
+      enhancer subpaths stay the same)
+- [x] Update root `package.json` workspaces (now 3 directories)
+- [x] Verify all `exports`, `types`, `sideEffects`, and `files` fields
+
+#### 2) Build cleanup
+
+- [x] Replace the single-line PostCSS build command for components with a build
+      script that loops over component directories
+- [x] Ensure each subpath export has a corresponding built file in `dist/`
+- [x] Verify tree-shaking: importing one enhancer must not bundle others
+
+#### 3) Bug fixes
+
+- [x] Parallelize `auto()` — run all `maybeImport` calls with `Promise.all`
+      instead of sequential `await`
+- [x] Deduplicate reset/theme overlap (both declare `color-scheme: light` and
+      body colors)
+- [x] Verify all enhancers handle missing elements gracefully (no throws on
+      empty queries)
+
+#### 4) Accessibility baseline
+
+- [x] Verify ARIA roles and attributes per component against WAI-ARIA Authoring
+      Practices
+- [x] Verify keyboard interactions (Tab, Enter, Space, Escape, Arrow keys) per
+      component
+- [x] Verify focus management in modal and drawer (trap on open, restore on
+      close)
+
+#### 5) Testing
+
+- [x] Add smoke tests for each enhancer (DOM setup → enhance → assert behavior)
+- [ ] Cross-browser sanity check (Chromium, Firefox, WebKit) for core
+      interactions
+
+#### 6) Documentation
+
+- [x] Quickstart guide: install, import CSS, add enhancers or auto-init
+- [x] Per-component reference: expected HTML markup, data attributes, behavior
+- [x] Minimal example: static HTML page demonstrating all components
+
+#### 7) Acceptance checklist
+
+- [x] A static HTML page can import CSS and enable enhancers with correct a11y
+- [x] `@hydrateless/auto` initializes only the components present in the DOM
+- [x] Per-component subpath imports work for both CSS and JS
+- [x] CI passes: lint, typecheck, build, tests
+- [x] Semantic release publishes all 3 packages on merge to `main`
 
 ---
 
 ### Notes for later releases
-- 0.2.x: Deep a11y/keyboard audit; add missing primitives; expand docs with examples
-- 0.3.x: DX improvements, typed docs for enhancers, examples gallery and framework guides
-- 0.4.x: CSS performance, theming/dark mode, token scale, container queries, VRT
-- 0.5.x: Stable docs site, starters/templates, automation, and contribution governance
+
+- 0.2.x: Full a11y audit, screen reader testing, new primitives, SSR guidance
+- 0.3.x: Interactive playground, framework examples, CDN builds, API reference
+- 0.4.x: Dark mode, CSS `@layer`, container queries, VRT, bundle tracking
+- 0.5.x: Versioned docs site, starter templates, governance, 1.0 roadmap

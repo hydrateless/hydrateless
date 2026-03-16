@@ -28,14 +28,9 @@ npm run format
 ## Project layout (high-level)
 
 - `packages/`
-  - `auto/` – auto-loader that selectively loads JS enhancers
-  - `components/` – CSS component primitives (disclosure, tabs, accordion, modal, etc.)
-  - `enhancers/` – JS enhancers for advanced interactions
-  - `hydrateless/` – umbrella package that bundles reset + tokens + theme + components
-  - `reset/` – CSS reset
-  - `theme-default/` – default theme (CSS variables)
-  - `tokens/` – design tokens (CSS variables)
-  - `utils/` – shared JS utilities (focus trap, tabbable)
+  - `hydrateless/` – all CSS: reset, tokens, theme, and component styles with subpath exports
+  - `enhancers/` – optional JS enhancers with internal utilities (focus trap, tabbable)
+  - `auto/` – drop-in auto-loader that detects `data-hl-*` attributes and lazy-loads enhancers
 
 ## Coding guidelines
 
@@ -198,7 +193,7 @@ hotfix/accordion-overflow
 
 ## CI
 
-- **CI** (`ci.yml`): runs lint, typecheck, and build on Node 20 and 22 for every push and PR.
+- **CI** (`ci.yml`): runs lint, format check, typecheck, build, and test on Node 20 and 22 for every push and PR.
 - **PR Lint** (`pr-lint.yml`): validates the PR title against Conventional Commits format (protects squash merges) and checks individual commit messages via commitlint (protects rebase merges). Recommended: add the **PR title** job as a required status check in branch-protection settings.
 - **Release** (`release.yml`): runs on merge to `main`; computes version, generates changelog, tags, creates GitHub Release, and publishes all workspace packages to npm.
 

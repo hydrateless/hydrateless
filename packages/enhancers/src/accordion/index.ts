@@ -4,7 +4,7 @@ export type EnhanceAccordionOptions = {
 
 export function enhanceAccordion(
   container: Document | HTMLElement = document,
-  options: EnhanceAccordionOptions = {}
+  options: EnhanceAccordionOptions = {},
 ): void {
   const { allowMultiple = false } = options;
   const groups = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-accordion]'));

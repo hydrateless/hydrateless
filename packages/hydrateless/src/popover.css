@@ -1,0 +1,14 @@
+/* Hydrateless Popover */
+[popover],
+[data-hl-popover] {
+  border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
+  border-radius: var(--hl-radius-3, 0.5rem);
+  padding: var(--hl-spacing-3, 0.75rem);
+  background: var(--hl-color-bg, #fff);
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--hl-color-fg) 14%, transparent);
+}
+
+/* Fallback hidden state */
+[data-hl-popover][hidden] {
+  display: none;
+}

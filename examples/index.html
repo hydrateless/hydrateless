@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hydrateless — Component Demo</title>
+    <link rel="stylesheet" href="../packages/hydrateless/dist/hydrateless.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@hydrateless/enhancers/accordion": "../packages/enhancers/dist/accordion/index.js",
+          "@hydrateless/enhancers/tabs": "../packages/enhancers/dist/tabs/index.js",
+          "@hydrateless/enhancers/disclosure": "../packages/enhancers/dist/disclosure/index.js",
+          "@hydrateless/enhancers/modal": "../packages/enhancers/dist/modal/index.js",
+          "@hydrateless/enhancers/drawer": "../packages/enhancers/dist/drawer/index.js",
+          "@hydrateless/enhancers/popover": "../packages/enhancers/dist/popover/index.js",
+          "@hydrateless/enhancers/tooltip": "../packages/enhancers/dist/tooltip/index.js",
+          "@hydrateless/enhancers/toc": "../packages/enhancers/dist/toc/index.js"
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        max-width: 48rem;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      h1 {
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+      }
+      p.lead {
+        color: var(--hl-color-fg);
+        opacity: 0.7;
+        margin-bottom: 2rem;
+      }
+      section + section {
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="a11y-skip-link" href="#main">Skip to content</a>
+
+    <h1>Hydrateless Components</h1>
+    <p class="lead">
+      Semantic HTML + modern CSS first. JS enhancers loaded automatically via
+      <code>@hydrateless/auto</code>.
+    </p>
+
+    <main id="main">
+      <!-- Accordion -->
+      <section>
+        <h2>Accordion</h2>
+        <div data-hl-accordion>
+          <details>
+            <summary>What is Hydrateless?</summary>
+            <div class="accordion-panel">
+              A CSS-first component library that uses semantic HTML and modern CSS, with optional JS
+              enhancers for interactivity.
+            </div>
+          </details>
+          <details>
+            <summary>Do I need JavaScript?</summary>
+            <div class="accordion-panel">
+              Most components work without JS. Enhancers add keyboard nav, focus traps, and ARIA
+              wiring where native HTML falls short.
+            </div>
+          </details>
+          <details>
+            <summary>How do I theme it?</summary>
+            <div class="accordion-panel">
+              Override CSS variables like <code>--hl-color-accent</code>,
+              <code>--hl-radius-3</code>, and <code>--hl-spacing-4</code>.
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Disclosure -->
+      <section>
+        <h2>Disclosure</h2>
+        <details class="hydrateless-disclosure" data-hl-disclosure>
+          <summary>Click to reveal</summary>
+          <div class="disclosure-panel">
+            This content was hidden until you opened the disclosure.
+          </div>
+        </details>
+      </section>
+
+      <!-- Tabs -->
+      <section>
+        <h2>Tabs</h2>
+        <div data-hl-tabs>
+          <div role="tablist">
+            <button role="tab">Overview</button>
+            <button role="tab">Features</button>
+            <button role="tab">Install</button>
+          </div>
+          <div role="tabpanel">
+            <p>Hydrateless delivers accessible UI primitives with zero runtime cost by default.</p>
+          </div>
+          <div role="tabpanel">
+            <p>
+              CSS-first components, optional JS enhancers, auto-init loader, design tokens, and full
+              ARIA support.
+            </p>
+          </div>
+          <div role="tabpanel">
+            <p><code>npm install hydrateless @hydrateless/auto</code></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modal -->
+      <section>
+        <h2>Modal</h2>
+        <button data-hl-modal-open="demo-modal">Open modal</button>
+        <dialog id="demo-modal" class="hydrateless-modal" data-hl-modal>
+          <div class="hl-modal-header"><strong>Modal Title</strong></div>
+          <div class="hl-modal-body">
+            <p>
+              This is a modal dialog. Focus is trapped inside. Press Escape or click the backdrop to
+              close.
+            </p>
+          </div>
+          <div class="hl-modal-footer">
+            <button data-hl-modal-close>Close</button>
+          </div>
+        </dialog>
+      </section>
+
+      <!-- Drawer -->
+      <section>
+        <h2>Drawer</h2>
+        <button data-hl-drawer-open="demo-drawer">Open drawer</button>
+        <dialog id="demo-drawer" class="hydrateless-drawer" data-hl-drawer data-side="right">
+          <div class="hl-drawer-header"><strong>Drawer</strong></div>
+          <div class="hl-drawer-body">
+            <p>This is an off-canvas drawer panel.</p>
+          </div>
+          <div class="hl-drawer-footer">
+            <button data-hl-drawer-close>Close</button>
+          </div>
+        </dialog>
+      </section>
+
+      <!-- Tooltip -->
+      <section>
+        <h2>Tooltip</h2>
+        <p>
+          Hover or focus the
+          <span style="position: relative; display: inline-block">
+            <button data-hl-tooltip="demo-tip" aria-describedby="demo-tip">
+              highlighted button
+            </button>
+            <span id="demo-tip" role="tooltip" hidden> This is a tooltip! </span>
+          </span>
+          to see a tooltip.
+        </p>
+      </section>
+
+      <!-- Switch -->
+      <section>
+        <h2>Switch</h2>
+        <label data-hl-switch>
+          <input type="checkbox" />
+          Enable dark mode
+        </label>
+      </section>
+
+      <!-- TOC -->
+      <section>
+        <h2>Table of Contents</h2>
+        <p>
+          The TOC enhancer generates navigation links from page headings with scroll-spy
+          highlighting.
+        </p>
+        <nav data-hl-toc data-hl-toc-content="main"></nav>
+      </section>
+    </main>
+
+    <script type="module">
+      import { auto } from '../packages/auto/dist/index.js';
+      auto(document);
+    </script>
+  </body>
+</html>

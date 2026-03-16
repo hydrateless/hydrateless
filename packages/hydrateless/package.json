@@ -1,20 +1,46 @@
 {
   "name": "hydrateless",
   "version": "0.0.0",
+  "description": "Accessible, themeable UI primitives — semantic HTML + modern CSS first, optional JS enhancers.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hydrateless/hydrateless.git",
+    "directory": "packages/hydrateless"
+  },
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "style": "dist/hydrateless.css",
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
-    "build": "postcss src/hydrateless.css -o dist/hydrateless.css",
+    "build": "node scripts/build.mjs",
     "dev": "npm run build -- --watch"
   },
-  "dependencies": {
-    "@hydrateless/reset": "^0.0.0",
-    "@hydrateless/tokens": "^0.0.0",
-    "@hydrateless/theme-default": "^0.0.0",
-    "@hydrateless/components": "^0.0.0"
+  "exports": {
+    ".": {
+      "style": "./dist/hydrateless.css",
+      "default": "./dist/hydrateless.css"
+    },
+    "./reset.css": "./dist/reset.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./theme.css": "./dist/theme.css",
+    "./components.css": "./dist/components.css",
+    "./accordion.css": "./dist/accordion.css",
+    "./disclosure.css": "./dist/disclosure.css",
+    "./drawer.css": "./dist/drawer.css",
+    "./modal.css": "./dist/modal.css",
+    "./popover.css": "./dist/popover.css",
+    "./skip-link.css": "./dist/skip-link.css",
+    "./switch.css": "./dist/switch.css",
+    "./tabs.css": "./dist/tabs.css",
+    "./toc.css": "./dist/toc.css",
+    "./tooltip.css": "./dist/tooltip.css"
   },
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

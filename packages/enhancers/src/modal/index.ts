@@ -1,4 +1,4 @@
-import { createFocusTrap } from '@hydrateless/utils';
+import { createFocusTrap } from '../utils/focusTrap.js';
 
 export type EnhanceModalOptions = {
   closeOnBackdrop?: boolean;
@@ -6,10 +6,12 @@ export type EnhanceModalOptions = {
 
 export function enhanceModal(
   container: Document | HTMLElement = document,
-  options: EnhanceModalOptions = {}
+  options: EnhanceModalOptions = {},
 ): void {
   const { closeOnBackdrop = true } = options;
-  const dialogs = Array.from(container.querySelectorAll<HTMLDialogElement>('dialog[data-hl-modal]'));
+  const dialogs = Array.from(
+    container.querySelectorAll<HTMLDialogElement>('dialog[data-hl-modal]'),
+  );
   const openers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-modal-open]'));
   const closers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-modal-close]'));
 

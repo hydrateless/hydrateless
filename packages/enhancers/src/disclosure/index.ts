@@ -4,11 +4,11 @@ export type EnhanceDisclosureOptions = {
 
 export function enhanceDisclosure(
   container: Document | HTMLElement = document,
-  options: EnhanceDisclosureOptions = {}
+  options: EnhanceDisclosureOptions = {},
 ): void {
   const { allowMultiple = false } = options;
   const disclosures = Array.from(
-    container.querySelectorAll<HTMLDetailsElement>('details[data-hl-disclosure]')
+    container.querySelectorAll<HTMLDetailsElement>('details[data-hl-disclosure]'),
   );
 
   if (disclosures.length === 0) return;

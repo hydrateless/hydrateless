@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm -ws run build",
+    "build": "npm -w packages/enhancers -w packages/hydrateless run build && npm -w packages/auto run build",
     "dev": "npm -ws run dev --if-present",
     "lint": "npm -ws run lint --if-present",
     "typecheck": "npm -ws run typecheck --if-present",
@@ -26,6 +26,7 @@
     "cssnano": "^6.1.2",
     "eslint": "^9.13.0",
     "husky": "^9.1.6",
+    "jsdom": "^29.0.0",
     "lint-staged": "^15.2.10",
     "postcss": "^8.4.49",
     "postcss-cli": "^11.0.0",
@@ -35,7 +36,8 @@
     "semantic-release": "^24.2.1",
     "tsup": "^8.3.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.11.0"
+    "typescript-eslint": "^8.11.0",
+    "vitest": "^4.1.0"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [

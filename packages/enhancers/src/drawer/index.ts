@@ -4,11 +4,11 @@ type DrawerOptions = {
 
 export function enhanceDrawer(
   container: Document | HTMLElement = document,
-  options: DrawerOptions = {}
+  options: DrawerOptions = {},
 ): void {
   const { closeOnBackdrop = true } = options;
   const drawers = Array.from(
-    container.querySelectorAll<HTMLDialogElement>('dialog.hydrateless-drawer[data-hl-drawer]')
+    container.querySelectorAll<HTMLDialogElement>('dialog.hydrateless-drawer[data-hl-drawer]'),
   );
   const openers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-drawer-open]'));
   const closers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-drawer-close]'));

@@ -1,0 +1,35 @@
+/* Hydrateless Switch (checkbox) */
+[data-hl-switch] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hl-spacing-2, 0.5rem);
+}
+
+[data-hl-switch] input[type='checkbox'] {
+  appearance: none;
+  inline-size: 2.25rem;
+  block-size: 1.25rem;
+  border-radius: 1.25rem;
+  background: color-mix(in oklab, var(--hl-color-fg) 16%, transparent);
+  position: relative;
+  outline-offset: 2px;
+}
+
+[data-hl-switch] input[type='checkbox']::after {
+  content: '';
+  position: absolute;
+  inset: 2px auto auto 2px;
+  inline-size: calc(1.25rem - 4px);
+  block-size: calc(1.25rem - 4px);
+  border-radius: 50%;
+  background: var(--hl-color-bg);
+  transition: transform 150ms ease;
+}
+
+[data-hl-switch] input[type='checkbox']:checked::after {
+  transform: translateX(1rem);
+}
+
+[data-hl-switch] input[type='checkbox']:checked {
+  background: var(--hl-color-accent);
+}

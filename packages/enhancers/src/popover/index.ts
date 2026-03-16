@@ -4,21 +4,21 @@ type PopoverOptions = {
 
 export function enhancePopover(
   container: Document | HTMLElement = document,
-  options: PopoverOptions = {}
+  options: PopoverOptions = {},
 ): void {
   const { triggerEvent = 'click' } = options;
   const popovers = Array.from(
-    container.querySelectorAll<HTMLElement>('[popover], [data-hl-popover]')
+    container.querySelectorAll<HTMLElement>('[popover], [data-hl-popover]'),
   );
   const openers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-popover-open]'));
   const closers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-popover-close]'));
 
   function show(el: HTMLElement): void {
-    if ('showPopover' in el) (el as any).showPopover();
+    if (el.popover != null) el.showPopover();
     else el.hidden = false;
   }
   function hide(el: HTMLElement): void {
-    if ('hidePopover' in el) (el as any).hidePopover();
+    if (el.popover != null) el.hidePopover();
     else el.hidden = true;
   }
 
@@ -58,11 +58,12 @@ export function enhancePopover(
     });
   }
 
-  // Clicking outside closes for fallback case
   document.addEventListener('click', (e) => {
     const t = e.target as Node;
+    if (openers.some((o) => o === t || o.contains(t))) return;
+    if (closers.some((c) => c === t || c.contains(t))) return;
     for (const p of popovers) {
-      if (p.hasAttribute('popover')) continue; // browser handles
+      if (p.hasAttribute('popover')) continue;
       if (!p.hidden && !p.contains(t)) hide(p);
     }
   });

@@ -6,7 +6,7 @@ export type EnhanceTocOptions = {
 
 export function enhanceToc(
   container: Document | HTMLElement = document,
-  options: EnhanceTocOptions = {}
+  options: EnhanceTocOptions = {},
 ): void {
   const { contentSelector = 'main, article', headings = 'h2,h3', scrollSpy = true } = options;
   const navs = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-toc]'));
@@ -14,8 +14,10 @@ export function enhanceToc(
 
   const contentRoot =
     container.querySelector<HTMLElement>(
-      navs[0].getAttribute('data-hl-toc-content') || contentSelector
-    ) || (container as Document).body || (container as HTMLElement);
+      navs[0].getAttribute('data-hl-toc-content') || contentSelector,
+    ) ||
+    (container as Document).body ||
+    (container as HTMLElement);
 
   const hs = Array.from(contentRoot.querySelectorAll<HTMLElement>(headings));
   if (hs.length === 0) return;
@@ -59,7 +61,7 @@ export function enhanceToc(
       nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
         const id = decodeURIComponent(a.getAttribute('href')!.slice(1));
         linkForId.set(id, a);
-      })
+      }),
     );
 
     const observer = new IntersectionObserver(
@@ -79,7 +81,7 @@ export function enhanceToc(
           if (link) link.setAttribute('aria-current', 'true');
         }
       },
-      { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] }
+      { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] },
     );
 
     hs.forEach((h) => observer.observe(h));
