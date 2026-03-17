@@ -39,6 +39,20 @@ export async function auto(container: Document | HTMLElement = document): Promis
     pending.push(import('@hydrateless/enhancers/tooltip').then((m) => m.enhanceTooltip(container)));
   }
 
+  if (has('[data-hl-dropdown]')) {
+    pending.push(
+      import('@hydrateless/enhancers/dropdown').then((m) => m.enhanceDropdown(container)),
+    );
+  }
+
+  if (has('[data-hl-toast-region], [data-hl-toast-trigger]')) {
+    pending.push(
+      import('@hydrateless/enhancers/toast').then((m) => {
+        m.enhanceToast(container);
+      }),
+    );
+  }
+
   await Promise.all(pending);
 }
 

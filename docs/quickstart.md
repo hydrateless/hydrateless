@@ -97,3 +97,47 @@ Override CSS variables to customize the look:
 ```
 
 See `hydrateless/tokens.css` for the full list of available tokens.
+
+### Dark mode
+
+Hydrateless supports dark mode out of the box. It responds to the user's OS
+preference via `prefers-color-scheme`:
+
+```css
+/* Automatic — follows the OS setting (works by default, no extra CSS) */
+@import 'hydrateless';
+```
+
+To let users override the OS preference, set `data-theme` on the root element:
+
+```html
+<html data-theme="dark"></html>
+```
+
+Toggle it at runtime with JavaScript:
+
+```js
+document.documentElement.dataset.theme =
+  document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+```
+
+When `data-theme` is set, it takes priority over the OS preference. Remove the
+attribute to fall back to automatic behavior.
+
+### CSS layers
+
+All Hydrateless styles are wrapped in CSS `@layer` declarations. The layer
+order is:
+
+```
+reset → tokens → theme → components
+```
+
+This means your un-layered CSS always wins over Hydrateless styles — no
+specificity battles. If you use layers yourself, you can slot Hydrateless
+into your cascade:
+
+```css
+@layer vendor, app;
+@import 'hydrateless' layer(vendor);
+```

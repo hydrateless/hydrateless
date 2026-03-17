@@ -6,3 +6,5 @@ export { enhanceToc } from './toc/index.js';
 export { enhanceDrawer } from './drawer/index.js';
 export { enhancePopover } from './popover/index.js';
 export { enhanceTooltip } from './tooltip/index.js';
+export { enhanceDropdown } from './dropdown/index.js';
+export { enhanceToast } from './toast/index.js';

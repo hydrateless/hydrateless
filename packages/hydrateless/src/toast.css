@@ -1,0 +1,59 @@
+@layer components {
+  [data-hl-toast-region] {
+    position: fixed;
+    z-index: 1100;
+    bottom: var(--hl-spacing-4, 1rem);
+    right: var(--hl-spacing-4, 1rem);
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--hl-spacing-2, 0.5rem);
+    pointer-events: none;
+    max-width: min(90vw, 24rem);
+  }
+
+  [data-hl-toast] {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--hl-spacing-3, 0.75rem);
+    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
+    border-radius: var(--hl-radius-3, 0.5rem);
+    padding: var(--hl-spacing-3, 0.75rem) var(--hl-spacing-4, 1rem);
+    background: var(--hl-color-bg);
+    box-shadow: 0 8px 24px color-mix(in oklab, var(--hl-color-fg) 14%, transparent);
+    animation: hl-toast-in 200ms ease-out;
+  }
+
+  [data-hl-toast-close] {
+    appearance: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: var(--hl-spacing-1, 0.25rem);
+    color: color-mix(in oklab, var(--hl-color-fg) 50%, transparent);
+    margin-left: auto;
+    flex-shrink: 0;
+    font: inherit;
+  }
+
+  [data-hl-toast-close]:hover {
+    color: var(--hl-color-fg);
+  }
+
+  [data-hl-toast-close]:focus-visible {
+    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    outline-offset: 2px;
+    border-radius: var(--hl-radius-2, 0.25rem);
+  }
+
+  @keyframes hl-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

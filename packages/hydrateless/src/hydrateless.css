@@ -1,3 +1,5 @@
+@layer reset, tokens, theme, components;
+
 @import './reset.css';
 @import './tokens.css';
 @import './theme.css';

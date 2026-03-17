@@ -1,8 +1,18 @@
-:root {
-  color-scheme: light;
-}
+@layer theme {
+  :root {
+    color-scheme: light dark;
+  }
 
-body {
-  background-color: var(--hl-color-bg);
-  color: var(--hl-color-fg);
+  [data-theme='light'] {
+    color-scheme: light;
+  }
+
+  [data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--hl-color-bg);
+    color: var(--hl-color-fg);
+  }
 }

@@ -15,7 +15,9 @@
           "@hydrateless/enhancers/drawer": "../packages/enhancers/dist/drawer/index.js",
           "@hydrateless/enhancers/popover": "../packages/enhancers/dist/popover/index.js",
           "@hydrateless/enhancers/tooltip": "../packages/enhancers/dist/tooltip/index.js",
-          "@hydrateless/enhancers/toc": "../packages/enhancers/dist/toc/index.js"
+          "@hydrateless/enhancers/toc": "../packages/enhancers/dist/toc/index.js",
+          "@hydrateless/enhancers/dropdown": "../packages/enhancers/dist/dropdown/index.js",
+          "@hydrateless/enhancers/toast": "../packages/enhancers/dist/toast/index.js"
         }
       }
     </script>
@@ -37,12 +39,17 @@
         margin-bottom: 1rem;
       }
       p.lead {
-        color: var(--hl-color-fg);
         opacity: 0.7;
         margin-bottom: 2rem;
       }
       section + section {
         margin-top: 2rem;
+      }
+      .demo-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
       }
     </style>
   </head>
@@ -55,7 +62,26 @@
       <code>@hydrateless/auto</code>.
     </p>
 
+    <div class="demo-toolbar">
+      <label data-hl-switch>
+        <input type="checkbox" role="switch" id="theme-toggle" />
+        Dark mode
+      </label>
+    </div>
+
     <main id="main">
+      <!-- Breadcrumb -->
+      <section>
+        <h2>Breadcrumb</h2>
+        <nav data-hl-breadcrumb aria-label="Breadcrumb">
+          <ol>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Docs</a></li>
+            <li><span aria-current="page">Components</span></li>
+          </ol>
+        </nav>
+      </section>
+
       <!-- Accordion -->
       <section>
         <h2>Accordion</h2>
@@ -119,6 +145,20 @@
         </div>
       </section>
 
+      <!-- Dropdown Menu -->
+      <section>
+        <h2>Dropdown Menu</h2>
+        <div data-hl-dropdown>
+          <button data-hl-dropdown-trigger>Actions</button>
+          <ul data-hl-dropdown-menu>
+            <li><button role="menuitem">Edit</button></li>
+            <li><button role="menuitem">Duplicate</button></li>
+            <li role="separator"></li>
+            <li><button role="menuitem">Delete</button></li>
+          </ul>
+        </div>
+      </section>
+
       <!-- Modal -->
       <section>
         <h2>Modal</h2>
@@ -167,13 +207,14 @@
         </p>
       </section>
 
-      <!-- Switch -->
+      <!-- Toast -->
       <section>
-        <h2>Switch</h2>
-        <label data-hl-switch>
-          <input type="checkbox" />
-          Enable dark mode
-        </label>
+        <h2>Toast</h2>
+        <button data-hl-toast-trigger="Changes saved successfully.">Show toast</button>
+        <button data-hl-toast-trigger="Something went wrong." data-hl-toast-duration="8000">
+          Show longer toast
+        </button>
+        <div data-hl-toast-region></div>
       </section>
 
       <!-- TOC -->
@@ -188,8 +229,17 @@
     </main>
 
     <script type="module">
-      import { auto } from '../packages/auto/dist/index.js';
-      auto(document);
+      import '../packages/auto/dist/index.js';
+
+      const toggle = document.getElementById('theme-toggle');
+      toggle.addEventListener('change', () => {
+        document.documentElement.dataset.theme = toggle.checked ? 'dark' : 'light';
+      });
+
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        toggle.checked = true;
+        document.documentElement.dataset.theme = 'dark';
+      }
     </script>
   </body>
 </html>

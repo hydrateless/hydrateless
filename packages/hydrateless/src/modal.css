@@ -1,31 +1,34 @@
-/* Hydrateless Modal for <dialog> */
-.hydrateless-modal {
-  border: none;
-  border-radius: var(--hl-radius-3, 0.5rem);
-  padding: 0;
-  max-width: min(90vw, 640px);
-  width: 100%;
-}
+@layer components {
+  .hydrateless-modal {
+    border: none;
+    border-radius: var(--hl-radius-3, 0.5rem);
+    padding: 0;
+    max-width: min(90vw, 640px);
+    width: 100%;
+    background: var(--hl-color-bg);
+    color: var(--hl-color-fg);
+  }
 
-.hydrateless-modal::backdrop {
-  background: color-mix(in oklab, var(--hl-color-fg) 40%, transparent);
-}
+  .hydrateless-modal::backdrop {
+    background: color-mix(in oklab, var(--hl-color-fg) 40%, transparent);
+  }
 
-.hydrateless-modal .hl-modal-header,
-.hydrateless-modal .hl-modal-body,
-.hydrateless-modal .hl-modal-footer {
-  padding: var(--hl-spacing-4, 1rem);
-}
+  .hydrateless-modal .hl-modal-header,
+  .hydrateless-modal .hl-modal-body,
+  .hydrateless-modal .hl-modal-footer {
+    padding: var(--hl-spacing-4, 1rem);
+  }
 
-.hydrateless-modal .hl-modal-header {
-  border-bottom: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
-}
+  .hydrateless-modal .hl-modal-header {
+    border-bottom: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+  }
 
-.hydrateless-modal .hl-modal-footer {
-  border-top: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
-}
+  .hydrateless-modal .hl-modal-footer {
+    border-top: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+  }
 
-.hydrateless-modal [data-hl-modal-close]:focus-visible {
-  outline: var(--hl-focus-ring, 2px solid #1f6feb);
-  outline-offset: 2px;
+  .hydrateless-modal [data-hl-modal-close]:focus-visible {
+    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    outline-offset: 2px;
+  }
 }

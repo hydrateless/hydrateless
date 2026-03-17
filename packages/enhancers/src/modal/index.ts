@@ -17,6 +17,16 @@ export function enhanceModal(
 
   const dialogToTrap = new Map<HTMLDialogElement, ReturnType<typeof createFocusTrap>>();
 
+  for (const dialog of dialogs) {
+    if (!dialog.getAttribute('aria-labelledby')) {
+      const header = dialog.querySelector('.hl-modal-header');
+      if (header) {
+        if (!header.id) header.id = `hl-modal-header-${Math.random().toString(36).slice(2)}`;
+        dialog.setAttribute('aria-labelledby', header.id);
+      }
+    }
+  }
+
   function openById(targetId: string): void {
     const dialog = container.querySelector<HTMLDialogElement>(`dialog#${CSS.escape(targetId)}`);
     if (!dialog) return;

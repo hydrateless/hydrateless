@@ -187,10 +187,94 @@ Toggle switch built on a native checkbox. CSS-only, no JS required.
 
 ```html
 <label data-hl-switch>
-  <input type="checkbox" />
+  <input type="checkbox" role="switch" />
   Enable notifications
 </label>
 ```
 
 **CSS**: `hydrateless/switch.css`
 **JS**: None needed.
+
+---
+
+### Breadcrumb
+
+Breadcrumb navigation using a semantic `<nav>` with an ordered list.
+CSS-only — no JS required.
+
+```html
+<nav data-hl-breadcrumb aria-label="Breadcrumb">
+  <ol>
+    <li><a href="/">Home</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><span aria-current="page">Components</span></li>
+  </ol>
+</nav>
+```
+
+**CSS**: `hydrateless/breadcrumb.css`
+**JS**: None needed.
+**Accessibility**: Use `aria-label="Breadcrumb"` on the `<nav>` and
+`aria-current="page"` on the current page item.
+
+---
+
+### Dropdown Menu
+
+Button-triggered menu with full keyboard navigation following the WAI-ARIA
+menu pattern.
+
+```html
+<div data-hl-dropdown>
+  <button data-hl-dropdown-trigger>Actions</button>
+  <ul data-hl-dropdown-menu>
+    <li><button role="menuitem">Edit</button></li>
+    <li><button role="menuitem">Duplicate</button></li>
+    <li role="separator"></li>
+    <li><button role="menuitem">Delete</button></li>
+  </ul>
+</div>
+```
+
+**CSS**: `hydrateless/dropdown.css`
+**JS**: `@hydrateless/enhancers/dropdown` — `enhanceDropdown(container)`
+**Keyboard**: ArrowDown/ArrowUp to navigate items, Enter/Space to activate,
+Escape to close, Home/End for first/last, typeahead by character.
+**ARIA**: Sets `aria-haspopup`, `aria-expanded` on trigger; `role="menu"` on
+the menu container.
+
+---
+
+### Toast / Notification
+
+Non-modal notifications that appear temporarily and auto-dismiss. Uses a live
+region for screen reader announcements.
+
+Place the region in your HTML:
+
+```html
+<div data-hl-toast-region></div>
+```
+
+Show toasts programmatically:
+
+```js
+import { enhanceToast } from '@hydrateless/enhancers/toast';
+
+const toast = enhanceToast(document);
+toast.show('Changes saved.');
+toast.show('Something went wrong.', { duration: 8000 });
+```
+
+Or use declarative trigger buttons:
+
+```html
+<button data-hl-toast-trigger="Item copied!">Copy</button>
+```
+
+**CSS**: `hydrateless/toast.css`
+**JS**: `@hydrateless/enhancers/toast` — `enhanceToast(container)` returns
+`{ show(message, options?), dismiss(toast) }`
+**Options**: `duration` (ms, default 5000; set to 0 to disable auto-dismiss).
+**Accessibility**: Region uses `role="status"` with `aria-live="polite"`.
+Close buttons include `aria-label="Dismiss"`.

@@ -38,7 +38,10 @@
     "./switch.css": "./dist/switch.css",
     "./tabs.css": "./dist/tabs.css",
     "./toc.css": "./dist/toc.css",
-    "./tooltip.css": "./dist/tooltip.css"
+    "./tooltip.css": "./dist/tooltip.css",
+    "./breadcrumb.css": "./dist/breadcrumb.css",
+    "./dropdown.css": "./dist/dropdown.css",
+    "./toast.css": "./dist/toast.css"
   },
   "publishConfig": {
     "access": "public"
