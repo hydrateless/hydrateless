@@ -1,0 +1,72 @@
+/**
+ * Alert — `<div class="hl-alert" role="alert" data-hl-intent="…">` with an
+ * optional icon, `.hl-alert-title`, and body content.
+ *   data-hl-intent: info (default) | success | warning | danger | neutral
+ */
+@layer components {
+  .hl-alert {
+    --_accent: var(--hl-info);
+    --_bg: var(--hl-info-subtle);
+    --_fg: var(--hl-info-subtle-fg);
+
+    display: flex;
+    gap: var(--hl-space-3);
+    padding: var(--hl-space-3) var(--hl-space-4);
+    border: var(--hl-border-width) solid transparent;
+    border-inline-start: 3px solid var(--_accent);
+    border-radius: var(--hl-radius-md);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-size: var(--hl-text-sm);
+    line-height: var(--hl-leading-normal);
+  }
+
+  .hl-alert[data-hl-intent='success'] {
+    --_accent: var(--hl-success);
+    --_bg: var(--hl-success-subtle);
+    --_fg: var(--hl-success-subtle-fg);
+  }
+
+  .hl-alert[data-hl-intent='warning'] {
+    --_accent: var(--hl-warning);
+    --_bg: var(--hl-warning-subtle);
+    --_fg: var(--hl-warning-subtle-fg);
+  }
+
+  .hl-alert[data-hl-intent='danger'] {
+    --_accent: var(--hl-danger);
+    --_bg: var(--hl-danger-subtle);
+    --_fg: var(--hl-danger-subtle-fg);
+  }
+
+  .hl-alert[data-hl-intent='neutral'] {
+    --_accent: var(--hl-border-strong);
+    --_bg: var(--hl-surface-2);
+    --_fg: var(--hl-fg);
+  }
+
+  .hl-alert > svg:first-child {
+    flex: none;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin-block-start: 0.1rem;
+    color: var(--_accent);
+  }
+
+  .hl-alert-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hl-space-1);
+    min-inline-size: 0;
+  }
+
+  .hl-alert-title {
+    margin: 0;
+    font-size: var(--hl-text-sm);
+    font-weight: var(--hl-font-semibold);
+  }
+
+  .hl-alert p {
+    margin: 0;
+  }
+}

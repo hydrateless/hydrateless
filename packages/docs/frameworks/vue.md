@@ -49,8 +49,9 @@ so there are no leaked listeners.
 
 ### Available directives
 
-`v-hl-accordion`, `v-hl-disclosure`, `v-hl-tabs`, `v-hl-dropdown`, `v-hl-modal`,
-`v-hl-drawer`, `v-hl-popover`, `v-hl-tooltip`, `v-hl-toc`.
+`v-hl-accordion`, `v-hl-disclosure`, `v-hl-tabs`, `v-hl-dropdown`, `v-hl-menu`,
+`v-hl-modal`, `v-hl-drawer`, `v-hl-popover`, `v-hl-tooltip`, `v-hl-combobox`,
+`v-hl-command`, `v-hl-toc`.
 
 ### Registering selectively
 

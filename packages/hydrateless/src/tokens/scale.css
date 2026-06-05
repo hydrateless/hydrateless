@@ -1,0 +1,100 @@
+/**
+ * Non-color design scales: spacing, radii, typography, elevation, z-index, and
+ * motion. These are theme-independent and rarely overridden per component.
+ */
+@layer tokens {
+  :root {
+    /* Spacing scale (rem) */
+    --hl-space-0: 0;
+    --hl-space-px: 1px;
+    --hl-space-0-5: 0.125rem;
+    --hl-space-1: 0.25rem;
+    --hl-space-1-5: 0.375rem;
+    --hl-space-2: 0.5rem;
+    --hl-space-3: 0.75rem;
+    --hl-space-4: 1rem;
+    --hl-space-5: 1.25rem;
+    --hl-space-6: 1.5rem;
+    --hl-space-8: 2rem;
+    --hl-space-10: 2.5rem;
+    --hl-space-12: 3rem;
+    --hl-space-16: 4rem;
+    --hl-space-20: 5rem;
+    --hl-space-24: 6rem;
+
+    /* Border radii */
+    --hl-radius-xs: 0.125rem;
+    --hl-radius-sm: 0.25rem;
+    --hl-radius-md: 0.375rem;
+    --hl-radius-lg: 0.5rem;
+    --hl-radius-xl: 0.75rem;
+    --hl-radius-2xl: 1rem;
+    --hl-radius-full: 9999px;
+
+    /* Border widths */
+    --hl-border-width: 1px;
+    --hl-border-width-2: 2px;
+
+    /* Typography */
+    --hl-font-sans:
+      ui-sans-serif, system-ui, -apple-system, 'Segoe UI', roboto, helvetica, arial, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji';
+    --hl-font-mono:
+      ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono', monospace;
+    --hl-text-xs: 0.75rem;
+    --hl-text-sm: 0.875rem;
+    --hl-text-base: 1rem;
+    --hl-text-lg: 1.125rem;
+    --hl-text-xl: 1.25rem;
+    --hl-text-2xl: 1.5rem;
+    --hl-text-3xl: 1.875rem;
+    --hl-text-4xl: 2.25rem;
+    --hl-leading-tight: 1.25;
+    --hl-leading-normal: 1.5;
+    --hl-leading-relaxed: 1.75;
+    --hl-font-normal: 400;
+    --hl-font-medium: 500;
+    --hl-font-semibold: 600;
+    --hl-font-bold: 700;
+
+    /* Elevation (shadows) — tuned for light surfaces */
+    --hl-shadow-xs: 0 1px 2px 0 hsl(222deg 47% 11% / 0.05);
+    --hl-shadow-sm: 0 1px 3px 0 hsl(222deg 47% 11% / 0.1), 0 1px 2px -1px hsl(222deg 47% 11% / 0.1);
+    --hl-shadow-md:
+      0 4px 6px -1px hsl(222deg 47% 11% / 0.1), 0 2px 4px -2px hsl(222deg 47% 11% / 0.1);
+    --hl-shadow-lg:
+      0 10px 15px -3px hsl(222deg 47% 11% / 0.1), 0 4px 6px -4px hsl(222deg 47% 11% / 0.1);
+    --hl-shadow-xl:
+      0 20px 25px -5px hsl(222deg 47% 11% / 0.1), 0 8px 10px -6px hsl(222deg 47% 11% / 0.1);
+
+    /* Control sizing */
+    --hl-control-height-sm: 2rem;
+    --hl-control-height-md: 2.5rem;
+    --hl-control-height-lg: 3rem;
+
+    /* Z-index scale */
+    --hl-z-base: 0;
+    --hl-z-dropdown: 1000;
+    --hl-z-sticky: 1100;
+    --hl-z-drawer: 1200;
+    --hl-z-modal: 1300;
+    --hl-z-popover: 1400;
+    --hl-z-toast: 1500;
+    --hl-z-tooltip: 1600;
+
+    /* Motion */
+    --hl-duration-fast: 120ms;
+    --hl-duration-base: 180ms;
+    --hl-duration-slow: 280ms;
+    --hl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --hl-ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --hl-duration-fast: 0ms;
+      --hl-duration-base: 0ms;
+      --hl-duration-slow: 0ms;
+    }
+  }
+}

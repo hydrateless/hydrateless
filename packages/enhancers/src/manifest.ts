@@ -1,0 +1,32 @@
+/**
+ * The single source of truth for which components ship a JS enhancer and the
+ * selector that signals their presence in the DOM. The auto-loader (and its
+ * self-contained CDN variant) are generated from this list, so adding an
+ * enhancer here is all it takes to make it auto-initialize.
+ */
+export interface ManifestEntry {
+  /** Component name; matches the enhancer subpath export. */
+  name: string;
+  /** Selector the auto-loader uses to detect the component. */
+  selector: string;
+  /** Whether the enhancer returns a `{ destroy }` API instead of a disposer. */
+  api?: boolean;
+}
+
+export const MANIFEST = [
+  { name: 'accordion', selector: '[data-hl-accordion]' },
+  { name: 'tabs', selector: '[data-hl-tabs]' },
+  { name: 'disclosure', selector: 'details[data-hl-disclosure]' },
+  { name: 'modal', selector: 'dialog[data-hl-modal], [data-hl-modal-open]' },
+  { name: 'drawer', selector: 'dialog[data-hl-drawer], [data-hl-drawer-open]' },
+  { name: 'popover', selector: '[popover], [data-hl-popover], [data-hl-popover-open]' },
+  { name: 'tooltip', selector: '[data-hl-tooltip]' },
+  { name: 'dropdown', selector: '[data-hl-dropdown]' },
+  { name: 'menu', selector: '[data-hl-menu]' },
+  { name: 'combobox', selector: '[data-hl-combobox]' },
+  { name: 'command', selector: '[data-hl-command]' },
+  { name: 'toc', selector: '[data-hl-toc]' },
+  { name: 'toast', selector: '[data-hl-toast-region], [data-hl-toast-trigger]', api: true },
+] as const satisfies readonly ManifestEntry[];
+
+export type ComponentName = (typeof MANIFEST)[number]['name'];

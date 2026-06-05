@@ -1,0 +1,77 @@
+/**
+ * Slider — native `<input type="range" class="hl-slider">`. Restyled track and
+ * thumb across WebKit/Blink and Firefox while keeping native keyboard support.
+ */
+@layer components {
+  .hl-slider {
+    --_track: 0.375rem;
+    --_thumb: 1.15rem;
+
+    appearance: none;
+    inline-size: 100%;
+    block-size: var(--_thumb);
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .hl-slider::-webkit-slider-runnable-track {
+    block-size: var(--_track);
+    border-radius: var(--hl-radius-full);
+    background: var(--hl-surface-3);
+  }
+
+  .hl-slider::-moz-range-track {
+    block-size: var(--_track);
+    border-radius: var(--hl-radius-full);
+    background: var(--hl-surface-3);
+  }
+
+  .hl-slider::-moz-range-progress {
+    block-size: var(--_track);
+    border-radius: var(--hl-radius-full);
+    background: var(--hl-primary);
+  }
+
+  .hl-slider::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: var(--_thumb);
+    block-size: var(--_thumb);
+    margin-block-start: calc((var(--_track) - var(--_thumb)) / 2);
+    border: 2px solid var(--hl-surface);
+    border-radius: var(--hl-radius-full);
+    background: var(--hl-primary);
+    box-shadow: var(--hl-shadow-sm);
+    transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
+  }
+
+  .hl-slider::-moz-range-thumb {
+    inline-size: var(--_thumb);
+    block-size: var(--_thumb);
+    border: 2px solid var(--hl-surface);
+    border-radius: var(--hl-radius-full);
+    background: var(--hl-primary);
+    box-shadow: var(--hl-shadow-sm);
+  }
+
+  .hl-slider:active::-webkit-slider-thumb {
+    transform: scale(1.1);
+  }
+
+  .hl-slider:focus-visible {
+    outline: none;
+  }
+
+  .hl-slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--hl-ring) 35%, transparent);
+  }
+
+  .hl-slider:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--hl-ring) 35%, transparent);
+  }
+
+  .hl-slider:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

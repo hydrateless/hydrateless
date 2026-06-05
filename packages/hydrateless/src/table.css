@@ -1,0 +1,61 @@
+/**
+ * Table — `<table class="hl-table">`. Semantic table styling with optional
+ * zebra striping and hover.
+ *   data-hl-striped: zebra rows
+ *   data-hl-hover:   highlight row on hover
+ */
+@layer components {
+  .hl-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--hl-text-sm);
+    color: var(--hl-fg);
+  }
+
+  .hl-table caption {
+    padding-block: var(--hl-space-2);
+    color: var(--hl-fg-muted);
+    text-align: start;
+    caption-side: bottom;
+  }
+
+  .hl-table th,
+  .hl-table td {
+    padding: var(--hl-space-2) var(--hl-space-3);
+    text-align: start;
+    vertical-align: middle;
+    border-block-end: var(--hl-border-width) solid var(--hl-border);
+  }
+
+  .hl-table thead th {
+    font-size: var(--hl-text-xs);
+    font-weight: var(--hl-font-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--hl-fg-muted);
+    border-block-end-color: var(--hl-border-strong);
+  }
+
+  .hl-table tfoot td {
+    font-weight: var(--hl-font-medium);
+    color: var(--hl-fg-muted);
+  }
+
+  .hl-table[data-hl-striped] tbody tr:nth-child(even) {
+    background: var(--hl-surface-2);
+  }
+
+  .hl-table[data-hl-hover] tbody tr:hover {
+    background: color-mix(in oklab, var(--hl-primary) 8%, transparent);
+  }
+
+  .hl-table td[data-hl-align='end'],
+  .hl-table th[data-hl-align='end'] {
+    text-align: end;
+  }
+
+  .hl-table td[data-hl-align='center'],
+  .hl-table th[data-hl-align='center'] {
+    text-align: center;
+  }
+}

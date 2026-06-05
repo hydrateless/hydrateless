@@ -1,101 +1,98 @@
-import { combine, on, selectRoots, type Disposer } from '../utils/lifecycle.js';
+import {
+  defineEnhancer,
+  ensureId,
+  setAttrs,
+  nextIndex,
+  type MoveDirection,
+} from '../core/index.js';
 
-type TabsElements = {
-  root: HTMLElement;
+export type EnhanceTabsOptions = {
+  /**
+   * `manual` (default): arrows move focus, Enter/Space activates. `automatic`:
+   * arrows activate the focused tab immediately.
+   */
+  activation?: 'manual' | 'automatic';
+  orientation?: 'horizontal' | 'vertical';
+};
+
+type TabsModel = {
   tablist: HTMLElement;
   tabs: HTMLElement[];
   panels: HTMLElement[];
 };
 
-const enhanced = new WeakSet<Element>();
-
-function initGroup(root: HTMLElement): TabsElements | null {
-  const tablist = root.querySelector<HTMLElement>('[role="tablist"]');
-  if (!tablist) return null;
-  const tabs = Array.from(tablist.querySelectorAll<HTMLElement>('[role="tab"]'));
-  const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-  if (tabs.length === 0 || panels.length === 0) return null;
-  tabs.forEach((tab, i) => {
-    if (!tab.id) tab.id = `hl-tab-${Math.random().toString(36).slice(2)}`;
-    const panel = panels[i];
-    if (panel && !panel.id) panel.id = `hl-panel-${Math.random().toString(36).slice(2)}`;
-    if (panel) tab.setAttribute('aria-controls', panel.id);
-    tab.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-    tab.tabIndex = i === 0 ? 0 : -1;
+function select(model: TabsModel, index: number, focus = true): void {
+  model.tabs.forEach((tab, i) => {
+    const selected = i === index;
+    setAttrs(tab, { 'aria-selected': selected ? 'true' : 'false' });
+    tab.tabIndex = selected ? 0 : -1;
   });
-  panels.forEach((panel, i) => {
-    panel.setAttribute('aria-labelledby', tabs[i]?.id || '');
-    if (i !== 0) panel.hidden = true;
+  model.panels.forEach((panel, i) => {
+    panel.hidden = i !== index;
   });
-  return { root, tablist, tabs, panels };
+  if (focus) model.tabs[index]?.focus();
 }
 
-function selectTab(group: TabsElements, index: number): void {
-  group.tabs.forEach((t, i) => {
-    const isSelected = i === index;
-    t.setAttribute('aria-selected', isSelected ? 'true' : 'false');
-    t.tabIndex = isSelected ? 0 : -1;
-  });
-  group.panels.forEach((p, i) => {
-    p.hidden = i !== index;
-  });
-  group.tabs[index]?.focus();
-}
+export const enhanceTabs = defineEnhancer<EnhanceTabsOptions>({
+  name: 'tabs',
+  selector: '[data-hl-tabs]',
+  defaults: { activation: 'manual', orientation: 'horizontal' },
+  setup({ root, options, on }) {
+    const tablist = root.querySelector<HTMLElement>('[role="tablist"]');
+    if (!tablist) return;
+    const tabs = Array.from(tablist.querySelectorAll<HTMLElement>('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    if (tabs.length === 0 || panels.length === 0) return;
 
-export function enhanceTabs(container: Document | HTMLElement = document): Disposer {
-  const roots = selectRoots(container, '[data-hl-tabs]');
-  const disposers: Disposer[] = [];
+    const model: TabsModel = { tablist, tabs, panels };
+    const vertical = options.orientation === 'vertical';
+    setAttrs(tablist, { 'aria-orientation': options.orientation ?? 'horizontal' });
 
-  for (const root of roots) {
-    if (enhanced.has(root)) continue;
-    const group = initGroup(root);
-    if (!group) continue;
-
-    enhanced.add(root);
-    disposers.push(() => enhanced.delete(root));
-
-    disposers.push(
-      on(group.tablist, 'click', (e) => {
-        const btn = (e.target as HTMLElement).closest('[role="tab"]') as HTMLElement | null;
-        if (!btn) return;
-        const index = group.tabs.indexOf(btn);
-        if (index !== -1) selectTab(group, index);
-      }),
-    );
-
-    disposers.push(
-      on(group.tablist, 'keydown', (e) => {
-        const ev = e as KeyboardEvent;
-        const current = document.activeElement as HTMLElement | null;
-        const idx = current ? group.tabs.indexOf(current) : -1;
-        if (idx === -1) return;
-        let next = idx;
-        if (ev.key === 'ArrowRight') next = (idx + 1) % group.tabs.length;
-        else if (ev.key === 'ArrowLeft') next = (idx - 1 + group.tabs.length) % group.tabs.length;
-        else if (ev.key === 'Home') next = 0;
-        else if (ev.key === 'End') next = group.tabs.length - 1;
-        else if (ev.key === 'Enter' || ev.key === ' ') {
-          selectTab(group, idx);
-          ev.preventDefault();
-          return;
-        } else return;
-        group.tabs[next]?.focus();
-        ev.preventDefault();
-      }),
-    );
-
-    group.tabs.forEach((tab, i) => {
-      disposers.push(
-        on(tab, 'keydown', (e) => {
-          const ev = e as KeyboardEvent;
-          if (ev.key === 'Enter' || ev.key === ' ') {
-            selectTab(group, i);
-            ev.preventDefault();
-          }
-        }),
-      );
+    tabs.forEach((tab, i) => {
+      const tabId = ensureId(tab, 'hl-tab');
+      const panel = panels[i];
+      if (panel) {
+        const panelId = ensureId(panel, 'hl-panel');
+        setAttrs(tab, { 'aria-controls': panelId });
+        setAttrs(panel, { role: 'tabpanel', tabindex: 0, 'aria-labelledby': tabId });
+        panel.hidden = i !== 0;
+      }
+      setAttrs(tab, { 'aria-selected': i === 0 ? 'true' : 'false' });
+      tab.tabIndex = i === 0 ? 0 : -1;
     });
-  }
 
-  return combine(disposers);
-}
+    on(tablist, 'click', (e) => {
+      const tab = (e.target as HTMLElement).closest('[role="tab"]') as HTMLElement | null;
+      if (!tab) return;
+      const index = tabs.indexOf(tab);
+      if (index !== -1) select(model, index);
+    });
+
+    on<KeyboardEvent>(tablist, 'keydown', (e) => {
+      const active = (root.ownerDocument.activeElement as HTMLElement) ?? null;
+      const current = active ? tabs.indexOf(active) : -1;
+      if (current === -1) return;
+
+      const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft';
+      const nextKey = vertical ? 'ArrowDown' : 'ArrowRight';
+      let direction: MoveDirection | null = null;
+      if (e.key === nextKey) direction = 'next';
+      else if (e.key === prevKey) direction = 'prev';
+      else if (e.key === 'Home') direction = 'first';
+      else if (e.key === 'End') direction = 'last';
+
+      if (direction) {
+        e.preventDefault();
+        const target = nextIndex(current, tabs.length, direction);
+        if (options.activation === 'automatic') select(model, target);
+        else tabs[target]?.focus();
+        return;
+      }
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        select(model, current);
+      }
+    });
+  },
+});

@@ -1,90 +1,81 @@
-import { combine, on, type Disposer } from '../utils/lifecycle.js';
+import {
+  defineEnhancer,
+  resolveRef,
+  onClickOutside,
+  onEscape,
+  placeFloating,
+  type Placement,
+} from '../core/index.js';
 
-type PopoverOptions = {
+export type EnhancePopoverOptions = {
   triggerEvent?: 'click' | 'hover';
+  placement?: Placement;
+  /** Position with collision-aware JS in the non-native fallback. */
+  position?: boolean;
 };
 
-const enhanced = new WeakSet<Element>();
+/**
+ * Drive a popover from `[data-hl-popover-open]`/`[data-hl-popover-close]`
+ * triggers. Prefers the native Popover API (`showPopover`/`hidePopover`,
+ * including light-dismiss) and falls back to toggling `hidden` with JS
+ * positioning, outside-click, and Escape dismissal.
+ */
+export const enhancePopover = defineEnhancer<EnhancePopoverOptions>({
+  name: 'popover',
+  selector: '[data-hl-popover], [popover]',
+  defaults: { triggerEvent: 'click', placement: 'bottom', position: true },
+  setup({ root, options, on, add }) {
+    const popover = root;
+    const doc = popover.ownerDocument;
+    const isNative = () => popover.popover != null;
 
-export function enhancePopover(
-  container: Document | HTMLElement = document,
-  options: PopoverOptions = {},
-): Disposer {
-  const { triggerEvent = 'click' } = options;
-  const popovers = Array.from(
-    container.querySelectorAll<HTMLElement>('[popover], [data-hl-popover]'),
-  );
-  const openers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-popover-open]'));
-  const closers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-popover-close]'));
-  const disposers: Disposer[] = [];
+    const matching = (attr: string) =>
+      Array.from(doc.querySelectorAll<HTMLElement>(`[${attr}]`)).filter(
+        (el) => resolveRef(doc, el.getAttribute(attr)) === popover,
+      );
+    const openers = matching('data-hl-popover-open');
+    const closers = matching('data-hl-popover-close');
+    let anchor: HTMLElement = openers[0] ?? popover;
 
-  function show(el: HTMLElement): void {
-    if (el.popover != null) el.showPopover();
-    else el.hidden = false;
-  }
-  function hide(el: HTMLElement): void {
-    if (el.popover != null) el.hidePopover();
-    else el.hidden = true;
-  }
+    const show = (from?: HTMLElement) => {
+      if (from) anchor = from;
+      if (isNative()) {
+        popover.showPopover();
+      } else {
+        popover.hidden = false;
+        if (options.position) placeFloating(anchor, popover, { placement: options.placement });
+      }
+    };
+    const hide = () => {
+      if (isNative()) popover.hidePopover();
+      else popover.hidden = true;
+    };
 
-  function byId(id: string): HTMLElement | null {
-    return container.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-  }
-
-  for (const opener of openers) {
-    if (enhanced.has(opener)) continue;
-    const ref = opener.getAttribute('data-hl-popover-open');
-    if (!ref) continue;
-    const id = ref.startsWith('#') ? ref.slice(1) : ref;
-    const target = byId(id);
-    if (!target) continue;
-
-    enhanced.add(opener);
-    disposers.push(() => enhanced.delete(opener));
-
-    if (triggerEvent === 'click') {
-      disposers.push(
+    for (const opener of openers) {
+      if (options.triggerEvent === 'hover') {
+        on(opener, 'mouseenter', () => show(opener));
+        on(opener, 'mouseleave', hide);
+        on(opener, 'focus', () => show(opener));
+        on(opener, 'blur', hide);
+      } else {
         on(opener, 'click', (e) => {
           e.preventDefault();
-          show(target);
-        }),
-      );
-    } else {
-      disposers.push(on(opener, 'mouseenter', () => show(target)));
-      disposers.push(on(opener, 'mouseleave', () => hide(target)));
-      disposers.push(on(opener, 'focus', () => show(target)));
-      disposers.push(on(opener, 'blur', () => hide(target)));
+          show(opener);
+        });
+      }
     }
-  }
 
-  for (const closer of closers) {
-    if (enhanced.has(closer)) continue;
-    const ref = closer.getAttribute('data-hl-popover-close');
-    if (!ref) continue;
-    const id = ref.startsWith('#') ? ref.slice(1) : ref;
-    const target = byId(id);
-    if (!target) continue;
-    enhanced.add(closer);
-    disposers.push(() => enhanced.delete(closer));
-    disposers.push(
+    for (const closer of closers) {
       on(closer, 'click', (e) => {
         e.preventDefault();
-        hide(target);
-      }),
-    );
-  }
+        hide();
+      });
+    }
 
-  disposers.push(
-    on(document, 'click', (e) => {
-      const t = e.target as Node;
-      if (openers.some((o) => o === t || o.contains(t))) return;
-      if (closers.some((c) => c === t || c.contains(t))) return;
-      for (const p of popovers) {
-        if (p.hasAttribute('popover')) continue;
-        if (!p.hidden && !p.contains(t)) hide(p);
-      }
-    }),
-  );
-
-  return combine(disposers);
-}
+    // The native Popover API provides its own light-dismiss + Escape handling.
+    if (!isNative() && options.triggerEvent === 'click') {
+      add(onClickOutside(popover, () => !popover.hidden && hide(), { ignore: openers }));
+      add(onEscape(() => !popover.hidden && hide(), doc));
+    }
+  },
+});

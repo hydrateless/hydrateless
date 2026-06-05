@@ -1,0 +1,81 @@
+/**
+ * Native select — `<span class="hl-select-wrapper"><select class="hl-select">`.
+ * The wrapper draws a custom caret while the native control keeps full
+ * keyboard/mobile behavior.
+ *   data-hl-size:    sm | md (default) | lg
+ *   data-hl-invalid: error styling (pair with aria-invalid)
+ */
+@layer components {
+  .hl-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    inline-size: 100%;
+  }
+
+  .hl-select-wrapper::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: var(--hl-space-3);
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-inline-end: 2px solid var(--hl-fg-muted);
+    border-block-end: 2px solid var(--hl-fg-muted);
+    transform: translateY(-65%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  .hl-select {
+    --_height: var(--hl-control-height-md);
+    --_font: var(--hl-text-sm);
+
+    appearance: none;
+    inline-size: 100%;
+    block-size: var(--_height);
+    padding-inline: var(--hl-space-3) var(--hl-space-8);
+    border: var(--hl-border-width) solid var(--hl-border-strong);
+    border-radius: var(--hl-radius-md);
+    background: var(--hl-surface);
+    color: var(--hl-fg);
+    font-family: inherit;
+    font-size: var(--_font);
+    line-height: var(--hl-leading-normal);
+    cursor: pointer;
+    transition:
+      border-color var(--hl-duration-fast) var(--hl-ease-standard),
+      box-shadow var(--hl-duration-fast) var(--hl-ease-standard);
+  }
+
+  .hl-select:hover:not(:disabled, :focus) {
+    border-color: var(--hl-fg-subtle);
+  }
+
+  .hl-select:focus-visible {
+    outline: none;
+    border-color: var(--hl-ring);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent);
+  }
+
+  .hl-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: var(--hl-surface-2);
+  }
+
+  .hl-select[data-hl-invalid],
+  .hl-select[aria-invalid='true'] {
+    border-color: var(--hl-danger);
+  }
+
+  .hl-select[data-hl-size='sm'] {
+    --_height: var(--hl-control-height-sm);
+    --_font: var(--hl-text-xs);
+
+    border-radius: var(--hl-radius-sm);
+  }
+
+  .hl-select[data-hl-size='lg'] {
+    --_height: var(--hl-control-height-lg);
+    --_font: var(--hl-text-base);
+  }
+}

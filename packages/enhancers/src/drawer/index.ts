@@ -1,73 +1,81 @@
-import { combine, on, type Disposer } from '../utils/lifecycle.js';
+import {
+  defineEnhancer,
+  createFocusTrap,
+  lockScroll,
+  setBackgroundInert,
+  resolveRef,
+  noop,
+  type FocusTrap,
+  type Disposer,
+} from '../core/index.js';
 
-type DrawerOptions = {
+export type EnhanceDrawerOptions = {
+  /** Dismiss the drawer when its backdrop is clicked. Defaults to `true`. */
   closeOnBackdrop?: boolean;
 };
 
-const enhanced = new WeakSet<Element>();
+/**
+ * A drawer is a native `<dialog data-hl-drawer>` that slides in from a screen
+ * edge (the side is chosen in CSS). Shares the modal's focus trap, scroll-lock,
+ * and background `inert` behavior; only the presentation differs.
+ */
+export const enhanceDrawer = defineEnhancer<EnhanceDrawerOptions>({
+  name: 'drawer',
+  selector: 'dialog[data-hl-drawer]',
+  defaults: { closeOnBackdrop: true },
+  setup({ root, options, on, add }) {
+    const dialog = root as HTMLDialogElement;
+    const doc = dialog.ownerDocument;
 
-export function enhanceDrawer(
-  container: Document | HTMLElement = document,
-  options: DrawerOptions = {},
-): Disposer {
-  const { closeOnBackdrop = true } = options;
-  const drawers = Array.from(
-    container.querySelectorAll<HTMLDialogElement>('dialog.hydrateless-drawer[data-hl-drawer]'),
-  );
-  const openers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-drawer-open]'));
-  const closers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-drawer-close]'));
-  const disposers: Disposer[] = [];
+    let trap: FocusTrap | null = null;
+    let releaseScroll: Disposer = noop;
+    let releaseInert: Disposer = noop;
 
-  function openById(id: string): void {
-    const dlg = container.querySelector<HTMLDialogElement>(`dialog#${CSS.escape(id)}`);
-    if (!dlg) return;
-    if (!dlg.open) dlg.showModal();
-  }
-  function closeDlg(dlg: HTMLDialogElement): void {
-    if (dlg.open) dlg.close();
-  }
+    const teardown = () => {
+      trap?.deactivate();
+      releaseScroll();
+      releaseScroll = noop;
+      releaseInert();
+      releaseInert = noop;
+    };
 
-  for (const opener of openers) {
-    if (enhanced.has(opener)) continue;
-    const ref = opener.getAttribute('data-hl-drawer-open');
-    if (!ref) continue;
-    enhanced.add(opener);
-    disposers.push(() => enhanced.delete(opener));
-    disposers.push(
+    const open = () => {
+      if (!dialog.open) dialog.showModal();
+      trap ??= createFocusTrap(dialog);
+      trap.activate();
+      releaseScroll = lockScroll(doc);
+      releaseInert = setBackgroundInert(dialog);
+    };
+
+    const close = () => {
+      teardown();
+      if (dialog.open) dialog.close();
+    };
+
+    const openers = Array.from(doc.querySelectorAll<HTMLElement>('[data-hl-drawer-open]')).filter(
+      (opener) => resolveRef(doc, opener.getAttribute('data-hl-drawer-open')) === dialog,
+    );
+    for (const opener of openers) {
       on(opener, 'click', (e) => {
         e.preventDefault();
-        const id = ref.startsWith('#') ? ref.slice(1) : ref;
-        openById(id);
-      }),
-    );
-  }
+        open();
+      });
+    }
 
-  for (const closer of closers) {
-    if (enhanced.has(closer)) continue;
-    enhanced.add(closer);
-    disposers.push(() => enhanced.delete(closer));
-    disposers.push(
+    for (const closer of dialog.querySelectorAll<HTMLElement>('[data-hl-drawer-close]')) {
       on(closer, 'click', (e) => {
         e.preventDefault();
-        const dlg = (closer.closest('dialog.hydrateless-drawer') ??
-          container.querySelector('dialog.hydrateless-drawer[open]')) as HTMLDialogElement | null;
-        if (dlg) closeDlg(dlg);
-      }),
-    );
-  }
-
-  if (closeOnBackdrop) {
-    for (const dlg of drawers) {
-      if (enhanced.has(dlg)) continue;
-      enhanced.add(dlg);
-      disposers.push(() => enhanced.delete(dlg));
-      disposers.push(
-        on(dlg, 'click', (e) => {
-          if (e.target === dlg) closeDlg(dlg);
-        }),
-      );
+        close();
+      });
     }
-  }
 
-  return combine(disposers);
-}
+    if (options.closeOnBackdrop) {
+      on(dialog, 'click', (e) => {
+        if (e.target === dialog) close();
+      });
+    }
+
+    on(dialog, 'close', teardown);
+    add(teardown);
+  },
+});

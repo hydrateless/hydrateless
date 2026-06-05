@@ -1,0 +1,22 @@
+/**
+ * Keyboard key — `<kbd class="hl-kbd">⌘</kbd>`. Combine inline, e.g.
+ * `<kbd class="hl-kbd">⌘</kbd><kbd class="hl-kbd">K</kbd>`.
+ */
+@layer components {
+  .hl-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 1.5rem;
+    padding: 0.125rem 0.4rem;
+    border: var(--hl-border-width) solid var(--hl-border-strong);
+    border-block-end-width: var(--hl-border-width-2);
+    border-radius: var(--hl-radius-sm);
+    background: var(--hl-surface-2);
+    color: var(--hl-fg);
+    font-family: var(--hl-font-mono);
+    font-size: 0.8125em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+}

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { defineComponent, h, withDirectives } from 'vue';
 import { mount } from '@vue/test-utils';
-import { vHlTabs, vHlDropdown } from './directives.js';
+import { vHlTabs, vHlDropdown, vHlCombobox, vHlMenu } from './directives.js';
 import { useToast } from './useToast.js';
 
 describe('@hydrateless/vue', () => {
@@ -49,6 +49,47 @@ describe('@hydrateless/vue', () => {
     expect(trigger.attributes('aria-expanded')).toBe('false');
     await trigger.trigger('click');
     expect(trigger.attributes('aria-expanded')).toBe('true');
+    wrapper.unmount();
+  });
+
+  it('v-hl-combobox wires combobox ARIA', () => {
+    const Comp = defineComponent({
+      render() {
+        return withDirectives(
+          h('div', { 'data-hl-combobox': '' }, [
+            h('input'),
+            h('ul', { role: 'listbox' }, [
+              h('li', { role: 'option', 'data-hl-value': 'a' }, 'Alpha'),
+            ]),
+          ]),
+          [[vHlCombobox]],
+        );
+      },
+    });
+
+    const wrapper = mount(Comp, { attachTo: document.body });
+    expect(wrapper.get('input').attributes('role')).toBe('combobox');
+    expect(wrapper.get('input').attributes('aria-expanded')).toBe('false');
+    wrapper.unmount();
+  });
+
+  it('v-hl-menu sets roving tabindex', () => {
+    const Comp = defineComponent({
+      render() {
+        return withDirectives(
+          h('ul', { 'data-hl-menu': '', role: 'menubar' }, [
+            h('li', [h('button', { role: 'menuitem' }, 'File')]),
+            h('li', [h('button', { role: 'menuitem' }, 'Edit')]),
+          ]),
+          [[vHlMenu]],
+        );
+      },
+    });
+
+    const wrapper = mount(Comp, { attachTo: document.body });
+    const items = wrapper.findAll('[role="menuitem"]');
+    expect(items[0].attributes('tabindex')).toBe('0');
+    expect(items[1].attributes('tabindex')).toBe('-1');
     wrapper.unmount();
   });
 

@@ -12,7 +12,15 @@
   }
 
   body {
-    background-color: var(--hl-color-bg);
-    color: var(--hl-color-fg);
+    background-color: var(--hl-bg);
+    color: var(--hl-fg);
+    font-family: var(--hl-font-sans);
+    font-size: var(--hl-text-base);
+    line-height: var(--hl-leading-normal);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--hl-primary) 30%, transparent);
   }
 }

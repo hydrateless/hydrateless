@@ -1,13 +1,45 @@
-@import './disclosure.css';
-@import './tabs.css';
-@import './accordion.css';
-@import './modal.css';
-@import './toc.css';
-@import './drawer.css';
-@import './popover.css';
-@import './tooltip.css';
-@import './skip-link.css';
-@import './switch.css';
-@import './breadcrumb.css';
-@import './dropdown.css';
-@import './toast.css';
+/* Disclosure & layout */
+@import url('./disclosure.css');
+@import url('./tabs.css');
+@import url('./accordion.css');
+@import url('./toc.css');
+@import url('./breadcrumb.css');
+@import url('./pagination.css');
+@import url('./separator.css');
+
+/* Overlays */
+@import url('./modal.css');
+@import url('./drawer.css');
+@import url('./popover.css');
+@import url('./tooltip.css');
+@import url('./dropdown.css');
+@import url('./menu.css');
+@import url('./toast.css');
+@import url('./command.css');
+
+/* Forms */
+@import url('./button.css');
+@import url('./input.css');
+@import url('./textarea.css');
+@import url('./select.css');
+@import url('./checkbox.css');
+@import url('./radio.css');
+@import url('./switch.css');
+@import url('./field.css');
+@import url('./combobox.css');
+@import url('./segmented.css');
+@import url('./slider.css');
+
+/* Feedback & data display */
+@import url('./alert.css');
+@import url('./badge.css');
+@import url('./card.css');
+@import url('./avatar.css');
+@import url('./progress.css');
+@import url('./spinner.css');
+@import url('./skeleton.css');
+@import url('./kbd.css');
+@import url('./table.css');
+
+/* Navigation utilities */
+@import url('./skip-link.css');

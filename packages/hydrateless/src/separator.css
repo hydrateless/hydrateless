@@ -1,0 +1,25 @@
+/**
+ * Separator — `<hr class="hl-separator">` or
+ * `<div class="hl-separator" role="separator" aria-orientation="vertical">`.
+ */
+@layer components {
+  .hl-separator {
+    flex: none;
+    border: 0;
+    background: var(--hl-border);
+  }
+
+  .hl-separator:not([aria-orientation='vertical'], [data-hl-orientation='vertical']) {
+    inline-size: 100%;
+    block-size: var(--hl-border-width);
+    margin-block: var(--hl-space-4);
+  }
+
+  .hl-separator[aria-orientation='vertical'],
+  .hl-separator[data-hl-orientation='vertical'] {
+    align-self: stretch;
+    inline-size: var(--hl-border-width);
+    min-block-size: 1rem;
+    margin-inline: var(--hl-space-4);
+  }
+}

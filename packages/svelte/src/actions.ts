@@ -1,9 +1,12 @@
 import type { Action } from 'svelte/action';
 import {
   enhanceAccordion,
+  enhanceCombobox,
+  enhanceCommand,
   enhanceDisclosure,
   enhanceDropdown,
   enhanceDrawer,
+  enhanceMenu,
   enhanceModal,
   enhancePopover,
   enhanceTabs,
@@ -49,3 +52,12 @@ export const tooltip = actionFor((node) => enhanceTooltip(node));
 
 /** `use:toc` — builds a table of contents from the surrounding document. */
 export const toc = actionFor((node) => enhanceToc(node.ownerDocument));
+
+/** `use:menu` — menubar/navigation pattern on a `[data-hl-menu]` element. */
+export const menu = actionFor((node) => enhanceMenu(node));
+
+/** `use:combobox` — editable combobox on a `[data-hl-combobox]` element. */
+export const combobox = actionFor((node) => enhanceCombobox(node));
+
+/** `use:command` — command palette on a `[data-hl-command]` element. */
+export const command = actionFor((node) => enhanceCommand(node));

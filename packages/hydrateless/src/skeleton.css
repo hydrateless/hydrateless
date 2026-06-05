@@ -1,0 +1,49 @@
+/**
+ * Skeleton — `<span class="hl-skeleton" data-hl-variant="…" aria-hidden="true">`
+ * placeholder shown while content loads.
+ *   data-hl-variant: rect (default) | text | circle
+ */
+@layer components {
+  .hl-skeleton {
+    display: block;
+    inline-size: 100%;
+    block-size: 1rem;
+    border-radius: var(--hl-radius-md);
+    background: linear-gradient(
+      90deg,
+      var(--hl-surface-3) 25%,
+      var(--hl-surface-2) 37%,
+      var(--hl-surface-3) 63%
+    );
+    background-size: 400% 100%;
+    animation: hl-skeleton-shimmer 1.4s var(--hl-ease-standard) infinite;
+  }
+
+  .hl-skeleton[data-hl-variant='text'] {
+    block-size: 0.7em;
+    border-radius: var(--hl-radius-sm);
+  }
+
+  .hl-skeleton[data-hl-variant='circle'] {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--hl-radius-full);
+  }
+
+  @keyframes hl-skeleton-shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+
+    100% {
+      background-position: 0 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hl-skeleton {
+      animation: none;
+      background: var(--hl-surface-3);
+    }
+  }
+}

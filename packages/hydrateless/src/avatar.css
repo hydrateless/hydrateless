@@ -1,0 +1,66 @@
+/**
+ * Avatar — `<span class="hl-avatar">` containing an `<img>` or fallback
+ * initials/icon. Stack with `<div class="hl-avatar-group">`.
+ *   data-hl-size:  xs | sm | md (default) | lg | xl
+ *   data-hl-shape: square
+ */
+@layer components {
+  .hl-avatar {
+    --_size: 2.5rem;
+
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    border-radius: var(--hl-radius-full);
+    overflow: hidden;
+    background: var(--hl-surface-3);
+    color: var(--hl-fg-muted);
+    font-size: calc(var(--_size) * 0.4);
+    font-weight: var(--hl-font-medium);
+    line-height: 1;
+    text-transform: uppercase;
+    user-select: none;
+  }
+
+  .hl-avatar[data-hl-shape='square'] {
+    border-radius: var(--hl-radius-lg);
+  }
+
+  .hl-avatar > img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .hl-avatar[data-hl-size='xs'] {
+    --_size: 1.5rem;
+  }
+
+  .hl-avatar[data-hl-size='sm'] {
+    --_size: 2rem;
+  }
+
+  .hl-avatar[data-hl-size='lg'] {
+    --_size: 3rem;
+  }
+
+  .hl-avatar[data-hl-size='xl'] {
+    --_size: 4rem;
+  }
+
+  .hl-avatar-group {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .hl-avatar-group > .hl-avatar {
+    box-shadow: 0 0 0 2px var(--hl-surface);
+  }
+
+  .hl-avatar-group > .hl-avatar:not(:first-child) {
+    margin-inline-start: -0.6rem;
+  }
+}

@@ -79,6 +79,16 @@ export function Example() {
 | `SkipLink`                   | Visually hidden until focused               |
 | `Toc`                        | Auto-generated table of contents            |
 | `ToastProvider` + `useToast` | Imperative toasts                           |
+| `Menu`                       | Menubar; `items` + `orientation`            |
+| `Combobox`                   | Editable input; `options`, `onValueChange`  |
+| `Command`                    | Command palette; `items`, `hotkey`          |
+
+The package also ships styled **form controls** (`Button`, `Input`, `Textarea`,
+`Select`, `Checkbox`, `Radio` / `RadioGroup`, `Field` with `useField()`,
+`Slider`, `SegmentedControl`) and **presentational primitives** (`Alert`,
+`Badge`, `Card`, `Avatar` / `AvatarGroup`, `Progress`, `Spinner`, `Skeleton`,
+`Pagination`, `Kbd`, `Separator`). These render the same markup as the core CSS
+and need no enhancer.
 
 ## Toasts
 

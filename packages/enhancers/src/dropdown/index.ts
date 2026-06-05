@@ -1,154 +1,133 @@
-import { combine, on, selectRoots, type Disposer } from '../utils/lifecycle.js';
+import {
+  defineEnhancer,
+  ensureId,
+  setAttrs,
+  onClickOutside,
+  nextIndex,
+  createTypeahead,
+  type MoveDirection,
+} from '../core/index.js';
 
-const enhanced = new WeakSet<Element>();
+export type EnhanceDropdownOptions = {
+  /** Preferred side; flips to `top` when there is no room below. */
+  placement?: 'bottom' | 'top';
+};
 
-export function enhanceDropdown(container: Document | HTMLElement = document): Disposer {
-  const dropdowns = selectRoots(container, '[data-hl-dropdown]');
-  const disposers: Disposer[] = [];
-
-  for (const dropdown of dropdowns) {
-    if (enhanced.has(dropdown)) continue;
-    const trigger = dropdown.querySelector<HTMLElement>('[data-hl-dropdown-trigger]');
-    const menu = dropdown.querySelector<HTMLElement>('[data-hl-dropdown-menu]');
-    if (!trigger || !menu) continue;
+/**
+ * Menu-button pattern: a trigger toggles a `role="menu"` of `role="menuitem"`
+ * children with full arrow/Home/End/typeahead navigation, Escape + outside
+ * click to dismiss, and ARIA expanded/haspopup wiring.
+ */
+export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions>({
+  name: 'dropdown',
+  selector: '[data-hl-dropdown]',
+  defaults: { placement: 'bottom' },
+  setup({ root, options, on, add }) {
+    const trigger = root.querySelector<HTMLElement>('[data-hl-dropdown-trigger]');
+    const menu = root.querySelector<HTMLElement>('[data-hl-dropdown-menu]');
+    if (!trigger || !menu) return;
 
     const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]'));
-    if (items.length === 0) continue;
+    if (items.length === 0) return;
 
-    enhanced.add(dropdown);
-    disposers.push(() => enhanced.delete(dropdown));
-
-    if (!trigger.id) trigger.id = `hl-dropdown-trigger-${Math.random().toString(36).slice(2)}`;
-    trigger.setAttribute('aria-haspopup', 'true');
-    trigger.setAttribute('aria-expanded', 'false');
-    menu.setAttribute('role', 'menu');
-    menu.setAttribute('aria-labelledby', trigger.id);
+    const triggerId = ensureId(trigger, 'hl-dropdown-trigger');
+    setAttrs(trigger, { 'aria-haspopup': 'true', 'aria-expanded': 'false' });
+    setAttrs(menu, { role: 'menu', 'aria-labelledby': triggerId });
     menu.hidden = true;
+    for (const item of items) item.tabIndex = -1;
 
-    for (const item of items) {
-      item.tabIndex = -1;
-    }
+    const labels = items.map((item) => item.textContent ?? '');
+    const typeahead = createTypeahead();
+    const isOpen = () => !menu.hidden;
 
-    // Flip the menu above the trigger when it would overflow the viewport.
-    function place(): void {
-      menu!.dataset.hlPlacement = 'bottom';
-      const triggerRect = trigger!.getBoundingClientRect();
-      const menuRect = menu!.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      const spaceBelow = viewportHeight - triggerRect.bottom;
+    const place = () => {
+      menu.dataset.hlSide = options.placement;
+      const triggerRect = trigger.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const viewport = root.ownerDocument.documentElement.clientHeight || 0;
+      const spaceBelow = viewport - triggerRect.bottom;
       if (spaceBelow < menuRect.height && triggerRect.top > spaceBelow) {
-        menu!.dataset.hlPlacement = 'top';
+        menu.dataset.hlSide = 'top';
       }
-    }
+    };
 
-    function open(): void {
-      menu!.hidden = false;
+    const open = (focusLast = false) => {
+      menu.hidden = false;
       place();
-      trigger!.setAttribute('aria-expanded', 'true');
-      items[0]?.focus();
-    }
+      setAttrs(trigger, { 'aria-expanded': 'true' });
+      (focusLast ? items[items.length - 1] : items[0])?.focus();
+    };
 
-    function close(restoreFocus = true): void {
-      menu!.hidden = true;
-      trigger!.setAttribute('aria-expanded', 'false');
-      if (restoreFocus) trigger!.focus();
-    }
+    const close = (restoreFocus = true) => {
+      menu.hidden = true;
+      setAttrs(trigger, { 'aria-expanded': 'false' });
+      if (restoreFocus) trigger.focus();
+    };
 
-    function isOpen(): boolean {
-      return !menu!.hidden;
-    }
+    const move = (direction: MoveDirection) => {
+      const active = root.ownerDocument.activeElement as HTMLElement | null;
+      const current = active ? items.indexOf(active) : -1;
+      items[nextIndex(current, items.length, direction)]?.focus();
+    };
 
-    disposers.push(
-      on(trigger, 'click', (e) => {
+    on(trigger, 'click', (e) => {
+      e.preventDefault();
+      if (isOpen()) close();
+      else open();
+    });
+
+    on<KeyboardEvent>(trigger, 'keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+        if (!isOpen()) {
+          e.preventDefault();
+          open();
+        }
+      } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        if (isOpen()) close();
-        else open();
-      }),
-    );
+        if (!isOpen()) open(true);
+      }
+    });
 
-    disposers.push(
-      on(trigger, 'keydown', (e) => {
-        const ev = e as KeyboardEvent;
-        if (ev.key === 'ArrowDown' || ev.key === 'Enter' || ev.key === ' ') {
-          if (!isOpen()) {
-            ev.preventDefault();
-            open();
-          }
-        } else if (ev.key === 'ArrowUp') {
-          ev.preventDefault();
-          if (!isOpen()) {
-            open();
-            items[items.length - 1]?.focus();
-          }
-        }
-      }),
-    );
-
-    disposers.push(
-      on(menu, 'keydown', (e) => {
-        const ev = e as KeyboardEvent;
-        const active = document.activeElement as HTMLElement | null;
-        const idx = active ? items.indexOf(active) : -1;
-
-        switch (ev.key) {
-          case 'ArrowDown': {
-            ev.preventDefault();
-            const next = idx < items.length - 1 ? idx + 1 : 0;
-            items[next]?.focus();
-            break;
-          }
-          case 'ArrowUp': {
-            ev.preventDefault();
-            const prev = idx > 0 ? idx - 1 : items.length - 1;
-            items[prev]?.focus();
-            break;
-          }
-          case 'Home': {
-            ev.preventDefault();
-            items[0]?.focus();
-            break;
-          }
-          case 'End': {
-            ev.preventDefault();
-            items[items.length - 1]?.focus();
-            break;
-          }
-          case 'Escape': {
-            ev.preventDefault();
-            close();
-            break;
-          }
-          case 'Tab': {
-            close(false);
-            break;
-          }
-          default: {
-            if (ev.key.length === 1 && !ev.ctrlKey && !ev.metaKey) {
-              const char = ev.key.toLowerCase();
-              const start = idx + 1;
-              const candidates = [...items.slice(start), ...items.slice(0, start)];
-              const match = candidates.find((item) =>
-                item.textContent?.trim().toLowerCase().startsWith(char),
-              );
-              if (match) match.focus();
-            }
-          }
-        }
-      }),
-    );
-
-    disposers.push(
-      on(document, 'click', (e) => {
-        if (isOpen() && !dropdown.contains(e.target as Node)) {
+    on<KeyboardEvent>(menu, 'keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          move('next');
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          move('prev');
+          break;
+        case 'Home':
+          e.preventDefault();
+          move('first');
+          break;
+        case 'End':
+          e.preventDefault();
+          move('last');
+          break;
+        case 'Escape':
+          e.preventDefault();
+          close();
+          break;
+        case 'Tab':
           close(false);
+          break;
+        default: {
+          if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            const active = root.ownerDocument.activeElement as HTMLElement | null;
+            const from = active ? items.indexOf(active) : -1;
+            const match = typeahead(e.key, labels, from);
+            if (match !== -1) items[match]?.focus();
+          }
         }
-      }),
-    );
+      }
+    });
 
     for (const item of items) {
-      disposers.push(on(item, 'click', () => close()));
+      on(item, 'click', () => close());
     }
-  }
 
-  return combine(disposers);
-}
+    add(onClickOutside(root, () => isOpen() && close(false)));
+  },
+});

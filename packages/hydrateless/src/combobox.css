@@ -1,0 +1,57 @@
+/**
+ * Combobox — `<div data-hl-combobox>` wrapping an `<input>` and a
+ * `<ul role="listbox">` of `<li role="option">`. The enhancer toggles the
+ * listbox and manages `aria-activedescendant`.
+ */
+@layer components {
+  [data-hl-combobox] {
+    position: relative;
+    display: block;
+  }
+
+  [data-hl-combobox] [role='listbox'] {
+    position: absolute;
+    inset-block-start: calc(100% + var(--hl-space-1));
+    inset-inline: 0;
+    z-index: var(--hl-z-dropdown);
+    max-block-size: 16rem;
+    margin: 0;
+    padding: var(--hl-space-1);
+    overflow-y: auto;
+    list-style: none;
+    background: var(--hl-overlay);
+    border: var(--hl-border-width) solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    box-shadow: var(--hl-overlay-shadow);
+  }
+
+  [data-hl-combobox] [role='listbox'][hidden] {
+    display: none;
+  }
+
+  [data-hl-combobox] [role='option'] {
+    display: flex;
+    align-items: center;
+    gap: var(--hl-space-2);
+    padding: var(--hl-space-2) var(--hl-space-3);
+    border-radius: var(--hl-radius-md);
+    font-size: var(--hl-text-sm);
+    color: var(--hl-fg);
+    cursor: pointer;
+  }
+
+  [data-hl-combobox] [role='option']:hover,
+  [data-hl-combobox] [role='option'][aria-selected='true'] {
+    background: var(--hl-primary-subtle);
+    color: var(--hl-primary-subtle-fg);
+  }
+
+  [data-hl-combobox] [role='option'][hidden] {
+    display: none;
+  }
+
+  [data-hl-combobox] [role='option'][aria-disabled='true'] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

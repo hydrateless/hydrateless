@@ -1,6 +1,6 @@
 @layer reset, tokens, theme, components;
 
-@import './reset.css';
-@import './tokens.css';
-@import './theme.css';
-@import './components.css';
+@import url('./reset.css');
+@import url('./tokens.css');
+@import url('./theme.css');
+@import url('./components.css');

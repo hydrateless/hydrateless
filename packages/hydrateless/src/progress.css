@@ -1,0 +1,88 @@
+/**
+ * Progress — native `<progress class="hl-progress" value max>`. Omit `value`
+ * for an indeterminate bar.
+ *   data-hl-intent: primary (default) | success | warning | danger | info
+ *   data-hl-size:   sm | md (default) | lg
+ */
+@layer components {
+  .hl-progress {
+    --_color: var(--hl-primary);
+    --_height: 0.5rem;
+
+    appearance: none;
+    inline-size: 100%;
+    block-size: var(--_height);
+    border: 0;
+    border-radius: var(--hl-radius-full);
+    overflow: hidden;
+    background: var(--hl-surface-3);
+    color: var(--_color);
+  }
+
+  .hl-progress[data-hl-size='sm'] {
+    --_height: 0.25rem;
+  }
+
+  .hl-progress[data-hl-size='lg'] {
+    --_height: 0.75rem;
+  }
+
+  .hl-progress[data-hl-intent='success'] {
+    --_color: var(--hl-success);
+  }
+
+  .hl-progress[data-hl-intent='warning'] {
+    --_color: var(--hl-warning);
+  }
+
+  .hl-progress[data-hl-intent='danger'] {
+    --_color: var(--hl-danger);
+  }
+
+  .hl-progress[data-hl-intent='info'] {
+    --_color: var(--hl-info);
+  }
+
+  .hl-progress::-webkit-progress-bar {
+    background: transparent;
+  }
+
+  .hl-progress::-webkit-progress-value {
+    background: var(--_color);
+    border-radius: var(--hl-radius-full);
+    transition: inline-size var(--hl-duration-base) var(--hl-ease-standard);
+  }
+
+  .hl-progress::-moz-progress-bar {
+    background: var(--_color);
+    border-radius: var(--hl-radius-full);
+  }
+
+  .hl-progress:indeterminate {
+    background: linear-gradient(90deg, transparent 0%, var(--_color) 50%, transparent 100%)
+      var(--hl-surface-3);
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    animation: hl-progress-indeterminate 1.2s var(--hl-ease-standard) infinite;
+  }
+
+  .hl-progress:indeterminate::-moz-progress-bar {
+    background: transparent;
+  }
+
+  @keyframes hl-progress-indeterminate {
+    0% {
+      background-position: -50% 0;
+    }
+
+    100% {
+      background-position: 150% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hl-progress:indeterminate {
+      animation-duration: 3s;
+    }
+  }
+}

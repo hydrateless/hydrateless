@@ -1,0 +1,46 @@
+/**
+ * Spinner — `<span class="hl-spinner" role="status" aria-label="Loading">`.
+ * Inherits `currentColor`, so set `color` to theme it.
+ *   data-hl-size: sm | md (default) | lg | xl
+ */
+@layer components {
+  .hl-spinner {
+    --_size: 1.25rem;
+    --_width: 2px;
+
+    display: inline-block;
+    flex: none;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    border: var(--_width) solid color-mix(in oklab, currentcolor 25%, transparent);
+    border-block-start-color: currentcolor;
+    border-radius: var(--hl-radius-full);
+    animation: hl-spinner-rotate 0.6s linear infinite;
+  }
+
+  .hl-spinner[data-hl-size='sm'] {
+    --_size: 1rem;
+  }
+
+  .hl-spinner[data-hl-size='lg'] {
+    --_size: 1.75rem;
+    --_width: 3px;
+  }
+
+  .hl-spinner[data-hl-size='xl'] {
+    --_size: 2.5rem;
+    --_width: 3px;
+  }
+
+  @keyframes hl-spinner-rotate {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hl-spinner {
+      animation-duration: 1.4s;
+    }
+  }
+}

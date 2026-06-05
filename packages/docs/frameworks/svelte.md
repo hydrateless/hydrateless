@@ -41,8 +41,8 @@ action's `destroy` lifecycle, so listeners are cleaned up automatically.
 
 ### Available actions
 
-`accordion`, `disclosure`, `tabs`, `dropdown`, `modal`, `drawer`, `popover`,
-`tooltip`, `toc`.
+`accordion`, `disclosure`, `tabs`, `dropdown`, `menu`, `modal`, `drawer`,
+`popover`, `tooltip`, `combobox`, `command`, `toc`.
 
 ```svelte
 <script>

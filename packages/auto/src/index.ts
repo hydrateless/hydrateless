@@ -1,64 +1,45 @@
-import type { Disposer } from '@hydrateless/enhancers';
+import { MANIFEST } from '@hydrateless/enhancers/manifest';
+import type { Disposer } from '@hydrateless/enhancers/core';
+
+type Run = (container: Document | HTMLElement) => Disposer;
 
 /**
- * Detects `data-hl-*` attributes in the given root and lazy-loads the matching
- * enhancers in parallel. Returns a disposer that tears down everything it
- * initialized — useful for single-page apps that mount and unmount views.
+ * Lazy loaders keyed by component name. Each returns the enhancer's run
+ * function; toast's `{ destroy }` API is normalized to a disposer. Static
+ * `import()` specifiers keep every component in its own chunk so only the
+ * enhancers a page actually needs are ever fetched.
+ */
+const loaders: Record<string, () => Promise<Run>> = {
+  accordion: () => import('@hydrateless/enhancers/accordion').then((m) => m.enhanceAccordion),
+  tabs: () => import('@hydrateless/enhancers/tabs').then((m) => m.enhanceTabs),
+  disclosure: () => import('@hydrateless/enhancers/disclosure').then((m) => m.enhanceDisclosure),
+  modal: () => import('@hydrateless/enhancers/modal').then((m) => m.enhanceModal),
+  drawer: () => import('@hydrateless/enhancers/drawer').then((m) => m.enhanceDrawer),
+  popover: () => import('@hydrateless/enhancers/popover').then((m) => m.enhancePopover),
+  tooltip: () => import('@hydrateless/enhancers/tooltip').then((m) => m.enhanceTooltip),
+  dropdown: () => import('@hydrateless/enhancers/dropdown').then((m) => m.enhanceDropdown),
+  menu: () => import('@hydrateless/enhancers/menu').then((m) => m.enhanceMenu),
+  combobox: () => import('@hydrateless/enhancers/combobox').then((m) => m.enhanceCombobox),
+  command: () => import('@hydrateless/enhancers/command').then((m) => m.enhanceCommand),
+  toc: () => import('@hydrateless/enhancers/toc').then((m) => m.enhanceToc),
+  toast: () =>
+    import('@hydrateless/enhancers/toast').then(
+      (m) => (c: Document | HTMLElement) => m.enhanceToast(c).destroy,
+    ),
+};
+
+/**
+ * Detect `data-hl-*` markup in `container` and lazy-load the matching enhancers
+ * in parallel. Returns a disposer that tears down everything it initialized —
+ * useful for single-page apps that mount and unmount views.
  */
 export async function auto(container: Document | HTMLElement = document): Promise<Disposer> {
-  const has = (sel: string) => !!container.querySelector(sel);
-
   const pending: Promise<Disposer>[] = [];
 
-  if (has('[data-hl-accordion]')) {
-    pending.push(
-      import('@hydrateless/enhancers/accordion').then((m) => m.enhanceAccordion(container)),
-    );
-  }
-
-  if (has('[data-hl-tabs]')) {
-    pending.push(import('@hydrateless/enhancers/tabs').then((m) => m.enhanceTabs(container)));
-  }
-
-  if (has('details[data-hl-disclosure]')) {
-    pending.push(
-      import('@hydrateless/enhancers/disclosure').then((m) => m.enhanceDisclosure(container)),
-    );
-  }
-
-  if (has('dialog[data-hl-modal], [data-hl-modal-open]')) {
-    pending.push(import('@hydrateless/enhancers/modal').then((m) => m.enhanceModal(container)));
-  }
-
-  if (has('[data-hl-toc]')) {
-    pending.push(import('@hydrateless/enhancers/toc').then((m) => m.enhanceToc(container)));
-  }
-
-  if (has('dialog.hydrateless-drawer[data-hl-drawer], [data-hl-drawer-open]')) {
-    pending.push(import('@hydrateless/enhancers/drawer').then((m) => m.enhanceDrawer(container)));
-  }
-
-  if (has('[popover], [data-hl-popover], [data-hl-popover-open]')) {
-    pending.push(import('@hydrateless/enhancers/popover').then((m) => m.enhancePopover(container)));
-  }
-
-  if (has('[data-hl-tooltip]')) {
-    pending.push(import('@hydrateless/enhancers/tooltip').then((m) => m.enhanceTooltip(container)));
-  }
-
-  if (has('[data-hl-dropdown]')) {
-    pending.push(
-      import('@hydrateless/enhancers/dropdown').then((m) => m.enhanceDropdown(container)),
-    );
-  }
-
-  if (has('[data-hl-toast-region], [data-hl-toast-trigger]')) {
-    pending.push(
-      import('@hydrateless/enhancers/toast').then((m) => {
-        const api = m.enhanceToast(container);
-        return api.destroy;
-      }),
-    );
+  for (const { name, selector } of MANIFEST) {
+    if (!container.querySelector(selector)) continue;
+    const load = loaders[name];
+    if (load) pending.push(load().then((run) => run(container)));
   }
 
   const disposers = await Promise.all(pending);
@@ -69,9 +50,7 @@ export async function auto(container: Document | HTMLElement = document): Promis
 
 if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', () => {
-      void auto();
-    });
+    window.addEventListener('DOMContentLoaded', () => void auto());
   } else {
     void auto();
   }

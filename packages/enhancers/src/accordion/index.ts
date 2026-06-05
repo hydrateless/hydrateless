@@ -1,41 +1,31 @@
-import { combine, on, selectRoots, type Disposer } from '../utils/lifecycle.js';
+import { defineEnhancer } from '../core/index.js';
 
 export type EnhanceAccordionOptions = {
+  /** Allow more than one panel open at a time. Defaults to `false`. */
   allowMultiple?: boolean;
 };
 
-const enhanced = new WeakSet<Element>();
+/**
+ * Single-open accordion behavior layered on a group of native `<details>`
+ * elements. With `allowMultiple: false` (the default), opening one panel closes
+ * the others. Everything else (animation, focus, the disclosure triangle) is
+ * handled by CSS and the browser.
+ */
+export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions>({
+  name: 'accordion',
+  selector: '[data-hl-accordion]',
+  defaults: { allowMultiple: false },
+  setup({ root, options, on }) {
+    const items = Array.from(root.querySelectorAll<HTMLDetailsElement>('details'));
+    if (items.length === 0 || options.allowMultiple) return;
 
-export function enhanceAccordion(
-  container: Document | HTMLElement = document,
-  options: EnhanceAccordionOptions = {},
-): Disposer {
-  const { allowMultiple = false } = options;
-  const groups = selectRoots(container, '[data-hl-accordion]');
-  const disposers: Disposer[] = [];
-
-  for (const group of groups) {
-    if (enhanced.has(group)) continue;
-    const disclosures = Array.from(group.querySelectorAll<HTMLDetailsElement>('details'));
-    if (disclosures.length === 0) continue;
-
-    enhanced.add(group);
-    disposers.push(() => enhanced.delete(group));
-
-    if (!allowMultiple) {
-      for (const d of disclosures) {
-        disposers.push(
-          on(d, 'toggle', () => {
-            if (d.open) {
-              for (const other of disclosures) {
-                if (other !== d && other.open) other.open = false;
-              }
-            }
-          }),
-        );
-      }
+    for (const item of items) {
+      on(item, 'toggle', () => {
+        if (!item.open) return;
+        for (const other of items) {
+          if (other !== item && other.open) other.open = false;
+        }
+      });
     }
-  }
-
-  return combine(disposers);
-}
+  },
+});

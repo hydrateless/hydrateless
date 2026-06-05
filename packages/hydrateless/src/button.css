@@ -1,0 +1,252 @@
+/**
+ * Button — `<button class="hl-button">` (works on `<a>`/`<input>` too).
+ *
+ * Color is driven by a small set of local custom properties so the
+ * intent × variant matrix stays DRY: `data-hl-intent` swaps the accent set,
+ * `data-hl-variant` decides how those values are applied.
+ *
+ *   data-hl-variant: solid (default) | soft | outline | ghost | link
+ *   data-hl-intent:  neutral (default) | primary | danger | success | warning | info
+ *   data-hl-size:    sm | md (default) | lg
+ *   data-hl-block:   stretch to container width
+ *   data-hl-icon:    square, icon-only
+ */
+@layer components {
+  .hl-button {
+    --_solid-bg: var(--hl-surface-2);
+    --_solid-bg-hover: var(--hl-surface-3);
+    --_solid-bg-active: var(--hl-surface-3);
+    --_solid-fg: var(--hl-fg);
+    --_accent: var(--hl-fg);
+    --_soft-bg: var(--hl-surface-2);
+    --_soft-fg: var(--hl-fg);
+    --_height: var(--hl-control-height-md);
+    --_pad-x: var(--hl-space-4);
+    --_font: var(--hl-text-sm);
+    --_gap: var(--hl-space-2);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--_gap);
+    block-size: var(--_height);
+    padding-inline: var(--_pad-x);
+    border: var(--hl-border-width) solid transparent;
+    border-radius: var(--hl-radius-md);
+    font-family: inherit;
+    font-size: var(--_font);
+    font-weight: var(--hl-font-medium);
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    background: var(--_solid-bg);
+    color: var(--_solid-fg);
+    transition:
+      background-color var(--hl-duration-fast) var(--hl-ease-standard),
+      border-color var(--hl-duration-fast) var(--hl-ease-standard),
+      color var(--hl-duration-fast) var(--hl-ease-standard),
+      box-shadow var(--hl-duration-fast) var(--hl-ease-standard);
+  }
+
+  .hl-button:hover {
+    background: var(--_solid-bg-hover);
+  }
+
+  .hl-button:active {
+    background: var(--_solid-bg-active);
+  }
+
+  .hl-button:focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hl-button:disabled,
+  .hl-button[aria-disabled='true'],
+  .hl-button[data-hl-loading] {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .hl-button[data-hl-loading] {
+    cursor: progress;
+  }
+
+  .hl-button[data-hl-intent='primary'] {
+    --_solid-bg: var(--hl-primary);
+    --_solid-bg-hover: var(--hl-primary-hover);
+    --_solid-bg-active: var(--hl-primary-active);
+    --_solid-fg: var(--hl-primary-fg);
+    --_accent: var(--hl-primary);
+    --_soft-bg: var(--hl-primary-subtle);
+    --_soft-fg: var(--hl-primary-subtle-fg);
+  }
+
+  .hl-button[data-hl-intent='danger'] {
+    --_solid-bg: var(--hl-danger);
+    --_solid-bg-hover: var(--hl-danger-hover);
+    --_solid-bg-active: var(--hl-danger-hover);
+    --_solid-fg: var(--hl-danger-fg);
+    --_accent: var(--hl-danger);
+    --_soft-bg: var(--hl-danger-subtle);
+    --_soft-fg: var(--hl-danger-subtle-fg);
+  }
+
+  .hl-button[data-hl-intent='success'] {
+    --_solid-bg: var(--hl-success);
+    --_solid-bg-hover: var(--hl-success-hover);
+    --_solid-bg-active: var(--hl-success-hover);
+    --_solid-fg: var(--hl-success-fg);
+    --_accent: var(--hl-success);
+    --_soft-bg: var(--hl-success-subtle);
+    --_soft-fg: var(--hl-success-subtle-fg);
+  }
+
+  .hl-button[data-hl-intent='warning'] {
+    --_solid-bg: var(--hl-warning);
+    --_solid-bg-hover: var(--hl-warning-hover);
+    --_solid-bg-active: var(--hl-warning-hover);
+    --_solid-fg: var(--hl-warning-fg);
+    --_accent: var(--hl-warning);
+    --_soft-bg: var(--hl-warning-subtle);
+    --_soft-fg: var(--hl-warning-subtle-fg);
+  }
+
+  .hl-button[data-hl-intent='info'] {
+    --_solid-bg: var(--hl-info);
+    --_solid-bg-hover: var(--hl-info-hover);
+    --_solid-bg-active: var(--hl-info-hover);
+    --_solid-fg: var(--hl-info-fg);
+    --_accent: var(--hl-info);
+    --_soft-bg: var(--hl-info-subtle);
+    --_soft-fg: var(--hl-info-subtle-fg);
+  }
+
+  .hl-button[data-hl-variant='soft'] {
+    background: var(--_soft-bg);
+    color: var(--_soft-fg);
+  }
+
+  .hl-button[data-hl-variant='soft']:hover {
+    background: color-mix(in oklab, var(--_accent) 14%, var(--_soft-bg));
+  }
+
+  .hl-button[data-hl-variant='outline'] {
+    background: transparent;
+    color: var(--_accent);
+    border-color: var(--hl-border-strong);
+  }
+
+  .hl-button[data-hl-variant='outline']:hover {
+    background: var(--_soft-bg);
+    border-color: var(--_accent);
+  }
+
+  .hl-button[data-hl-variant='ghost'] {
+    background: transparent;
+    color: var(--_accent);
+  }
+
+  .hl-button[data-hl-variant='ghost']:hover {
+    background: var(--_soft-bg);
+  }
+
+  .hl-button[data-hl-variant='link'] {
+    block-size: auto;
+    padding: 0;
+    background: transparent;
+    color: var(--_accent);
+    border-color: transparent;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .hl-button[data-hl-variant='link']:hover {
+    background: transparent;
+    text-decoration-thickness: 2px;
+  }
+
+  .hl-button[data-hl-size='sm'] {
+    --_height: var(--hl-control-height-sm);
+    --_pad-x: var(--hl-space-3);
+    --_font: var(--hl-text-xs);
+    --_gap: var(--hl-space-1);
+
+    border-radius: var(--hl-radius-sm);
+  }
+
+  .hl-button[data-hl-size='lg'] {
+    --_height: var(--hl-control-height-lg);
+    --_pad-x: var(--hl-space-5);
+    --_font: var(--hl-text-base);
+
+    border-radius: var(--hl-radius-lg);
+  }
+
+  .hl-button[data-hl-block] {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  .hl-button[data-hl-icon] {
+    inline-size: var(--_height);
+    padding-inline: 0;
+  }
+
+  .hl-button > svg {
+    inline-size: 1.1em;
+    block-size: 1.1em;
+    flex: none;
+  }
+
+  .hl-button[data-hl-loading]::before {
+    content: '';
+    inline-size: 1em;
+    block-size: 1em;
+    border: 2px solid currentcolor;
+    border-block-start-color: transparent;
+    border-radius: var(--hl-radius-full);
+    animation: hl-button-spin 0.6s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hl-button[data-hl-loading]::before {
+      animation-duration: 1.4s;
+    }
+  }
+
+  @keyframes hl-button-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .hl-button-group {
+    display: inline-flex;
+  }
+
+  .hl-button-group > .hl-button {
+    border-radius: 0;
+  }
+
+  .hl-button-group > .hl-button:not(:first-child) {
+    margin-inline-start: calc(var(--hl-border-width) * -1);
+  }
+
+  .hl-button-group > .hl-button:first-child {
+    border-start-start-radius: var(--hl-radius-md);
+    border-end-start-radius: var(--hl-radius-md);
+  }
+
+  .hl-button-group > .hl-button:last-child {
+    border-start-end-radius: var(--hl-radius-md);
+    border-end-end-radius: var(--hl-radius-md);
+  }
+
+  .hl-button-group > .hl-button:hover,
+  .hl-button-group > .hl-button:focus-visible {
+    z-index: 1;
+  }
+}

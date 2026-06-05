@@ -1,0 +1,84 @@
+/**
+ * Badge — `<span class="hl-badge" data-hl-intent="…" data-hl-variant="…">`.
+ *   data-hl-intent:  neutral (default) | primary | danger | success | warning | info
+ *   data-hl-variant: soft (default) | solid | outline
+ *   data-hl-size:    sm | md (default)
+ */
+@layer components {
+  .hl-badge {
+    --_solid-bg: var(--hl-surface-3);
+    --_solid-fg: var(--hl-fg);
+    --_soft-bg: var(--hl-surface-2);
+    --_soft-fg: var(--hl-fg);
+    --_accent: var(--hl-border-strong);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hl-space-1);
+    padding: 0.125rem var(--hl-space-2);
+    border: var(--hl-border-width) solid transparent;
+    border-radius: var(--hl-radius-full);
+    background: var(--_soft-bg);
+    color: var(--_soft-fg);
+    font-size: var(--hl-text-xs);
+    font-weight: var(--hl-font-medium);
+    line-height: var(--hl-leading-tight);
+    white-space: nowrap;
+  }
+
+  .hl-badge[data-hl-intent='primary'] {
+    --_solid-bg: var(--hl-primary);
+    --_solid-fg: var(--hl-primary-fg);
+    --_soft-bg: var(--hl-primary-subtle);
+    --_soft-fg: var(--hl-primary-subtle-fg);
+    --_accent: var(--hl-primary);
+  }
+
+  .hl-badge[data-hl-intent='danger'] {
+    --_solid-bg: var(--hl-danger);
+    --_solid-fg: var(--hl-danger-fg);
+    --_soft-bg: var(--hl-danger-subtle);
+    --_soft-fg: var(--hl-danger-subtle-fg);
+    --_accent: var(--hl-danger);
+  }
+
+  .hl-badge[data-hl-intent='success'] {
+    --_solid-bg: var(--hl-success);
+    --_solid-fg: var(--hl-success-fg);
+    --_soft-bg: var(--hl-success-subtle);
+    --_soft-fg: var(--hl-success-subtle-fg);
+    --_accent: var(--hl-success);
+  }
+
+  .hl-badge[data-hl-intent='warning'] {
+    --_solid-bg: var(--hl-warning);
+    --_solid-fg: var(--hl-warning-fg);
+    --_soft-bg: var(--hl-warning-subtle);
+    --_soft-fg: var(--hl-warning-subtle-fg);
+    --_accent: var(--hl-warning);
+  }
+
+  .hl-badge[data-hl-intent='info'] {
+    --_solid-bg: var(--hl-info);
+    --_solid-fg: var(--hl-info-fg);
+    --_soft-bg: var(--hl-info-subtle);
+    --_soft-fg: var(--hl-info-subtle-fg);
+    --_accent: var(--hl-info);
+  }
+
+  .hl-badge[data-hl-variant='solid'] {
+    background: var(--_solid-bg);
+    color: var(--_solid-fg);
+  }
+
+  .hl-badge[data-hl-variant='outline'] {
+    background: transparent;
+    color: var(--_accent);
+    border-color: currentcolor;
+  }
+
+  .hl-badge[data-hl-size='sm'] {
+    padding: 0 var(--hl-space-1-5);
+    font-size: 0.6875rem;
+  }
+}
