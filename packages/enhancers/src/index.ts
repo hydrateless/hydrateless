@@ -1,10 +1,11 @@
-export { enhanceDisclosure } from './disclosure/index.js';
+export { enhanceDisclosure, type EnhanceDisclosureOptions } from './disclosure/index.js';
 export { enhanceTabs } from './tabs/index.js';
-export { enhanceAccordion } from './accordion/index.js';
-export { enhanceModal } from './modal/index.js';
-export { enhanceToc } from './toc/index.js';
+export { enhanceAccordion, type EnhanceAccordionOptions } from './accordion/index.js';
+export { enhanceModal, type EnhanceModalOptions } from './modal/index.js';
+export { enhanceToc, type EnhanceTocOptions } from './toc/index.js';
 export { enhanceDrawer } from './drawer/index.js';
 export { enhancePopover } from './popover/index.js';
 export { enhanceTooltip } from './tooltip/index.js';
 export { enhanceDropdown } from './dropdown/index.js';
-export { enhanceToast } from './toast/index.js';
+export { enhanceToast, type ToastApi, type ToastOptions } from './toast/index.js';
+export type { Disposer } from './utils/lifecycle.js';

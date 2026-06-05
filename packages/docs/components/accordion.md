@@ -1,0 +1,84 @@
+# Accordion
+
+Collapsible sections built on the native `<details>`/`<summary>` elements. CSS
+handles open/close with zero JavaScript. The optional enhancer enforces
+single-panel-open behavior and adds the right ARIA wiring.
+
+## Demo
+
+<div class="hl-demo">
+<div data-hl-accordion>
+  <details open>
+    <summary>What is Hydrateless?</summary>
+    <div class="accordion-panel">A library of accessible UI primitives that work with semantic HTML and CSS first, with optional JS enhancers.</div>
+  </details>
+  <details>
+    <summary>Does it require JavaScript?</summary>
+    <div class="accordion-panel">No. Most components work with CSS alone. JS is loaded only where an interaction truly needs it.</div>
+  </details>
+  <details>
+    <summary>Is it themeable?</summary>
+    <div class="accordion-panel">Yes — every component is driven by CSS variables, with dark mode built in.</div>
+  </details>
+</div>
+</div>
+
+## HTML
+
+```html
+<div data-hl-accordion>
+  <details>
+    <summary>Section one</summary>
+    <div class="accordion-panel">Panel content.</div>
+  </details>
+  <details>
+    <summary>Section two</summary>
+    <div class="accordion-panel">Panel content.</div>
+  </details>
+</div>
+```
+
+- **CSS**: `hydrateless/accordion.css`
+- **JS**: `enhanceAccordion(container, { allowMultiple?: boolean })`
+
+Without the enhancer, each `<details>` toggles independently. With it, opening
+one panel closes the others — unless you pass `allowMultiple: true`.
+
+## Frameworks
+
+::: code-group
+
+```tsx [React]
+import { Accordion, AccordionItem } from '@hydrateless/react';
+
+<Accordion>
+  <AccordionItem summary="Section one">Panel content.</AccordionItem>
+  <AccordionItem summary="Section two">Panel content.</AccordionItem>
+</Accordion>;
+```
+
+```vue [Vue]
+<template>
+  <div v-hl-accordion data-hl-accordion>
+    <details>
+      <summary>Section one</summary>
+      <div class="accordion-panel">Panel content.</div>
+    </details>
+  </div>
+</template>
+```
+
+```svelte [Svelte]
+<script>
+  import { accordion } from '@hydrateless/svelte';
+</script>
+
+<div use:accordion data-hl-accordion>
+  <details>
+    <summary>Section one</summary>
+    <div class="accordion-panel">Panel content.</div>
+  </details>
+</div>
+```
+
+:::

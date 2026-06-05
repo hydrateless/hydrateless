@@ -1,7 +1,14 @@
-export async function auto(container: Document | HTMLElement = document): Promise<void> {
+import type { Disposer } from '@hydrateless/enhancers';
+
+/**
+ * Detects `data-hl-*` attributes in the given root and lazy-loads the matching
+ * enhancers in parallel. Returns a disposer that tears down everything it
+ * initialized — useful for single-page apps that mount and unmount views.
+ */
+export async function auto(container: Document | HTMLElement = document): Promise<Disposer> {
   const has = (sel: string) => !!container.querySelector(sel);
 
-  const pending: Promise<void>[] = [];
+  const pending: Promise<Disposer>[] = [];
 
   if (has('[data-hl-accordion]')) {
     pending.push(
@@ -48,12 +55,16 @@ export async function auto(container: Document | HTMLElement = document): Promis
   if (has('[data-hl-toast-region], [data-hl-toast-trigger]')) {
     pending.push(
       import('@hydrateless/enhancers/toast').then((m) => {
-        m.enhanceToast(container);
+        const api = m.enhanceToast(container);
+        return api.destroy;
       }),
     );
   }
 
-  await Promise.all(pending);
+  const disposers = await Promise.all(pending);
+  return () => {
+    for (const dispose of disposers) dispose();
+  };
 }
 
 if (typeof window !== 'undefined') {

@@ -1,0 +1,49 @@
+{
+  "name": "@hydrateless/react",
+  "version": "0.2.0",
+  "description": "React bindings for Hydrateless — hooks and components that wire the framework-agnostic enhancers.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hydrateless/hydrateless.git",
+    "directory": "packages/react"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm --clean --external react",
+    "dev": "npm run build -- --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hydrateless/enhancers": "^0.2.0"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^29.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vitest": "^4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

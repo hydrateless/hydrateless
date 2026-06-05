@@ -21,6 +21,12 @@
     display: none;
   }
 
+  [data-hl-dropdown-menu][data-hl-placement='top'] {
+    top: auto;
+    bottom: 100%;
+    margin: 0 0 var(--hl-spacing-1, 0.25rem);
+  }
+
   [data-hl-dropdown-menu] [role='menuitem'] {
     display: block;
     width: 100%;

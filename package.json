@@ -6,13 +6,15 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm -w packages/enhancers -w packages/hydrateless run build && npm -w packages/auto run build",
+    "build": "npm -w packages/enhancers -w packages/hydrateless run build && npm -w packages/auto run build && npm -w packages/react -w packages/vue -w packages/svelte run build",
     "dev": "npm -ws run dev --if-present",
     "lint": "npm -ws run lint --if-present",
     "typecheck": "npm -ws run typecheck --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm -ws run test --if-present",
+    "docs:dev": "npm -w @hydrateless/docs run docs:dev",
+    "docs:build": "npm -w @hydrateless/docs run docs:build",
     "clean": "npm -ws run clean --if-present",
     "prepare": "husky"
   },

@@ -1,0 +1,23 @@
+:root {
+  --vp-home-hero-name-color: var(--vp-c-brand-1);
+}
+
+/* Live demo container used throughout the component docs. */
+.hl-demo {
+  margin: 1rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+}
+
+.hl-demo + div[class*='language-'] {
+  margin-top: 0.5rem;
+}
+
+.hl-demo .demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}

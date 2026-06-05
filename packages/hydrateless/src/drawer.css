@@ -26,6 +26,12 @@
     }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .hydrateless-drawer[open] {
+      animation: none;
+    }
+  }
+
   .hydrateless-drawer[data-side='right'] {
     inline-size: auto;
   }

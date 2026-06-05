@@ -1,0 +1,44 @@
+{
+  "name": "@hydrateless/svelte",
+  "version": "0.2.0",
+  "description": "Svelte bindings for Hydrateless — actions that wire the framework-agnostic enhancers.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hydrateless/hydrateless.git",
+    "directory": "packages/svelte"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm --clean --external svelte",
+    "dev": "npm run build -- --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hydrateless/enhancers": "^0.2.0"
+  },
+  "peerDependencies": {
+    "svelte": ">=4"
+  },
+  "devDependencies": {
+    "jsdom": "^29.0.0",
+    "svelte": "^5.0.0",
+    "vitest": "^4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
