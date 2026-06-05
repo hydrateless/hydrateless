@@ -1,0 +1,81 @@
+/**
+ * Text input — `<input class="hl-input">`.
+ *   data-hl-size:    sm | md (default) | lg
+ *   data-hl-invalid: error styling (pair with aria-invalid)
+ */
+@layer components {
+  .hl-input {
+    --_height: var(--hl-control-height-md);
+    --_pad-x: var(--hl-space-3);
+    --_font: var(--hl-text-sm);
+
+    display: block;
+    inline-size: 100%;
+    block-size: var(--_height);
+    padding-inline: var(--_pad-x);
+    border: var(--hl-border-width) solid var(--hl-border-strong);
+    border-radius: var(--hl-radius-md);
+    background: var(--hl-surface);
+    color: var(--hl-fg);
+    font-family: inherit;
+    font-size: var(--_font);
+    line-height: var(--hl-leading-normal);
+    transition:
+      border-color var(--hl-duration-fast) var(--hl-ease-standard),
+      box-shadow var(--hl-duration-fast) var(--hl-ease-standard);
+  }
+
+  .hl-input::placeholder {
+    color: var(--hl-fg-subtle);
+  }
+
+  .hl-input:hover:not(:disabled, :focus) {
+    border-color: var(--hl-fg-subtle);
+  }
+
+  .hl-input:focus-visible {
+    outline: none;
+    border-color: var(--hl-ring);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent);
+  }
+
+  .hl-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: var(--hl-surface-2);
+  }
+
+  .hl-input[data-hl-invalid],
+  .hl-input[aria-invalid='true'] {
+    border-color: var(--hl-danger);
+  }
+
+  .hl-input[data-hl-invalid]:focus-visible,
+  .hl-input[aria-invalid='true']:focus-visible {
+    border-color: var(--hl-danger);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-danger) 30%, transparent);
+  }
+
+  .hl-input[data-hl-size='sm'] {
+    --_height: var(--hl-control-height-sm);
+    --_font: var(--hl-text-xs);
+
+    border-radius: var(--hl-radius-sm);
+  }
+
+  .hl-input[data-hl-size='lg'] {
+    --_height: var(--hl-control-height-lg);
+    --_font: var(--hl-text-base);
+    --_pad-x: var(--hl-space-4);
+  }
+
+  .hl-input[type='file'] {
+    block-size: auto;
+    padding-block: var(--hl-space-2);
+  }
+
+  .hl-input[type='color'] {
+    inline-size: var(--_height);
+    padding: var(--hl-space-1);
+  }
+}

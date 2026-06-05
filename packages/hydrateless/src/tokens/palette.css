@@ -1,0 +1,86 @@
+/**
+ * Raw color ramps. These are the only place literal colors live; everything
+ * else references them through the semantic tokens. Ramps follow the familiar
+ * 50 (lightest) → 950 (darkest) scale.
+ */
+@layer tokens {
+  :root {
+    /* Neutral / gray */
+    --hl-gray-50: hsl(210deg 40% 98%);
+    --hl-gray-100: hsl(210deg 40% 96%);
+    --hl-gray-200: hsl(214deg 32% 91%);
+    --hl-gray-300: hsl(213deg 27% 84%);
+    --hl-gray-400: hsl(215deg 20% 65%);
+    --hl-gray-500: hsl(215deg 16% 47%);
+    --hl-gray-600: hsl(215deg 19% 35%);
+    --hl-gray-700: hsl(215deg 25% 27%);
+    --hl-gray-800: hsl(217deg 33% 17%);
+    --hl-gray-900: hsl(222deg 47% 11%);
+    --hl-gray-950: hsl(229deg 41% 8%);
+
+    /* Brand / primary (blue) */
+    --hl-brand-50: hsl(214deg 100% 97%);
+    --hl-brand-100: hsl(214deg 95% 93%);
+    --hl-brand-200: hsl(213deg 97% 87%);
+    --hl-brand-300: hsl(212deg 96% 78%);
+    --hl-brand-400: hsl(213deg 94% 68%);
+    --hl-brand-500: hsl(217deg 91% 60%);
+    --hl-brand-600: hsl(221deg 83% 53%);
+    --hl-brand-700: hsl(224deg 76% 48%);
+    --hl-brand-800: hsl(226deg 71% 40%);
+    --hl-brand-900: hsl(224deg 64% 33%);
+    --hl-brand-950: hsl(226deg 57% 21%);
+
+    /* Danger (red) */
+    --hl-red-50: hsl(0deg 86% 97%);
+    --hl-red-100: hsl(0deg 93% 94%);
+    --hl-red-200: hsl(0deg 96% 89%);
+    --hl-red-300: hsl(0deg 94% 82%);
+    --hl-red-400: hsl(0deg 91% 71%);
+    --hl-red-500: hsl(0deg 84% 60%);
+    --hl-red-600: hsl(0deg 72% 51%);
+    --hl-red-700: hsl(0deg 74% 42%);
+    --hl-red-800: hsl(0deg 70% 35%);
+    --hl-red-900: hsl(0deg 63% 31%);
+    --hl-red-950: hsl(0deg 75% 15%);
+
+    /* Warning (amber) */
+    --hl-amber-50: hsl(48deg 100% 96%);
+    --hl-amber-100: hsl(48deg 96% 89%);
+    --hl-amber-200: hsl(48deg 97% 77%);
+    --hl-amber-300: hsl(46deg 97% 65%);
+    --hl-amber-400: hsl(43deg 96% 56%);
+    --hl-amber-500: hsl(38deg 92% 50%);
+    --hl-amber-600: hsl(32deg 95% 44%);
+    --hl-amber-700: hsl(26deg 90% 37%);
+    --hl-amber-800: hsl(23deg 83% 31%);
+    --hl-amber-900: hsl(22deg 78% 26%);
+    --hl-amber-950: hsl(21deg 92% 14%);
+
+    /* Success (green) */
+    --hl-green-50: hsl(138deg 76% 97%);
+    --hl-green-100: hsl(141deg 84% 93%);
+    --hl-green-200: hsl(141deg 79% 85%);
+    --hl-green-300: hsl(142deg 77% 73%);
+    --hl-green-400: hsl(142deg 69% 58%);
+    --hl-green-500: hsl(142deg 71% 45%);
+    --hl-green-600: hsl(142deg 76% 36%);
+    --hl-green-700: hsl(142deg 72% 29%);
+    --hl-green-800: hsl(143deg 64% 24%);
+    --hl-green-900: hsl(144deg 61% 20%);
+    --hl-green-950: hsl(145deg 80% 10%);
+
+    /* Info (sky) */
+    --hl-sky-50: hsl(204deg 100% 97%);
+    --hl-sky-100: hsl(204deg 94% 94%);
+    --hl-sky-200: hsl(201deg 94% 86%);
+    --hl-sky-300: hsl(199deg 95% 74%);
+    --hl-sky-400: hsl(198deg 93% 60%);
+    --hl-sky-500: hsl(199deg 89% 48%);
+    --hl-sky-600: hsl(200deg 98% 39%);
+    --hl-sky-700: hsl(201deg 96% 32%);
+    --hl-sky-800: hsl(201deg 90% 27%);
+    --hl-sky-900: hsl(202deg 80% 24%);
+    --hl-sky-950: hsl(202deg 80% 16%);
+  }
+}

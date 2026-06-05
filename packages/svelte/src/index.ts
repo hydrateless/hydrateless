@@ -8,6 +8,9 @@ export {
   popover,
   tooltip,
   toc,
+  menu,
+  combobox,
+  command,
 } from './actions.js';
 export { createToast } from './toast.js';
 

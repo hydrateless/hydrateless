@@ -21,6 +21,7 @@
     from {
       transform: translateX(100%);
     }
+
     to {
       transform: translateX(0%);
     }
@@ -32,19 +33,13 @@
     }
   }
 
-  .hydrateless-drawer[data-side='right'] {
-    inline-size: auto;
-  }
-
   .hydrateless-drawer[data-side='left'] {
     inline-size: auto;
-  }
-
-  .hydrateless-drawer[data-side='left'] {
     inset: 0 auto 0 0;
   }
 
   .hydrateless-drawer[data-side='right'] {
+    inline-size: auto;
     inset: 0 0 0 auto;
   }
 

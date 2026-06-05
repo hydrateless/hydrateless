@@ -26,6 +26,8 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Lint CSS
+        run: npm run lint:css
       - name: Format check
         run: npm run format:check
       - name: Build
@@ -34,3 +36,5 @@ jobs:
         run: npm run typecheck
       - name: Test
         run: npm test
+      - name: Size limit
+        run: npm run size

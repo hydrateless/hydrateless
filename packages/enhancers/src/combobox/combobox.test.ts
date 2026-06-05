@@ -1,0 +1,86 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { enhanceCombobox } from './index.js';
+
+function setup() {
+  document.body.innerHTML = `
+    <div data-hl-combobox>
+      <input />
+      <ul role="listbox">
+        <li role="option" data-hl-value="apple">Apple</li>
+        <li role="option" data-hl-value="banana">Banana</li>
+        <li role="option" data-hl-value="cherry">Cherry</li>
+      </ul>
+    </div>
+  `;
+  enhanceCombobox(document);
+  return {
+    root: document.querySelector<HTMLElement>('[data-hl-combobox]')!,
+    input: document.querySelector<HTMLInputElement>('input')!,
+    listbox: document.querySelector<HTMLElement>('[role="listbox"]')!,
+    options: Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')),
+  };
+}
+
+describe('enhanceCombobox', () => {
+  beforeEach(() => setup());
+
+  it('wires combobox ARIA on init', () => {
+    const input = document.querySelector('input')!;
+    const listbox = document.querySelector('[role="listbox"]')!;
+    expect(input.getAttribute('role')).toBe('combobox');
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+    expect(input.getAttribute('aria-controls')).toBe(listbox.id);
+    expect((listbox as HTMLElement).hidden).toBe(true);
+  });
+
+  it('opens on input and filters options', () => {
+    const { input, listbox, options } = setup();
+    input.value = 'ch';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(listbox.hidden).toBe(false);
+    expect(input.getAttribute('aria-expanded')).toBe('true');
+    expect(options[0].hidden).toBe(true);
+    expect(options[2].hidden).toBe(false);
+  });
+
+  it('moves active option with ArrowDown', () => {
+    const { input, options } = setup();
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[0].id);
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[1].id);
+  });
+
+  it('commits a selection on Enter and emits hl:select', () => {
+    const { root, input } = setup();
+    let detail: { value: string } | null = null;
+    root.addEventListener('hl:select', (e) => (detail = (e as CustomEvent).detail));
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(detail).toEqual({ value: 'apple', option: expect.anything() });
+    expect(input.value).toBe('apple');
+  });
+
+  it('selects on option click', () => {
+    const { input, listbox, options } = setup();
+    input.focus();
+    options[1].click();
+    expect(input.value).toBe('banana');
+    expect(listbox.hidden).toBe(true);
+  });
+
+  it('closes on Escape', () => {
+    const { input, listbox } = setup();
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(listbox.hidden).toBe(true);
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('handles missing structure gracefully', () => {
+    document.body.innerHTML = '<div data-hl-combobox></div>';
+    expect(() => enhanceCombobox(document)).not.toThrow();
+  });
+});

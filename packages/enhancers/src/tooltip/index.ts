@@ -1,43 +1,40 @@
-import { combine, on, type Disposer } from '../utils/lifecycle.js';
+import { defineEnhancer, resolveRef, placeFloating, type Placement } from '../core/index.js';
 
-const enhanced = new WeakSet<Element>();
+export type EnhanceTooltipOptions = {
+  /** Preferred placement relative to the trigger. Defaults to `top`. */
+  placement?: Placement;
+  /** Position the tooltip with collision-aware JS. Defaults to `true`. */
+  position?: boolean;
+};
 
-export function enhanceTooltip(container: Document | HTMLElement = document): Disposer {
-  const triggers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-tooltip]'));
-  const disposers: Disposer[] = [];
+/**
+ * Show/hide a tooltip referenced by a trigger's `aria-describedby` (or
+ * `data-hl-tooltip`) on hover and focus, dismissing on Escape. Positioning is
+ * collision-aware and respects the trigger's `data-hl-placement` override.
+ */
+export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions>({
+  name: 'tooltip',
+  selector: '[data-hl-tooltip]',
+  defaults: { placement: 'top', position: true },
+  setup({ root, options, on }) {
+    const ref = root.getAttribute('aria-describedby') || root.getAttribute('data-hl-tooltip');
+    const tip = resolveRef(root.ownerDocument, ref);
+    if (!tip) return;
 
-  function resolveTooltip(el: HTMLElement): HTMLElement | null {
-    const id = el.getAttribute('aria-describedby') || el.getAttribute('data-hl-tooltip');
-    if (!id) return null;
-    const finalId = id.startsWith('#') ? id.slice(1) : id;
-    return container.querySelector<HTMLElement>(`#${CSS.escape(finalId)}`);
-  }
+    const placement = (root.getAttribute('data-hl-placement') as Placement) || options.placement;
 
-  function show(tt: HTMLElement): void {
-    tt.removeAttribute('hidden');
-  }
-  function hide(tt: HTMLElement): void {
-    tt.setAttribute('hidden', '');
-  }
+    const show = () => {
+      tip.removeAttribute('hidden');
+      if (options.position) placeFloating(root, tip, { placement });
+    };
+    const hide = () => tip.setAttribute('hidden', '');
 
-  for (const el of triggers) {
-    if (enhanced.has(el)) continue;
-    const tt = resolveTooltip(el);
-    if (!tt) continue;
-
-    enhanced.add(el);
-    disposers.push(() => enhanced.delete(el));
-
-    disposers.push(on(el, 'mouseenter', () => show(tt)));
-    disposers.push(on(el, 'mouseleave', () => hide(tt)));
-    disposers.push(on(el, 'focus', () => show(tt)));
-    disposers.push(on(el, 'blur', () => hide(tt)));
-    disposers.push(
-      on(el, 'keydown', (e) => {
-        if ((e as KeyboardEvent).key === 'Escape') hide(tt);
-      }),
-    );
-  }
-
-  return combine(disposers);
-}
+    on(root, 'mouseenter', show);
+    on(root, 'mouseleave', hide);
+    on(root, 'focus', show);
+    on(root, 'blur', hide);
+    on<KeyboardEvent>(root, 'keydown', (e) => {
+      if (e.key === 'Escape') hide();
+    });
+  },
+});

@@ -21,7 +21,7 @@
     display: none;
   }
 
-  [data-hl-dropdown-menu][data-hl-placement='top'] {
+  [data-hl-dropdown-menu][data-hl-side='top'] {
     top: auto;
     bottom: 100%;
     margin: 0 0 var(--hl-spacing-1, 0.25rem);

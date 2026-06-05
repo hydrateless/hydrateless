@@ -1,4 +1,4 @@
-import { combine, type Disposer } from '../utils/lifecycle.js';
+import { defineEnhancer, ensureId } from '../core/index.js';
 
 export type EnhanceTocOptions = {
   contentSelector?: string;
@@ -6,98 +6,79 @@ export type EnhanceTocOptions = {
   scrollSpy?: boolean;
 };
 
-const enhanced = new WeakSet<Element>();
+export const enhanceToc = defineEnhancer<EnhanceTocOptions>({
+  name: 'toc',
+  selector: '[data-hl-toc]',
+  defaults: { contentSelector: 'main, article', headings: 'h2,h3', scrollSpy: true },
+  setup({ root, container, options, add }) {
+    const doc = root.ownerDocument;
+    const scope: ParentNode = container instanceof Document ? doc : container;
+    const contentRoot =
+      scope.querySelector<HTMLElement>(
+        root.getAttribute('data-hl-toc-content') || options.contentSelector!,
+      ) ?? doc.body;
 
-export function enhanceToc(
-  container: Document | HTMLElement = document,
-  options: EnhanceTocOptions = {},
-): Disposer {
-  const { contentSelector = 'main, article', headings = 'h2,h3', scrollSpy = true } = options;
-  const navs = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-toc]')).filter(
-    (nav) => !enhanced.has(nav),
-  );
-  if (navs.length === 0) return combine([]);
+    const headings = Array.from(contentRoot.querySelectorAll<HTMLElement>(options.headings!));
+    if (headings.length === 0) return;
 
-  const contentRoot =
-    container.querySelector<HTMLElement>(
-      navs[0].getAttribute('data-hl-toc-content') || contentSelector,
-    ) ||
-    (container as Document).body ||
-    (container as HTMLElement);
+    const list = doc.createElement('ul');
+    let currentList = list;
+    let lastLevel = Number(headings[0].tagName.slice(1));
 
-  const hs = Array.from(contentRoot.querySelectorAll<HTMLElement>(headings));
-  if (hs.length === 0) return combine([]);
+    for (const heading of headings) {
+      const level = Number(heading.tagName.slice(1));
+      ensureId(heading, `hl-${heading.tagName.toLowerCase()}`);
 
-  const disposers: Disposer[] = [];
-
-  for (const nav of navs) {
-    enhanced.add(nav);
-    disposers.push(() => enhanced.delete(nav));
-
-    const list = document.createElement('ul');
-    let currentUl = list;
-    let lastLevel = 2;
-
-    hs.forEach((h) => {
-      const level = Number(h.tagName.slice(1));
-      if (!h.id) h.id = `hl-${h.tagName.toLowerCase()}-${Math.random().toString(36).slice(2)}`;
       while (level > lastLevel) {
-        const ul = document.createElement('ul');
-        const li = currentUl.lastElementChild || document.createElement('li');
-        if (!li.parentElement) currentUl.appendChild(li);
-        li.appendChild(ul);
-        currentUl = ul;
-        lastLevel++;
+        const sublist = doc.createElement('ul');
+        const parentItem =
+          currentList.lastElementChild ?? currentList.appendChild(doc.createElement('li'));
+        parentItem.appendChild(sublist);
+        currentList = sublist;
+        lastLevel += 1;
       }
       while (level < lastLevel) {
-        const parentUl = currentUl.parentElement?.closest('ul');
-        if (parentUl) currentUl = parentUl;
-        lastLevel--;
+        const parentList = currentList.parentElement?.closest('ul');
+        if (parentList) currentList = parentList;
+        lastLevel -= 1;
       }
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = `#${h.id}`;
-      a.textContent = h.textContent || '';
-      li.appendChild(a);
-      currentUl.appendChild(li);
-    });
 
-    nav.innerHTML = '';
-    nav.appendChild(list);
-  }
+      const item = doc.createElement('li');
+      const link = doc.createElement('a');
+      link.href = `#${heading.id}`;
+      link.textContent = heading.textContent ?? '';
+      item.appendChild(link);
+      currentList.appendChild(item);
+    }
 
-  if (scrollSpy && typeof IntersectionObserver !== 'undefined') {
-    const linkForId = new Map<string, HTMLAnchorElement>();
-    navs.forEach((nav) =>
-      nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
-        const id = decodeURIComponent(a.getAttribute('href')!.slice(1));
-        linkForId.set(id, a);
-      }),
-    );
+    root.replaceChildren(list);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        let best: Element | null = null;
-        let bestTop = Number.NEGATIVE_INFINITY;
-        for (const entry of entries) {
-          const top = entry.boundingClientRect.top;
-          if (entry.isIntersecting && top > bestTop) {
-            best = entry.target;
-            bestTop = top;
+    if (options.scrollSpy && typeof IntersectionObserver !== 'undefined') {
+      const linkById = new Map<string, HTMLAnchorElement>();
+      root.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+        linkById.set(decodeURIComponent(a.getAttribute('href')!.slice(1)), a);
+      });
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          let best: Element | null = null;
+          let bestTop = Number.NEGATIVE_INFINITY;
+          for (const entry of entries) {
+            if (entry.isIntersecting && entry.boundingClientRect.top > bestTop) {
+              best = entry.target;
+              bestTop = entry.boundingClientRect.top;
+            }
           }
-        }
-        if (best && best.id) {
-          linkForId.forEach((a) => a.removeAttribute('aria-current'));
-          const link = linkForId.get(best.id);
-          if (link) link.setAttribute('aria-current', 'true');
-        }
-      },
-      { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] },
-    );
+          if (best?.id) {
+            linkById.forEach((a) => a.removeAttribute('aria-current'));
+            linkById.get(best.id)?.setAttribute('aria-current', 'true');
+          }
+        },
+        { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] },
+      );
 
-    hs.forEach((h) => observer.observe(h));
-    disposers.push(() => observer.disconnect());
-  }
-
-  return combine(disposers);
-}
+      headings.forEach((h) => observer.observe(h));
+      add(() => observer.disconnect());
+    }
+  },
+});

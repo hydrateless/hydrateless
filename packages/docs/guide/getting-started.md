@@ -104,7 +104,8 @@ Components use standard HTML elements with `data-hl-*` attributes:
 
 ## Next steps
 
-- Explore the [components](/components/accordion).
+- Explore the [components](/components/button) — forms, actions & overlays,
+  disclosure, feedback, data display, and navigation primitives.
 - Learn about [theming](./theming) and [dark mode](./dark-mode).
 - Using a framework? See the [React](/frameworks/react), [Vue](/frameworks/vue),
   [Svelte](/frameworks/svelte), and [Astro](/frameworks/astro) guides.

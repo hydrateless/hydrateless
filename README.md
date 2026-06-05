@@ -30,6 +30,7 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 ## Features
 
 - **CSS-first components:** Accordions, tabs, modals, drawers, tooltips, and more work out of the box with no JavaScript.
+- **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, table, kbd), and navigation (breadcrumb, pagination, table of contents, separator).
 - **Optional JS enhancers:** Add keyboard navigation, focus traps, and ARIA management only where needed.
 - **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes and lazy-loads the right enhancers.
 - **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, and typography.

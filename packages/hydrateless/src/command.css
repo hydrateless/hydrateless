@@ -1,0 +1,97 @@
+/**
+ * Command palette — `<div data-hl-command>` containing a search input
+ * (`[data-hl-command-input]`), an empty state (`[data-hl-command-empty]`), and a
+ * `[data-hl-command-list] role="listbox"` of grouped `[role="option"]` items.
+ * Often placed inside a `<dialog class="hl-modal">`.
+ */
+@layer components {
+  [data-hl-command] {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    overflow: hidden;
+    background: var(--hl-overlay);
+    border-radius: var(--hl-radius-lg);
+  }
+
+  [data-hl-command-input] {
+    flex: none;
+    inline-size: 100%;
+    block-size: var(--hl-control-height-lg);
+    padding-inline: var(--hl-space-4);
+    border: 0;
+    border-block-end: var(--hl-border-width) solid var(--hl-border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--hl-fg);
+    font: inherit;
+    font-size: var(--hl-text-base);
+  }
+
+  [data-hl-command-input]:focus-visible {
+    outline: none;
+  }
+
+  [data-hl-command-input]::placeholder {
+    color: var(--hl-fg-subtle);
+  }
+
+  [data-hl-command-list] {
+    flex: 1 1 auto;
+    max-block-size: 24rem;
+    overflow-y: auto;
+    padding: var(--hl-space-2);
+  }
+
+  [data-hl-command-group][hidden] {
+    display: none;
+  }
+
+  .hl-command-group-label {
+    padding: var(--hl-space-2) var(--hl-space-2) var(--hl-space-1);
+    font-size: var(--hl-text-xs);
+    font-weight: var(--hl-font-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--hl-fg-subtle);
+  }
+
+  [data-hl-command] [role='option'] {
+    display: flex;
+    align-items: center;
+    gap: var(--hl-space-3);
+    padding: var(--hl-space-2) var(--hl-space-3);
+    border-radius: var(--hl-radius-md);
+    font-size: var(--hl-text-sm);
+    color: var(--hl-fg);
+    cursor: pointer;
+  }
+
+  [data-hl-command] [role='option'][hidden] {
+    display: none;
+  }
+
+  [data-hl-command] [role='option']:hover,
+  [data-hl-command] [role='option'][aria-selected='true'] {
+    background: var(--hl-primary-subtle);
+    color: var(--hl-primary-subtle-fg);
+  }
+
+  [data-hl-command] [role='option'] svg {
+    inline-size: 1.1em;
+    block-size: 1.1em;
+    flex: none;
+    opacity: 0.7;
+  }
+
+  [data-hl-command-empty] {
+    padding: var(--hl-space-8) var(--hl-space-4);
+    text-align: center;
+    font-size: var(--hl-text-sm);
+    color: var(--hl-fg-muted);
+  }
+
+  [data-hl-command-empty][hidden] {
+    display: none;
+  }
+}

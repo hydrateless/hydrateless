@@ -1,0 +1,54 @@
+/**
+ * Multi-line text input — `<textarea class="hl-textarea">`.
+ *   data-hl-invalid: error styling (pair with aria-invalid)
+ */
+@layer components {
+  .hl-textarea {
+    display: block;
+    inline-size: 100%;
+    min-block-size: calc(var(--hl-control-height-md) * 2);
+    padding: var(--hl-space-2) var(--hl-space-3);
+    border: var(--hl-border-width) solid var(--hl-border-strong);
+    border-radius: var(--hl-radius-md);
+    background: var(--hl-surface);
+    color: var(--hl-fg);
+    font-family: inherit;
+    font-size: var(--hl-text-sm);
+    line-height: var(--hl-leading-normal);
+    resize: vertical;
+    transition:
+      border-color var(--hl-duration-fast) var(--hl-ease-standard),
+      box-shadow var(--hl-duration-fast) var(--hl-ease-standard);
+  }
+
+  .hl-textarea::placeholder {
+    color: var(--hl-fg-subtle);
+  }
+
+  .hl-textarea:hover:not(:disabled, :focus) {
+    border-color: var(--hl-fg-subtle);
+  }
+
+  .hl-textarea:focus-visible {
+    outline: none;
+    border-color: var(--hl-ring);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent);
+  }
+
+  .hl-textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: var(--hl-surface-2);
+  }
+
+  .hl-textarea[data-hl-invalid],
+  .hl-textarea[aria-invalid='true'] {
+    border-color: var(--hl-danger);
+  }
+
+  .hl-textarea[data-hl-invalid]:focus-visible,
+  .hl-textarea[aria-invalid='true']:focus-visible {
+    border-color: var(--hl-danger);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-danger) 30%, transparent);
+  }
+}

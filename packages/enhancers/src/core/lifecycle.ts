@@ -5,19 +5,23 @@
  */
 export type Disposer = () => void;
 
+/** A disposer that does nothing. Useful as a default/no-op in SSR guards. */
+export const noop: Disposer = () => {};
+
 /**
  * Attach an event listener and return a disposer that detaches it. Centralizing
  * add/remove pairing prevents the global-listener leaks that come from calling
  * an enhancer repeatedly in single-page apps.
  */
-export function on(
+export function on<E extends Event = Event>(
   target: EventTarget,
   type: string,
-  handler: EventListenerOrEventListenerObject,
+  handler: (event: E) => void,
   options?: boolean | AddEventListenerOptions,
 ): Disposer {
-  target.addEventListener(type, handler, options);
-  return () => target.removeEventListener(type, handler, options);
+  const listener = handler as EventListener;
+  target.addEventListener(type, listener, options);
+  return () => target.removeEventListener(type, listener, options);
 }
 
 /** Collapse many disposers into one. Each child runs at most once. */
@@ -45,4 +49,16 @@ export function selectRoots<T extends HTMLElement = HTMLElement>(
     found.unshift(container as unknown as T);
   }
   return found;
+}
+
+let counter = 0;
+
+/**
+ * Generate a stable-enough unique id for wiring ARIA relationships. Combines a
+ * monotonic counter with a short random suffix so ids are unique even across
+ * multiple enhancer runs on the same document.
+ */
+export function uid(prefix = 'hl'): string {
+  counter += 1;
+  return `${prefix}-${counter.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }

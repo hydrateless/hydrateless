@@ -1,0 +1,97 @@
+/**
+ * Menubar / navigation menu — `<ul data-hl-menu role="menubar">` with optional
+ * single-level submenus (`<ul role="menu" data-hl-menu-submenu>`). The enhancer
+ * handles roving focus, arrow navigation, and open/close.
+ */
+@layer components {
+  [data-hl-menu] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--hl-space-1);
+    margin: 0;
+    padding: var(--hl-space-1);
+    list-style: none;
+  }
+
+  [data-hl-menu][aria-orientation='vertical'] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  [data-hl-menu] > li {
+    position: relative;
+  }
+
+  [data-hl-menu] [role='menuitem'] {
+    display: flex;
+    align-items: center;
+    gap: var(--hl-space-2);
+    inline-size: 100%;
+    padding: var(--hl-space-2) var(--hl-space-3);
+    border: 0;
+    border-radius: var(--hl-radius-md);
+    background: transparent;
+    color: var(--hl-fg);
+    font: inherit;
+    font-size: var(--hl-text-sm);
+    text-align: start;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  [data-hl-menu] [role='menuitem']:hover {
+    background: var(--hl-surface-2);
+  }
+
+  [data-hl-menu] [role='menuitem']:focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: -2px;
+  }
+
+  [data-hl-menu] [role='menuitem'][aria-expanded='true'] {
+    background: var(--hl-surface-2);
+  }
+
+  [data-hl-menu] [role='menuitem'][aria-haspopup]::after {
+    content: '';
+    inline-size: 0.4rem;
+    block-size: 0.4rem;
+    margin-inline-start: auto;
+    border-inline-end: 1.5px solid currentcolor;
+    border-block-end: 1.5px solid currentcolor;
+    transform: rotate(45deg);
+    opacity: 0.6;
+  }
+
+  [data-hl-menu] [role='menu'] {
+    position: absolute;
+    inset-block-start: calc(100% + var(--hl-space-1));
+    inset-inline-start: 0;
+    z-index: var(--hl-z-dropdown);
+    min-inline-size: 12rem;
+    margin: 0;
+    padding: var(--hl-space-1);
+    list-style: none;
+    background: var(--hl-overlay);
+    border: var(--hl-border-width) solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    box-shadow: var(--hl-overlay-shadow);
+  }
+
+  [data-hl-menu][aria-orientation='vertical'] [role='menu'] {
+    inset-block-start: 0;
+    inset-inline-start: calc(100% + var(--hl-space-1));
+  }
+
+  [data-hl-menu] [role='menu'][hidden] {
+    display: none;
+  }
+
+  [data-hl-menu] [role='separator'] {
+    block-size: var(--hl-border-width);
+    margin: var(--hl-space-1) 0;
+    background: var(--hl-border);
+  }
+}

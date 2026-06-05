@@ -1,0 +1,58 @@
+/**
+ * Field — accessible form-control layout: `.hl-field` stacks a `.hl-label`,
+ * the control, `.hl-help`, and `.hl-error`. `.hl-fieldset` + `.hl-legend`
+ * group related fields.
+ */
+@layer components {
+  .hl-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hl-space-1-5);
+  }
+
+  .hl-label {
+    font-size: var(--hl-text-sm);
+    font-weight: var(--hl-font-medium);
+    color: var(--hl-fg);
+  }
+
+  .hl-label[data-hl-required]::after {
+    content: '*';
+    margin-inline-start: var(--hl-space-1);
+    color: var(--hl-danger);
+  }
+
+  .hl-help {
+    margin: 0;
+    font-size: var(--hl-text-xs);
+    color: var(--hl-fg-muted);
+  }
+
+  .hl-error {
+    margin: 0;
+    font-size: var(--hl-text-xs);
+    font-weight: var(--hl-font-medium);
+    color: var(--hl-danger);
+  }
+
+  .hl-field[data-hl-invalid] .hl-label {
+    color: var(--hl-danger);
+  }
+
+  .hl-fieldset {
+    margin: 0;
+    padding: var(--hl-space-4);
+    border: var(--hl-border-width) solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--hl-space-4);
+  }
+
+  .hl-legend {
+    padding-inline: var(--hl-space-2);
+    font-size: var(--hl-text-sm);
+    font-weight: var(--hl-font-semibold);
+    color: var(--hl-fg);
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "CSS bundle (hydrateless.min.css, gzip)",
+    "path": "packages/hydrateless/dist/hydrateless.min.css",
+    "limit": "15 kB"
+  },
+  {
+    "name": "CDN auto bundle — every enhancer (gzip)",
+    "path": "packages/auto/dist/hydrateless.js",
+    "limit": "12 kB"
+  },
+  {
+    "name": "@hydrateless/react (gzip)",
+    "path": "packages/react/dist/index.js",
+    "limit": "12 kB"
+  }
+]

@@ -1,110 +1,89 @@
-import { createFocusTrap } from '../utils/focusTrap.js';
-import { combine, on, type Disposer } from '../utils/lifecycle.js';
+import {
+  defineEnhancer,
+  createFocusTrap,
+  lockScroll,
+  setBackgroundInert,
+  resolveRef,
+  setAttrs,
+  ensureId,
+  noop,
+  type FocusTrap,
+  type Disposer,
+} from '../core/index.js';
 
 export type EnhanceModalOptions = {
+  /** Dismiss the dialog when its backdrop is clicked. Defaults to `true`. */
   closeOnBackdrop?: boolean;
 };
 
-const enhanced = new WeakSet<Element>();
+/**
+ * Wire a native `<dialog data-hl-modal>` to its `[data-hl-modal-open]` triggers
+ * and `[data-hl-modal-close]` buttons, layering on a focus trap, body
+ * scroll-lock, and a background `inert` barrier for assistive tech. The browser
+ * still provides top-layer rendering and Escape-to-close for free.
+ */
+export const enhanceModal = defineEnhancer<EnhanceModalOptions>({
+  name: 'modal',
+  selector: 'dialog[data-hl-modal]',
+  defaults: { closeOnBackdrop: true },
+  setup({ root, options, on, add }) {
+    const dialog = root as HTMLDialogElement;
+    const doc = dialog.ownerDocument;
 
-export function enhanceModal(
-  container: Document | HTMLElement = document,
-  options: EnhanceModalOptions = {},
-): Disposer {
-  const { closeOnBackdrop = true } = options;
-  const dialogs = Array.from(
-    container.querySelectorAll<HTMLDialogElement>('dialog[data-hl-modal]'),
-  );
-  const openers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-modal-open]'));
-  const closers = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-modal-close]'));
-
-  const dialogToTrap = new Map<HTMLDialogElement, ReturnType<typeof createFocusTrap>>();
-  const disposers: Disposer[] = [];
-
-  for (const dialog of dialogs) {
     if (!dialog.getAttribute('aria-labelledby')) {
       const header = dialog.querySelector('.hl-modal-header');
-      if (header) {
-        if (!header.id) header.id = `hl-modal-header-${Math.random().toString(36).slice(2)}`;
-        dialog.setAttribute('aria-labelledby', header.id);
-      }
+      if (header) setAttrs(dialog, { 'aria-labelledby': ensureId(header, 'hl-modal-title') });
     }
-  }
 
-  function openById(targetId: string): void {
-    const dialog = container.querySelector<HTMLDialogElement>(`dialog#${CSS.escape(targetId)}`);
-    if (!dialog) return;
-    if (!dialog.open) {
-      dialog.showModal();
-    }
-    let trap = dialogToTrap.get(dialog);
-    if (!trap) {
-      trap = createFocusTrap(dialog);
-      dialogToTrap.set(dialog, trap);
-    }
-    trap.activate();
-  }
+    let trap: FocusTrap | null = null;
+    let releaseScroll: Disposer = noop;
+    let releaseInert: Disposer = noop;
 
-  function closeDialog(dialog: HTMLDialogElement): void {
-    const trap = dialogToTrap.get(dialog);
-    if (trap) trap.deactivate();
-    if (dialog.open) dialog.close();
-  }
+    const teardown = () => {
+      trap?.deactivate();
+      releaseScroll();
+      releaseScroll = noop;
+      releaseInert();
+      releaseInert = noop;
+    };
 
-  for (const opener of openers) {
-    if (enhanced.has(opener)) continue;
-    const selector = opener.getAttribute('data-hl-modal-open');
-    if (!selector) continue;
-    enhanced.add(opener);
-    disposers.push(() => enhanced.delete(opener));
-    disposers.push(
+    const open = () => {
+      if (!dialog.open) dialog.showModal();
+      trap ??= createFocusTrap(dialog);
+      trap.activate();
+      releaseScroll = lockScroll(doc);
+      releaseInert = setBackgroundInert(dialog);
+    };
+
+    const close = () => {
+      teardown();
+      if (dialog.open) dialog.close();
+    };
+
+    const openers = Array.from(doc.querySelectorAll<HTMLElement>('[data-hl-modal-open]')).filter(
+      (opener) => resolveRef(doc, opener.getAttribute('data-hl-modal-open')) === dialog,
+    );
+    for (const opener of openers) {
       on(opener, 'click', (e) => {
         e.preventDefault();
-        const id = selector.startsWith('#') ? selector.slice(1) : selector;
-        openById(id);
-      }),
-    );
-  }
+        open();
+      });
+    }
 
-  for (const closer of closers) {
-    if (enhanced.has(closer)) continue;
-    enhanced.add(closer);
-    disposers.push(() => enhanced.delete(closer));
-    disposers.push(
+    for (const closer of dialog.querySelectorAll<HTMLElement>('[data-hl-modal-close]')) {
       on(closer, 'click', (e) => {
         e.preventDefault();
-        const dialog = (closer.closest('dialog[data-hl-modal]') ??
-          container.querySelector('dialog[data-hl-modal][open]')) as HTMLDialogElement | null;
-        if (dialog) closeDialog(dialog);
-      }),
-    );
-  }
-
-  for (const dialog of dialogs) {
-    if (enhanced.has(dialog)) continue;
-    enhanced.add(dialog);
-    disposers.push(() => enhanced.delete(dialog));
-
-    disposers.push(
-      on(dialog, 'close', () => {
-        const trap = dialogToTrap.get(dialog);
-        if (trap) trap.deactivate();
-      }),
-    );
-
-    if (closeOnBackdrop) {
-      disposers.push(
-        on(dialog, 'click', (e) => {
-          if (e.target === dialog) closeDialog(dialog);
-        }),
-      );
+        close();
+      });
     }
-  }
 
-  disposers.push(() => {
-    for (const trap of dialogToTrap.values()) trap.deactivate();
-    dialogToTrap.clear();
-  });
+    if (options.closeOnBackdrop) {
+      on(dialog, 'click', (e) => {
+        if (e.target === dialog) close();
+      });
+    }
 
-  return combine(disposers);
-}
+    on(dialog, 'close', teardown);
+    add(teardown);
+  },
+});

@@ -1,9 +1,12 @@
 import type { Directive } from 'vue';
 import {
   enhanceAccordion,
+  enhanceCombobox,
+  enhanceCommand,
   enhanceDisclosure,
   enhanceDropdown,
   enhanceDrawer,
+  enhanceMenu,
   enhanceModal,
   enhancePopover,
   enhanceTabs,
@@ -34,6 +37,9 @@ export const vHlDrawer = directiveFor((el) => enhanceDrawer(el));
 export const vHlPopover = directiveFor((el) => enhancePopover(el));
 export const vHlTooltip = directiveFor((el) => enhanceTooltip(el));
 export const vHlToc = directiveFor((el) => enhanceToc(el.ownerDocument));
+export const vHlMenu = directiveFor((el) => enhanceMenu(el));
+export const vHlCombobox = directiveFor((el) => enhanceCombobox(el));
+export const vHlCommand = directiveFor((el) => enhanceCommand(el));
 
 /** Map of directive names (without the `v-` prefix) to their definitions. */
 export const directives: Record<string, Directive<HTMLElement>> = {
@@ -46,4 +52,7 @@ export const directives: Record<string, Directive<HTMLElement>> = {
   'hl-popover': vHlPopover,
   'hl-tooltip': vHlTooltip,
   'hl-toc': vHlToc,
+  'hl-menu': vHlMenu,
+  'hl-combobox': vHlCombobox,
+  'hl-command': vHlCommand,
 };

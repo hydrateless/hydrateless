@@ -13,6 +13,9 @@ export {
   vHlPopover,
   vHlTooltip,
   vHlToc,
+  vHlMenu,
+  vHlCombobox,
+  vHlCommand,
 } from './directives.js';
 
 export type { Disposer } from '@hydrateless/enhancers';
