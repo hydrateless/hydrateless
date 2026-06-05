@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.jpg" alt="Hydrateless" width="800" />
+  <img src=".github/assets/banner.jpg" alt="Hydrateless" width="800" />
 </p>
 
 <p align="center">
@@ -14,8 +14,9 @@
 </p>
 
 <p align="center">
-  <a href="docs/quickstart.md">Getting Started</a> ·
-  <a href="docs/components.md">Components</a> ·
+  <a href="https://hydrateless.github.io/hydrateless/">Documentation</a> ·
+  <a href="https://hydrateless.github.io/hydrateless/guide/getting-started">Getting Started</a> ·
+  <a href="https://hydrateless.github.io/hydrateless/components/accordion">Components</a> ·
   <a href="examples/">Examples</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
@@ -36,6 +37,8 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
 - **Accessible by default:** ARIA roles, keyboard support, focus management, and skip links are built in.
 - **Modular imports:** Import the full bundle or individual component stylesheets as needed.
+- **Framework bindings:** First-class packages for [React](https://hydrateless.github.io/hydrateless/frameworks/react), [Vue](https://hydrateless.github.io/hydrateless/frameworks/vue), and [Svelte](https://hydrateless.github.io/hydrateless/frameworks/svelte), plus an [Astro](https://hydrateless.github.io/hydrateless/frameworks/astro) guide.
+- **CDN ready:** Drop in minified CSS and a self-contained auto-initializer from unpkg or jsDelivr. No build step required.
 
 ## Quick Start
 
@@ -63,9 +66,42 @@ npm install hydrateless @hydrateless/auto
 </div>
 ```
 
+### Use with a framework
+
+```bash
+# Pick your framework binding
+npm install hydrateless @hydrateless/react
+npm install hydrateless @hydrateless/vue
+npm install hydrateless @hydrateless/svelte
+```
+
+```tsx
+// React
+import 'hydrateless/hydrateless.css';
+import { Tabs } from '@hydrateless/react';
+
+<Tabs
+  items={[
+    { label: 'One', content: 'First' },
+    { label: 'Two', content: 'Second' },
+  ]}
+/>;
+```
+
+See the framework guides for [React](https://hydrateless.github.io/hydrateless/frameworks/react), [Vue](https://hydrateless.github.io/hydrateless/frameworks/vue), [Svelte](https://hydrateless.github.io/hydrateless/frameworks/svelte), and [Astro](https://hydrateless.github.io/hydrateless/frameworks/astro).
+
+### Use via CDN
+
+No build step? Pull the minified CSS and the self-contained auto-initializer straight from a CDN:
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/hydrateless.min.css" />
+<script type="module" src="https://unpkg.com/@hydrateless/auto/dist/hydrateless.js"></script>
+```
+
 ## Documentation
 
-Component guides and usage examples are available in the [`docs/`](docs/) directory. A dedicated documentation site is planned for an upcoming release.
+Full documentation (guides, framework integrations, per-component live demos, and the generated API reference) lives at **[hydrateless.github.io/hydrateless](https://hydrateless.github.io/hydrateless/)**.
 
 ## Contributing
 

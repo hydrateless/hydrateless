@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../../packages/enhancers/src/index.ts"],
+  "tsconfig": "../../packages/enhancers/tsconfig.json",
+  "out": "public/api",
+  "name": "Hydrateless Enhancers API",
+  "readme": "none",
+  "githubPages": false,
+  "excludeInternal": true
+}

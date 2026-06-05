@@ -11,3 +11,8 @@ dist/
 .vscode/
 .idea/
 *.log
+
+# Docs site build artifacts
+packages/docs/.vitepress/cache/
+packages/docs/.vitepress/dist/
+packages/docs/public/api/

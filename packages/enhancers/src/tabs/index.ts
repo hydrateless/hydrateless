@@ -1,9 +1,13 @@
+import { combine, on, selectRoots, type Disposer } from '../utils/lifecycle.js';
+
 type TabsElements = {
   root: HTMLElement;
   tablist: HTMLElement;
   tabs: HTMLElement[];
   panels: HTMLElement[];
 };
+
+const enhanced = new WeakSet<Element>();
 
 function initGroup(root: HTMLElement): TabsElements | null {
   const tablist = root.querySelector<HTMLElement>('[role="tablist"]');
@@ -38,44 +42,60 @@ function selectTab(group: TabsElements, index: number): void {
   group.tabs[index]?.focus();
 }
 
-export function enhanceTabs(container: Document | HTMLElement = document): void {
-  const roots = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-tabs]'));
+export function enhanceTabs(container: Document | HTMLElement = document): Disposer {
+  const roots = selectRoots(container, '[data-hl-tabs]');
+  const disposers: Disposer[] = [];
+
   for (const root of roots) {
+    if (enhanced.has(root)) continue;
     const group = initGroup(root);
     if (!group) continue;
 
-    group.tablist.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest('[role="tab"]') as HTMLElement | null;
-      if (!btn) return;
-      const index = group.tabs.indexOf(btn);
-      if (index !== -1) selectTab(group, index);
-    });
+    enhanced.add(root);
+    disposers.push(() => enhanced.delete(root));
 
-    group.tablist.addEventListener('keydown', (e) => {
-      const current = document.activeElement as HTMLElement | null;
-      const idx = current ? group.tabs.indexOf(current) : -1;
-      if (idx === -1) return;
-      let next = idx;
-      if (e.key === 'ArrowRight') next = (idx + 1) % group.tabs.length;
-      else if (e.key === 'ArrowLeft') next = (idx - 1 + group.tabs.length) % group.tabs.length;
-      else if (e.key === 'Home') next = 0;
-      else if (e.key === 'End') next = group.tabs.length - 1;
-      else if (e.key === 'Enter' || e.key === ' ') {
-        selectTab(group, idx);
-        e.preventDefault();
-        return;
-      } else return;
-      group.tabs[next]?.focus();
-      e.preventDefault();
-    });
+    disposers.push(
+      on(group.tablist, 'click', (e) => {
+        const btn = (e.target as HTMLElement).closest('[role="tab"]') as HTMLElement | null;
+        if (!btn) return;
+        const index = group.tabs.indexOf(btn);
+        if (index !== -1) selectTab(group, index);
+      }),
+    );
+
+    disposers.push(
+      on(group.tablist, 'keydown', (e) => {
+        const ev = e as KeyboardEvent;
+        const current = document.activeElement as HTMLElement | null;
+        const idx = current ? group.tabs.indexOf(current) : -1;
+        if (idx === -1) return;
+        let next = idx;
+        if (ev.key === 'ArrowRight') next = (idx + 1) % group.tabs.length;
+        else if (ev.key === 'ArrowLeft') next = (idx - 1 + group.tabs.length) % group.tabs.length;
+        else if (ev.key === 'Home') next = 0;
+        else if (ev.key === 'End') next = group.tabs.length - 1;
+        else if (ev.key === 'Enter' || ev.key === ' ') {
+          selectTab(group, idx);
+          ev.preventDefault();
+          return;
+        } else return;
+        group.tabs[next]?.focus();
+        ev.preventDefault();
+      }),
+    );
 
     group.tabs.forEach((tab, i) => {
-      tab.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          selectTab(group, i);
-          e.preventDefault();
-        }
-      });
+      disposers.push(
+        on(tab, 'keydown', (e) => {
+          const ev = e as KeyboardEvent;
+          if (ev.key === 'Enter' || ev.key === ' ') {
+            selectTab(group, i);
+            ev.preventDefault();
+          }
+        }),
+      );
     });
   }
+
+  return combine(disposers);
 }

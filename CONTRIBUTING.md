@@ -31,6 +31,10 @@ npm run format
   - `hydrateless/` – all CSS: reset, tokens, theme, and component styles with subpath exports
   - `enhancers/` – optional JS enhancers with internal utilities (focus trap, tabbable)
   - `auto/` – drop-in auto-loader that detects `data-hl-*` attributes and lazy-loads enhancers
+  - `react/` – React components and hooks wrapping the enhancers
+  - `vue/` – Vue directives, plugin, and composables
+  - `svelte/` – Svelte actions
+  - `docs/` – the VitePress documentation site (private; deployed to GitHub Pages)
 
 ## Coding guidelines
 

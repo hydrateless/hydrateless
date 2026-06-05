@@ -13,15 +13,18 @@
     "dist"
   ],
   "sideEffects": true,
+  "unpkg": "dist/hydrateless.js",
+  "jsdelivr": "dist/hydrateless.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./hydrateless.js": "./dist/hydrateless.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm --clean",
-    "dev": "npm run build -- --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.ts\""
   },

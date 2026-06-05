@@ -1,0 +1,45 @@
+{
+  "name": "@hydrateless/vue",
+  "version": "0.2.0",
+  "description": "Vue 3 bindings for Hydrateless — directives, composables, and a plugin for the enhancers.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hydrateless/hydrateless.git",
+    "directory": "packages/vue"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm --clean --external vue",
+    "dev": "npm run build -- --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hydrateless/enhancers": "^0.2.0"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^29.0.0",
+    "vitest": "^4.1.0",
+    "vue": "^3.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

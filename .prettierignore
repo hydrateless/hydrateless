@@ -3,3 +3,6 @@ node_modules
 .changeset
 .husky
 .github
+packages/docs/.vitepress/cache
+packages/docs/.vitepress/dist
+packages/docs/public/api

@@ -13,6 +13,8 @@
     "dist"
   ],
   "style": "dist/hydrateless.css",
+  "unpkg": "dist/hydrateless.min.css",
+  "jsdelivr": "dist/hydrateless.min.css",
   "sideEffects": [
     "**/*.css"
   ],
@@ -25,6 +27,8 @@
       "style": "./dist/hydrateless.css",
       "default": "./dist/hydrateless.css"
     },
+    "./hydrateless.css": "./dist/hydrateless.css",
+    "./hydrateless.min.css": "./dist/hydrateless.min.css",
     "./reset.css": "./dist/reset.css",
     "./tokens.css": "./dist/tokens.css",
     "./theme.css": "./dist/theme.css",

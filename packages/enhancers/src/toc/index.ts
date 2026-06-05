@@ -1,16 +1,22 @@
+import { combine, type Disposer } from '../utils/lifecycle.js';
+
 export type EnhanceTocOptions = {
   contentSelector?: string;
   headings?: string;
   scrollSpy?: boolean;
 };
 
+const enhanced = new WeakSet<Element>();
+
 export function enhanceToc(
   container: Document | HTMLElement = document,
   options: EnhanceTocOptions = {},
-): void {
+): Disposer {
   const { contentSelector = 'main, article', headings = 'h2,h3', scrollSpy = true } = options;
-  const navs = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-toc]'));
-  if (navs.length === 0) return;
+  const navs = Array.from(container.querySelectorAll<HTMLElement>('[data-hl-toc]')).filter(
+    (nav) => !enhanced.has(nav),
+  );
+  if (navs.length === 0) return combine([]);
 
   const contentRoot =
     container.querySelector<HTMLElement>(
@@ -20,9 +26,14 @@ export function enhanceToc(
     (container as HTMLElement);
 
   const hs = Array.from(contentRoot.querySelectorAll<HTMLElement>(headings));
-  if (hs.length === 0) return;
+  if (hs.length === 0) return combine([]);
+
+  const disposers: Disposer[] = [];
 
   for (const nav of navs) {
+    enhanced.add(nav);
+    disposers.push(() => enhanced.delete(nav));
+
     const list = document.createElement('ul');
     let currentUl = list;
     let lastLevel = 2;
@@ -55,7 +66,7 @@ export function enhanceToc(
     nav.appendChild(list);
   }
 
-  if (scrollSpy) {
+  if (scrollSpy && typeof IntersectionObserver !== 'undefined') {
     const linkForId = new Map<string, HTMLAnchorElement>();
     navs.forEach((nav) =>
       nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
@@ -85,5 +96,8 @@ export function enhanceToc(
     );
 
     hs.forEach((h) => observer.observe(h));
+    disposers.push(() => observer.disconnect());
   }
+
+  return combine(disposers);
 }
