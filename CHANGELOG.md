@@ -1,3 +1,13 @@
+## [0.4.0](https://github.com/hydrateless/hydrateless/compare/v0.3.0...v0.4.0) (2026-06-05)
+
+### ⚠ BREAKING CHANGES
+
+- unify headless core, and add tokens, forms, and UI primitives (#2)
+
+### Features
+
+- unify headless core, and add tokens, forms, and UI primitives ([#2](https://github.com/hydrateless/hydrateless/issues/2)) ([a27a3a5](https://github.com/hydrateless/hydrateless/commit/a27a3a5b6aaeb1af60fad2d237056e32f0e6e5ba))
+
 ## [0.3.0](https://github.com/hydrateless/hydrateless/compare/v0.2.0...v0.3.0) (2026-06-05)
 
 ### ⚠ BREAKING CHANGES
