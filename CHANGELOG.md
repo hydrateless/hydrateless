@@ -1,3 +1,13 @@
+## [0.3.0](https://github.com/hydrateless/hydrateless/compare/v0.2.0...v0.3.0) (2026-06-05)
+
+### ⚠ BREAKING CHANGES
+
+- add docs site, framework packages, and CDN bundles (#1)
+
+### Features
+
+- add docs site, framework packages, and CDN bundles ([#1](https://github.com/hydrateless/hydrateless/issues/1)) ([17584d3](https://github.com/hydrateless/hydrateless/commit/17584d367681ef079cadb41fadd563ff061cdf65))
+
 ## [0.2.0](https://github.com/hydrateless/hydrateless/compare/v0.1.0...v0.2.0) (2026-03-17)
 
 ### Features

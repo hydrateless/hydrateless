@@ -1,6 +1,6 @@
 {
   "name": "@hydrateless/vue",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Vue 3 bindings for Hydrateless — directives, composables, and a plugin for the enhancers.",
   "license": "MIT",
   "repository": {
@@ -28,7 +28,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hydrateless/enhancers": "^0.2.0"
+    "@hydrateless/enhancers": "^0.3.0"
   },
   "peerDependencies": {
     "vue": ">=3.3"

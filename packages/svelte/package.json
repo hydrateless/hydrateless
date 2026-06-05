@@ -1,6 +1,6 @@
 {
   "name": "@hydrateless/svelte",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Svelte bindings for Hydrateless — actions that wire the framework-agnostic enhancers.",
   "license": "MIT",
   "repository": {
@@ -28,7 +28,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hydrateless/enhancers": "^0.2.0"
+    "@hydrateless/enhancers": "^0.3.0"
   },
   "peerDependencies": {
     "svelte": ">=4"
