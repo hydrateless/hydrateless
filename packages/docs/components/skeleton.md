@@ -31,17 +31,33 @@ The React component takes `variant`, `width`, and `height` props.
 ```tsx [React]
 import { Skeleton } from '@hydrateless/react';
 
-<Skeleton variant="text" width="12rem" />;
+<>
+  <Skeleton variant="circle" width="3rem" height="3rem" />
+  <Skeleton variant="text" width="12rem" />
+  <Skeleton variant="rect" width="100%" height="5rem" />
+</>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Skeleton } from '@hydrateless/vue';
+</script>
+
 <template>
-  <span class="hl-skeleton" data-hl-variant="text" aria-hidden="true"></span>
+  <Skeleton variant="circle" width="3rem" height="3rem" />
+  <Skeleton variant="text" width="12rem" />
+  <Skeleton variant="rect" width="100%" height="5rem" />
 </template>
 ```
 
 ```svelte [Svelte]
-<span class="hl-skeleton" data-hl-variant="text" aria-hidden="true"></span>
+<script>
+  import { Skeleton } from '@hydrateless/svelte';
+</script>
+
+<Skeleton variant="circle" width="3rem" height="3rem" />
+<Skeleton variant="text" width="12rem" />
+<Skeleton variant="rect" width="100%" height="5rem" />
 ```
 
 :::

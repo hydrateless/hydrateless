@@ -27,18 +27,30 @@ built on a native `<textarea>`.
 ```tsx [React]
 import { Textarea } from '@hydrateless/react';
 
-<Textarea placeholder="Write a message…" />;
-<Textarea invalid />;
+<Textarea placeholder="Write a message…" rows={3} />;
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Textarea } from '@hydrateless/vue';
+
+const value = ref('');
+</script>
+
 <template>
-  <textarea class="hl-textarea" placeholder="Write a message…"></textarea>
+  <Textarea v-model="value" placeholder="Write a message…" rows="3" />
 </template>
 ```
 
 ```svelte [Svelte]
-<textarea class="hl-textarea" placeholder="Write a message…"></textarea>
+<script>
+  import { Textarea } from '@hydrateless/svelte';
+
+  let value = $state('');
+</script>
+
+<Textarea bind:value placeholder="Write a message…" rows="3" />
 ```
 
 :::

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { tabs, dropdown, combobox, menu } from './actions.js';
-import { createToast } from './toast.js';
+import { tabs, dropdown, combobox, menu } from '../src/actions.js';
+import { createToast } from '../src/toast.js';
 
-describe('@hydrateless/svelte', () => {
+describe('@hydrateless/svelte actions', () => {
   it('tabs action wires ARIA roles and disposes', () => {
     const node = document.createElement('div');
     node.setAttribute('data-hl-tabs', '');

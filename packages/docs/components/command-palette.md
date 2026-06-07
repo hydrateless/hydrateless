@@ -69,42 +69,95 @@ To open it as a modal with `Cmd`/`Ctrl`+`K`, wrap it in a `<dialog>` and add
 ::: code-group
 
 ```tsx [React]
-import { Command } from '@hydrateless/react';
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+  CommandEmpty,
+} from '@hydrateless/react';
 
-<Command
-  hotkey="k"
-  items={[
-    { value: 'new', label: 'New File', keywords: 'create', group: 'Actions', onSelect: () => {} },
-    { value: 'open', label: 'Open…', group: 'Actions', onSelect: () => {} },
-  ]}
-  onSelect={(value) => console.log(value)}
-/>;
+<Command onSelect={(value) => console.log(value)}>
+  <CommandInput placeholder="Type a command…" />
+  <CommandEmpty>No results found.</CommandEmpty>
+  <CommandList>
+    <CommandGroup label="Actions">
+      <CommandItem value="new" keywords="create">
+        New File
+      </CommandItem>
+      <CommandItem value="open">Open…</CommandItem>
+    </CommandGroup>
+    <CommandGroup label="Navigation">
+      <CommandItem value="settings" keywords="preferences">
+        Go to Settings
+      </CommandItem>
+      <CommandItem value="docs">Open Docs</CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>;
 ```
 
 ```vue [Vue]
+<script setup>
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+  CommandEmpty,
+} from '@hydrateless/vue';
+</script>
+
 <template>
-  <div v-hl-command data-hl-command>
-    <input class="hl-input" data-hl-command-input placeholder="Type a command…" />
-    <div data-hl-command-list role="listbox">
-      <div role="option" data-hl-value="new" data-hl-keywords="create">New File</div>
-      <div role="option" data-hl-value="open">Open…</div>
-    </div>
-  </div>
+  <Command @select="(value) => console.log(value)">
+    <CommandInput placeholder="Type a command…" />
+    <CommandEmpty>No results found.</CommandEmpty>
+    <CommandList>
+      <CommandGroup>
+        <template #label>Actions</template>
+        <CommandItem value="new" keywords="create">New File</CommandItem>
+        <CommandItem value="open">Open…</CommandItem>
+      </CommandGroup>
+      <CommandGroup>
+        <template #label>Navigation</template>
+        <CommandItem value="settings" keywords="preferences">Go to Settings</CommandItem>
+        <CommandItem value="docs">Open Docs</CommandItem>
+      </CommandGroup>
+    </CommandList>
+  </Command>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { command } from '@hydrateless/svelte';
+  import {
+    Command,
+    CommandInput,
+    CommandList,
+    CommandGroup,
+    CommandItem,
+    CommandEmpty,
+  } from '@hydrateless/svelte';
 </script>
 
-<div use:command data-hl-command>
-  <input class="hl-input" data-hl-command-input placeholder="Type a command…" />
-  <div data-hl-command-list role="listbox">
-    <div role="option" data-hl-value="new" data-hl-keywords="create">New File</div>
-    <div role="option" data-hl-value="open">Open…</div>
-  </div>
-</div>
+<Command onSelect={(value) => console.log(value)}>
+  <CommandInput placeholder="Type a command…" />
+  <CommandEmpty>No results found.</CommandEmpty>
+  <CommandList>
+    <CommandGroup>
+      {#snippet label()}Actions{/snippet}
+      <CommandItem value="new" keywords="create">New File</CommandItem>
+      <CommandItem value="open">Open…</CommandItem>
+    </CommandGroup>
+    <CommandGroup>
+      {#snippet label()}Navigation{/snippet}
+      <CommandItem value="settings" keywords="preferences">Go to Settings</CommandItem>
+      <CommandItem value="docs">Open Docs</CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>
 ```
 
 :::

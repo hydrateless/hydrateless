@@ -17,7 +17,7 @@ export default defineConfig({
       { text: 'Components', link: '/components/button' },
       { text: 'Frameworks', link: '/frameworks/react' },
       { text: 'API', link: '/reference' },
-      { text: '0.3.0', link: '/guide/getting-started' },
+      { text: '0.4.0', link: '/guide/getting-started' },
     ],
     sidebar: {
       '/guide/': [

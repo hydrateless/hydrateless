@@ -20,42 +20,53 @@ import 'hydrateless/hydrateless.css';
 
 ## Components
 
-Every interactive primitive has a ready-made component. Behavior (keyboard
-navigation, ARIA wiring, focus traps) comes from the underlying enhancer.
+Composable primitives use a **compound API** — a parent plus named parts you
+arrange yourself. Behavior (keyboard navigation, ARIA wiring, focus traps) comes
+from the underlying enhancer.
 
 ```tsx
-import { Tabs } from '@hydrateless/react';
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 
 export function Example() {
   return (
-    <Tabs
-      items={[
-        { label: 'Overview', content: <p>Zero runtime by default.</p> },
-        { label: 'Install', content: <p>npm install hydrateless</p> },
-      ]}
-    />
+    <Tabs>
+      <TabList>
+        <Tab>Overview</Tab>
+        <Tab>Install</Tab>
+      </TabList>
+      <TabPanel>
+        <p>Zero runtime by default.</p>
+      </TabPanel>
+      <TabPanel>
+        <p>npm install hydrateless</p>
+      </TabPanel>
+    </Tabs>
   );
 }
 ```
 
-Controlled overlays use an `open` prop and an `onClose` callback:
+Controlled overlays use an `open` prop and an `onClose` callback, with composable
+section parts:
 
 ```tsx
 import { useState } from 'react';
-import { Modal } from '@hydrateless/react';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from '@hydrateless/react';
 
 export function Example() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button onClick={() => setOpen(true)}>Open</button>
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        title="Confirm"
-        footer={<button onClick={() => setOpen(false)}>Close</button>}
-      >
-        <p>Are you sure?</p>
+      <Button onClick={() => setOpen(true)}>Open</Button>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalHeader>
+          <h2>Confirm</h2>
+        </ModalHeader>
+        <ModalBody>
+          <p>Are you sure?</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={() => setOpen(false)}>Close</Button>
+        </ModalFooter>
       </Modal>
     </>
   );
@@ -64,31 +75,35 @@ export function Example() {
 
 ### Available components
 
-| Component                    | Notes                                       |
-| ---------------------------- | ------------------------------------------- |
-| `Accordion`, `AccordionItem` | `allowMultiple` to keep several panels open |
-| `Disclosure`                 | Single expandable section                   |
-| `Tabs`                       | `items={[{ label, content }]}`              |
-| `Dropdown`                   | `trigger` + `items={[{ label, onSelect }]}` |
-| `Modal`                      | Controlled via `open` / `onClose`           |
-| `Drawer`                     | Controlled; `side="left" \| "right"`        |
-| `Popover`                    | Controlled via `open`                       |
-| `Tooltip`                    | Wraps a single focusable child with `label` |
-| `Breadcrumb`                 | `items={[{ label, href, current }]}`        |
-| `Switch`                     | Native checkbox toggle                      |
-| `SkipLink`                   | Visually hidden until focused               |
-| `Toc`                        | Auto-generated table of contents            |
-| `ToastProvider` + `useToast` | Imperative toasts                           |
-| `Menu`                       | Menubar; `items` + `orientation`            |
-| `Combobox`                   | Editable input; `options`, `onValueChange`  |
-| `Command`                    | Command palette; `items`, `hotkey`          |
+| Group      | Components                                                                                                                                                |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disclosure | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                          |
+| Overlays   | `Dropdown` (+ `DropdownTrigger`/`DropdownMenu`/`DropdownItem`/`DropdownSeparator`), `Menu`, `MenuItem`, `Modal`, `Drawer` (+ parts), `Popover`, `Tooltip` |
+| Combobox   | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                             |
+| Command    | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                   |
+| Navigation | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                           |
+
+Compose menus and lists from their parts; for example a dropdown:
+
+```tsx
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@hydrateless/react';
+
+<Dropdown>
+  <DropdownTrigger>Actions</DropdownTrigger>
+  <DropdownMenu>
+    <DropdownItem onSelect={edit}>Edit</DropdownItem>
+    <DropdownItem onSelect={remove}>Delete</DropdownItem>
+  </DropdownMenu>
+</Dropdown>;
+```
 
 The package also ships styled **form controls** (`Button`, `Input`, `Textarea`,
-`Select`, `Checkbox`, `Radio` / `RadioGroup`, `Field` with `useField()`,
-`Slider`, `SegmentedControl`) and **presentational primitives** (`Alert`,
-`Badge`, `Card`, `Avatar` / `AvatarGroup`, `Progress`, `Spinner`, `Skeleton`,
-`Pagination`, `Kbd`, `Separator`). These render the same markup as the core CSS
-and need no enhancer.
+`Select`, `Checkbox`, `Radio` / `RadioGroup`, `Field` with `FieldLabel` /
+`FieldHelp` / `FieldError` and `useField()`, `Fieldset`, `Switch`, `Slider`,
+`SegmentedControl`) and **presentational primitives** (`Alert`, `Badge`, `Card`
+
+- parts, `Avatar` / `AvatarGroup`, `Progress`, `Spinner`, `Skeleton`, `Kbd`,
+  `Separator`). These render the same markup as the core CSS and need no enhancer.
 
 ## Toasts
 
@@ -143,5 +158,5 @@ const ref = useEnhancer<HTMLDivElement>((el) => enhancePopover(el));
 
 ## TypeScript
 
-The package ships full type definitions. Every component's props and item shapes
-(`TabItem`, `DropdownItem`, `BreadcrumbItem`, etc.) are exported for reuse.
+The package ships full type definitions. Every component's props (`TabsProps`,
+`DropdownItemProps`, `ModalProps`, `ComboboxProps`, etc.) are exported for reuse.

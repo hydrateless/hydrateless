@@ -29,13 +29,26 @@ import { Slider } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Slider } from '@hydrateless/vue';
+
+const value = ref(50);
+</script>
+
 <template>
-  <input type="range" class="hl-slider" min="0" max="100" value="50" />
+  <Slider v-model="value" min="0" max="100" />
 </template>
 ```
 
 ```svelte [Svelte]
-<input type="range" class="hl-slider" min="0" max="100" value="50" />
+<script>
+  import { Slider } from '@hydrateless/svelte';
+
+  let value = $state(50);
+</script>
+
+<Slider bind:value min={0} max={100} />
 ```
 
 :::

@@ -44,43 +44,69 @@ keyboard navigation, typeahead, viewport-aware placement, and
 ::: code-group
 
 ```tsx [React]
-import { Dropdown } from '@hydrateless/react';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  DropdownSeparator,
+} from '@hydrateless/react';
 
-<Dropdown
-  trigger="Actions"
-  items={[
-    { label: 'Edit', onSelect: () => edit() },
-    { label: 'Duplicate', onSelect: () => duplicate() },
-    { separator: true },
-    { label: 'Delete', onSelect: () => remove() },
-  ]}
-/>;
+<Dropdown>
+  <DropdownTrigger>Actions</DropdownTrigger>
+  <DropdownMenu>
+    <DropdownItem onSelect={edit}>Edit</DropdownItem>
+    <DropdownItem onSelect={duplicate}>Duplicate</DropdownItem>
+    <DropdownSeparator />
+    <DropdownItem onSelect={remove}>Delete</DropdownItem>
+  </DropdownMenu>
+</Dropdown>;
 ```
 
 ```vue [Vue]
+<script setup>
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  DropdownSeparator,
+} from '@hydrateless/vue';
+</script>
+
 <template>
-  <div v-hl-dropdown data-hl-dropdown>
-    <button data-hl-dropdown-trigger>Actions</button>
-    <ul data-hl-dropdown-menu>
-      <li><button role="menuitem">Edit</button></li>
-      <li><button role="menuitem">Delete</button></li>
-    </ul>
-  </div>
+  <Dropdown>
+    <DropdownTrigger>Actions</DropdownTrigger>
+    <DropdownMenu>
+      <DropdownItem @select="edit">Edit</DropdownItem>
+      <DropdownItem @select="duplicate">Duplicate</DropdownItem>
+      <DropdownSeparator />
+      <DropdownItem @select="remove">Delete</DropdownItem>
+    </DropdownMenu>
+  </Dropdown>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { dropdown } from '@hydrateless/svelte';
+  import {
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    DropdownSeparator,
+  } from '@hydrateless/svelte';
 </script>
 
-<div use:dropdown data-hl-dropdown>
-  <button data-hl-dropdown-trigger>Actions</button>
-  <ul data-hl-dropdown-menu>
-    <li><button role="menuitem">Edit</button></li>
-    <li><button role="menuitem">Delete</button></li>
-  </ul>
-</div>
+<Dropdown>
+  <DropdownTrigger>Actions</DropdownTrigger>
+  <DropdownMenu>
+    <DropdownItem onSelect={edit}>Edit</DropdownItem>
+    <DropdownItem onSelect={duplicate}>Duplicate</DropdownItem>
+    <DropdownSeparator />
+    <DropdownItem onSelect={remove}>Delete</DropdownItem>
+  </DropdownMenu>
+</Dropdown>
 ```
 
 :::

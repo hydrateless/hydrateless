@@ -30,19 +30,39 @@ A small label for statuses, counts, and tags. CSS-only.
 ```tsx [React]
 import { Badge } from '@hydrateless/react';
 
-<Badge intent="success" variant="soft">
-  Active
-</Badge>;
+<>
+  <Badge intent="success" variant="soft">
+    Active
+  </Badge>
+  <Badge intent="primary" variant="solid">
+    New
+  </Badge>
+  <Badge intent="danger" variant="outline">
+    Overdue
+  </Badge>
+</>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Badge } from '@hydrateless/vue';
+</script>
+
 <template>
-  <span class="hl-badge" data-hl-intent="success" data-hl-variant="soft">Active</span>
+  <Badge intent="success" variant="soft">Active</Badge>
+  <Badge intent="primary" variant="solid">New</Badge>
+  <Badge intent="danger" variant="outline">Overdue</Badge>
 </template>
 ```
 
 ```svelte [Svelte]
-<span class="hl-badge" data-hl-intent="success" data-hl-variant="soft">Active</span>
+<script>
+  import { Badge } from '@hydrateless/svelte';
+</script>
+
+<Badge intent="success" variant="soft">Active</Badge>
+<Badge intent="primary" variant="solid">New</Badge>
+<Badge intent="danger" variant="outline">Overdue</Badge>
 ```
 
 :::

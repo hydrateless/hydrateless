@@ -44,32 +44,42 @@ The React component renders the wrapper for you; pass `options` or your own
 ```tsx [React]
 import { Select } from '@hydrateless/react';
 
-<Select
-  options={[
-    { label: 'One', value: '1' },
-    { label: 'Two', value: '2' },
-  ]}
-/>;
+<Select defaultValue="1">
+  <option value="1">One</option>
+  <option value="2">Two</option>
+  <option value="3">Three</option>
+</Select>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Select } from '@hydrateless/vue';
+
+const value = ref('1');
+</script>
+
 <template>
-  <span class="hl-select-wrapper">
-    <select class="hl-select">
-      <option>One</option>
-      <option>Two</option>
-    </select>
-  </span>
+  <Select v-model="value">
+    <option value="1">One</option>
+    <option value="2">Two</option>
+    <option value="3">Three</option>
+  </Select>
 </template>
 ```
 
 ```svelte [Svelte]
-<span class="hl-select-wrapper">
-  <select class="hl-select">
-    <option>One</option>
-    <option>Two</option>
-  </select>
-</span>
+<script>
+  import { Select } from '@hydrateless/svelte';
+
+  let value = $state('1');
+</script>
+
+<Select bind:value>
+  <option value="1">One</option>
+  <option value="2">Two</option>
+  <option value="3">Three</option>
+</Select>
 ```
 
 :::

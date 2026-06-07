@@ -1,52 +1,36 @@
-import { useEffect, useRef, type HTMLAttributes, type ReactNode } from 'react';
-import { enhanceMenu } from '@hydrateless/enhancers';
-
-export interface MenuItemDef {
-  label: ReactNode;
-  href?: string;
-  onSelect?: () => void;
-  disabled?: boolean;
-  items?: MenuItemDef[];
-}
+import {
+  useEffect,
+  useRef,
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
+import { enhanceMenu, type EnhanceMenuOptions } from '@hydrateless/enhancers';
 
 export interface MenuProps extends HTMLAttributes<HTMLUListElement> {
-  items: MenuItemDef[];
-  orientation?: 'horizontal' | 'vertical';
-}
-
-function renderItems(items: MenuItemDef[]): ReactNode {
-  return items.map((item, i) => (
-    <li role="none" key={i}>
-      {item.href && !item.items ? (
-        <a role="menuitem" href={item.href}>
-          {item.label}
-        </a>
-      ) : (
-        <button type="button" role="menuitem" onClick={item.onSelect} disabled={item.disabled}>
-          {item.label}
-        </button>
-      )}
-      {item.items && (
-        <ul role="menu" data-hl-menu-submenu hidden>
-          {renderItems(item.items)}
-        </ul>
-      )}
-    </li>
-  ));
+  orientation?: EnhanceMenuOptions['orientation'];
 }
 
 /**
- * Menubar / navigation menu. The enhancer wires roving tabindex, arrow
- * navigation, and single-level submenu toggling per the WAI-ARIA menubar
- * pattern.
+ * Menubar / navigation menu with single-level submenus. Compose with
+ * `<MenuItem>`; nest items by passing a `submenu`. The enhancer wires roving
+ * tabindex, orientation-aware arrow navigation, and submenu toggling.
+ *
+ * ```tsx
+ * <Menu orientation="horizontal">
+ *   <MenuItem href="/">Home</MenuItem>
+ *   <MenuItem submenu={<><MenuItem href="/docs">Docs</MenuItem></>}>Resources</MenuItem>
+ * </Menu>
+ * ```
  */
-export function Menu({ items, orientation = 'horizontal', ...rest }: MenuProps) {
+export function Menu({ orientation = 'horizontal', children, ...rest }: MenuProps) {
   const ref = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (!ref.current) return;
     return enhanceMenu(ref.current, { orientation });
-  }, [items, orientation]);
+  }, [orientation]);
 
   return (
     <ul
@@ -56,7 +40,63 @@ export function Menu({ items, orientation = 'horizontal', ...rest }: MenuProps) 
       role={orientation === 'vertical' ? 'menu' : 'menubar'}
       aria-orientation={orientation}
     >
-      {renderItems(items)}
+      {children}
     </ul>
+  );
+}
+
+export interface MenuItemProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'href' | 'type'
+> {
+  /** Render as a link instead of a button. */
+  href?: string;
+  /** Convenience handler fired on activation. */
+  onSelect?: () => void;
+  /** Nested `<MenuItem>`s; renders a single-level submenu. */
+  submenu?: ReactNode;
+  /** Extra attributes for the `<a>` when `href` is set. */
+  anchorProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
+}
+
+/**
+ * A menu entry. Children are the label; pass `submenu` to nest a flyout. With
+ * `href` it renders an anchor, otherwise a button.
+ */
+export function MenuItem({
+  href,
+  onSelect,
+  onClick,
+  submenu,
+  anchorProps,
+  children,
+  ...rest
+}: MenuItemProps) {
+  const hasSubmenu = submenu != null;
+  return (
+    <li role="none">
+      {href && !hasSubmenu ? (
+        <a {...anchorProps} role="menuitem" href={href}>
+          {children}
+        </a>
+      ) : (
+        <button
+          {...rest}
+          type="button"
+          role="menuitem"
+          onClick={(e) => {
+            onSelect?.();
+            onClick?.(e);
+          }}
+        >
+          {children}
+        </button>
+      )}
+      {hasSubmenu && (
+        <ul role="menu" data-hl-menu-submenu hidden>
+          {submenu}
+        </ul>
+      )}
+    </li>
   );
 }

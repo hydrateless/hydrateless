@@ -13,5 +13,10 @@
     "name": "@hydrateless/react (gzip)",
     "path": "packages/react/dist/index.js",
     "limit": "12 kB"
+  },
+  {
+    "name": "@hydrateless/vue (gzip)",
+    "path": "packages/vue/dist/index.js",
+    "limit": "12 kB"
   }
 ]

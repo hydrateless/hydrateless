@@ -56,21 +56,28 @@ function Example() {
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Popover } from '@hydrateless/vue';
+
+const open = ref(false);
+</script>
+
 <template>
-  <button data-hl-popover-open="my-pop">Toggle</button>
-  <div id="my-pop" v-hl-popover data-hl-popover hidden>Popover content.</div>
+  <button @click="open = !open">Toggle</button>
+  <Popover :open="open">Popover content.</Popover>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { popover } from '@hydrateless/svelte';
+  import { Popover } from '@hydrateless/svelte';
+
+  let open = $state(false);
 </script>
 
-<div use:popover>
-  <button data-hl-popover-open="my-pop">Toggle</button>
-  <div id="my-pop" data-hl-popover hidden>Popover content.</div>
-</div>
+<button onclick={() => (open = !open)}>Toggle</button>
+<Popover {open}>Popover content.</Popover>
 ```
 
 :::

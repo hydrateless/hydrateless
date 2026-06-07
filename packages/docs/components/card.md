@@ -36,8 +36,6 @@ regions. CSS-only.
 
 ## Frameworks
 
-The React package exports the card and each region as composable parts.
-
 ::: code-group
 
 ```tsx [React]
@@ -61,27 +59,49 @@ import {
 ```
 
 ```vue [Vue]
+<script setup>
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+} from '@hydrateless/vue';
+</script>
+
 <template>
-  <div class="hl-card">
-    <div class="hl-card-header">
-      <h3 class="hl-card-title">Title</h3>
-      <p class="hl-card-description">Subtitle</p>
-    </div>
-    <div class="hl-card-body">Body content</div>
-    <div class="hl-card-footer">Footer</div>
-  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>Starter plan</CardTitle>
+      <CardDescription>Everything you need to ship.</CardDescription>
+    </CardHeader>
+    <CardBody>Unlimited projects, 5 GB storage, and email support.</CardBody>
+    <CardFooter>$9 / month</CardFooter>
+  </Card>
 </template>
 ```
 
 ```svelte [Svelte]
-<div class="hl-card">
-  <div class="hl-card-header">
-    <h3 class="hl-card-title">Title</h3>
-    <p class="hl-card-description">Subtitle</p>
-  </div>
-  <div class="hl-card-body">Body content</div>
-  <div class="hl-card-footer">Footer</div>
-</div>
+<script>
+  import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    CardFooter,
+  } from '@hydrateless/svelte';
+</script>
+
+<Card>
+  <CardHeader>
+    <CardTitle>Starter plan</CardTitle>
+    <CardDescription>Everything you need to ship.</CardDescription>
+  </CardHeader>
+  <CardBody>Unlimited projects, 5 GB storage, and email support.</CardBody>
+  <CardFooter>$9 / month</CardFooter>
+</Card>
 ```
 
 :::

@@ -41,13 +41,21 @@ import { SkipLink } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { SkipLink } from '@hydrateless/vue';
+</script>
+
 <template>
-  <a class="a11y-skip-link" href="#main-content">Skip to content</a>
+  <SkipLink href="#main-content" />
 </template>
 ```
 
 ```svelte [Svelte]
-<a class="a11y-skip-link" href="#main-content">Skip to content</a>
+<script>
+  import { SkipLink } from '@hydrateless/svelte';
+</script>
+
+<SkipLink href="#main-content" />
 ```
 
 :::

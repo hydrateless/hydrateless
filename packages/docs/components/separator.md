@@ -45,15 +45,23 @@ import { Separator } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Separator } from '@hydrateless/vue';
+</script>
+
 <template>
-  <hr class="hl-separator" />
-  <div class="hl-separator" role="separator" aria-orientation="vertical"></div>
+  <Separator />
+  <Separator orientation="vertical" />
 </template>
 ```
 
 ```svelte [Svelte]
-<hr class="hl-separator" />
-<div class="hl-separator" role="separator" aria-orientation="vertical"></div>
+<script>
+  import { Separator } from '@hydrateless/svelte';
+</script>
+
+<Separator />
+<Separator orientation="vertical" />
 ```
 
 :::

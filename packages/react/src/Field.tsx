@@ -27,8 +27,9 @@ export interface FieldProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * Layout + accessibility wrapper for a form control. Provides a shared id so
- * `<Label>`, `<Help>`, and `<Error>` wire up `htmlFor`/`aria-describedby`
- * automatically; spread {@link useField}'s result onto your control.
+ * `<FieldLabel>`, `<FieldHelp>`, and `<FieldError>` wire up
+ * `htmlFor`/`aria-describedby` automatically; spread {@link useField}'s result
+ * onto your control.
  */
 export function Field({
   id,
@@ -85,11 +86,11 @@ export function useField() {
   };
 }
 
-export type LabelProps = LabelHTMLAttributes<HTMLLabelElement>;
+export type FieldLabelProps = LabelHTMLAttributes<HTMLLabelElement>;
 
 /** Label bound to the enclosing field's control via `htmlFor`. */
-export function Label({ className, children, ...rest }: LabelProps) {
-  const ctx = useFieldContext('Label');
+export function FieldLabel({ className, children, ...rest }: FieldLabelProps) {
+  const ctx = useFieldContext('FieldLabel');
   return (
     <label
       {...rest}
@@ -103,8 +104,8 @@ export function Label({ className, children, ...rest }: LabelProps) {
 }
 
 /** Supplementary help text, referenced by the control's `aria-describedby`. */
-export function Help({ className, children, ...rest }: HTMLAttributes<HTMLParagraphElement>) {
-  const ctx = useFieldContext('Help');
+export function FieldHelp({ className, children, ...rest }: HTMLAttributes<HTMLParagraphElement>) {
+  const ctx = useFieldContext('FieldHelp');
   return (
     <p {...rest} id={ctx.helpId} className={['hl-help', className].filter(Boolean).join(' ')}>
       {children}

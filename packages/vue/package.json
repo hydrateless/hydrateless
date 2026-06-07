@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/vue",
   "version": "0.4.0",
-  "description": "Vue 3 bindings for Hydrateless — directives, composables, and a plugin for the enhancers.",
+  "description": "Vue 3 bindings for Hydrateless — first-class components, directives, composables, and a plugin.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,9 +34,12 @@
     "vue": ">=3.3"
   },
   "devDependencies": {
+    "@vue/compiler-dom": "^3.5.35",
     "@vue/test-utils": "^2.4.6",
+    "axe-core": "^4.12.0",
     "jsdom": "^29.0.0",
     "vitest": "^4.1.0",
+    "vitest-axe": "^0.1.0",
     "vue": "^3.5.0"
   },
   "publishConfig": {

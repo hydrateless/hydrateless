@@ -70,15 +70,16 @@ const toast = useToast();
 
 ```svelte [Svelte]
 <script>
-  import { onMount, onDestroy } from 'svelte';
   import { createToast } from '@hydrateless/svelte';
 
   let toast;
-  onMount(() => (toast = createToast()));
-  onDestroy(() => toast?.destroy());
+  $effect(() => {
+    toast = createToast();
+    return () => toast.destroy();
+  });
 </script>
 
-<button on:click={() => toast.show('Saved!')}>Save</button>
+<button onclick={() => toast.show('Saved!')}>Save</button>
 ```
 
 :::

@@ -6,6 +6,11 @@ yarn-error.log*
 .pnp.*
 coverage/
 dist/
+.svelte-kit/
+.astro/
+
+# Standalone example apps install fresh from their READMEs (file: deps).
+examples/*/package-lock.json
 .temp/
 .tmp/
 .vscode/

@@ -39,19 +39,26 @@ import { Switch } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Switch } from '@hydrateless/vue';
+
+const checked = ref(true);
+</script>
+
 <template>
-  <label data-hl-switch>
-    <input type="checkbox" role="switch" />
-    Enable notifications
-  </label>
+  <Switch v-model="checked">Enable notifications</Switch>
 </template>
 ```
 
 ```svelte [Svelte]
-<label data-hl-switch>
-  <input type="checkbox" role="switch" />
-  Enable notifications
-</label>
+<script>
+  import { Switch } from '@hydrateless/svelte';
+
+  let checked = $state(true);
+</script>
+
+<Switch bind:checked>Enable notifications</Switch>
 ```
 
 :::

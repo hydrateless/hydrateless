@@ -45,42 +45,51 @@ combobox pattern. The enhancer adds type-to-filter, keyboard navigation,
 ::: code-group
 
 ```tsx [React]
-import { Combobox } from '@hydrateless/react';
+import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/react';
 
-<Combobox
-  options={[
-    { value: 'apple', label: 'Apple' },
-    { value: 'banana', label: 'Banana' },
-  ]}
-  placeholder="Search fruit"
-  onValueChange={(value) => console.log(value)}
-/>;
+<Combobox onValueChange={(value) => console.log(value)}>
+  <ComboboxInput placeholder="Search fruit" />
+  <ComboboxList>
+    <ComboboxOption value="apple">Apple</ComboboxOption>
+    <ComboboxOption value="banana">Banana</ComboboxOption>
+    <ComboboxOption value="cherry">Cherry</ComboboxOption>
+    <ComboboxOption value="grape">Grape</ComboboxOption>
+  </ComboboxList>
+</Combobox>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/vue';
+</script>
+
 <template>
-  <div v-hl-combobox data-hl-combobox>
-    <input class="hl-input" placeholder="Search fruit" />
-    <ul role="listbox">
-      <li role="option" data-hl-value="apple">Apple</li>
-      <li role="option" data-hl-value="banana">Banana</li>
-    </ul>
-  </div>
+  <Combobox @select="(value) => console.log(value)">
+    <ComboboxInput placeholder="Search fruit" />
+    <ComboboxList>
+      <ComboboxOption value="apple">Apple</ComboboxOption>
+      <ComboboxOption value="banana">Banana</ComboboxOption>
+      <ComboboxOption value="cherry">Cherry</ComboboxOption>
+      <ComboboxOption value="grape">Grape</ComboboxOption>
+    </ComboboxList>
+  </Combobox>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { combobox } from '@hydrateless/svelte';
+  import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/svelte';
 </script>
 
-<div use:combobox data-hl-combobox>
-  <input class="hl-input" placeholder="Search fruit" />
-  <ul role="listbox">
-    <li role="option" data-hl-value="apple">Apple</li>
-    <li role="option" data-hl-value="banana">Banana</li>
-  </ul>
-</div>
+<Combobox onValueChange={(value) => console.log(value)}>
+  <ComboboxInput placeholder="Search fruit" />
+  <ComboboxList>
+    <ComboboxOption value="apple">Apple</ComboboxOption>
+    <ComboboxOption value="banana">Banana</ComboboxOption>
+    <ComboboxOption value="cherry">Cherry</ComboboxOption>
+    <ComboboxOption value="grape">Grape</ComboboxOption>
+  </ComboboxList>
+</Combobox>
 ```
 
 :::

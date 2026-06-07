@@ -37,19 +37,27 @@ import { Disclosure } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Disclosure } from '@hydrateless/vue';
+</script>
+
 <template>
-  <details class="hydrateless-disclosure" data-hl-disclosure>
-    <summary>Show more</summary>
-    <div class="disclosure-panel">Hidden content revealed.</div>
-  </details>
+  <Disclosure>
+    <template #summary>Show more</template>
+    Hidden content revealed.
+  </Disclosure>
 </template>
 ```
 
 ```svelte [Svelte]
-<details class="hydrateless-disclosure" data-hl-disclosure>
-  <summary>Show more</summary>
-  <div class="disclosure-panel">Hidden content revealed.</div>
-</details>
+<script>
+  import { Disclosure } from '@hydrateless/svelte';
+</script>
+
+<Disclosure>
+  {#snippet summary()}Show more{/snippet}
+  Hidden content revealed.
+</Disclosure>
 ```
 
 :::

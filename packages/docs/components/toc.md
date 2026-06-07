@@ -46,17 +46,21 @@ import { Toc } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Toc } from '@hydrateless/vue';
+</script>
+
 <template>
-  <nav v-hl-toc data-hl-toc></nav>
+  <Toc headings="h2,h3" scroll-spy />
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { toc } from '@hydrateless/svelte';
+  import { Toc } from '@hydrateless/svelte';
 </script>
 
-<nav use:toc data-hl-toc></nav>
+<Toc headings="h2,h3" scrollSpy />
 ```
 
 :::

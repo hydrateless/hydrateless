@@ -28,17 +28,30 @@ A loading indicator that inherits `currentColor`. CSS-only — use
 ```tsx [React]
 import { Spinner } from '@hydrateless/react';
 
-<Spinner size="md" label="Loading" />;
+<>
+  <Spinner />
+  <Spinner size="lg" />
+</>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Spinner } from '@hydrateless/vue';
+</script>
+
 <template>
-  <span class="hl-spinner" role="status" aria-label="Loading"></span>
+  <Spinner />
+  <Spinner size="lg" />
 </template>
 ```
 
 ```svelte [Svelte]
-<span class="hl-spinner" role="status" aria-label="Loading"></span>
+<script>
+  import { Spinner } from '@hydrateless/svelte';
+</script>
+
+<Spinner />
+<Spinner size="lg" />
 ```
 
 :::

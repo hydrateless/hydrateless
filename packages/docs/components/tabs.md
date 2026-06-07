@@ -48,42 +48,48 @@ panels.
 ::: code-group
 
 ```tsx [React]
-import { Tabs } from '@hydrateless/react';
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 
-<Tabs
-  items={[
-    { label: 'Tab 1', content: <p>Panel 1</p> },
-    { label: 'Tab 2', content: <p>Panel 2</p> },
-  ]}
-/>;
+<Tabs>
+  <TabList>
+    <Tab>Tab 1</Tab>
+    <Tab>Tab 2</Tab>
+  </TabList>
+  <TabPanel>Panel 1 content.</TabPanel>
+  <TabPanel>Panel 2 content.</TabPanel>
+</Tabs>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/vue';
+</script>
+
 <template>
-  <div v-hl-tabs data-hl-tabs>
-    <div role="tablist">
-      <button role="tab">Tab 1</button>
-      <button role="tab">Tab 2</button>
-    </div>
-    <div role="tabpanel">Panel 1</div>
-    <div role="tabpanel">Panel 2</div>
-  </div>
+  <Tabs>
+    <TabList>
+      <Tab>Tab 1</Tab>
+      <Tab>Tab 2</Tab>
+    </TabList>
+    <TabPanel>Panel 1 content.</TabPanel>
+    <TabPanel>Panel 2 content.</TabPanel>
+  </Tabs>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { tabs } from '@hydrateless/svelte';
+  import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/svelte';
 </script>
 
-<div use:tabs data-hl-tabs>
-  <div role="tablist">
-    <button role="tab">Tab 1</button>
-    <button role="tab">Tab 2</button>
-  </div>
-  <div role="tabpanel">Panel 1</div>
-  <div role="tabpanel">Panel 2</div>
-</div>
+<Tabs>
+  <TabList>
+    <Tab>Tab 1</Tab>
+    <Tab>Tab 2</Tab>
+  </TabList>
+  <TabPanel>Panel 1 content.</TabPanel>
+  <TabPanel>Panel 2 content.</TabPanel>
+</Tabs>
 ```
 
 :::

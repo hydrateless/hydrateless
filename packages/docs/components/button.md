@@ -43,15 +43,21 @@ import { Button } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Button } from '@hydrateless/vue';
+</script>
+
 <template>
-  <button class="hl-button" data-hl-variant="solid" data-hl-intent="primary">Save</button>
+  <Button intent="primary" variant="solid" size="md">Save</Button>
 </template>
 ```
 
 ```svelte [Svelte]
-<button class="hl-button" data-hl-variant="solid" data-hl-intent="primary">
-  Save
-</button>
+<script>
+  import { Button } from '@hydrateless/svelte';
+</script>
+
+<Button intent="primary" variant="solid" size="md">Save</Button>
 ```
 
 :::

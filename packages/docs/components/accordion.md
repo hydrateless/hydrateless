@@ -58,27 +58,39 @@ import { Accordion, AccordionItem } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Accordion, AccordionItem } from '@hydrateless/vue';
+</script>
+
 <template>
-  <div v-hl-accordion data-hl-accordion>
-    <details>
-      <summary>Section one</summary>
-      <div class="accordion-panel">Panel content.</div>
-    </details>
-  </div>
+  <Accordion>
+    <AccordionItem>
+      <template #summary>Section one</template>
+      Panel content.
+    </AccordionItem>
+    <AccordionItem>
+      <template #summary>Section two</template>
+      Panel content.
+    </AccordionItem>
+  </Accordion>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { accordion } from '@hydrateless/svelte';
+  import { Accordion, AccordionItem } from '@hydrateless/svelte';
 </script>
 
-<div use:accordion data-hl-accordion>
-  <details>
-    <summary>Section one</summary>
-    <div class="accordion-panel">Panel content.</div>
-  </details>
-</div>
+<Accordion>
+  <AccordionItem>
+    {#snippet summary()}Section one{/snippet}
+    Panel content.
+  </AccordionItem>
+  <AccordionItem>
+    {#snippet summary()}Section two{/snippet}
+    Panel content.
+  </AccordionItem>
+</Accordion>
 ```
 
 :::
