@@ -56,53 +56,57 @@ navigation, submenu toggling, and typeahead.
 ::: code-group
 
 ```tsx [React]
-import { Menu } from '@hydrateless/react';
+import { Menu, MenuItem } from '@hydrateless/react';
 
-<Menu
-  orientation="horizontal"
-  items={[
-    {
-      label: 'File',
-      items: [
-        { label: 'New', onSelect: () => {} },
-        { label: 'Open', onSelect: () => {} },
-      ],
-    },
-    { label: 'Edit', onSelect: () => {} },
-  ]}
-/>;
+<Menu orientation="horizontal">
+  <MenuItem
+    submenu={
+      <>
+        <MenuItem>New</MenuItem>
+        <MenuItem>Open</MenuItem>
+      </>
+    }
+  >
+    File
+  </MenuItem>
+  <MenuItem>Edit</MenuItem>
+</Menu>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Menu, MenuItem } from '@hydrateless/vue';
+</script>
+
 <template>
-  <ul v-hl-menu data-hl-menu role="menubar">
-    <li>
-      <button role="menuitem">File</button>
-      <ul role="menu" data-hl-menu-submenu>
-        <li><button role="menuitem">New</button></li>
-        <li><button role="menuitem">Open</button></li>
-      </ul>
-    </li>
-    <li><button role="menuitem">Edit</button></li>
-  </ul>
+  <Menu orientation="horizontal">
+    <MenuItem>
+      File
+      <template #submenu>
+        <MenuItem>New</MenuItem>
+        <MenuItem>Open</MenuItem>
+      </template>
+    </MenuItem>
+    <MenuItem>Edit</MenuItem>
+  </Menu>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { menu } from '@hydrateless/svelte';
+  import { Menu, MenuItem } from '@hydrateless/svelte';
 </script>
 
-<ul use:menu data-hl-menu role="menubar">
-  <li>
-    <button role="menuitem">File</button>
-    <ul role="menu" data-hl-menu-submenu>
-      <li><button role="menuitem">New</button></li>
-      <li><button role="menuitem">Open</button></li>
-    </ul>
-  </li>
-  <li><button role="menuitem">Edit</button></li>
-</ul>
+<Menu orientation="horizontal">
+  <MenuItem>
+    File
+    {#snippet submenu()}
+      <MenuItem>New</MenuItem>
+      <MenuItem>Open</MenuItem>
+    {/snippet}
+  </MenuItem>
+  <MenuItem>Edit</MenuItem>
+</Menu>
 ```
 
 :::

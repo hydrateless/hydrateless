@@ -37,35 +37,39 @@ CSS-only — no enhancer required.
 ::: code-group
 
 ```tsx [React]
-import { Breadcrumb } from '@hydrateless/react';
+import { Breadcrumb, BreadcrumbItem } from '@hydrateless/react';
 
-<Breadcrumb
-  items={[
-    { label: 'Home', href: '/' },
-    { label: 'Docs', href: '/docs' },
-    { label: 'Components', current: true },
-  ]}
-/>;
+<Breadcrumb>
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/docs">Docs</BreadcrumbItem>
+  <BreadcrumbItem current>Components</BreadcrumbItem>
+</Breadcrumb>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Breadcrumb, BreadcrumbItem } from '@hydrateless/vue';
+</script>
+
 <template>
-  <nav data-hl-breadcrumb aria-label="Breadcrumb">
-    <ol>
-      <li><a href="/">Home</a></li>
-      <li><span aria-current="page">Components</span></li>
-    </ol>
-  </nav>
+  <Breadcrumb>
+    <BreadcrumbItem href="/">Home</BreadcrumbItem>
+    <BreadcrumbItem href="/docs">Docs</BreadcrumbItem>
+    <BreadcrumbItem current>Components</BreadcrumbItem>
+  </Breadcrumb>
 </template>
 ```
 
 ```svelte [Svelte]
-<nav data-hl-breadcrumb aria-label="Breadcrumb">
-  <ol>
-    <li><a href="/">Home</a></li>
-    <li><span aria-current="page">Components</span></li>
-  </ol>
-</nav>
+<script>
+  import { Breadcrumb, BreadcrumbItem } from '@hydrateless/svelte';
+</script>
+
+<Breadcrumb>
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/docs">Docs</BreadcrumbItem>
+  <BreadcrumbItem current>Components</BreadcrumbItem>
+</Breadcrumb>
 ```
 
 :::

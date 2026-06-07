@@ -38,23 +38,25 @@ import { Tooltip } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Tooltip } from '@hydrateless/vue';
+</script>
+
 <template>
-  <span v-hl-tooltip style="position: relative; display: inline-block">
-    <button data-hl-tooltip="tip1" aria-describedby="tip1">Hover me</button>
-    <span id="tip1" role="tooltip" hidden>Helpful tooltip text.</span>
-  </span>
+  <Tooltip label="Helpful tooltip text.">
+    <button>Hover me</button>
+  </Tooltip>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { tooltip } from '@hydrateless/svelte';
+  import { Tooltip } from '@hydrateless/svelte';
 </script>
 
-<span use:tooltip style="position: relative; display: inline-block">
-  <button data-hl-tooltip="tip1" aria-describedby="tip1">Hover me</button>
-  <span id="tip1" role="tooltip" hidden>Helpful tooltip text.</span>
-</span>
+<Tooltip label="Helpful tooltip text.">
+  <button>Hover me</button>
+</Tooltip>
 ```
 
 :::

@@ -30,18 +30,36 @@ A text input styled with the `hl-input` primitive. CSS-only — it's a native
 ```tsx [React]
 import { Input } from '@hydrateless/react';
 
-<Input size="md" placeholder="Email" />;
-<Input invalid placeholder="Email" />;
+<Input placeholder="Email" />;
+<Input size="sm" placeholder="Small" />;
+<Input invalid placeholder="Invalid" />;
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Input } from '@hydrateless/vue';
+
+const value = ref('');
+</script>
+
 <template>
-  <input class="hl-input" placeholder="Email" />
+  <Input v-model="value" placeholder="Email" />
+  <Input size="sm" placeholder="Small" />
+  <Input invalid placeholder="Invalid" />
 </template>
 ```
 
 ```svelte [Svelte]
-<input class="hl-input" placeholder="Email" />
+<script>
+  import { Input } from '@hydrateless/svelte';
+
+  let value = $state('');
+</script>
+
+<Input bind:value placeholder="Email" />
+<Input size="sm" placeholder="Small" />
+<Input invalid placeholder="Invalid" />
 ```
 
 :::

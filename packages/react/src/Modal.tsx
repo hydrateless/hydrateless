@@ -1,23 +1,29 @@
-import { useEffect, useRef, type HTMLAttributes, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, type HTMLAttributes, type MouseEvent } from 'react';
+import { cx } from './util.js';
 
 export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title' | 'onClick'> {
   open: boolean;
   onClose?: () => void;
-  title?: ReactNode;
-  footer?: ReactNode;
   closeOnBackdrop?: boolean;
 }
 
 /**
  * Controlled dialog overlay. Driven by the `open` prop via the native
- * `<dialog>` element, which provides focus containment in the top layer. Wire
- * `onClose` so Escape and backdrop clicks can update your state.
+ * `<dialog>` element, which provides focus containment in the top layer. Compose
+ * with `<ModalHeader>`, `<ModalBody>`, and `<ModalFooter>`. Wire `onClose` so
+ * Escape and backdrop clicks can update your state.
+ *
+ * ```tsx
+ * <Modal open={open} onClose={close}>
+ *   <ModalHeader>Confirm</ModalHeader>
+ *   <ModalBody>Are you sure?</ModalBody>
+ *   <ModalFooter><Button onClick={close}>Close</Button></ModalFooter>
+ * </Modal>
+ * ```
  */
 export function Modal({
   open,
   onClose,
-  title,
-  footer,
   closeOnBackdrop = true,
   className,
   children,
@@ -48,12 +54,27 @@ export function Modal({
     <dialog
       {...rest}
       ref={ref}
-      className={['hydrateless-modal', className].filter(Boolean).join(' ')}
+      className={cx('hydrateless-modal', className)}
       onClick={handleClick}
     >
-      {title != null && <div className="hl-modal-header">{title}</div>}
-      <div className="hl-modal-body">{children}</div>
-      {footer != null && <div className="hl-modal-footer">{footer}</div>}
+      {children}
     </dialog>
   );
+}
+
+export type ModalSectionProps = HTMLAttributes<HTMLDivElement>;
+
+/** Modal heading region; its content labels the dialog for assistive tech. */
+export function ModalHeader({ className, ...rest }: ModalSectionProps) {
+  return <div {...rest} className={cx('hl-modal-header', className)} />;
+}
+
+/** Modal main content region. */
+export function ModalBody({ className, ...rest }: ModalSectionProps) {
+  return <div {...rest} className={cx('hl-modal-body', className)} />;
+}
+
+/** Modal actions region. */
+export function ModalFooter({ className, ...rest }: ModalSectionProps) {
+  return <div {...rest} className={cx('hl-modal-footer', className)} />;
 }

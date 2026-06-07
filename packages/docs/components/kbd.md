@@ -31,11 +31,19 @@ import { Kbd } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
-<template><kbd class="hl-kbd">⌘</kbd> <kbd class="hl-kbd">K</kbd></template>
+<script setup>
+import { Kbd } from '@hydrateless/vue';
+</script>
+
+<template><Kbd>⌘</Kbd> <Kbd>K</Kbd></template>
 ```
 
 ```svelte [Svelte]
-<kbd class="hl-kbd">⌘</kbd> <kbd class="hl-kbd">K</kbd>
+<script>
+  import { Kbd } from '@hydrateless/svelte';
+</script>
+
+<Kbd>⌘</Kbd> <Kbd>K</Kbd>
 ```
 
 :::

@@ -58,15 +58,14 @@ linked automatically. `Field` accepts `invalid` and `required` props.
 ::: code-group
 
 ```tsx [React]
-import { Field, Label, Input, Help, FieldError, useField } from '@hydrateless/react';
+import { Field, FieldLabel, FieldHelp, Input, useField } from '@hydrateless/react';
 
-function EmailField({ error }: { error?: string }) {
+function EmailField() {
   return (
-    <Field required invalid={!!error}>
-      <Label>Email</Label>
+    <Field required>
+      <FieldLabel>Email</FieldLabel>
       <Control />
-      <Help>We never share it.</Help>
-      <FieldError>{error}</FieldError>
+      <FieldHelp>We never share it.</FieldHelp>
     </Field>
   );
 }
@@ -77,21 +76,29 @@ function Control() {
 ```
 
 ```vue [Vue]
+<script setup>
+import { Field, FieldLabel, FieldHelp, Input } from '@hydrateless/vue';
+</script>
+
 <template>
-  <div class="hl-field">
-    <label class="hl-label" data-hl-required>Email</label>
-    <input class="hl-input" />
-    <p class="hl-help">We never share it.</p>
-  </div>
+  <Field required>
+    <FieldLabel>Email</FieldLabel>
+    <Input placeholder="you@example.com" />
+    <FieldHelp>We never share it.</FieldHelp>
+  </Field>
 </template>
 ```
 
 ```svelte [Svelte]
-<div class="hl-field">
-  <label class="hl-label" data-hl-required>Email</label>
-  <input class="hl-input" />
-  <p class="hl-help">We never share it.</p>
-</div>
+<script>
+  import { Field, FieldLabel, FieldHelp, Input } from '@hydrateless/svelte';
+</script>
+
+<Field required>
+  <FieldLabel>Email</FieldLabel>
+  <Input placeholder="you@example.com" />
+  <FieldHelp>We never share it.</FieldHelp>
+</Field>
 ```
 
 :::

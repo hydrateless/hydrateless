@@ -61,31 +61,32 @@ function Example() {
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { RadioGroup, Radio } from '@hydrateless/vue';
+
+const value = ref('free');
+</script>
+
 <template>
-  <div class="hl-radio-group" role="radiogroup">
-    <label class="hl-radio">
-      <input type="radio" name="plan" />
-      <span>Free</span>
-    </label>
-    <label class="hl-radio">
-      <input type="radio" name="plan" />
-      <span>Pro</span>
-    </label>
-  </div>
+  <RadioGroup v-model="value">
+    <Radio value="free">Free</Radio>
+    <Radio value="pro">Pro</Radio>
+  </RadioGroup>
 </template>
 ```
 
 ```svelte [Svelte]
-<div class="hl-radio-group" role="radiogroup">
-  <label class="hl-radio">
-    <input type="radio" name="plan" />
-    <span>Free</span>
-  </label>
-  <label class="hl-radio">
-    <input type="radio" name="plan" />
-    <span>Pro</span>
-  </label>
-</div>
+<script>
+  import { RadioGroup, Radio } from '@hydrateless/svelte';
+
+  let value = $state('free');
+</script>
+
+<RadioGroup bind:value>
+  <Radio value="free">Free</Radio>
+  <Radio value="pro">Pro</Radio>
+</RadioGroup>
 ```
 
 :::

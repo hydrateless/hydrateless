@@ -40,10 +40,6 @@ a semantic `<nav>` wrapping a list of links.
 
 ## Frameworks
 
-The React component computes the ellipsis range for you and calls
-`onPageChange`. Props: `page`, `count`, `onPageChange`, `siblingCount`, and
-`showControls`.
-
 ::: code-group
 
 ```tsx [React]
@@ -57,23 +53,26 @@ function Example() {
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Pagination } from '@hydrateless/vue';
+
+const page = ref(1);
+</script>
+
 <template>
-  <nav class="hl-pagination" aria-label="Pagination">
-    <ul>
-      <li><a class="hl-pagination-item" href="#" aria-current="page">1</a></li>
-      <li><a class="hl-pagination-item" href="#">2</a></li>
-    </ul>
-  </nav>
+  <Pagination :page="page" :count="9" @update:page="page = $event" />
 </template>
 ```
 
 ```svelte [Svelte]
-<nav class="hl-pagination" aria-label="Pagination">
-  <ul>
-    <li><a class="hl-pagination-item" href="#" aria-current="page">1</a></li>
-    <li><a class="hl-pagination-item" href="#">2</a></li>
-  </ul>
-</nav>
+<script>
+  import { Pagination } from '@hydrateless/svelte';
+
+  let page = $state(1);
+</script>
+
+<Pagination {page} count={9} onPageChange={(p) => (page = p)} />
 ```
 
 :::

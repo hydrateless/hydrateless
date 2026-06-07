@@ -1,24 +1,22 @@
-import { useEffect, useRef, type HTMLAttributes, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, type HTMLAttributes, type MouseEvent } from 'react';
+import { cx } from './util.js';
 
 export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title' | 'onClick'> {
   open: boolean;
   onClose?: () => void;
   side?: 'left' | 'right';
-  title?: ReactNode;
-  footer?: ReactNode;
   closeOnBackdrop?: boolean;
 }
 
 /**
  * Controlled off-canvas panel built on the native `<dialog>` element. Mirrors
- * {@link Modal} but slides in from the chosen `side`.
+ * {@link Modal} but slides in from the chosen `side`. Compose with
+ * `<DrawerHeader>`, `<DrawerBody>`, and `<DrawerFooter>`.
  */
 export function Drawer({
   open,
   onClose,
   side = 'right',
-  title,
-  footer,
   closeOnBackdrop = true,
   className,
   children,
@@ -50,12 +48,27 @@ export function Drawer({
       {...rest}
       ref={ref}
       data-side={side}
-      className={['hydrateless-drawer', className].filter(Boolean).join(' ')}
+      className={cx('hydrateless-drawer', className)}
       onClick={handleClick}
     >
-      {title != null && <div className="hl-drawer-header">{title}</div>}
-      <div className="hl-drawer-body">{children}</div>
-      {footer != null && <div className="hl-drawer-footer">{footer}</div>}
+      {children}
     </dialog>
   );
+}
+
+export type DrawerSectionProps = HTMLAttributes<HTMLDivElement>;
+
+/** Drawer heading region. */
+export function DrawerHeader({ className, ...rest }: DrawerSectionProps) {
+  return <div {...rest} className={cx('hl-drawer-header', className)} />;
+}
+
+/** Drawer main content region. */
+export function DrawerBody({ className, ...rest }: DrawerSectionProps) {
+  return <div {...rest} className={cx('hl-drawer-body', className)} />;
+}
+
+/** Drawer actions region. */
+export function DrawerFooter({ className, ...rest }: DrawerSectionProps) {
+  return <div {...rest} className={cx('hl-drawer-footer', className)} />;
 }

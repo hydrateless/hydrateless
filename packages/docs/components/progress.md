@@ -36,17 +36,33 @@ Omit `value` for an indeterminate bar:
 ```tsx [React]
 import { Progress } from '@hydrateless/react';
 
-<Progress value={60} intent="primary" />;
+<>
+  <Progress value={60} />
+  <Progress value={100} intent="success" />
+  <Progress />
+</>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Progress } from '@hydrateless/vue';
+</script>
+
 <template>
-  <progress class="hl-progress" value="60" max="100"></progress>
+  <Progress :value="60" />
+  <Progress :value="100" intent="success" />
+  <Progress />
 </template>
 ```
 
 ```svelte [Svelte]
-<progress class="hl-progress" value="60" max="100"></progress>
+<script>
+  import { Progress } from '@hydrateless/svelte';
+</script>
+
+<Progress value={60} />
+<Progress value={100} intent="success" />
+<Progress />
 ```
 
 :::

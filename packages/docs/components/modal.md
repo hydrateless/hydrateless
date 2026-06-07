@@ -44,20 +44,19 @@ declarative trigger attributes.
 
 ```tsx [React]
 import { useState } from 'react';
-import { Modal } from '@hydrateless/react';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '@hydrateless/react';
 
 function Example() {
   const [open, setOpen] = useState(false);
   return (
     <>
       <button onClick={() => setOpen(true)}>Open</button>
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        title="Title"
-        footer={<button onClick={() => setOpen(false)}>Close</button>}
-      >
-        Content.
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalHeader>Title</ModalHeader>
+        <ModalBody>Content.</ModalBody>
+        <ModalFooter>
+          <button onClick={() => setOpen(false)}>Close</button>
+        </ModalFooter>
       </Modal>
     </>
   );
@@ -65,27 +64,40 @@ function Example() {
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '@hydrateless/vue';
+
+const open = ref(false);
+</script>
+
 <template>
-  <button data-hl-modal-open="my-modal">Open</button>
-  <dialog id="my-modal" class="hydrateless-modal" v-hl-modal data-hl-modal>
-    <div class="hl-modal-body">Content.</div>
-    <button data-hl-modal-close>Close</button>
-  </dialog>
+  <button @click="open = true">Open</button>
+  <Modal :open="open" @close="open = false">
+    <ModalHeader>Title</ModalHeader>
+    <ModalBody>Content.</ModalBody>
+    <ModalFooter>
+      <button @click="open = false">Close</button>
+    </ModalFooter>
+  </Modal>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { modal } from '@hydrateless/svelte';
+  import { Modal, ModalHeader, ModalBody, ModalFooter } from '@hydrateless/svelte';
+
+  let open = $state(false);
 </script>
 
-<div use:modal>
-  <button data-hl-modal-open="my-modal">Open</button>
-  <dialog id="my-modal" class="hydrateless-modal" data-hl-modal>
-    <div class="hl-modal-body">Content.</div>
-    <button data-hl-modal-close>Close</button>
-  </dialog>
-</div>
+<button onclick={() => (open = true)}>Open</button>
+<Modal {open} onclose={() => (open = false)}>
+  <ModalHeader>Title</ModalHeader>
+  <ModalBody>Content.</ModalBody>
+  <ModalFooter>
+    <button onclick={() => (open = false)}>Close</button>
+  </ModalFooter>
+</Modal>
 ```
 
 :::

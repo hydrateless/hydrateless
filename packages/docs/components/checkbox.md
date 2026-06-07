@@ -32,23 +32,30 @@ key, and form participation.
 ```tsx [React]
 import { Checkbox } from '@hydrateless/react';
 
-<Checkbox>Accept terms</Checkbox>;
+<Checkbox defaultChecked>Accept terms</Checkbox>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Checkbox } from '@hydrateless/vue';
+
+const checked = ref(true);
+</script>
+
 <template>
-  <label class="hl-checkbox">
-    <input type="checkbox" />
-    <span>Accept terms</span>
-  </label>
+  <Checkbox v-model="checked">Accept terms</Checkbox>
 </template>
 ```
 
 ```svelte [Svelte]
-<label class="hl-checkbox">
-  <input type="checkbox" />
-  <span>Accept terms</span>
-</label>
+<script>
+  import { Checkbox } from '@hydrateless/svelte';
+
+  let checked = $state(true);
+</script>
+
+<Checkbox bind:checked>Accept terms</Checkbox>
 ```
 
 :::

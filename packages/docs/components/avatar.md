@@ -46,35 +46,51 @@ Overlap several avatars with a group wrapper:
 
 ## Frameworks
 
-The React component shows `fallback` automatically when `src` is missing or the
-image fails to load.
-
 ::: code-group
 
 ```tsx [React]
 import { Avatar, AvatarGroup } from '@hydrateless/react';
 
-<Avatar src="https://i.pravatar.cc/80?img=1" alt="Ada" fallback="AL" size="md" />;
+<Avatar src="https://i.pravatar.cc/80?img=1" alt="Ada" />;
+<Avatar>AL</Avatar>;
 
 <AvatarGroup>
   <Avatar src="https://i.pravatar.cc/80?img=2" alt="Grace" />
   <Avatar src="https://i.pravatar.cc/80?img=3" alt="Alan" />
-  <Avatar fallback="+3" />
+  <Avatar>+3</Avatar>
 </AvatarGroup>;
 ```
 
 ```vue [Vue]
+<script setup>
+import { Avatar, AvatarGroup } from '@hydrateless/vue';
+</script>
+
 <template>
-  <span class="hl-avatar">
-    <img src="https://i.pravatar.cc/80?img=1" alt="Ada" />
-  </span>
+  <Avatar src="https://i.pravatar.cc/80?img=1" alt="Ada" />
+  <Avatar>AL</Avatar>
+
+  <AvatarGroup>
+    <Avatar src="https://i.pravatar.cc/80?img=2" alt="Grace" />
+    <Avatar src="https://i.pravatar.cc/80?img=3" alt="Alan" />
+    <Avatar>+3</Avatar>
+  </AvatarGroup>
 </template>
 ```
 
 ```svelte [Svelte]
-<span class="hl-avatar">
-  <img src="https://i.pravatar.cc/80?img=1" alt="Ada" />
-</span>
+<script>
+  import { Avatar, AvatarGroup } from '@hydrateless/svelte';
+</script>
+
+<Avatar src="https://i.pravatar.cc/80?img=1" alt="Ada" />
+<Avatar>AL</Avatar>
+
+<AvatarGroup>
+  <Avatar src="https://i.pravatar.cc/80?img=2" alt="Grace" />
+  <Avatar src="https://i.pravatar.cc/80?img=3" alt="Alan" />
+  <Avatar>+3</Avatar>
+</AvatarGroup>
 ```
 
 :::

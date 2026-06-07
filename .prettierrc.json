@@ -3,5 +3,10 @@
   "singleQuote": true,
   "trailingComma": "all",
   "semi": true,
-  "tabWidth": 2
+  "tabWidth": 2,
+  "plugins": ["prettier-plugin-svelte", "prettier-plugin-astro"],
+  "overrides": [
+    { "files": "*.svelte", "options": { "parser": "svelte" } },
+    { "files": "*.astro", "options": { "parser": "astro" } }
+  ]
 }

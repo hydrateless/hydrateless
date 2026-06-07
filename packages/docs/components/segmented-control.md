@@ -55,31 +55,34 @@ import { SegmentedControl } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { SegmentedControl } from '@hydrateless/vue';
+
+const value = ref('list');
+const options = [
+  { label: 'List', value: 'list' },
+  { label: 'Grid', value: 'grid' },
+];
+</script>
+
 <template>
-  <div class="hl-segmented" role="radiogroup">
-    <label class="hl-segmented-item">
-      <input type="radio" name="view" checked />
-      <span>List</span>
-    </label>
-    <label class="hl-segmented-item">
-      <input type="radio" name="view" />
-      <span>Grid</span>
-    </label>
-  </div>
+  <SegmentedControl v-model="value" :options="options" />
 </template>
 ```
 
 ```svelte [Svelte]
-<div class="hl-segmented" role="radiogroup">
-  <label class="hl-segmented-item">
-    <input type="radio" name="view" checked />
-    <span>List</span>
-  </label>
-  <label class="hl-segmented-item">
-    <input type="radio" name="view" />
-    <span>Grid</span>
-  </label>
-</div>
+<script>
+  import { SegmentedControl } from '@hydrateless/svelte';
+
+  let value = $state('list');
+  const options = [
+    { label: 'List', value: 'list' },
+    { label: 'Grid', value: 'grid' },
+  ];
+</script>
+
+<SegmentedControl bind:value {options} />
 ```
 
 :::

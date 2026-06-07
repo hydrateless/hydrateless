@@ -87,14 +87,18 @@ with `client:*` directives:
 
 ```astro
 ---
-import { Tabs } from '@hydrateless/react';
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 ---
 
 <!-- Only this island hydrates; the rest of the page stays static HTML. -->
-<Tabs client:visible items={[
-  { label: 'Overview', content: 'Zero runtime by default.' },
-  { label: 'Install', content: 'npm install hydrateless' },
-]} />
+<Tabs client:visible>
+  <TabList>
+    <Tab>Overview</Tab>
+    <Tab>Install</Tab>
+  </TabList>
+  <TabPanel>Zero runtime by default.</TabPanel>
+  <TabPanel>npm install hydrateless</TabPanel>
+</Tabs>
 ```
 
 See the [React](./react), [Vue](./vue), and [Svelte](./svelte) guides for the

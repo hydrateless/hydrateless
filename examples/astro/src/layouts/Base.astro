@@ -1,0 +1,44 @@
+---
+import 'hydrateless/hydrateless.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <style is:global>
+      body {
+        margin: 0;
+      }
+      .page {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2rem;
+        font-family: system-ui, sans-serif;
+        display: grid;
+        gap: 1.5rem;
+      }
+      section + section {
+        margin-top: 1rem;
+      }
+    </style>
+    <main class="page">
+      <slot />
+    </main>
+
+    <!-- Bundled by Astro and shipped to the browser. Scans the page and
+         lazy-loads only the enhancers the page actually uses. -->
+    <script>
+      import '@hydrateless/auto';
+    </script>
+  </body>
+</html>

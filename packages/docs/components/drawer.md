@@ -40,15 +40,19 @@ and slide animation (which respects `prefers-reduced-motion`).
 
 ```tsx [React]
 import { useState } from 'react';
-import { Drawer } from '@hydrateless/react';
+import { Drawer, DrawerHeader, DrawerBody, DrawerFooter } from '@hydrateless/react';
 
 function Example() {
   const [open, setOpen] = useState(false);
   return (
     <>
       <button onClick={() => setOpen(true)}>Open</button>
-      <Drawer open={open} side="right" onClose={() => setOpen(false)} title="Settings">
-        Drawer content.
+      <Drawer open={open} side="right" onClose={() => setOpen(false)}>
+        <DrawerHeader>Settings</DrawerHeader>
+        <DrawerBody>Drawer content.</DrawerBody>
+        <DrawerFooter>
+          <button onClick={() => setOpen(false)}>Close</button>
+        </DrawerFooter>
       </Drawer>
     </>
   );
@@ -56,27 +60,40 @@ function Example() {
 ```
 
 ```vue [Vue]
+<script setup>
+import { ref } from 'vue';
+import { Drawer, DrawerHeader, DrawerBody, DrawerFooter } from '@hydrateless/vue';
+
+const open = ref(false);
+</script>
+
 <template>
-  <button data-hl-drawer-open="my-drawer">Open</button>
-  <dialog id="my-drawer" class="hydrateless-drawer" v-hl-drawer data-hl-drawer data-side="right">
-    <div class="hl-drawer-body">Drawer content.</div>
-    <button data-hl-drawer-close>Close</button>
-  </dialog>
+  <button @click="open = true">Open</button>
+  <Drawer :open="open" side="right" @close="open = false">
+    <DrawerHeader>Settings</DrawerHeader>
+    <DrawerBody>Drawer content.</DrawerBody>
+    <DrawerFooter>
+      <button @click="open = false">Close</button>
+    </DrawerFooter>
+  </Drawer>
 </template>
 ```
 
 ```svelte [Svelte]
 <script>
-  import { drawer } from '@hydrateless/svelte';
+  import { Drawer, DrawerHeader, DrawerBody, DrawerFooter } from '@hydrateless/svelte';
+
+  let open = $state(false);
 </script>
 
-<div use:drawer>
-  <button data-hl-drawer-open="my-drawer">Open</button>
-  <dialog id="my-drawer" class="hydrateless-drawer" data-hl-drawer data-side="right">
-    <div class="hl-drawer-body">Drawer content.</div>
-    <button data-hl-drawer-close>Close</button>
-  </dialog>
-</div>
+<button onclick={() => (open = true)}>Open</button>
+<Drawer {open} side="right" onclose={() => (open = false)}>
+  <DrawerHeader>Settings</DrawerHeader>
+  <DrawerBody>Drawer content.</DrawerBody>
+  <DrawerFooter>
+    <button onclick={() => (open = false)}>Close</button>
+  </DrawerFooter>
+</Drawer>
 ```
 
 :::

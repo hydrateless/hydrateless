@@ -48,23 +48,21 @@ import { Alert } from '@hydrateless/react';
 ```
 
 ```vue [Vue]
+<script setup>
+import { Alert } from '@hydrateless/vue';
+</script>
+
 <template>
-  <div class="hl-alert" role="alert" data-hl-intent="info">
-    <div class="hl-alert-body">
-      <p class="hl-alert-title">Heads up</p>
-      <p>Your trial ends soon.</p>
-    </div>
-  </div>
+  <Alert intent="info" title="Heads up">Your trial ends soon.</Alert>
 </template>
 ```
 
 ```svelte [Svelte]
-<div class="hl-alert" role="alert" data-hl-intent="info">
-  <div class="hl-alert-body">
-    <p class="hl-alert-title">Heads up</p>
-    <p>Your trial ends soon.</p>
-  </div>
-</div>
+<script>
+  import { Alert } from '@hydrateless/svelte';
+</script>
+
+<Alert intent="info" title="Heads up">Your trial ends soon.</Alert>
 ```
 
 :::

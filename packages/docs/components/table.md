@@ -57,9 +57,6 @@ apply the class to standard table markup.
 
 ## Frameworks
 
-There's no dedicated component — apply the `hl-table` class to a native
-`<table>` in any framework.
-
 ::: code-group
 
 ```tsx [React]

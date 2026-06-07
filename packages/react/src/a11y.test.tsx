@@ -8,7 +8,7 @@ import { Progress } from './Progress.js';
 import { Pagination } from './Pagination.js';
 import { SegmentedControl } from './SegmentedControl.js';
 import { Avatar } from './Avatar.js';
-import { Field, Label, Help, useField } from './Field.js';
+import { Field, FieldLabel, FieldHelp, useField } from './Field.js';
 import { Input } from './Input.js';
 import { Card, CardHeader, CardTitle, CardBody } from './Card.js';
 
@@ -77,13 +77,13 @@ describe('a11y (axe) smoke tests', () => {
     expect(await violationIds(<Avatar fallback="AL" />)).toEqual([]);
   });
 
-  it('Field + Label + Input is correctly associated', async () => {
+  it('Field + FieldLabel + Input is correctly associated', async () => {
     expect(
       await violationIds(
         <Field>
-          <Label>Email</Label>
+          <FieldLabel>Email</FieldLabel>
           <FieldControl />
-          <Help>We never share it.</Help>
+          <FieldHelp>We never share it.</FieldHelp>
         </Field>,
       ),
     ).toEqual([]);
