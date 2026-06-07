@@ -1,6 +1,6 @@
 {
   "name": "@hydrateless/react",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "React bindings for Hydrateless — hooks and components that wire the framework-agnostic enhancers.",
   "license": "MIT",
   "repository": {
@@ -28,7 +28,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hydrateless/enhancers": "^0.4.0"
+    "@hydrateless/enhancers": "^0.5.0"
   },
   "peerDependencies": {
     "react": ">=18"
