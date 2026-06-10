@@ -1,35 +1,64 @@
-import { useEffect, useRef, type ButtonHTMLAttributes, type HTMLAttributes } from 'react';
-import { enhanceTabs, type EnhanceTabsOptions } from '@hydrateless/enhancers';
+import { useEffect, type ButtonHTMLAttributes, type HTMLAttributes } from 'react';
+import { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
+import { useLatest } from './util.js';
 
 export interface TabsProps extends HTMLAttributes<HTMLDivElement> {
   /** `manual` (default): arrows move focus, Enter/Space activates. `automatic`: arrows activate immediately. */
   activation?: EnhanceTabsOptions['activation'];
   orientation?: EnhanceTabsOptions['orientation'];
+  /** Controlled value of the selected tab (pair with `onValueChange`). */
+  value?: string;
+  /** Initial value for uncontrolled usage. */
+  defaultValue?: string;
+  /** Called with the new tab value after every selection change. */
+  onValueChange?: (value: string) => void;
 }
 
 /**
  * Tabbed interface root. Compose with `<TabList>`, `<Tab>`, and `<TabPanel>`.
  * The enhancer wires ARIA roles, roving tabindex, and arrow-key navigation
- * once the markup is mounted.
+ * once the markup is mounted. Tab values come from each `<Tab value>`,
+ * defaulting to the index; selection works uncontrolled (`defaultValue`) or
+ * controlled (`value` + `onValueChange`).
  *
  * ```tsx
- * <Tabs>
+ * <Tabs value={tab} onValueChange={setTab}>
  *   <TabList>
- *     <Tab>Overview</Tab>
- *     <Tab>Install</Tab>
+ *     <Tab value="overview">Overview</Tab>
+ *     <Tab value="install">Install</Tab>
  *   </TabList>
  *   <TabPanel>Zero runtime by default.</TabPanel>
  *   <TabPanel>npm install hydrateless</TabPanel>
  * </Tabs>
  * ```
  */
-export function Tabs({ activation, orientation, children, ...rest }: TabsProps) {
-  const ref = useRef<HTMLDivElement>(null);
+export function Tabs({
+  activation,
+  orientation,
+  value,
+  defaultValue,
+  onValueChange,
+  children,
+  ...rest
+}: TabsProps) {
+  const onValueChangeRef = useLatest(onValueChange);
+  const initialValueRef = useLatest(value ?? defaultValue);
+
+  const { ref, api } = useEnhancer<HTMLDivElement, TabsApi>(
+    (el) =>
+      enhanceTabs(el, {
+        activation,
+        orientation,
+        defaultValue: initialValueRef.current,
+        onValueChange: (next) => onValueChangeRef.current?.(next),
+      }),
+    [activation, orientation],
+  );
 
   useEffect(() => {
-    if (!ref.current) return;
-    return enhanceTabs(ref.current, { activation, orientation });
-  }, [activation, orientation]);
+    if (value != null) api.current?.setValue(value);
+  }, [value, api]);
 
   return (
     <div {...rest} data-hl-tabs ref={ref}>
@@ -49,12 +78,15 @@ export function TabList({ children, ...rest }: TabListProps) {
   );
 }
 
-export type TabProps = ButtonHTMLAttributes<HTMLButtonElement>;
+export interface TabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Stable value identifying this tab; defaults to its index. */
+  value?: string;
+}
 
 /** A single tab trigger. Renders `role="tab"`. */
-export function Tab({ children, type, ...rest }: TabProps) {
+export function Tab({ children, type, value, ...rest }: TabProps) {
   return (
-    <button {...rest} type={type ?? 'button'} role="tab">
+    <button {...rest} type={type ?? 'button'} role="tab" data-hl-value={value}>
       {children}
     </button>
   );

@@ -149,4 +149,52 @@ describe('enhanceDropdown', () => {
     document.body.innerHTML = '<div>Nothing</div>';
     expect(() => enhanceDropdown(document)).not.toThrow();
   });
+
+  describe('controlled state', () => {
+    it('opens initially with defaultOpen', () => {
+      enhanceDropdown(document, { defaultOpen: true });
+      const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
+      expect(menu.hidden).toBe(false);
+    });
+
+    it('exposes open and setOpen through the api', () => {
+      const api = enhanceDropdown(document).api!;
+      const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
+
+      expect(api.open).toBe(false);
+      api.setOpen(true);
+      expect(menu.hidden).toBe(false);
+      expect(api.open).toBe(true);
+      api.setOpen(false);
+      expect(menu.hidden).toBe(true);
+    });
+
+    it('reports open changes through onOpenChange and hl:open-change', () => {
+      const changes: boolean[] = [];
+      const events: boolean[] = [];
+      document
+        .querySelector('[data-hl-dropdown]')!
+        .addEventListener('hl:open-change', (e) => events.push((e as CustomEvent).detail.open));
+      enhanceDropdown(document, { onOpenChange: (open) => changes.push(open) });
+
+      const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
+      trigger.click();
+      trigger.click();
+      expect(changes).toEqual([true, false]);
+      expect(events).toEqual([true, false]);
+    });
+
+    it('emits cancelable hl:select with the item value on selection', () => {
+      const selected: string[] = [];
+      document
+        .querySelector('[data-hl-dropdown]')!
+        .addEventListener('hl:select', (e) => selected.push((e as CustomEvent).detail.value));
+      enhanceDropdown(document);
+
+      const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
+      trigger.click();
+      document.querySelectorAll<HTMLElement>('[role="menuitem"]')[1].click();
+      expect(selected).toEqual(['Beta']);
+    });
+  });
 });

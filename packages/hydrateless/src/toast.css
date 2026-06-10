@@ -1,12 +1,12 @@
 @layer components {
   [data-hl-toast-region] {
     position: fixed;
-    z-index: 1100;
-    bottom: var(--hl-spacing-4, 1rem);
-    right: var(--hl-spacing-4, 1rem);
+    z-index: var(--hl-z-toast);
+    inset-block-end: var(--hl-space-4);
+    inset-inline-end: var(--hl-space-4);
     display: flex;
     flex-direction: column-reverse;
-    gap: var(--hl-spacing-2, 0.5rem);
+    gap: var(--hl-space-2);
     pointer-events: none;
     max-width: min(90vw, 24rem);
   }
@@ -15,13 +15,29 @@
     pointer-events: auto;
     display: flex;
     align-items: flex-start;
-    gap: var(--hl-spacing-3, 0.75rem);
-    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
-    border-radius: var(--hl-radius-3, 0.5rem);
-    padding: var(--hl-spacing-3, 0.75rem) var(--hl-spacing-4, 1rem);
-    background: var(--hl-color-bg);
-    box-shadow: 0 8px 24px color-mix(in oklab, var(--hl-color-fg) 14%, transparent);
-    animation: hl-toast-in 200ms ease-out;
+    gap: var(--hl-space-3);
+    border: 1px solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    padding: var(--hl-space-3) var(--hl-space-4);
+    background: var(--hl-surface);
+    box-shadow: var(--hl-overlay-shadow);
+    animation: hl-toast-in var(--hl-duration-base) var(--hl-ease-standard);
+  }
+
+  [data-hl-toast][data-hl-variant='success'] {
+    border-inline-start: 3px solid var(--hl-success);
+  }
+
+  [data-hl-toast][data-hl-variant='warning'] {
+    border-inline-start: 3px solid var(--hl-warning);
+  }
+
+  [data-hl-toast][data-hl-variant='danger'] {
+    border-inline-start: 3px solid var(--hl-danger);
+  }
+
+  [data-hl-toast][data-hl-variant='info'] {
+    border-inline-start: 3px solid var(--hl-info);
   }
 
   [data-hl-toast-close] {
@@ -29,21 +45,21 @@
     border: none;
     background: transparent;
     cursor: pointer;
-    padding: var(--hl-spacing-1, 0.25rem);
-    color: color-mix(in oklab, var(--hl-color-fg) 50%, transparent);
-    margin-left: auto;
+    padding: var(--hl-space-1);
+    color: var(--hl-fg-muted);
+    margin-inline-start: auto;
     flex-shrink: 0;
     font: inherit;
   }
 
   [data-hl-toast-close]:hover {
-    color: var(--hl-color-fg);
+    color: var(--hl-fg);
   }
 
   [data-hl-toast-close]:focus-visible {
-    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    outline: var(--hl-focus-ring);
     outline-offset: 2px;
-    border-radius: var(--hl-radius-2, 0.25rem);
+    border-radius: var(--hl-radius-sm);
   }
 
   @keyframes hl-toast-in {

@@ -50,7 +50,7 @@ const email = ref('');
         <BreadcrumbItem href="#">Examples</BreadcrumbItem>
         <BreadcrumbItem current>Vue</BreadcrumbItem>
       </Breadcrumb>
-      <h1>Hydrateless for Vue <Badge intent="primary">v0.4</Badge></h1>
+      <h1>Hydrateless for Vue <Badge intent="primary">v0.5</Badge></h1>
     </header>
 
     <div class="row">
@@ -74,9 +74,9 @@ const email = ref('');
 
     <Tabs>
       <TabList>
-        <Tab>Overview</Tab>
-        <Tab>Form</Tab>
-        <Tab>Search</Tab>
+        <Tab value="overview">Overview</Tab>
+        <Tab value="form">Form</Tab>
+        <Tab value="search">Search</Tab>
       </TabList>
 
       <TabPanel>
@@ -100,7 +100,7 @@ const email = ref('');
       </TabPanel>
 
       <TabPanel>
-        <Combobox v-model:value="fruit">
+        <Combobox v-model="fruit">
           <ComboboxInput placeholder="Search fruit…" />
           <ComboboxList>
             <ComboboxOption value="apple">Apple</ComboboxOption>
@@ -114,7 +114,7 @@ const email = ref('');
 
     <Pagination v-model:page="page" :count="10" />
 
-    <Modal :open="open" @close="open = false">
+    <Modal v-model:open="open">
       <ModalHeader><h2>Confirm</h2></ModalHeader>
       <ModalBody><p>Are you sure you want to continue?</p></ModalBody>
       <ModalFooter>

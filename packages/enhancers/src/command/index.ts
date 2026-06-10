@@ -1,8 +1,10 @@
-import { defineEnhancer, ensureId, setAttrs, nextIndex } from '../core/index.js';
+import { defineEnhancer, ensureId, setAttrs, nextIndex, Events } from '../core/index.js';
 
 export type EnhanceCommandOptions = {
   /** Lowercased key that, with Cmd/Ctrl, opens the palette's dialog. */
   hotkey?: string;
+  /** Called with the command's value when a command runs. */
+  onCommand?: (value: string, item: HTMLElement) => void;
 };
 
 /**
@@ -15,7 +17,7 @@ export type EnhanceCommandOptions = {
 export const enhanceCommand = defineEnhancer<EnhanceCommandOptions>({
   name: 'command',
   selector: '[data-hl-command]',
-  setup({ root, options, on, add }) {
+  setup({ root, options, on, add, emit }) {
     const input = root.querySelector<HTMLInputElement>('[data-hl-command-input], input');
     const list = root.querySelector<HTMLElement>('[data-hl-command-list], [role="listbox"]');
     if (!input || !list) return;
@@ -77,12 +79,8 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions>({
 
     const run = (item: HTMLElement) => {
       const value = item.dataset.hlValue ?? item.textContent?.trim() ?? '';
-      const event = new CustomEvent('hl:command', {
-        bubbles: true,
-        cancelable: true,
-        detail: { value, item },
-      });
-      if (!root.dispatchEvent(event)) return;
+      if (!emit(Events.command, { value, item }, { cancelable: true })) return;
+      options.onCommand?.(value, item);
       const link = item.matches('a[href]')
         ? item
         : item.querySelector<HTMLAnchorElement>('a[href]');

@@ -13,7 +13,7 @@
 
   $effect(() => {
     if (!host) return;
-    return enhanceToc(host.ownerDocument, { contentSelector, headings, scrollSpy });
+    return enhanceToc(host.ownerDocument, { contentSelector, headings, scrollSpy }).destroy;
   });
 </script>
 

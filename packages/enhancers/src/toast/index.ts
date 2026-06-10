@@ -1,4 +1,4 @@
-import { combine, on, type Disposer } from '../core/index.js';
+import { combine, on, toHandle, type Disposer, type EnhancerHandle } from '../core/index.js';
 
 export type ToastVariant = 'info' | 'success' | 'warning' | 'danger';
 
@@ -7,20 +7,28 @@ export type ToastOptions = {
   variant?: ToastVariant;
 };
 
+export type EnhanceToastOptions = {
+  /** Default auto-dismiss duration in ms for toasts without an explicit one. */
+  duration?: number;
+};
+
 export type ToastApi = {
   show: (message: string, options?: ToastOptions) => HTMLElement;
   dismiss: (toast: HTMLElement) => void;
-  destroy: Disposer;
 };
 
 const enhanced = new WeakSet<Element>();
 
 /**
- * Create (or adopt) a polite live region and return an imperative API for
+ * Create (or adopt) a polite live region and expose an imperative API for
  * showing/dismissing toasts. Declarative `[data-hl-toast-trigger]` buttons are
  * wired automatically. Hovering a toast pauses its auto-dismiss timer.
  */
-export function enhanceToast(container: Document | HTMLElement = document): ToastApi {
+export function enhanceToast(
+  container: Document | HTMLElement = document,
+  options: EnhanceToastOptions = {},
+): EnhancerHandle<ToastApi> {
+  const defaultDuration = options.duration ?? 5000;
   const root = container === document ? document.body : (container as HTMLElement);
   let region = root.querySelector<HTMLElement>('[data-hl-toast-region]');
 
@@ -41,8 +49,8 @@ export function enhanceToast(container: Document | HTMLElement = document): Toas
     toast.remove();
   }
 
-  function show(message: string, options: ToastOptions = {}): HTMLElement {
-    const { duration = 5000, variant } = options;
+  function show(message: string, toastOptions: ToastOptions = {}): HTMLElement {
+    const { duration = defaultDuration, variant } = toastOptions;
 
     const toast = document.createElement('div');
     toast.setAttribute('data-hl-toast', '');
@@ -103,7 +111,7 @@ export function enhanceToast(container: Document | HTMLElement = document): Toas
     enhanced.add(trigger);
     disposers.push(() => enhanced.delete(trigger));
     const message = trigger.getAttribute('data-hl-toast-trigger') || '';
-    const duration = Number(trigger.getAttribute('data-hl-toast-duration')) || 5000;
+    const duration = Number(trigger.getAttribute('data-hl-toast-duration')) || defaultDuration;
     const variant = (trigger.getAttribute('data-hl-toast-variant') as ToastVariant) || undefined;
     disposers.push(on(trigger, 'click', () => show(message, { duration, variant })));
   }
@@ -114,5 +122,5 @@ export function enhanceToast(container: Document | HTMLElement = document): Toas
     combine(disposers)();
   };
 
-  return { show, dismiss, destroy };
+  return toHandle([{ root: region, api: { show, dismiss }, destroy }]);
 }

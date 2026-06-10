@@ -17,7 +17,7 @@
   });
 </script>
 
-<details {...rest} bind:this={el} class={['hydrateless-disclosure', klass]} data-hl-disclosure>
+<details {...rest} bind:this={el} class={['hl-disclosure', klass]} data-hl-disclosure>
   <summary>{@render summary?.()}</summary>
-  <div class="disclosure-panel">{@render children?.()}</div>
+  <div class="hl-disclosure-panel">{@render children?.()}</div>
 </details>

@@ -1,11 +1,16 @@
 @layer components {
   [popover],
   [data-hl-popover] {
-    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
-    border-radius: var(--hl-radius-3, 0.5rem);
-    padding: var(--hl-spacing-3, 0.75rem);
-    background: var(--hl-color-bg);
-    box-shadow: 0 8px 24px color-mix(in oklab, var(--hl-color-fg) 14%, transparent);
+    border: 1px solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    padding: var(--hl-space-3);
+    background: var(--hl-surface);
+    color: var(--hl-fg);
+    box-shadow: var(--hl-overlay-shadow);
+  }
+
+  [data-hl-popover]:not([popover]) {
+    z-index: var(--hl-z-popover);
   }
 
   [data-hl-popover][hidden] {

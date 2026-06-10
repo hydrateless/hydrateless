@@ -46,8 +46,8 @@ export { SkipLink } from './SkipLink.js';
 export type { SkipLinkProps } from './SkipLink.js';
 export { Toc } from './Toc.js';
 export type { TocProps } from './Toc.js';
-export { ToastProvider, useToast } from './Toast.js';
-export type { ToastProviderProps } from './Toast.js';
+export { ToastRegion, useToast } from './Toast.js';
+export type { ToastRegionProps } from './Toast.js';
 
 export { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from './Combobox.js';
 export type {
@@ -115,4 +115,16 @@ export type { SeparatorProps } from './Separator.js';
 
 export { cx } from './util.js';
 
-export type { Disposer } from '@hydrateless/enhancers';
+export type {
+  AccordionApi,
+  ComboboxApi,
+  Disposer,
+  DrawerApi,
+  DropdownApi,
+  EnhancerHandle,
+  ModalApi,
+  PopoverApi,
+  TabsApi,
+  ToastApi,
+  TooltipApi,
+} from '@hydrateless/enhancers';

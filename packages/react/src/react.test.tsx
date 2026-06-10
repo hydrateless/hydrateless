@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { useState } from 'react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { Tabs, TabList, Tab, TabPanel } from './Tabs.js';
+import { Accordion, AccordionItem } from './Accordion.js';
 import {
   Dropdown,
   DropdownTrigger,
@@ -12,9 +14,10 @@ import { Menu, MenuItem } from './Menu.js';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb.js';
 import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from './Combobox.js';
 import { Command, CommandInput, CommandList, CommandItem, CommandEmpty } from './Command.js';
+import { Modal, ModalHeader, ModalBody } from './Modal.js';
 import { Switch } from './Switch.js';
 import { Tooltip } from './Tooltip.js';
-import { ToastProvider, useToast } from './Toast.js';
+import { ToastRegion, useToast } from './Toast.js';
 
 describe('@hydrateless/react', () => {
   it('Tabs wires ARIA roles and selects the first tab', () => {
@@ -159,22 +162,129 @@ describe('@hydrateless/react', () => {
     expect(document.getElementById(tipId!)?.getAttribute('role')).toBe('tooltip');
   });
 
-  it('ToastProvider exposes a working useToast hook', () => {
+  it('useToast works with a mounted ToastRegion', () => {
     function Demo() {
       const toast = useToast();
       return (
-        <button type="button" onClick={() => toast.show('Saved')}>
+        <button type="button" onClick={() => toast.show('Saved', { duration: 0 })}>
           show
         </button>
       );
     }
     render(
-      <ToastProvider>
+      <>
+        <ToastRegion />
         <Demo />
-      </ToastProvider>,
+      </>,
     );
     fireEvent.click(screen.getByText('show'));
-    const toast = document.querySelector('[data-hl-toast]');
-    expect(toast?.textContent).toContain('Saved');
+    const region = document.querySelector('[data-hl-toast-region]')!;
+    expect(region.querySelector('[data-hl-toast]')?.textContent).toContain('Saved');
+  });
+
+  it('Tabs supports defaultValue and reports changes', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Tabs defaultValue="two" onValueChange={onValueChange}>
+        <TabList>
+          <Tab value="one">One</Tab>
+          <Tab value="two">Two</Tab>
+        </TabList>
+        <TabPanel>First</TabPanel>
+        <TabPanel>Second</TabPanel>
+      </Tabs>,
+    );
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+
+    fireEvent.click(tabs[0]);
+    expect(onValueChange).toHaveBeenCalledWith('one');
+  });
+
+  it('Tabs works fully controlled', () => {
+    function Demo() {
+      const [tab, setTab] = useState('one');
+      return (
+        <>
+          <button type="button" onClick={() => setTab('two')}>
+            go
+          </button>
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabList>
+              <Tab value="one">One</Tab>
+              <Tab value="two">Two</Tab>
+            </TabList>
+            <TabPanel>First</TabPanel>
+            <TabPanel>Second</TabPanel>
+          </Tabs>
+        </>
+      );
+    }
+    render(<Demo />);
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+
+    // External state change drives the enhancer.
+    fireEvent.click(screen.getByText('go'));
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+
+    // Clicking a tab reports back through onValueChange.
+    fireEvent.click(tabs[0]);
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('Accordion reports open values', async () => {
+    const onValueChange = vi.fn();
+    render(
+      <Accordion allowMultiple onValueChange={onValueChange}>
+        <AccordionItem value="a" summary="One">
+          1
+        </AccordionItem>
+        <AccordionItem value="b" summary="Two">
+          2
+        </AccordionItem>
+      </Accordion>,
+    );
+    const [first] = Array.from(document.querySelectorAll('details'));
+    await act(async () => {
+      first.open = true;
+      first.dispatchEvent(new Event('toggle'));
+      await Promise.resolve(); // change notifications are coalesced
+    });
+    expect(onValueChange).toHaveBeenCalledWith(['a']);
+  });
+
+  it('Modal opens and closes through the open prop', () => {
+    for (const dialog of [HTMLDialogElement.prototype]) {
+      dialog.showModal ??= function (this: HTMLDialogElement) {
+        this.setAttribute('open', '');
+      };
+      dialog.close ??= function (this: HTMLDialogElement) {
+        this.removeAttribute('open');
+      };
+    }
+    function Demo() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            open
+          </button>
+          <Modal open={open} onOpenChange={setOpen}>
+            <ModalHeader>Confirm</ModalHeader>
+            <ModalBody>Are you sure?</ModalBody>
+          </Modal>
+        </>
+      );
+    }
+    render(<Demo />);
+    const dialog = document.querySelector('dialog')!;
+    expect(dialog.hasAttribute('open')).toBe(false);
+
+    fireEvent.click(screen.getByText('open'));
+    expect(dialog.hasAttribute('open')).toBe(true);
+
+    // The header labels the dialog.
+    expect(dialog.getAttribute('aria-labelledby')).toBeTruthy();
   });
 });

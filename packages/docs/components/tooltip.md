@@ -20,7 +20,9 @@ A text hint shown on hover and focus, wired with `role="tooltip"` and
 ```
 
 - **CSS**: `hydrateless/tooltip.css`
-- **JS**: `enhanceTooltip(container)`
+- **JS**: `enhanceTooltip(container, { placement?, showDelay?, hideDelay? })`
+  — shows after a short hover delay (focus is immediate) and stays open while
+  the pointer rests on the tip; the handle's `api` exposes `show`/`hide`.
 - **Keyboard**: shows on focus, dismisses on `Esc`.
 
 ## Frameworks

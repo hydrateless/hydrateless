@@ -1,14 +1,16 @@
 @layer components {
   [role='tooltip'] {
     position: absolute;
-    z-index: 1000;
+    z-index: var(--hl-z-tooltip);
     inset: auto auto auto 0;
     translate: 0 -0.25rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--hl-radius-2, 0.25rem);
-    background: color-mix(in oklab, var(--hl-color-fg) 96%, var(--hl-color-bg) 4%);
-    color: var(--hl-color-bg);
-    font-size: 0.875rem;
+    padding: var(--hl-space-1) var(--hl-space-2);
+    border-radius: var(--hl-radius-sm);
+    background: var(--hl-fg);
+    color: var(--hl-surface);
+    font-size: var(--hl-text-sm);
+    max-width: 32ch;
+    width: max-content;
   }
 
   [role='tooltip'][hidden] {

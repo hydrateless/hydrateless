@@ -8,7 +8,7 @@ and slide animation (which respects `prefers-reduced-motion`).
 
 <div class="hl-demo">
 <button data-hl-drawer-open="demo-drawer">Open drawer</button>
-<dialog id="demo-drawer" class="hydrateless-drawer" data-hl-drawer data-side="right">
+<dialog id="demo-drawer" class="hl-drawer" data-hl-drawer data-side="right">
   <div class="hl-drawer-header">Settings</div>
   <div class="hl-drawer-body">A drawer slides in from the chosen side. Click the backdrop or press Escape to close.</div>
   <div class="hl-drawer-footer">
@@ -21,7 +21,7 @@ and slide animation (which respects `prefers-reduced-motion`).
 
 ```html
 <button data-hl-drawer-open="my-drawer">Open drawer</button>
-<dialog id="my-drawer" class="hydrateless-drawer" data-hl-drawer data-side="right">
+<dialog id="my-drawer" class="hl-drawer" data-hl-drawer data-side="right">
   <div class="hl-drawer-header">Drawer title</div>
   <div class="hl-drawer-body">Drawer content.</div>
   <div class="hl-drawer-footer">
@@ -31,7 +31,9 @@ and slide animation (which respects `prefers-reduced-motion`).
 ```
 
 - **CSS**: `hydrateless/drawer.css`
-- **JS**: `enhanceDrawer(container, { closeOnBackdrop?: boolean })`
+- **JS**: `enhanceDrawer(container, { closeOnBackdrop?, defaultOpen?, onOpenChange? })`
+  — the handle's `api` exposes `open` and `setOpen(open)`; the dialog also
+  emits `hl:open-change`.
 - **Variants**: `data-side="left"` or `data-side="right"`.
 
 ## Frameworks
@@ -47,7 +49,7 @@ function Example() {
   return (
     <>
       <button onClick={() => setOpen(true)}>Open</button>
-      <Drawer open={open} side="right" onClose={() => setOpen(false)}>
+      <Drawer open={open} side="right" onOpenChange={setOpen}>
         <DrawerHeader>Settings</DrawerHeader>
         <DrawerBody>Drawer content.</DrawerBody>
         <DrawerFooter>
@@ -69,7 +71,7 @@ const open = ref(false);
 
 <template>
   <button @click="open = true">Open</button>
-  <Drawer :open="open" side="right" @close="open = false">
+  <Drawer v-model:open="open" side="right">
     <DrawerHeader>Settings</DrawerHeader>
     <DrawerBody>Drawer content.</DrawerBody>
     <DrawerFooter>
@@ -87,7 +89,7 @@ const open = ref(false);
 </script>
 
 <button onclick={() => (open = true)}>Open</button>
-<Drawer {open} side="right" onclose={() => (open = false)}>
+<Drawer bind:open side="right">
   <DrawerHeader>Settings</DrawerHeader>
   <DrawerBody>Drawer content.</DrawerBody>
   <DrawerFooter>

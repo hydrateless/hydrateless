@@ -1,5 +1,4 @@
 import {
-  MANIFEST,
   enhanceAccordion,
   enhanceTabs,
   enhanceDisclosure,
@@ -15,8 +14,9 @@ import {
   enhanceToast,
   type Disposer,
 } from '@hydrateless/enhancers';
+import { createAuto, type AutoOptions, type Run } from './runtime.js';
 
-type Run = (container: Document | HTMLElement) => Disposer;
+export type { AutoOptions };
 
 /** All enhancers statically bundled for the self-contained CDN build. */
 const runners: Record<string, Run> = {
@@ -32,26 +32,22 @@ const runners: Record<string, Run> = {
   combobox: enhanceCombobox,
   command: enhanceCommand,
   toc: enhanceToc,
-  toast: (c) => enhanceToast(c).destroy,
+  toast: enhanceToast,
 };
 
+const start = createAuto((name) => runners[name]);
+
 /**
- * Synchronous, fully self-contained variant of `auto()` for the CDN bundle. All
- * enhancers are statically bundled so a single `<script type="module">` works
- * with no import map and no build step.
+ * Synchronous, fully self-contained variant of `auto()` for the CDN bundle.
+ * All enhancers are statically bundled so a single `<script type="module">`
+ * works with no import map and no build step. Like `auto()`, it watches the
+ * container and enhances markup added later.
  */
-export function autoSync(container: Document | HTMLElement = document): Disposer {
-  const disposers: Disposer[] = [];
-
-  for (const { name, selector } of MANIFEST) {
-    if (!container.querySelector(selector)) continue;
-    const run = runners[name];
-    if (run) disposers.push(run(container));
-  }
-
-  return () => {
-    for (const dispose of disposers) dispose();
-  };
+export function autoSync(
+  container: Document | HTMLElement = document,
+  options: AutoOptions = {},
+): Disposer {
+  return start(container, options).dispose;
 }
 
 if (typeof window !== 'undefined') {

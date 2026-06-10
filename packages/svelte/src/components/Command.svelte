@@ -16,14 +16,7 @@
 
   $effect(() => {
     if (!host) return;
-    const node = host;
-    const dispose = enhanceCommand(node, { hotkey });
-    const handler = (e: Event) => onSelect?.((e as CustomEvent).detail.value);
-    node.addEventListener('hl:command', handler);
-    return () => {
-      node.removeEventListener('hl:command', handler);
-      dispose();
-    };
+    return enhanceCommand(host, { hotkey, onCommand: (value) => onSelect?.(value) }).destroy;
   });
 </script>
 

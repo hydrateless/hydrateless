@@ -32,27 +32,20 @@ import { auto } from '@hydrateless/auto';
 const dispose = await auto(document);
 ```
 
-`auto()` is idempotent: enhancers track which elements they have already
-processed, so calling it again after new content is added will not double-bind
-listeners.
-
 ## Single-page apps and client-side navigation
 
-When your router swaps page content, re-run `auto()` for the new DOM and dispose
-the previous run to avoid stacking global listeners:
+`auto()` keeps a `MutationObserver` on the container, so content swapped in by
+your router is enhanced automatically and instances are disposed when their
+roots leave the document — one call at startup is all you need:
 
 ```js
 import { auto } from '@hydrateless/auto';
 
-let dispose;
-async function onRouteChange() {
-  dispose?.();
-  dispose = await auto(document);
-}
+await auto(document);
 ```
 
-This is exactly the pattern used by this documentation site, which is built with
-VitePress.
+This is exactly the pattern used by this documentation site, which is built
+with VitePress. (Pass `{ watch: false }` for a one-shot scan instead.)
 
 ## Streaming and partial hydration
 
@@ -63,7 +56,8 @@ specific island by passing its root element instead of `document`:
 ```js
 import { enhanceTabs } from '@hydrateless/enhancers/tabs';
 
-const dispose = enhanceTabs(document.querySelector('#tabs-island'));
+const tabs = enhanceTabs(document.querySelector('#tabs-island'));
+// tabs.api?.setValue('install'); tabs.destroy();
 ```
 
 ## Framework guides

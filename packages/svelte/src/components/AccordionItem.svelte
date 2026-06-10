@@ -5,11 +5,13 @@
   interface Props extends Omit<HTMLAttributes<HTMLDetailsElement>, 'title'> {
     /** The clickable summary/trigger row. */
     summary?: Snippet;
+    /** Stable value identifying this item; defaults to its index. */
+    value?: string;
     defaultOpen?: boolean;
     children?: Snippet;
   }
 
-  let { summary, defaultOpen = false, children, ...rest }: Props = $props();
+  let { summary, value, defaultOpen = false, children, ...rest }: Props = $props();
   let el = $state<HTMLDetailsElement>();
 
   $effect(() => {
@@ -17,7 +19,7 @@
   });
 </script>
 
-<details {...rest} bind:this={el}>
+<details {...rest} bind:this={el} data-hl-value={value}>
   <summary>{@render summary?.()}</summary>
-  <div class="accordion-panel">{@render children?.()}</div>
+  <div class="hl-accordion-panel">{@render children?.()}</div>
 </details>

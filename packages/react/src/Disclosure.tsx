@@ -1,4 +1,5 @@
 import { useEffect, useRef, type HTMLAttributes, type ReactNode } from 'react';
+import { cx } from './util.js';
 
 export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'title'> {
   summary: ReactNode;
@@ -11,7 +12,13 @@ export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>
  * `useEnhancer(enhanceDisclosure)` on a wrapper if you need a mutually
  * exclusive group.
  */
-export function Disclosure({ summary, defaultOpen = false, children, ...rest }: DisclosureProps) {
+export function Disclosure({
+  summary,
+  defaultOpen = false,
+  className,
+  children,
+  ...rest
+}: DisclosureProps) {
   const ref = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -19,9 +26,9 @@ export function Disclosure({ summary, defaultOpen = false, children, ...rest }: 
   }, [defaultOpen]);
 
   return (
-    <details {...rest} className="hydrateless-disclosure" data-hl-disclosure ref={ref}>
+    <details {...rest} className={cx('hl-disclosure', className)} data-hl-disclosure ref={ref}>
       <summary>{summary}</summary>
-      <div className="disclosure-panel">{children}</div>
+      <div className="hl-disclosure-panel">{children}</div>
     </details>
   );
 }

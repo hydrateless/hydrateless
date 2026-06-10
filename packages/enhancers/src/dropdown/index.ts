@@ -5,24 +5,40 @@ import {
   onClickOutside,
   nextIndex,
   createTypeahead,
+  Events,
   type MoveDirection,
 } from '../core/index.js';
 
 export type EnhanceDropdownOptions = {
   /** Preferred side; flips to `top` when there is no room below. */
   placement?: 'bottom' | 'top';
+  /** Open the menu immediately on enhance. Defaults to `false`. */
+  defaultOpen?: boolean;
+  /** Called after the menu opens or closes. */
+  onOpenChange?: (open: boolean) => void;
+  /** Called with the item's value when a menu item is activated. */
+  onSelect?: (value: string, item: HTMLElement) => void;
+};
+
+export type DropdownApi = {
+  /** Whether the menu is currently open. */
+  readonly open: boolean;
+  /** Open or close the menu. Pass `focus: false` to leave focus untouched. */
+  setOpen: (open: boolean, options?: { focus?: boolean }) => void;
 };
 
 /**
  * Menu-button pattern: a trigger toggles a `role="menu"` of `role="menuitem"`
  * children with full arrow/Home/End/typeahead navigation, Escape + outside
- * click to dismiss, and ARIA expanded/haspopup wiring.
+ * click to dismiss, and ARIA expanded/haspopup wiring. Open state is
+ * observable through `onOpenChange`/`hl:open-change` and controllable through
+ * the returned API; activating an item emits a cancelable `hl:select`.
  */
-export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions>({
+export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownApi>({
   name: 'dropdown',
   selector: '[data-hl-dropdown]',
-  defaults: { placement: 'bottom' },
-  setup({ root, options, on, add }) {
+  defaults: { placement: 'bottom', defaultOpen: false },
+  setup({ root, options, on, add, emit }) {
     const trigger = root.querySelector<HTMLElement>('[data-hl-dropdown-trigger]');
     const menu = root.querySelector<HTMLElement>('[data-hl-dropdown-menu]');
     if (!trigger || !menu) return;
@@ -51,23 +67,42 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions>({
       }
     };
 
-    const open = (focusLast = false) => {
+    const notify = (open: boolean) => {
+      options.onOpenChange?.(open);
+      emit(Events.openChange, { open });
+    };
+
+    const open = (focusItem: 'first' | 'last' | 'none' = 'first') => {
+      if (isOpen()) return;
       menu.hidden = false;
       place();
       setAttrs(trigger, { 'aria-expanded': 'true' });
-      (focusLast ? items[items.length - 1] : items[0])?.focus();
+      if (focusItem !== 'none') {
+        (focusItem === 'last' ? items[items.length - 1] : items[0])?.focus();
+      }
+      notify(true);
     };
 
     const close = (restoreFocus = true) => {
+      if (!isOpen()) return;
       menu.hidden = true;
       setAttrs(trigger, { 'aria-expanded': 'false' });
       if (restoreFocus) trigger.focus();
+      notify(false);
     };
 
     const move = (direction: MoveDirection) => {
       const active = root.ownerDocument.activeElement as HTMLElement | null;
       const current = active ? items.indexOf(active) : -1;
       items[nextIndex(current, items.length, direction)]?.focus();
+    };
+
+    const select = (item: HTMLElement) => {
+      const value = item.dataset.hlValue ?? item.textContent?.trim() ?? '';
+      const proceed = emit(Events.select, { value, item }, { cancelable: true });
+      if (!proceed) return;
+      options.onSelect?.(value, item);
+      close();
     };
 
     on(trigger, 'click', (e) => {
@@ -84,7 +119,7 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions>({
         }
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        if (!isOpen()) open(true);
+        if (!isOpen()) open('last');
       }
     });
 
@@ -125,9 +160,21 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions>({
     });
 
     for (const item of items) {
-      on(item, 'click', () => close());
+      on(item, 'click', () => select(item));
     }
 
     add(onClickOutside(root, () => isOpen() && close(false)));
+
+    if (options.defaultOpen) open('none');
+
+    return {
+      get open() {
+        return isOpen();
+      },
+      setOpen(next, { focus = false } = {}) {
+        if (next) open(focus ? 'first' : 'none');
+        else close(focus);
+      },
+    };
   },
 });

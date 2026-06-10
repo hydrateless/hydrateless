@@ -55,7 +55,7 @@ To open it as a modal with `Cmd`/`Ctrl`+`K`, wrap it in a `<dialog>` and add
 ```
 
 - **CSS**: `hydrateless/command.css`
-- **JS**: `enhanceCommand(container)`
+- **JS**: `enhanceCommand(container, { hotkey?, onCommand? })`
 - **Events**: emits a cancelable `hl:command` `CustomEvent` with `{ value, item }`
   when a command runs; call `preventDefault()` to handle navigation yourself.
 - **Keyboard**: `↑`/`↓` and `Home`/`End` navigate, `Enter` runs the active

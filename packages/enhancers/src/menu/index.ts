@@ -128,6 +128,13 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions>({
         } else if (hasSubmenu && !vertical && e.key === 'ArrowUp') {
           e.preventDefault();
           openSubmenu(topIdx, true);
+        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+          const match = typeahead(
+            e.key,
+            topItems.map((item) => item.textContent ?? ''),
+            topIdx,
+          );
+          if (match !== -1) focusTop(match);
         }
         return;
       }

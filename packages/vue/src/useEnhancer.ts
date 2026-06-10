@@ -1,27 +1,36 @@
-import { onMounted, onUnmounted, type Ref } from 'vue';
-import type { Disposer } from '@hydrateless/enhancers';
+import { onMounted, onUnmounted, shallowRef, type Ref, type ShallowRef } from 'vue';
+import type { EnhancerHandle } from '@hydrateless/enhancers';
 
 /**
  * Attach any Hydrateless enhancer to a template ref for the lifetime of a
- * component. The enhancer's disposer is called automatically on unmount.
+ * component. Returns a shallow ref to the enhancer's imperative API; the
+ * instance is destroyed automatically on unmount.
  *
  * ```ts
  * const el = ref<HTMLElement | null>(null);
- * useEnhancer(el, enhanceTabs);
+ * const tabs = useEnhancer(el, enhanceTabs);
+ * tabs.value?.setValue('install');
  * ```
  */
-export function useEnhancer(
+export function useEnhancer<Api = null>(
   target: Ref<HTMLElement | null | undefined>,
-  enhance: (container: HTMLElement) => Disposer,
-): void {
-  let dispose: Disposer | null = null;
+  enhance: (container: HTMLElement) => EnhancerHandle<Api>,
+): ShallowRef<Api | null> {
+  const api = shallowRef<Api | null>(null);
+  let destroy: (() => void) | null = null;
 
   onMounted(() => {
-    if (target.value) dispose = enhance(target.value);
+    if (!target.value) return;
+    const handle = enhance(target.value);
+    api.value = handle.api;
+    destroy = handle.destroy;
   });
 
   onUnmounted(() => {
-    dispose?.();
-    dispose = null;
+    destroy?.();
+    destroy = null;
+    api.value = null;
   });
+
+  return api;
 }

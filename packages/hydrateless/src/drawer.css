@@ -1,23 +1,24 @@
 @layer components {
-  dialog.hydrateless-drawer {
+  dialog.hl-drawer {
     border: none;
     padding: 0;
     width: min(90vw, 360px);
     max-height: 100dvh;
     margin: 0;
-    background: var(--hl-color-bg);
-    color: var(--hl-color-fg);
+    background: var(--hl-surface);
+    color: var(--hl-fg);
+    box-shadow: var(--hl-overlay-shadow);
   }
 
-  dialog.hydrateless-drawer::backdrop {
-    background: color-mix(in oklab, var(--hl-color-fg) 40%, transparent);
+  dialog.hl-drawer::backdrop {
+    background: var(--hl-scrim);
   }
 
-  .hydrateless-drawer[open] {
-    animation: hl-drawer-in 160ms ease-out;
+  .hl-drawer[open] {
+    animation: hl-drawer-in-right var(--hl-duration-base) var(--hl-ease-standard);
   }
 
-  @keyframes hl-drawer-in {
+  @keyframes hl-drawer-in-right {
     from {
       transform: translateX(100%);
     }
@@ -27,33 +28,47 @@
     }
   }
 
+  @keyframes hl-drawer-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(0%);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .hydrateless-drawer[open] {
+    .hl-drawer[open] {
       animation: none;
     }
   }
 
-  .hydrateless-drawer[data-side='left'] {
+  .hl-drawer[data-side='left'] {
     inline-size: auto;
     inset: 0 auto 0 0;
   }
 
-  .hydrateless-drawer[data-side='right'] {
+  .hl-drawer[data-side='left'][open] {
+    animation-name: hl-drawer-in-left;
+  }
+
+  .hl-drawer[data-side='right'] {
     inline-size: auto;
     inset: 0 0 0 auto;
   }
 
-  .hydrateless-drawer .hl-drawer-header,
-  .hydrateless-drawer .hl-drawer-body,
-  .hydrateless-drawer .hl-drawer-footer {
-    padding: var(--hl-spacing-4, 1rem);
+  .hl-drawer .hl-drawer-header,
+  .hl-drawer .hl-drawer-body,
+  .hl-drawer .hl-drawer-footer {
+    padding: var(--hl-space-4);
   }
 
-  .hydrateless-drawer .hl-drawer-header {
-    border-bottom: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+  .hl-drawer .hl-drawer-header {
+    border-bottom: 1px solid var(--hl-border);
   }
 
-  .hydrateless-drawer .hl-drawer-footer {
-    border-top: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+  .hl-drawer .hl-drawer-footer {
+    border-top: 1px solid var(--hl-border);
   }
 }

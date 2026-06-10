@@ -12,14 +12,16 @@ import {
   enhanceTabs,
   enhanceToc,
   enhanceTooltip,
-  type Disposer,
+  type EnhancerHandle,
 } from '@hydrateless/enhancers';
 
-function directiveFor(enhance: (el: HTMLElement) => Disposer): Directive<HTMLElement> {
-  const disposers = new WeakMap<HTMLElement, Disposer>();
+function directiveFor(
+  enhance: (el: HTMLElement) => EnhancerHandle<unknown>,
+): Directive<HTMLElement> {
+  const disposers = new WeakMap<HTMLElement, () => void>();
   return {
     mounted(el) {
-      disposers.set(el, enhance(el));
+      disposers.set(el, enhance(el).destroy);
     },
     unmounted(el) {
       disposers.get(el)?.();

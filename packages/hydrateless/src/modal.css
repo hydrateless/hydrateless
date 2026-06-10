@@ -1,34 +1,35 @@
 @layer components {
-  .hydrateless-modal {
+  .hl-modal {
     border: none;
-    border-radius: var(--hl-radius-3, 0.5rem);
+    border-radius: var(--hl-radius-lg);
     padding: 0;
     max-width: min(90vw, 640px);
     width: 100%;
-    background: var(--hl-color-bg);
-    color: var(--hl-color-fg);
+    background: var(--hl-surface);
+    color: var(--hl-fg);
+    box-shadow: var(--hl-overlay-shadow);
   }
 
-  .hydrateless-modal::backdrop {
-    background: color-mix(in oklab, var(--hl-color-fg) 40%, transparent);
+  .hl-modal::backdrop {
+    background: var(--hl-scrim);
   }
 
-  .hydrateless-modal .hl-modal-header,
-  .hydrateless-modal .hl-modal-body,
-  .hydrateless-modal .hl-modal-footer {
-    padding: var(--hl-spacing-4, 1rem);
+  .hl-modal .hl-modal-header,
+  .hl-modal .hl-modal-body,
+  .hl-modal .hl-modal-footer {
+    padding: var(--hl-space-4);
   }
 
-  .hydrateless-modal .hl-modal-header {
-    border-bottom: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+  .hl-modal .hl-modal-header {
+    border-bottom: 1px solid var(--hl-border);
   }
 
-  .hydrateless-modal .hl-modal-footer {
-    border-top: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+  .hl-modal .hl-modal-footer {
+    border-top: 1px solid var(--hl-border);
   }
 
-  .hydrateless-modal [data-hl-modal-close]:focus-visible {
-    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+  .hl-modal [data-hl-modal-close]:focus-visible {
+    outline: var(--hl-focus-ring);
     outline-offset: 2px;
   }
 }

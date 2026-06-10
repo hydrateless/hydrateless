@@ -11,41 +11,62 @@ from source with [TypeDoc](https://typedoc.org/).
 ## Enhancers at a glance
 
 Each enhancer takes a container (`Document` or `HTMLElement`, defaulting to
-`document`) and returns a [`Disposer`](#disposer) you can call to remove all
-listeners and ARIA wiring it added.
+`document`) and returns an [`EnhancerHandle`](#enhancerhandle) with a `destroy`
+teardown and the component's imperative API.
 
-| Function            | Options                                       | Notes                                             |
-| ------------------- | --------------------------------------------- | ------------------------------------------------- |
-| `enhanceAccordion`  | `{ allowMultiple?: boolean }`                 | Single-open `<details>` group                     |
-| `enhanceDisclosure` | `{ allowMultiple?: boolean }`                 | Mutually exclusive disclosures                    |
-| `enhanceTabs`       | —                                             | ARIA + roving tabindex                            |
-| `enhanceDropdown`   | —                                             | WAI-ARIA menu pattern                             |
-| `enhanceModal`      | `{ closeOnBackdrop?: boolean }`               | `<dialog>` openers/closers + focus trap           |
-| `enhanceDrawer`     | `{ closeOnBackdrop?: boolean }`               | Off-canvas `<dialog>`                             |
-| `enhancePopover`    | `{ triggerEvent?: 'click' \| 'hover' }`       | Popover API + fallback                            |
-| `enhanceTooltip`    | —                                             | Hover/focus tooltips                              |
-| `enhanceToc`        | `{ headings?, scrollSpy?, contentSelector? }` | Table of contents                                 |
-| `enhanceToast`      | —                                             | Returns a `ToastApi` (`show`/`dismiss`/`destroy`) |
+| Function            | State options                                    | API (`handle.api`)                       |
+| ------------------- | ------------------------------------------------ | ---------------------------------------- |
+| `enhanceAccordion`  | `defaultValue`, `onValueChange`                  | `value`, `setValue(values)`              |
+| `enhanceDisclosure` | `{ allowMultiple?: boolean }`                    | —                                        |
+| `enhanceTabs`       | `defaultValue`, `onValueChange`                  | `value`, `setValue(value, { focus? })`   |
+| `enhanceDropdown`   | `defaultOpen`, `onOpenChange`, `onSelect`        | `open`, `setOpen(open, { focus? })`      |
+| `enhanceModal`      | `defaultOpen`, `onOpenChange`, `closeOnBackdrop` | `open`, `setOpen(open)`                  |
+| `enhanceDrawer`     | `defaultOpen`, `onOpenChange`, `closeOnBackdrop` | `open`, `setOpen(open)`                  |
+| `enhancePopover`    | `defaultOpen`, `onOpenChange`, `triggerEvent`    | `open`, `setOpen(open)`                  |
+| `enhanceTooltip`    | `showDelay`, `hideDelay`, `placement`            | `show()`, `hide()`                       |
+| `enhanceCombobox`   | `defaultValue`, `onValueChange`                  | `value`, `setValue`, `open`, `setOpen`   |
+| `enhanceCommand`    | `hotkey`, `onCommand`                            | —                                        |
+| `enhanceToc`        | `headings`, `scrollSpy`, `contentSelector`       | —                                        |
+| `enhanceToast`      | `duration`                                       | `show(message, options?)`, `dismiss(el)` |
 
-## Disposer
+## EnhancerHandle
 
-Every enhancer returns a `Disposer`:
+Every enhancer returns the same handle shape:
 
 ```ts
-type Disposer = () => void;
+interface EnhancerHandle<Api> {
+  /** Tear down every instance this call created. */
+  destroy: () => void;
+  /** The first enhanced root's API, or null when nothing matched. */
+  api: Api | null;
+  /** One entry per enhanced root: { root, api, destroy }. */
+  instances: EnhancerInstance<Api>[];
+}
 ```
 
-Call it to tear down the enhancement. Enhancers are idempotent — re-running one
-on an already-enhanced element is a no-op — so they're safe to call after the
-DOM changes.
+Enhancers are idempotent — re-running one on an already-enhanced element is a
+no-op — so they're safe to call after the DOM changes.
 
 ```ts
 import { enhanceTabs } from '@hydrateless/enhancers';
 
-const dispose = enhanceTabs(document);
+const tabs = enhanceTabs(document);
+tabs.api?.setValue('install');
 // later, e.g. on unmount or route change:
-dispose();
+tabs.destroy();
 ```
+
+## Events
+
+State changes are also broadcast as bubbling DOM events, so you can listen
+without holding a handle:
+
+| Event            | Detail                      | Fired by                         |
+| ---------------- | --------------------------- | -------------------------------- |
+| `hl:change`      | `{ value }`                 | tabs, accordion, combobox        |
+| `hl:open-change` | `{ open }`                  | dropdown, modal, drawer, popover |
+| `hl:select`      | `{ value, item \| option }` | dropdown, combobox (cancelable)  |
+| `hl:command`     | `{ value, item }`           | command palette (cancelable)     |
 
 ## Framework APIs
 

@@ -1,11 +1,11 @@
 @layer components {
   [data-hl-accordion] {
-    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
-    border-radius: var(--hl-radius-3, 0.5rem);
+    border: 1px solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
   }
 
   [data-hl-accordion] > details {
-    border-top: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+    border-top: 1px solid var(--hl-border);
   }
 
   [data-hl-accordion] > details:first-child {
@@ -15,7 +15,7 @@
   [data-hl-accordion] > details > summary {
     list-style: none;
     cursor: pointer;
-    padding: var(--hl-spacing-3, 0.75rem) var(--hl-spacing-4, 1rem);
+    padding: var(--hl-space-3) var(--hl-space-4);
   }
 
   [data-hl-accordion] > details > summary::-webkit-details-marker {
@@ -23,7 +23,7 @@
   }
 
   [data-hl-accordion] > details > summary:focus-visible {
-    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    outline: var(--hl-focus-ring);
     outline-offset: 2px;
   }
 
@@ -31,14 +31,14 @@
     content: '\25BE';
     float: right;
     transform: rotate(0deg);
-    transition: transform 150ms ease;
+    transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
   [data-hl-accordion] > details[open] > summary::after {
     transform: rotate(180deg);
   }
 
-  [data-hl-accordion] > details > .accordion-panel {
-    padding: var(--hl-spacing-3, 0.75rem) var(--hl-spacing-4, 1rem) var(--hl-spacing-4, 1rem);
+  [data-hl-accordion] > details > .hl-accordion-panel {
+    padding: var(--hl-space-3) var(--hl-space-4) var(--hl-space-4);
   }
 }

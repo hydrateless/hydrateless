@@ -26,10 +26,15 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hydrateless/enhancers": "^0.5.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0",
+    "jsdom": "^29.0.0"
   },
   "publishConfig": {
     "access": "public"

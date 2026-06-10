@@ -1,16 +1,24 @@
 import {
   useEffect,
-  useRef,
   type HTMLAttributes,
   type InputHTMLAttributes,
   type LiHTMLAttributes,
 } from 'react';
-import { enhanceCombobox, type EnhanceComboboxOptions } from '@hydrateless/enhancers';
-import { cx } from './util.js';
+import {
+  enhanceCombobox,
+  type ComboboxApi,
+  type EnhanceComboboxOptions,
+} from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
+import { cx, useLatest } from './util.js';
 
 export interface ComboboxProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   filter?: EnhanceComboboxOptions['filter'];
   autoHighlight?: EnhanceComboboxOptions['autoHighlight'];
+  /** Controlled committed value (pair with `onValueChange`). */
+  value?: string;
+  /** Initial committed value for uncontrolled usage. */
+  defaultValue?: string;
   /** Fires with the committed value when an option is selected. */
   onValueChange?: (value: string) => void;
 }
@@ -18,10 +26,12 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onC
 /**
  * Editable combobox (input + listbox) implementing the APG pattern. Compose with
  * `<ComboboxInput>`, `<ComboboxList>`, and `<ComboboxOption>`. The enhancer adds
- * filtering, `aria-activedescendant` navigation, and selection.
+ * filtering, `aria-activedescendant` navigation, and selection; the committed
+ * value works uncontrolled (`defaultValue`) or controlled (`value` +
+ * `onValueChange`).
  *
  * ```tsx
- * <Combobox onValueChange={setValue}>
+ * <Combobox value={fruit} onValueChange={setFruit}>
  *   <ComboboxInput placeholder="Search…" />
  *   <ComboboxList>
  *     <ComboboxOption value="apple">Apple</ComboboxOption>
@@ -33,25 +43,29 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onC
 export function Combobox({
   filter,
   autoHighlight,
+  value,
+  defaultValue,
   onValueChange,
   children,
   ...rest
 }: ComboboxProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const onChangeRef = useRef(onValueChange);
-  onChangeRef.current = onValueChange;
+  const onValueChangeRef = useLatest(onValueChange);
+  const initialValueRef = useLatest(value ?? defaultValue);
+
+  const { ref, api } = useEnhancer<HTMLDivElement, ComboboxApi>(
+    (el) =>
+      enhanceCombobox(el, {
+        filter,
+        autoHighlight,
+        defaultValue: initialValueRef.current,
+        onValueChange: (next) => onValueChangeRef.current?.(next),
+      }),
+    [filter, autoHighlight],
+  );
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const dispose = enhanceCombobox(el, { filter, autoHighlight });
-    const handler = (e: Event) => onChangeRef.current?.((e as CustomEvent).detail.value);
-    el.addEventListener('hl:select', handler);
-    return () => {
-      el.removeEventListener('hl:select', handler);
-      dispose();
-    };
-  }, [filter, autoHighlight]);
+    if (value != null) api.current?.setValue(value);
+  }, [value, api]);
 
   return (
     <div {...rest} ref={ref} data-hl-combobox>

@@ -8,7 +8,7 @@ open/close triggers and optional backdrop dismissal.
 
 <div class="hl-demo">
 <button data-hl-modal-open="demo-modal">Open modal</button>
-<dialog id="demo-modal" class="hydrateless-modal" data-hl-modal>
+<dialog id="demo-modal" class="hl-modal" data-hl-modal>
   <div class="hl-modal-header">Confirm action</div>
   <div class="hl-modal-body">This dialog is the native <code>&lt;dialog&gt;</code> element. Press Escape or click the backdrop to close.</div>
   <div class="hl-modal-footer">
@@ -21,7 +21,7 @@ open/close triggers and optional backdrop dismissal.
 
 ```html
 <button data-hl-modal-open="my-modal">Open</button>
-<dialog id="my-modal" class="hydrateless-modal" data-hl-modal>
+<dialog id="my-modal" class="hl-modal" data-hl-modal>
   <div class="hl-modal-header">Title</div>
   <div class="hl-modal-body">Content.</div>
   <div class="hl-modal-footer">
@@ -31,14 +31,17 @@ open/close triggers and optional backdrop dismissal.
 ```
 
 - **CSS**: `hydrateless/modal.css`
-- **JS**: `enhanceModal(container, { closeOnBackdrop?: boolean })`
+- **JS**: `enhanceModal(container, { closeOnBackdrop?, defaultOpen?, onOpenChange? })`
+  — the handle's `api` exposes `open` and `setOpen(open)`; the dialog also
+  emits `hl:open-change`.
 - **Keyboard**: `Esc` closes (native `<dialog>`), `Tab` is trapped within the
-  modal.
+  modal; the page behind is scroll-locked and `inert`.
 
 ## Frameworks
 
 In frameworks, the modal is controlled by an `open` prop/state rather than
-declarative trigger attributes.
+declarative trigger attributes. Escape, backdrop clicks, and close buttons all
+report back, so your state stays in sync.
 
 ::: code-group
 
@@ -51,7 +54,7 @@ function Example() {
   return (
     <>
       <button onClick={() => setOpen(true)}>Open</button>
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} onOpenChange={setOpen}>
         <ModalHeader>Title</ModalHeader>
         <ModalBody>Content.</ModalBody>
         <ModalFooter>
@@ -73,7 +76,7 @@ const open = ref(false);
 
 <template>
   <button @click="open = true">Open</button>
-  <Modal :open="open" @close="open = false">
+  <Modal v-model:open="open">
     <ModalHeader>Title</ModalHeader>
     <ModalBody>Content.</ModalBody>
     <ModalFooter>
@@ -91,7 +94,7 @@ const open = ref(false);
 </script>
 
 <button onclick={() => (open = true)}>Open</button>
-<Modal {open} onclose={() => (open = false)}>
+<Modal bind:open>
   <ModalHeader>Title</ModalHeader>
   <ModalBody>Content.</ModalBody>
   <ModalFooter>

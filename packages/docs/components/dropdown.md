@@ -33,7 +33,9 @@ keyboard navigation, typeahead, viewport-aware placement, and
 ```
 
 - **CSS**: `hydrateless/dropdown.css`
-- **JS**: `enhanceDropdown(container)`
+- **JS**: `enhanceDropdown(container, { defaultOpen?, onOpenChange?, onSelect? })`
+  — the handle's `api` exposes `open`/`setOpen`; items emit a cancelable
+  `hl:select` with the item's `data-hl-value` (or text).
 - **Keyboard**: `↓`/`↑` move between items, `Enter`/`Space` activate, `Esc`
   closes, `Home`/`End` jump to first/last, plus character typeahead.
 - **ARIA**: sets `aria-haspopup` and `aria-expanded` on the trigger and

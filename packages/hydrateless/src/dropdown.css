@@ -6,15 +6,15 @@
 
   [data-hl-dropdown-menu] {
     position: absolute;
-    z-index: 100;
+    z-index: var(--hl-z-dropdown);
     min-width: 10rem;
-    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
-    border-radius: var(--hl-radius-3, 0.5rem);
-    background: var(--hl-color-bg);
-    box-shadow: 0 8px 24px color-mix(in oklab, var(--hl-color-fg) 14%, transparent);
-    padding: var(--hl-spacing-1, 0.25rem);
+    border: 1px solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    background: var(--hl-surface);
+    box-shadow: var(--hl-overlay-shadow);
+    padding: var(--hl-space-1);
     list-style: none;
-    margin: var(--hl-spacing-1, 0.25rem) 0 0;
+    margin: var(--hl-space-1) 0 0;
   }
 
   [data-hl-dropdown-menu][hidden] {
@@ -24,17 +24,17 @@
   [data-hl-dropdown-menu][data-hl-side='top'] {
     top: auto;
     bottom: 100%;
-    margin: 0 0 var(--hl-spacing-1, 0.25rem);
+    margin: 0 0 var(--hl-space-1);
   }
 
   [data-hl-dropdown-menu] [role='menuitem'] {
     display: block;
     width: 100%;
-    padding: var(--hl-spacing-2, 0.5rem) var(--hl-spacing-3, 0.75rem);
+    padding: var(--hl-space-2) var(--hl-space-3);
     border: none;
-    border-radius: var(--hl-radius-2, 0.25rem);
+    border-radius: var(--hl-radius-sm);
     background: transparent;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     color: inherit;
     font: inherit;
@@ -42,18 +42,18 @@
 
   [data-hl-dropdown-menu] [role='menuitem']:hover,
   [data-hl-dropdown-menu] [role='menuitem'][data-hl-active] {
-    background: var(--hl-color-muted);
+    background: var(--hl-surface-2);
   }
 
   [data-hl-dropdown-menu] [role='menuitem']:focus-visible {
-    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    outline: var(--hl-focus-ring);
     outline-offset: -2px;
   }
 
   [data-hl-dropdown-menu] [role='separator'] {
     height: 1px;
-    margin: var(--hl-spacing-1, 0.25rem) 0;
-    background: color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+    margin: var(--hl-space-1) 0;
+    background: var(--hl-border);
     border: none;
   }
 }

@@ -83,4 +83,41 @@ describe('enhanceCombobox', () => {
     document.body.innerHTML = '<div data-hl-combobox></div>';
     expect(() => enhanceCombobox(document)).not.toThrow();
   });
+
+  describe('controlled state', () => {
+    it('pre-fills the input from defaultValue', () => {
+      document.body.innerHTML = `
+        <div data-hl-combobox>
+          <input />
+          <ul role="listbox"><li role="option" data-hl-value="apple">Apple</li></ul>
+        </div>
+      `;
+      enhanceCombobox(document, { defaultValue: 'apple' });
+      expect(document.querySelector('input')!.value).toBe('apple');
+    });
+
+    it('exposes value/setValue and open/setOpen through the api', () => {
+      document.body.innerHTML = `
+        <div data-hl-combobox>
+          <input />
+          <ul role="listbox"><li role="option" data-hl-value="apple">Apple</li></ul>
+        </div>
+      `;
+      const seen: string[] = [];
+      const api = enhanceCombobox(document, { onValueChange: (v) => seen.push(v) }).api!;
+      const input = document.querySelector('input')!;
+      const listbox = document.querySelector<HTMLElement>('[role="listbox"]')!;
+
+      api.setValue('banana');
+      expect(input.value).toBe('banana');
+      expect(api.value).toBe('banana');
+      expect(seen).toEqual(['banana']);
+
+      api.setOpen(true);
+      expect(listbox.hidden).toBe(false);
+      expect(api.open).toBe(true);
+      api.setOpen(false);
+      expect(listbox.hidden).toBe(true);
+    });
+  });
 });

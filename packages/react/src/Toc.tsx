@@ -16,7 +16,7 @@ export function Toc({ contentSelector, headings, scrollSpy, ...rest }: TocProps)
 
   useEffect(() => {
     if (!ref.current) return;
-    return enhanceToc(ref.current.ownerDocument, { contentSelector, headings, scrollSpy });
+    return enhanceToc(ref.current.ownerDocument, { contentSelector, headings, scrollSpy }).destroy;
   }, [contentSelector, headings, scrollSpy]);
 
   return <nav {...rest} data-hl-toc ref={ref} />;

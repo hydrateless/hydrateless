@@ -9,6 +9,6 @@
   let { class: klass, children, ...rest }: Props = $props();
 </script>
 
-<a {...rest} class={['a11y-skip-link', klass]}>
+<a {...rest} class={['hl-skip-link', klass]}>
   {#if children}{@render children()}{:else}Skip to content{/if}
 </a>

@@ -31,7 +31,9 @@ combobox pattern. The enhancer adds type-to-filter, keyboard navigation,
 ```
 
 - **CSS**: `hydrateless/combobox.css`
-- **JS**: `enhanceCombobox(container)`
+- **JS**: `enhanceCombobox(container, { filter?, autoHighlight?, defaultValue?, onValueChange? })`
+  — the handle's `api` exposes `value`/`setValue` and `open`/`setOpen`;
+  selection emits a cancelable `hl:select` followed by `hl:change`.
 - **Events**: emits a cancelable `hl:select` `CustomEvent` with
   `{ value, option }`; call `preventDefault()` to stop the input value from
   updating.

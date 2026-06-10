@@ -4,28 +4,13 @@ import { auto } from '@hydrateless/auto';
 import 'hydrateless/hydrateless.css';
 import './custom.css';
 
-// Re-run the auto-initializer on every route change so the live demos embedded
-// in the docs are enhanced after VitePress's client-side navigation. The
-// previous run is disposed first to avoid stacking global listeners.
+// One call enhances the live demos embedded in the docs. The auto-initializer
+// keeps watching the DOM, so content swapped in by VitePress's client-side
+// navigation is enhanced (and disposed) automatically.
 export default {
   extends: DefaultTheme,
-  enhanceApp({ router }) {
+  enhanceApp() {
     if (typeof window === 'undefined') return;
-
-    let dispose: (() => void) | null = null;
-    const run = () => {
-      window.setTimeout(async () => {
-        dispose?.();
-        dispose = await auto(document);
-      }, 0);
-    };
-
-    const previous = router.onAfterRouteChanged?.bind(router);
-    router.onAfterRouteChanged = (to: string) => {
-      previous?.(to);
-      run();
-    };
-
-    run();
+    void auto(document);
   },
 } satisfies Theme;

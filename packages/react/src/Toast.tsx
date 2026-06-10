@@ -1,54 +1,50 @@
-import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type HTMLAttributes } from 'react';
 import { enhanceToast, type ToastApi } from '@hydrateless/enhancers';
 
-const ToastContext = createContext<ToastApi | null>(null);
+let sharedApi: ToastApi | null = null;
 
-export interface ToastProviderProps {
-  children?: ReactNode;
+function ensureApi(): ToastApi {
+  if (!sharedApi) {
+    const handle = enhanceToast(document);
+    sharedApi = handle.api!;
+  }
+  return sharedApi;
 }
 
+/** A stable façade so `useToast()` is safe to call before anything mounted. */
+const facade: ToastApi = {
+  show: (message, options) => ensureApi().show(message, options),
+  dismiss: (toast) => ensureApi().dismiss(toast),
+};
+
+export type ToastRegionProps = HTMLAttributes<HTMLDivElement>;
+
 /**
- * Provides a toast region and exposes the imperative toast API via
- * {@link useToast}. Render once near the root of your app.
+ * The polite live region toasts render into. Render once near the root of
+ * your app to control where toasts appear; if omitted, the first `show()`
+ * call creates a region at the end of `<body>`.
  */
-export function ToastProvider({ children }: ToastProviderProps) {
-  const apiRef = useRef<ToastApi | null>(null);
-
-  // A stable façade so `useToast()` can be called immediately, even before the
-  // region's effect has wired up the real API.
-  const facade = useRef<ToastApi>({
-    show: (message, options) =>
-      apiRef.current ? apiRef.current.show(message, options) : document.createElement('div'),
-    dismiss: (toast) => apiRef.current?.dismiss(toast),
-    destroy: () => apiRef.current?.destroy(),
-  });
-
-  const regionRef = useRef<HTMLDivElement>(null);
+export function ToastRegion(props: ToastRegionProps) {
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const region = regionRef.current;
-    if (!region) return;
-    const api = enhanceToast(region.ownerDocument);
-    apiRef.current = api;
+    if (!ref.current) return;
+    // Adopt this region (and its declarative triggers) into the shared API.
+    const handle = enhanceToast(ref.current.ownerDocument);
+    sharedApi = handle.api;
     return () => {
-      api.destroy();
-      apiRef.current = null;
+      handle.destroy();
+      sharedApi = null;
     };
   }, []);
 
-  return (
-    <ToastContext.Provider value={facade.current}>
-      {children}
-      <div data-hl-toast-region ref={regionRef} />
-    </ToastContext.Provider>
-  );
+  return <div {...props} data-hl-toast-region ref={ref} />;
 }
 
-/** Access the toast API. Must be called within a {@link ToastProvider}. */
+/**
+ * Access the imperative toast API (`show`/`dismiss`). Works with or without a
+ * mounted {@link ToastRegion}.
+ */
 export function useToast(): ToastApi {
-  const ctx = useContext(ToastContext);
-  if (!ctx) {
-    throw new Error('useToast must be used within a <ToastProvider>');
-  }
-  return ctx;
+  return facade;
 }

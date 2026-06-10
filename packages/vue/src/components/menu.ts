@@ -16,7 +16,7 @@ export const Menu = defineComponent({
     },
   },
   setup(props, { slots, attrs }) {
-    const host = useHostEnhancer((el) => enhanceMenu(el, { orientation: props.orientation }));
+    const { host } = useHostEnhancer((el) => enhanceMenu(el, { orientation: props.orientation }));
     return () =>
       h(
         'ul',

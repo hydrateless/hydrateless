@@ -22,39 +22,37 @@ Place a region somewhere in your page, then use trigger buttons:
 
 ## Imperative API
 
-For full control, grab the API from the enhancer:
+For full control, grab the API from the enhancer's handle:
 
 ```js
 import { enhanceToast } from '@hydrateless/enhancers/toast';
 
-const toast = enhanceToast(document);
+const toast = enhanceToast(document).api;
 toast.show('Changes saved.');
-toast.show('Something went wrong.', { duration: 8000 });
+toast.show('Something went wrong.', { duration: 8000, variant: 'danger' });
 ```
 
 - **CSS**: `hydrateless/toast.css`
-- **JS**: `enhanceToast(container)` returns
-  `{ show(message, options?), dismiss(toast), destroy() }`
-- **Options**: `duration` (ms, default 5000; set to `0` to disable auto-dismiss).
+- **JS**: `enhanceToast(container, options?)` returns a handle whose `api` is
+  `{ show(message, options?), dismiss(toast) }`
+- **Options**: `duration` (ms, default 5000; `0` disables auto-dismiss) and
+  `variant` (`info` | `success` | `warning` | `danger`).
 - **Accessibility**: the region uses `role="status"` with `aria-live="polite"`;
   dismiss buttons include `aria-label="Dismiss"`.
 
 ## Frameworks
 
+`useToast()` works anywhere in every binding — no provider or setup required.
+
 ::: code-group
 
 ```tsx [React]
-import { ToastProvider, useToast } from '@hydrateless/react';
+import { useToast } from '@hydrateless/react';
 
 function SaveButton() {
   const toast = useToast();
   return <button onClick={() => toast.show('Saved!')}>Save</button>;
 }
-
-// Wrap your app once:
-<ToastProvider>
-  <SaveButton />
-</ToastProvider>;
 ```
 
 ```vue [Vue]
@@ -70,13 +68,9 @@ const toast = useToast();
 
 ```svelte [Svelte]
 <script>
-  import { createToast } from '@hydrateless/svelte';
+  import { useToast } from '@hydrateless/svelte';
 
-  let toast;
-  $effect(() => {
-    toast = createToast();
-    return () => toast.destroy();
-  });
+  const toast = useToast();
 </script>
 
 <button onclick={() => toast.show('Saved!')}>Save</button>

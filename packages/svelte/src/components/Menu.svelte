@@ -13,7 +13,7 @@
 
   $effect(() => {
     if (!host) return;
-    return enhanceMenu(host, { orientation });
+    return enhanceMenu(host, { orientation }).destroy;
   });
 </script>
 

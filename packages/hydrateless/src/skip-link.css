@@ -1,22 +1,22 @@
 @layer components {
-  .a11y-skip-link {
+  .hl-skip-link {
     position: absolute;
-    left: -9999px;
-    top: auto;
+    inset-inline-start: -9999px;
+    inset-block-start: auto;
     width: 1px;
     height: 1px;
     overflow: hidden;
   }
 
-  .a11y-skip-link:focus-visible {
-    left: 0;
-    top: 0;
+  .hl-skip-link:focus-visible {
+    inset-inline-start: 0;
+    inset-block-start: 0;
     width: auto;
     height: auto;
-    padding: var(--hl-spacing-2, 0.5rem) var(--hl-spacing-3, 0.75rem);
-    background: var(--hl-color-fg);
-    color: var(--hl-color-bg);
-    border-radius: var(--hl-radius-2, 0.25rem);
-    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    padding: var(--hl-space-2) var(--hl-space-3);
+    background: var(--hl-fg);
+    color: var(--hl-surface);
+    border-radius: var(--hl-radius-sm);
+    outline: var(--hl-focus-ring);
   }
 }

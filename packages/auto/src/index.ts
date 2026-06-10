@@ -1,13 +1,12 @@
-import { MANIFEST } from '@hydrateless/enhancers/manifest';
 import type { Disposer } from '@hydrateless/enhancers/core';
+import { createAuto, type AutoOptions, type Run } from './runtime.js';
 
-type Run = (container: Document | HTMLElement) => Disposer;
+export type { AutoOptions };
 
 /**
- * Lazy loaders keyed by component name. Each returns the enhancer's run
- * function; toast's `{ destroy }` API is normalized to a disposer. Static
- * `import()` specifiers keep every component in its own chunk so only the
- * enhancers a page actually needs are ever fetched.
+ * Lazy loaders keyed by component name. Static `import()` specifiers keep
+ * every component in its own chunk so only the enhancers a page actually
+ * needs are ever fetched.
  */
 const loaders: Record<string, () => Promise<Run>> = {
   accordion: () => import('@hydrateless/enhancers/accordion').then((m) => m.enhanceAccordion),
@@ -22,30 +21,25 @@ const loaders: Record<string, () => Promise<Run>> = {
   combobox: () => import('@hydrateless/enhancers/combobox').then((m) => m.enhanceCombobox),
   command: () => import('@hydrateless/enhancers/command').then((m) => m.enhanceCommand),
   toc: () => import('@hydrateless/enhancers/toc').then((m) => m.enhanceToc),
-  toast: () =>
-    import('@hydrateless/enhancers/toast').then(
-      (m) => (c: Document | HTMLElement) => m.enhanceToast(c).destroy,
-    ),
+  toast: () => import('@hydrateless/enhancers/toast').then((m) => m.enhanceToast),
 };
 
+const start = createAuto((name) => loaders[name]?.());
+
 /**
- * Detect `data-hl-*` markup in `container` and lazy-load the matching enhancers
- * in parallel. Returns a disposer that tears down everything it initialized —
- * useful for single-page apps that mount and unmount views.
+ * Detect `data-hl-*` markup in `container` and lazy-load the matching
+ * enhancers in parallel. By default it keeps watching the container, so
+ * markup added later (SPA navigations, fetched fragments) is enhanced
+ * automatically and instances are disposed when their roots are removed.
+ * Returns a disposer that stops watching and tears everything down.
  */
-export async function auto(container: Document | HTMLElement = document): Promise<Disposer> {
-  const pending: Promise<Disposer>[] = [];
-
-  for (const { name, selector } of MANIFEST) {
-    if (!container.querySelector(selector)) continue;
-    const load = loaders[name];
-    if (load) pending.push(load().then((run) => run(container)));
-  }
-
-  const disposers = await Promise.all(pending);
-  return () => {
-    for (const dispose of disposers) dispose();
-  };
+export async function auto(
+  container: Document | HTMLElement = document,
+  options: AutoOptions = {},
+): Promise<Disposer> {
+  const controller = start(container, options);
+  await controller.ready;
+  return controller.dispose;
 }
 
 if (typeof window !== 'undefined') {

@@ -48,22 +48,26 @@ Most components work with CSS alone. For components that need JavaScript (tabs,
 modals, focus traps), you have two options.
 
 **Option A: Auto-init** — import once and forget. It scans the DOM for
-`data-hl-*` attributes and lazy-loads only the enhancers that are needed.
+`data-hl-*` attributes, lazy-loads only the enhancers that are needed, and
+keeps watching so dynamically added markup is enhanced too.
 
 ```js
 import '@hydrateless/auto';
 ```
 
 **Option B: Manual** — import specific enhancers and call them yourself. Each
-enhancer returns a disposer so you can tear it down later.
+returns a handle with the component's imperative API and a `destroy` teardown.
 
 ```js
 import { enhanceTabs } from '@hydrateless/enhancers/tabs';
 import { enhanceModal } from '@hydrateless/enhancers/modal';
 
-enhanceTabs(document);
-const dispose = enhanceModal(document);
-// later: dispose();
+const tabs = enhanceTabs(document);
+const modal = enhanceModal(document, { onOpenChange: (open) => console.log(open) });
+
+tabs.api?.setValue('install');
+modal.api?.setOpen(true);
+// later: tabs.destroy(); modal.destroy();
 ```
 
 ## Write semantic HTML

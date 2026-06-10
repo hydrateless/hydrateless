@@ -24,7 +24,7 @@
       trigger.setAttribute('data-hl-tooltip', tipId);
       trigger.setAttribute('aria-describedby', tipId);
     }
-    return enhanceTooltip(host);
+    return enhanceTooltip(host).destroy;
   });
 </script>
 

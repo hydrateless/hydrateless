@@ -1,4 +1,5 @@
 import { type AnchorHTMLAttributes, type ReactNode } from 'react';
+import { cx } from './util.js';
 
 export type SkipLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   children?: ReactNode;
@@ -7,7 +8,7 @@ export type SkipLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
 /** Accessibility skip-navigation link, visually hidden until focused. */
 export function SkipLink({ children = 'Skip to content', className, ...rest }: SkipLinkProps) {
   return (
-    <a {...rest} className={['a11y-skip-link', className].filter(Boolean).join(' ')}>
+    <a {...rest} className={cx('hl-skip-link', className)}>
       {children}
     </a>
   );

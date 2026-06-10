@@ -31,8 +31,9 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 
 - **CSS-first components:** Accordions, tabs, modals, drawers, tooltips, and more work out of the box with no JavaScript.
 - **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, table, kbd), and navigation (breadcrumb, pagination, table of contents, separator).
-- **Optional JS enhancers:** Add keyboard navigation, focus traps, and ARIA management only where needed.
-- **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes and lazy-loads the right enhancers.
+- **Optional JS enhancers:** Add keyboard navigation, focus traps, and ARIA management only where needed. Every enhancer returns an imperative API (`setValue`, `setOpen`, …) and emits `hl:*` DOM events.
+- **Controlled or uncontrolled:** Framework components support both modes — `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
+- **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes, lazy-loads the right enhancers, and keeps watching the DOM so dynamic content is enhanced automatically.
 - **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, and typography.
 - **Dark mode:** Automatic support via `prefers-color-scheme`, with manual overrides using `data-theme`.
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
@@ -58,11 +59,11 @@ npm install hydrateless @hydrateless/auto
 <div data-hl-accordion>
   <details>
     <summary>Section one</summary>
-    <div class="accordion-panel">First panel content.</div>
+    <div class="hl-accordion-panel">First panel content.</div>
   </details>
   <details>
     <summary>Section two</summary>
-    <div class="accordion-panel">Second panel content.</div>
+    <div class="hl-accordion-panel">Second panel content.</div>
   </details>
 </div>
 ```

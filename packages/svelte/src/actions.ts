@@ -12,17 +12,13 @@ import {
   enhanceTabs,
   enhanceToc,
   enhanceTooltip,
-  type Disposer,
+  type EnhancerHandle,
 } from '@hydrateless/enhancers';
 
-function actionFor(enhance: (node: HTMLElement) => Disposer): Action<HTMLElement> {
+function actionFor(enhance: (node: HTMLElement) => EnhancerHandle<unknown>): Action<HTMLElement> {
   return (node) => {
-    const dispose = enhance(node);
-    return {
-      destroy() {
-        dispose();
-      },
-    };
+    const { destroy } = enhance(node);
+    return { destroy };
   };
 }
 

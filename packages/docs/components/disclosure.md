@@ -7,18 +7,18 @@ only when you want a group of disclosures to be mutually exclusive.
 ## Demo
 
 <div class="hl-demo">
-<details class="hydrateless-disclosure" data-hl-disclosure>
+<details class="hl-disclosure" data-hl-disclosure>
   <summary>Show more details</summary>
-  <div class="disclosure-panel">This content is revealed when you expand the disclosure. The native <code>&lt;details&gt;</code> element handles all of the toggling.</div>
+  <div class="hl-disclosure-panel">This content is revealed when you expand the disclosure. The native <code>&lt;details&gt;</code> element handles all of the toggling.</div>
 </details>
 </div>
 
 ## HTML
 
 ```html
-<details class="hydrateless-disclosure" data-hl-disclosure>
+<details class="hl-disclosure" data-hl-disclosure>
   <summary>Show more</summary>
-  <div class="disclosure-panel">Hidden content revealed.</div>
+  <div class="hl-disclosure-panel">Hidden content revealed.</div>
 </details>
 ```
 
