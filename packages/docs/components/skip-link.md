@@ -10,7 +10,7 @@ Press <kbd>Tab</kbd> while focused on this page to reveal a skip link in the
 top-left corner.
 
 <div class="hl-demo">
-<a class="a11y-skip-link" href="#main-content">Skip to content</a>
+<a class="hl-skip-link" href="#main-content">Skip to content</a>
 <p style="margin:0">The link above is hidden until focused. Tab to it to see it appear.</p>
 </div>
 
@@ -21,7 +21,7 @@ content landmark:
 
 ```html
 <body>
-  <a class="a11y-skip-link" href="#main-content">Skip to content</a>
+  <a class="hl-skip-link" href="#main-content">Skip to content</a>
   <header>…</header>
   <main id="main-content">…</main>
 </body>

@@ -29,7 +29,7 @@ export function Menu({ orientation = 'horizontal', children, ...rest }: MenuProp
 
   useEffect(() => {
     if (!ref.current) return;
-    return enhanceMenu(ref.current, { orientation });
+    return enhanceMenu(ref.current, { orientation }).destroy;
   }, [orientation]);
 
   return (

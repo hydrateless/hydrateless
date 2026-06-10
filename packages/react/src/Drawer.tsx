@@ -1,55 +1,53 @@
-import { useEffect, useRef, type HTMLAttributes, type MouseEvent } from 'react';
-import { cx } from './util.js';
+import { useEffect, type HTMLAttributes } from 'react';
+import { enhanceDrawer, type DrawerApi } from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
+import { cx, useLatest } from './util.js';
 
-export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title' | 'onClick'> {
+export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
   open: boolean;
-  onClose?: () => void;
+  /** Called after the drawer opens or closes (Escape, backdrop, close buttons). */
+  onOpenChange?: (open: boolean) => void;
   side?: 'left' | 'right';
   closeOnBackdrop?: boolean;
 }
 
 /**
- * Controlled off-canvas panel built on the native `<dialog>` element. Mirrors
+ * Controlled off-canvas panel built on the native `<dialog>` element and the
+ * drawer enhancer (focus trap, scroll-lock, background `inert`). Mirrors
  * {@link Modal} but slides in from the chosen `side`. Compose with
  * `<DrawerHeader>`, `<DrawerBody>`, and `<DrawerFooter>`.
  */
 export function Drawer({
   open,
-  onClose,
+  onOpenChange,
   side = 'right',
   closeOnBackdrop = true,
   className,
   children,
   ...rest
 }: DrawerProps) {
-  const ref = useRef<HTMLDialogElement>(null);
+  const onOpenChangeRef = useLatest(onOpenChange);
+
+  const { ref, api } = useEnhancer<HTMLDialogElement, DrawerApi>(
+    (el) =>
+      enhanceDrawer(el, {
+        closeOnBackdrop,
+        onOpenChange: (next) => onOpenChangeRef.current?.(next),
+      }),
+    [closeOnBackdrop],
+  );
 
   useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    else if (!open && dialog.open) dialog.close();
-  }, [open]);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    const handleClose = () => onClose?.();
-    dialog.addEventListener('close', handleClose);
-    return () => dialog.removeEventListener('close', handleClose);
-  }, [onClose]);
-
-  const handleClick = (e: MouseEvent<HTMLDialogElement>) => {
-    if (closeOnBackdrop && e.target === ref.current) onClose?.();
-  };
+    api.current?.setOpen(open);
+  }, [open, api]);
 
   return (
     <dialog
       {...rest}
       ref={ref}
+      data-hl-drawer
       data-side={side}
-      className={cx('hydrateless-drawer', className)}
-      onClick={handleClick}
+      className={cx('hl-drawer', className)}
     >
       {children}
     </dialog>

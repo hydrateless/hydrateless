@@ -54,7 +54,7 @@
     </style>
   </head>
   <body>
-    <a class="a11y-skip-link" href="#main">Skip to content</a>
+    <a class="hl-skip-link" href="#main">Skip to content</a>
 
     <h1>Hydrateless Components</h1>
     <p class="lead">
@@ -88,21 +88,21 @@
         <div data-hl-accordion>
           <details>
             <summary>What is Hydrateless?</summary>
-            <div class="accordion-panel">
+            <div class="hl-accordion-panel">
               A CSS-first component library that uses semantic HTML and modern CSS, with optional JS
               enhancers for interactivity.
             </div>
           </details>
           <details>
             <summary>Do I need JavaScript?</summary>
-            <div class="accordion-panel">
+            <div class="hl-accordion-panel">
               Most components work without JS. Enhancers add keyboard nav, focus traps, and ARIA
               wiring where native HTML falls short.
             </div>
           </details>
           <details>
             <summary>How do I theme it?</summary>
-            <div class="accordion-panel">
+            <div class="hl-accordion-panel">
               Override CSS variables like <code>--hl-color-accent</code>,
               <code>--hl-radius-3</code>, and <code>--hl-spacing-4</code>.
             </div>
@@ -113,9 +113,9 @@
       <!-- Disclosure -->
       <section>
         <h2>Disclosure</h2>
-        <details class="hydrateless-disclosure" data-hl-disclosure>
+        <details class="hl-disclosure" data-hl-disclosure>
           <summary>Click to reveal</summary>
-          <div class="disclosure-panel">
+          <div class="hl-disclosure-panel">
             This content was hidden until you opened the disclosure.
           </div>
         </details>
@@ -163,7 +163,7 @@
       <section>
         <h2>Modal</h2>
         <button data-hl-modal-open="demo-modal">Open modal</button>
-        <dialog id="demo-modal" class="hydrateless-modal" data-hl-modal>
+        <dialog id="demo-modal" class="hl-modal" data-hl-modal>
           <div class="hl-modal-header"><strong>Modal Title</strong></div>
           <div class="hl-modal-body">
             <p>
@@ -181,7 +181,7 @@
       <section>
         <h2>Drawer</h2>
         <button data-hl-drawer-open="demo-drawer">Open drawer</button>
-        <dialog id="demo-drawer" class="hydrateless-drawer" data-hl-drawer data-side="right">
+        <dialog id="demo-drawer" class="hl-drawer" data-hl-drawer data-side="right">
           <div class="hl-drawer-header"><strong>Drawer</strong></div>
           <div class="hl-drawer-body">
             <p>This is an off-canvas drawer panel.</p>

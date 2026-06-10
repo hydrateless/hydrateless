@@ -46,6 +46,36 @@ Available directives: `v-hl-accordion`, `v-hl-disclosure`, `v-hl-tabs`,
 `v-hl-toc`. You can also import individual directives (e.g. `vHlTabs`) and
 register them locally.
 
+## Components
+
+Interactive components support `v-model` on their state:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Tabs, TabList, Tab, TabPanel, Modal, ModalBody } from '@hydrateless/vue';
+
+const tab = ref('overview');
+const open = ref(false);
+</script>
+
+<template>
+  <Tabs v-model="tab">
+    <TabList>
+      <Tab value="overview">Overview</Tab>
+      <Tab value="install">Install</Tab>
+    </TabList>
+    <TabPanel>Zero runtime by default.</TabPanel>
+    <TabPanel><code>npm i hydrateless</code></TabPanel>
+  </Tabs>
+
+  <button @click="open = true">Open</button>
+  <Modal v-model:open="open">
+    <ModalBody>Body content.</ModalBody>
+  </Modal>
+</template>
+```
+
 ## Composables
 
 ```vue
@@ -55,9 +85,10 @@ import { useEnhancer, useToast } from '@hydrateless/vue';
 import { enhanceDropdown } from '@hydrateless/enhancers';
 
 const menu = ref<HTMLElement | null>(null);
-useEnhancer(menu, enhanceDropdown);
+const dropdown = useEnhancer(menu, enhanceDropdown);
+// dropdown.value?.setOpen(true)
 
-const toast = useToast();
+const toast = useToast(); // no provider required
 </script>
 
 <template>

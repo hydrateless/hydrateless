@@ -10,15 +10,15 @@ single-panel-open behavior and adds the right ARIA wiring.
 <div data-hl-accordion>
   <details open>
     <summary>What is Hydrateless?</summary>
-    <div class="accordion-panel">A library of accessible UI primitives that work with semantic HTML and CSS first, with optional JS enhancers.</div>
+    <div class="hl-accordion-panel">A library of accessible UI primitives that work with semantic HTML and CSS first, with optional JS enhancers.</div>
   </details>
   <details>
     <summary>Does it require JavaScript?</summary>
-    <div class="accordion-panel">No. Most components work with CSS alone. JS is loaded only where an interaction truly needs it.</div>
+    <div class="hl-accordion-panel">No. Most components work with CSS alone. JS is loaded only where an interaction truly needs it.</div>
   </details>
   <details>
     <summary>Is it themeable?</summary>
-    <div class="accordion-panel">Yes — every component is driven by CSS variables, with dark mode built in.</div>
+    <div class="hl-accordion-panel">Yes — every component is driven by CSS variables, with dark mode built in.</div>
   </details>
 </div>
 </div>
@@ -29,17 +29,19 @@ single-panel-open behavior and adds the right ARIA wiring.
 <div data-hl-accordion>
   <details>
     <summary>Section one</summary>
-    <div class="accordion-panel">Panel content.</div>
+    <div class="hl-accordion-panel">Panel content.</div>
   </details>
   <details>
     <summary>Section two</summary>
-    <div class="accordion-panel">Panel content.</div>
+    <div class="hl-accordion-panel">Panel content.</div>
   </details>
 </div>
 ```
 
 - **CSS**: `hydrateless/accordion.css`
-- **JS**: `enhanceAccordion(container, { allowMultiple?: boolean })`
+- **JS**: `enhanceAccordion(container, { allowMultiple?, defaultValue?, onValueChange? })`
+  — item values come from `data-hl-value` (default: index); the handle's `api`
+  exposes `value`/`setValue`, and changes emit `hl:change`.
 
 Without the enhancer, each `<details>` toggles independently. With it, opening
 one panel closes the others — unless you pass `allowMultiple: true`.

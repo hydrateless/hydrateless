@@ -141,6 +141,44 @@ describe('@hydrateless/vue components', () => {
     wrapper.unmount();
   });
 
+  it('Tabs supports v-model', async () => {
+    const wrapper = mount(
+      {
+        data: () => ({ tab: 'two' }),
+        render(this: { tab: string }) {
+          return h(
+            Tabs,
+            { modelValue: this.tab, 'onUpdate:modelValue': (v: string) => (this.tab = v) },
+            {
+              default: () => [
+                h(TabList, null, {
+                  default: () => [
+                    h(Tab, { value: 'one' }, () => 'One'),
+                    h(Tab, { value: 'two' }, () => 'Two'),
+                  ],
+                }),
+                h(TabPanel, () => 'First'),
+                h(TabPanel, () => 'Second'),
+              ],
+            },
+          );
+        },
+      },
+      { attachTo: document.body },
+    );
+    const tabs = wrapper.findAll('[role="tab"]');
+    expect(tabs[1].attributes('aria-selected')).toBe('true');
+
+    // Clicking a tab updates the bound model.
+    await tabs[0].trigger('click');
+    expect(wrapper.vm.tab).toBe('one');
+
+    // Driving the model selects the tab.
+    await wrapper.setData({ tab: 'two' });
+    expect(tabs[1].attributes('aria-selected')).toBe('true');
+    wrapper.unmount();
+  });
+
   it('Modal opens via the open prop', async () => {
     const wrapper = mount(
       {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { tabs, dropdown, combobox, menu } from '../src/actions.js';
-import { createToast } from '../src/toast.js';
+import { useToast } from '../src/toast.js';
 
 describe('@hydrateless/svelte actions', () => {
   it('tabs action wires ARIA roles and disposes', () => {
@@ -84,13 +84,12 @@ describe('@hydrateless/svelte actions', () => {
     node.remove();
   });
 
-  it('createToast shows and dismisses toasts', () => {
+  it('useToast shows and dismisses toasts without setup', () => {
     document.body.innerHTML = '<div data-hl-toast-region></div>';
-    const api = createToast(document);
+    const api = useToast();
     const toast = api.show('Saved', { duration: 0 });
     expect(document.querySelector('[data-hl-toast]')?.textContent).toContain('Saved');
     api.dismiss(toast);
     expect(document.querySelector('[data-hl-toast]')).toBeNull();
-    api.destroy();
   });
 });

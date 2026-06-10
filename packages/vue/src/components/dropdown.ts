@@ -1,11 +1,16 @@
-import { defineComponent, h, type PropType } from 'vue';
-import { enhanceDropdown, type EnhanceDropdownOptions } from '@hydrateless/enhancers';
+import { defineComponent, h, watch, type PropType } from 'vue';
+import {
+  enhanceDropdown,
+  type DropdownApi,
+  type EnhanceDropdownOptions,
+} from '@hydrateless/enhancers';
 import { useHostEnhancer } from '../internal.js';
 
 /**
  * Button-triggered menu (WAI-ARIA menu-button pattern). Compose with
  * `<DropdownTrigger>`, `<DropdownMenu>`, `<DropdownItem>`, and
- * `<DropdownSeparator>`.
+ * `<DropdownSeparator>`. Open state works uncontrolled or with
+ * `v-model:open`.
  */
 export const Dropdown = defineComponent({
   name: 'HlDropdown',
@@ -15,9 +20,26 @@ export const Dropdown = defineComponent({
       type: String as PropType<EnhanceDropdownOptions['placement']>,
       default: undefined,
     },
+    /** Controlled open state (`v-model:open`). */
+    open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+    /** Open the menu initially for uncontrolled usage. */
+    defaultOpen: { type: Boolean, default: false },
   },
-  setup(props, { slots, attrs }) {
-    const host = useHostEnhancer((el) => enhanceDropdown(el, { placement: props.placement }));
+  emits: ['update:open'],
+  setup(props, { slots, attrs, emit }) {
+    const { host, api } = useHostEnhancer<DropdownApi>((el) =>
+      enhanceDropdown(el, {
+        placement: props.placement,
+        defaultOpen: props.open ?? props.defaultOpen,
+        onOpenChange: (open) => emit('update:open', open),
+      }),
+    );
+    watch(
+      () => props.open,
+      (open) => {
+        if (open != null) api.value?.setOpen(open);
+      },
+    );
     return () => h('div', { ...attrs, 'data-hl-dropdown': '', ref: host }, slots.default?.());
   },
 });

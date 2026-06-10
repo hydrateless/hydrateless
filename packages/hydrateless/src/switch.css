@@ -2,7 +2,7 @@
   [data-hl-switch] {
     display: inline-flex;
     align-items: center;
-    gap: var(--hl-spacing-2, 0.5rem);
+    gap: var(--hl-space-2);
   }
 
   [data-hl-switch] input[type='checkbox'] {
@@ -10,9 +10,10 @@
     inline-size: 2.25rem;
     block-size: 1.25rem;
     border-radius: 1.25rem;
-    background: color-mix(in oklab, var(--hl-color-fg) 16%, transparent);
+    background: var(--hl-border-strong);
     position: relative;
     outline-offset: 2px;
+    transition: background-color var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
   [data-hl-switch] input[type='checkbox']::after {
@@ -22,8 +23,8 @@
     inline-size: calc(1.25rem - 4px);
     block-size: calc(1.25rem - 4px);
     border-radius: 50%;
-    background: var(--hl-color-bg);
-    transition: transform 150ms ease;
+    background: var(--hl-surface);
+    transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
   [data-hl-switch] input[type='checkbox']:checked::after {
@@ -31,6 +32,20 @@
   }
 
   [data-hl-switch] input[type='checkbox']:checked {
-    background: var(--hl-color-accent);
+    background: var(--hl-primary);
+  }
+
+  [data-hl-switch] input[type='checkbox']:focus-visible {
+    outline: var(--hl-focus-ring);
+  }
+
+  [data-hl-switch] input[type='checkbox']:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  [data-hl-switch]:has(input[type='checkbox']:disabled) {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 }

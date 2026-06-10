@@ -31,7 +31,7 @@ import {
   TabList,
   TabPanel,
   Tabs,
-  ToastProvider,
+  ToastRegion,
   useToast,
 } from '@hydrateless/react';
 
@@ -63,82 +63,82 @@ export function App() {
   const [fruit, setFruit] = useState('');
 
   return (
-    <ToastProvider>
-      <main className="page">
-        <header>
-          <Breadcrumb>
-            <BreadcrumbItem href="#">Home</BreadcrumbItem>
-            <BreadcrumbItem href="#">Examples</BreadcrumbItem>
-            <BreadcrumbItem current>React</BreadcrumbItem>
-          </Breadcrumb>
-          <h1>
-            Hydrateless for React <Badge intent="primary">v0.4</Badge>
-          </h1>
-        </header>
+    <main className="page">
+      <header>
+        <Breadcrumb>
+          <BreadcrumbItem href="#">Home</BreadcrumbItem>
+          <BreadcrumbItem href="#">Examples</BreadcrumbItem>
+          <BreadcrumbItem current>React</BreadcrumbItem>
+        </Breadcrumb>
+        <h1>
+          Hydrateless for React <Badge intent="primary">v0.5</Badge>
+        </h1>
+      </header>
 
-        <Toolbar />
+      <Toolbar />
 
-        <Alert intent="info" title="First-class components">
-          The same component suite ships for React, Vue, and Svelte.
-        </Alert>
+      <Alert intent="info" title="First-class components">
+        The same component suite ships for React, Vue, and Svelte.
+      </Alert>
 
-        <Tabs>
-          <TabList>
-            <Tab>Overview</Tab>
-            <Tab>Form</Tab>
-            <Tab>Search</Tab>
-          </TabList>
+      <Tabs defaultValue="overview">
+        <TabList>
+          <Tab value="overview">Overview</Tab>
+          <Tab value="form">Form</Tab>
+          <Tab value="search">Search</Tab>
+        </TabList>
 
-          <TabPanel>
-            <Card>
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <p>Accessible primitives built on semantic HTML and modern CSS.</p>
-                <Button onClick={() => setOpen(true)}>Open modal</Button>
-              </CardBody>
-            </Card>
-          </TabPanel>
+        <TabPanel>
+          <Card>
+            <CardHeader>
+              <CardTitle>Overview</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <p>Accessible primitives built on semantic HTML and modern CSS.</p>
+              <Button onClick={() => setOpen(true)}>Open modal</Button>
+            </CardBody>
+          </Card>
+        </TabPanel>
 
-          <TabPanel>
-            <Field>
-              <FieldLabel>Email</FieldLabel>
-              <Input type="email" placeholder="you@example.com" />
-              <FieldHelp>We never share it.</FieldHelp>
-            </Field>
-          </TabPanel>
+        <TabPanel>
+          <Field>
+            <FieldLabel>Email</FieldLabel>
+            <Input type="email" placeholder="you@example.com" />
+            <FieldHelp>We never share it.</FieldHelp>
+          </Field>
+        </TabPanel>
 
-          <TabPanel>
-            <Combobox onValueChange={setFruit}>
-              <ComboboxInput placeholder="Search fruit…" />
-              <ComboboxList>
-                <ComboboxOption value="apple">Apple</ComboboxOption>
-                <ComboboxOption value="banana">Banana</ComboboxOption>
-                <ComboboxOption value="cherry">Cherry</ComboboxOption>
-              </ComboboxList>
-            </Combobox>
-            <p>Selected: {fruit || '—'}</p>
-          </TabPanel>
-        </Tabs>
+        <TabPanel>
+          <Combobox value={fruit} onValueChange={setFruit}>
+            <ComboboxInput placeholder="Search fruit…" />
+            <ComboboxList>
+              <ComboboxOption value="apple">Apple</ComboboxOption>
+              <ComboboxOption value="banana">Banana</ComboboxOption>
+              <ComboboxOption value="cherry">Cherry</ComboboxOption>
+            </ComboboxList>
+          </Combobox>
+          <p>Selected: {fruit || '—'}</p>
+        </TabPanel>
+      </Tabs>
 
-        <Pagination page={page} count={10} onPageChange={setPage} />
+      <Pagination page={page} count={10} onPageChange={setPage} />
 
-        <Modal open={open} onClose={() => setOpen(false)}>
-          <ModalHeader>
-            <h2>Confirm</h2>
-          </ModalHeader>
-          <ModalBody>
-            <p>Are you sure you want to continue?</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
-            <Button intent="primary" onClick={() => setOpen(false)}>
-              Confirm
-            </Button>
-          </ModalFooter>
-        </Modal>
-      </main>
-    </ToastProvider>
+      <Modal open={open} onOpenChange={setOpen}>
+        <ModalHeader>
+          <h2>Confirm</h2>
+        </ModalHeader>
+        <ModalBody>
+          <p>Are you sure you want to continue?</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button intent="primary" onClick={() => setOpen(false)}>
+            Confirm
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      <ToastRegion />
+    </main>
   );
 }

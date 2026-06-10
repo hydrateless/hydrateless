@@ -6,6 +6,6 @@
 </script>
 
 <button type="button" onclick={() => (open = true)}>open</button>
-<Modal {open} onclose={() => (open = false)}>
+<Modal bind:open>
   <ModalBody>Body</ModalBody>
 </Modal>

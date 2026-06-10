@@ -39,7 +39,10 @@ panels.
 ```
 
 - **CSS**: `hydrateless/tabs.css`
-- **JS**: `enhanceTabs(container)`
+- **JS**: `enhanceTabs(container, { activation?, orientation?, defaultValue?, onValueChange? })`
+  — tab values come from `data-hl-value` (default: index); the handle's `api`
+  exposes `value`/`setValue`, and changes emit `hl:change`. Without JS, CSS
+  shows only the first panel.
 - **Keyboard**: `←`/`→` move between tabs, `Home`/`End` jump to first/last,
   `Enter`/`Space` activate.
 

@@ -29,16 +29,11 @@ export function Command({ hotkey, onSelect, children, ...rest }: CommandProps) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const dispose = enhanceCommand(el, { hotkey });
-    const handler = (e: Event) => {
-      const { value } = (e as CustomEvent).detail as { value: string };
-      onSelectRef.current?.(value);
-    };
-    el.addEventListener('hl:command', handler);
-    return () => {
-      el.removeEventListener('hl:command', handler);
-      dispose();
-    };
+    const handle = enhanceCommand(el, {
+      hotkey,
+      onCommand: (value) => onSelectRef.current?.(value),
+    });
+    return handle.destroy;
   }, [hotkey]);
 
   return (

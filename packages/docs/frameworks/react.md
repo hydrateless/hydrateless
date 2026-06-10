@@ -29,10 +29,10 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 
 export function Example() {
   return (
-    <Tabs>
+    <Tabs defaultValue="overview">
       <TabList>
-        <Tab>Overview</Tab>
-        <Tab>Install</Tab>
+        <Tab value="overview">Overview</Tab>
+        <Tab value="install">Install</Tab>
       </TabList>
       <TabPanel>
         <p>Zero runtime by default.</p>
@@ -45,8 +45,36 @@ export function Example() {
 }
 ```
 
-Controlled overlays use an `open` prop and an `onClose` callback, with composable
-section parts:
+### Controlled and uncontrolled state
+
+Every interactive component supports both modes, mirroring native inputs:
+
+- **Uncontrolled** — pass `defaultValue` (or `defaultOpen`) and let the
+  enhancer manage state internally.
+- **Controlled** — pass `value` + `onValueChange` (or `open` + `onOpenChange`)
+  and own the state yourself.
+
+```tsx
+import { useState } from 'react';
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
+
+export function Controlled() {
+  const [tab, setTab] = useState('overview');
+  return (
+    <Tabs value={tab} onValueChange={setTab}>
+      <TabList>
+        <Tab value="overview">Overview</Tab>
+        <Tab value="install">Install</Tab>
+      </TabList>
+      <TabPanel>…</TabPanel>
+      <TabPanel>…</TabPanel>
+    </Tabs>
+  );
+}
+```
+
+Overlays are controlled through `open` + `onOpenChange`, which also reports
+Escape and backdrop dismissals:
 
 ```tsx
 import { useState } from 'react';
@@ -57,7 +85,7 @@ export function Example() {
   return (
     <>
       <Button onClick={() => setOpen(true)}>Open</Button>
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} onOpenChange={setOpen}>
         <ModalHeader>
           <h2>Confirm</h2>
         </ModalHeader>
@@ -107,35 +135,40 @@ The package also ships styled **form controls** (`Button`, `Input`, `Textarea`,
 
 ## Toasts
 
-Wrap your app once with `ToastProvider`, then call `useToast()` anywhere below:
+`useToast()` works from any component — no provider required. The first
+`show()` call creates a polite live region at the end of `<body>`; render
+`<ToastRegion />` once if you want to control where toasts appear:
 
 ```tsx
-import { ToastProvider, useToast } from '@hydrateless/react';
+import { ToastRegion, useToast } from '@hydrateless/react';
 
 function SaveButton() {
   const toast = useToast();
-  return <button onClick={() => toast.show('Saved!')}>Save</button>;
+  return <button onClick={() => toast.show('Saved!', { variant: 'success' })}>Save</button>;
 }
 
 export function App() {
   return (
-    <ToastProvider>
+    <>
       <SaveButton />
-    </ToastProvider>
+      <ToastRegion /> {/* optional */}
+    </>
   );
 }
 ```
 
 ## Hooks
 
-Prefer to render your own markup? Use a hook to attach an enhancer to a ref. The
-disposer is called automatically on unmount.
+Prefer to render your own markup? Use a hook to attach an enhancer to a ref.
+You get `{ ref, api }` back — `api` is a ref to the enhancer's imperative API —
+and the instance is destroyed automatically on unmount.
 
 ```tsx
 import { useTabs } from '@hydrateless/react';
 
 export function MyTabs() {
-  const ref = useTabs<HTMLDivElement>();
+  const { ref, api } = useTabs<HTMLDivElement>();
+  // api.current?.setValue('install')
   return (
     <div data-hl-tabs ref={ref}>
       {/* your own tablist / tabpanel markup */}
@@ -151,9 +184,9 @@ For any enhancer not covered by a dedicated hook, use the generic `useEnhancer`:
 
 ```tsx
 import { useEnhancer } from '@hydrateless/react';
-import { enhancePopover } from '@hydrateless/enhancers';
+import { enhancePopover, type PopoverApi } from '@hydrateless/enhancers';
 
-const ref = useEnhancer<HTMLDivElement>((el) => enhancePopover(el));
+const { ref, api } = useEnhancer<HTMLDivElement, PopoverApi>((el) => enhancePopover(el));
 ```
 
 ## TypeScript

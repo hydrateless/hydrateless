@@ -46,19 +46,45 @@ Available actions: `accordion`, `disclosure`, `tabs`, `dropdown`, `modal`,
 drawer, popover, tooltip) put the action on a wrapper that contains the trigger
 and target.
 
-## Toasts
+## Components
+
+Interactive components support two-way binding on their state:
 
 ```svelte
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { createToast } from '@hydrateless/svelte';
+  import { Tabs, TabList, Tab, TabPanel, Modal, ModalBody } from '@hydrateless/svelte';
 
-  let toast: ReturnType<typeof createToast>;
-  onMount(() => (toast = createToast()));
-  onDestroy(() => toast?.destroy());
+  let tab = $state('overview');
+  let open = $state(false);
 </script>
 
-<button on:click={() => toast.show('Saved')}>Save</button>
+<Tabs bind:value={tab}>
+  <TabList>
+    <Tab value="overview">Overview</Tab>
+    <Tab value="install">Install</Tab>
+  </TabList>
+  <TabPanel>Zero runtime by default.</TabPanel>
+  <TabPanel><code>npm i hydrateless</code></TabPanel>
+</Tabs>
+
+<button onclick={() => (open = true)}>Open</button>
+<Modal bind:open>
+  <ModalBody>Body content.</ModalBody>
+</Modal>
+```
+
+## Toasts
+
+`useToast()` works anywhere — no setup required:
+
+```svelte
+<script lang="ts">
+  import { useToast } from '@hydrateless/svelte';
+
+  const toast = useToast();
+</script>
+
+<button onclick={() => toast.show('Saved', { variant: 'success' })}>Save</button>
 ```
 
 ## License

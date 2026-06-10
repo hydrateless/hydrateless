@@ -1,11 +1,16 @@
-import { defineComponent, h, onBeforeUnmount, onMounted, ref, type PropType } from 'vue';
-import { enhanceCombobox, type EnhanceComboboxOptions } from '@hydrateless/enhancers';
-import { cx } from '../internal.js';
+import { defineComponent, h, watch, type PropType } from 'vue';
+import {
+  enhanceCombobox,
+  type ComboboxApi,
+  type EnhanceComboboxOptions,
+} from '@hydrateless/enhancers';
+import { cx, useHostEnhancer } from '../internal.js';
 
 /**
  * Editable combobox (input + listbox), APG pattern. Compose with
- * `<ComboboxInput>`, `<ComboboxList>`, `<ComboboxOption>`. Emits
- * `update:value` (and `select`) with the committed value.
+ * `<ComboboxInput>`, `<ComboboxList>`, `<ComboboxOption>`. The committed
+ * value works uncontrolled (`defaultValue`) or with `v-model`; selection also
+ * emits `select`.
  */
 export const Combobox = defineComponent({
   name: 'HlCombobox',
@@ -16,29 +21,30 @@ export const Combobox = defineComponent({
       type: Boolean as PropType<EnhanceComboboxOptions['autoHighlight']>,
       default: undefined,
     },
+    /** Controlled committed value (`v-model`). */
+    modelValue: { type: String, default: undefined },
+    /** Initial committed value for uncontrolled usage. */
+    defaultValue: { type: String, default: undefined },
   },
-  emits: ['select', 'update:value'],
+  emits: ['select', 'update:modelValue'],
   setup(props, { slots, attrs, emit }) {
-    const host = ref<HTMLElement | null>(null);
-    let dispose: (() => void) | null = null;
-    const onSelect = (e: Event) => {
-      const value = (e as CustomEvent).detail.value as string;
-      emit('select', value);
-      emit('update:value', value);
-    };
-    onMounted(() => {
-      if (!host.value) return;
-      dispose = enhanceCombobox(host.value, {
+    const { host, api } = useHostEnhancer<ComboboxApi>((el) =>
+      enhanceCombobox(el, {
         filter: props.filter,
         autoHighlight: props.autoHighlight,
-      });
-      host.value.addEventListener('hl:select', onSelect);
-    });
-    onBeforeUnmount(() => {
-      host.value?.removeEventListener('hl:select', onSelect);
-      dispose?.();
-      dispose = null;
-    });
+        defaultValue: props.modelValue ?? props.defaultValue,
+        onValueChange: (value) => {
+          emit('select', value);
+          emit('update:modelValue', value);
+        },
+      }),
+    );
+    watch(
+      () => props.modelValue,
+      (value) => {
+        if (value != null) api.value?.setValue(value);
+      },
+    );
     return () => h('div', { ...attrs, 'data-hl-combobox': '', ref: host }, slots.default?.());
   },
 });

@@ -1,18 +1,31 @@
 // Components
-export { enhanceAccordion, type EnhanceAccordionOptions } from './accordion/index.js';
+export {
+  enhanceAccordion,
+  type EnhanceAccordionOptions,
+  type AccordionApi,
+} from './accordion/index.js';
 export { enhanceDisclosure, type EnhanceDisclosureOptions } from './disclosure/index.js';
-export { enhanceTabs, type EnhanceTabsOptions } from './tabs/index.js';
-export { enhanceDropdown, type EnhanceDropdownOptions } from './dropdown/index.js';
+export { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from './tabs/index.js';
+export {
+  enhanceDropdown,
+  type EnhanceDropdownOptions,
+  type DropdownApi,
+} from './dropdown/index.js';
 export { enhanceMenu, type EnhanceMenuOptions } from './menu/index.js';
-export { enhanceModal, type EnhanceModalOptions } from './modal/index.js';
-export { enhanceDrawer, type EnhanceDrawerOptions } from './drawer/index.js';
-export { enhancePopover, type EnhancePopoverOptions } from './popover/index.js';
-export { enhanceTooltip, type EnhanceTooltipOptions } from './tooltip/index.js';
-export { enhanceCombobox, type EnhanceComboboxOptions } from './combobox/index.js';
+export { enhanceModal, type EnhanceModalOptions, type ModalApi } from './modal/index.js';
+export { enhanceDrawer, type EnhanceDrawerOptions, type DrawerApi } from './drawer/index.js';
+export { enhancePopover, type EnhancePopoverOptions, type PopoverApi } from './popover/index.js';
+export { enhanceTooltip, type EnhanceTooltipOptions, type TooltipApi } from './tooltip/index.js';
+export {
+  enhanceCombobox,
+  type EnhanceComboboxOptions,
+  type ComboboxApi,
+} from './combobox/index.js';
 export { enhanceCommand, type EnhanceCommandOptions } from './command/index.js';
 export { enhanceToc, type EnhanceTocOptions } from './toc/index.js';
 export {
   enhanceToast,
+  type EnhanceToastOptions,
   type ToastApi,
   type ToastOptions,
   type ToastVariant,
@@ -30,9 +43,15 @@ export {
   selectRoots,
   uid,
   defineEnhancer,
+  toHandle,
   type Enhancer,
   type EnhancerContext,
   type EnhancerDefinition,
+  type EnhancerHandle,
+  type EnhancerInstance,
+  Events,
+  emit,
+  type EmitOptions,
   isBrowser,
   resolveRef,
   ensureId,
@@ -61,3 +80,4 @@ export {
   type PositionOptions,
   type PositionResult,
 } from './core/index.js';
+export { type DialogOptions, type DialogApi } from './core/dialog.js';

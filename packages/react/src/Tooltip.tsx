@@ -28,7 +28,7 @@ export function Tooltip({ label, children, id }: TooltipProps) {
 
   useEffect(() => {
     if (!ref.current) return;
-    return enhanceTooltip(ref.current);
+    return enhanceTooltip(ref.current).destroy;
   }, [tipId]);
 
   const trigger = isValidElement(children)

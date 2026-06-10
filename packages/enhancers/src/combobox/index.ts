@@ -1,23 +1,49 @@
-import { defineEnhancer, ensureId, setAttrs, onClickOutside, nextIndex } from '../core/index.js';
+import {
+  defineEnhancer,
+  ensureId,
+  setAttrs,
+  onClickOutside,
+  nextIndex,
+  Events,
+} from '../core/index.js';
 
 export type EnhanceComboboxOptions = {
   /** Hide options that don't match the typed query. Defaults to `true`. */
   filter?: boolean;
   /** Highlight the first match automatically while typing. Defaults to `true`. */
   autoHighlight?: boolean;
+  /** Initial committed value; pre-fills the input. */
+  defaultValue?: string;
+  /** Called with the committed value after a selection or `setValue`. */
+  onValueChange?: (value: string) => void;
 };
+
+export type ComboboxApi = {
+  /** The input's current text. */
+  readonly value: string;
+  /** Commit a value: updates the input and notifies listeners. */
+  setValue: (value: string) => void;
+  /** Whether the listbox is currently expanded. */
+  readonly open: boolean;
+  /** Expand or collapse the listbox. */
+  setOpen: (open: boolean) => void;
+};
+
+/** Number of options PageUp/PageDown jumps over. */
+const PAGE = 10;
 
 /**
  * Editable combobox (text input + `role="listbox"` popup) implementing the APG
- * pattern: `aria-expanded`, `aria-activedescendant`, arrow/Home/End navigation,
- * type-to-filter, Enter to commit, Escape/outside-click to dismiss. Emits a
- * cancelable `hl:select` CustomEvent with `{ value, option }` on selection.
+ * pattern: `aria-expanded`, `aria-activedescendant`, arrow/Home/End/PageUp/
+ * PageDown navigation, type-to-filter, Enter to commit, Escape/outside-click
+ * to dismiss. Selection emits a cancelable `hl:select` followed by
+ * `hl:change`; the committed value is controllable through the returned API.
  */
-export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions>({
+export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxApi>({
   name: 'combobox',
   selector: '[data-hl-combobox]',
   defaults: { filter: true, autoHighlight: true },
-  setup({ root, options, on, add }) {
+  setup({ root, options, on, add, emit }) {
     const input = root.querySelector<HTMLInputElement>('input, [role="combobox"]');
     const listbox = root.querySelector<HTMLElement>('[role="listbox"], [data-hl-combobox-list]');
     if (!input || !listbox) return;
@@ -56,6 +82,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions>({
       setAttrs(input, { 'aria-expanded': 'true' });
     };
     const close = () => {
+      if (!isOpen()) return;
       listbox.hidden = true;
       active = -1;
       setAttrs(input, { 'aria-expanded': 'false', 'aria-activedescendant': null });
@@ -70,18 +97,21 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions>({
       }
     };
 
+    const commit = (value: string) => {
+      input.value = value;
+      options.onValueChange?.(value);
+      emit(Events.change, { value });
+    };
+
     const select = (option: HTMLElement) => {
       const value = option.dataset.hlValue ?? option.textContent?.trim() ?? '';
-      const event = new CustomEvent('hl:select', {
-        bubbles: true,
-        cancelable: true,
-        detail: { value, option },
-      });
-      const proceed = root.dispatchEvent(event);
-      if (proceed) input.value = value;
+      const proceed = emit(Events.select, { value, option }, { cancelable: true });
+      if (proceed) commit(value);
       close();
       input.focus();
     };
+
+    if (options.defaultValue != null) input.value = options.defaultValue;
 
     on(input, 'input', () => {
       open();
@@ -109,6 +139,20 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions>({
           if (!isOpen()) open();
           active = nextIndex(active, list.length, 'prev');
           paint();
+          break;
+        case 'PageDown':
+          if (isOpen() && list.length > 0) {
+            e.preventDefault();
+            active = Math.min(active === -1 ? PAGE - 1 : active + PAGE, list.length - 1);
+            paint();
+          }
+          break;
+        case 'PageUp':
+          if (isOpen() && list.length > 0) {
+            e.preventDefault();
+            active = Math.max(active === -1 ? 0 : active - PAGE, 0);
+            paint();
+          }
           break;
         case 'Home':
           if (isOpen()) {
@@ -148,5 +192,21 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions>({
     });
 
     add(onClickOutside(root, close, { ignore: [input] }));
+
+    return {
+      get value() {
+        return input.value;
+      },
+      setValue(value) {
+        if (input.value !== value) commit(value);
+      },
+      get open() {
+        return isOpen();
+      },
+      setOpen(next) {
+        if (next) open();
+        else close();
+      },
+    };
   },
 });

@@ -19,62 +19,68 @@ import 'hydrateless/hydrateless.css';
 ## Components
 
 ```tsx
-import { Tabs, Dropdown, Modal, ToastProvider, useToast } from '@hydrateless/react';
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 
 function Example() {
   return (
-    <Tabs
-      items={[
-        { label: 'Overview', content: <p>Zero-runtime by default.</p> },
-        { label: 'Install', content: <code>npm i hydrateless</code> },
-      ]}
-    />
+    <Tabs defaultValue="overview">
+      <TabList>
+        <Tab value="overview">Overview</Tab>
+        <Tab value="install">Install</Tab>
+      </TabList>
+      <TabPanel>Zero runtime by default.</TabPanel>
+      <TabPanel>
+        <code>npm i hydrateless</code>
+      </TabPanel>
+    </Tabs>
   );
 }
 ```
 
-Available: `Accordion` / `AccordionItem`, `Disclosure`, `Tabs`, `Dropdown`,
-`Modal`, `Drawer`, `Popover`, `Tooltip`, `Breadcrumb`, `Switch`, `SkipLink`,
-`Toc`, and `ToastProvider` + `useToast`.
+Interactive components work uncontrolled (`defaultValue` / `defaultOpen`) or
+fully controlled (`value` + `onValueChange`, `open` + `onOpenChange`).
 
 ### Controlled dialogs
 
 `Modal` and `Drawer` are controlled via the `open` prop and built on the native
-`<dialog>` element (focus is contained by the browser's top layer):
+`<dialog>` element plus the modal enhancer (focus trap, scroll-lock, background
+`inert`). Escape and backdrop clicks report back through `onOpenChange`:
 
 ```tsx
 const [open, setOpen] = useState(false);
 
 <button onClick={() => setOpen(true)}>Open</button>
-<Modal open={open} onClose={() => setOpen(false)} title="Title" footer={<button onClick={() => setOpen(false)}>Close</button>}>
-  Body content.
+<Modal open={open} onOpenChange={setOpen}>
+  <ModalHeader>Title</ModalHeader>
+  <ModalBody>Body content.</ModalBody>
+  <ModalFooter><button onClick={() => setOpen(false)}>Close</button></ModalFooter>
 </Modal>;
 ```
 
 ### Toasts
 
+`useToast()` works anywhere — no provider required. Render `<ToastRegion />`
+once if you want to control where toasts appear:
+
 ```tsx
 function Save() {
   const toast = useToast();
-  return <button onClick={() => toast.show('Saved')}>Save</button>;
+  return <button onClick={() => toast.show('Saved', { variant: 'success' })}>Save</button>;
 }
-
-<ToastProvider>
-  <Save />
-</ToastProvider>;
 ```
 
 ## Hooks
 
-For your own markup, attach any enhancer with a ref. The enhancer's disposer is
-called automatically on unmount:
+For your own markup, attach any enhancer with a ref. You get the enhancer's
+imperative API back, and the instance is destroyed automatically on unmount:
 
 ```tsx
 import { useEnhancer } from '@hydrateless/react';
-import { enhanceTabs } from '@hydrateless/enhancers';
+import { enhanceTabs, type TabsApi } from '@hydrateless/enhancers';
 
 function CustomTabs() {
-  const ref = useEnhancer<HTMLDivElement>(enhanceTabs);
+  const { ref, api } = useEnhancer<HTMLDivElement, TabsApi>((el) => enhanceTabs(el));
+  // api.current?.setValue('install')
   return (
     <div data-hl-tabs ref={ref}>
       {/* tablist + tabpanels */}

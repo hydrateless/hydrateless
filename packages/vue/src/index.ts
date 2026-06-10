@@ -1,7 +1,6 @@
 // Composables + directives (low-level layer)
 export { useEnhancer } from './useEnhancer.js';
 export { useToast } from './useToast.js';
-export type { UseToastReturn } from './useToast.js';
 export { HydratelessPlugin } from './plugin.js';
 export {
   directives,
@@ -85,4 +84,16 @@ export {
 } from './components/data.js';
 export { Pagination, Toc, SkipLink } from './components/navigation.js';
 
-export type { Disposer } from '@hydrateless/enhancers';
+export type {
+  AccordionApi,
+  ComboboxApi,
+  Disposer,
+  DrawerApi,
+  DropdownApi,
+  EnhancerHandle,
+  ModalApi,
+  PopoverApi,
+  TabsApi,
+  ToastApi,
+  TooltipApi,
+} from '@hydrateless/enhancers';

@@ -128,7 +128,7 @@ export const Toc = defineComponent({
     scrollSpy: { type: Boolean as PropType<boolean | undefined>, default: undefined },
   },
   setup(props, { attrs }) {
-    const host = useHostEnhancer((el) =>
+    const { host } = useHostEnhancer((el) =>
       enhanceToc(el.ownerDocument, {
         contentSelector: props.contentSelector,
         headings: props.headings,
@@ -147,7 +147,7 @@ export const SkipLink = defineComponent({
     return () =>
       h(
         'a',
-        { ...attrs, class: cx('a11y-skip-link', attrs.class as string) },
+        { ...attrs, class: cx('hl-skip-link', attrs.class as string) },
         slots.default?.() ?? 'Skip to content',
       );
   },

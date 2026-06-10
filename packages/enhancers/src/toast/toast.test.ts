@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { enhanceToast } from './index.js';
 
+function api(...args: Parameters<typeof enhanceToast>) {
+  return enhanceToast(...args).api!;
+}
+
 describe('enhanceToast', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div data-hl-toast-region></div>';
@@ -11,10 +15,10 @@ describe('enhanceToast', () => {
     vi.useRealTimers();
   });
 
-  it('returns show and dismiss functions', () => {
-    const api = enhanceToast(document);
-    expect(typeof api.show).toBe('function');
-    expect(typeof api.dismiss).toBe('function');
+  it('exposes show and dismiss through the handle api', () => {
+    const toast = api(document);
+    expect(typeof toast.show).toBe('function');
+    expect(typeof toast.dismiss).toBe('function');
   });
 
   it('sets ARIA attributes on region', () => {
@@ -26,17 +30,17 @@ describe('enhanceToast', () => {
   });
 
   it('creates a toast element on show', () => {
-    const api = enhanceToast(document);
-    api.show('Hello world', { duration: 0 });
+    const toast = api(document);
+    toast.show('Hello world', { duration: 0 });
 
-    const toast = document.querySelector('[data-hl-toast]');
-    expect(toast).not.toBeNull();
-    expect(toast!.textContent).toContain('Hello world');
+    const el = document.querySelector('[data-hl-toast]');
+    expect(el).not.toBeNull();
+    expect(el!.textContent).toContain('Hello world');
   });
 
   it('includes a close button with aria-label', () => {
-    const api = enhanceToast(document);
-    api.show('Test', { duration: 0 });
+    const toast = api(document);
+    toast.show('Test', { duration: 0 });
 
     const closeBtn = document.querySelector('[data-hl-toast-close]');
     expect(closeBtn).not.toBeNull();
@@ -44,8 +48,8 @@ describe('enhanceToast', () => {
   });
 
   it('auto-dismisses after duration', () => {
-    const api = enhanceToast(document);
-    api.show('Temporary', { duration: 3000 });
+    const toast = api(document);
+    toast.show('Temporary', { duration: 3000 });
     expect(document.querySelector('[data-hl-toast]')).not.toBeNull();
 
     vi.advanceTimersByTime(3000);
@@ -53,8 +57,8 @@ describe('enhanceToast', () => {
   });
 
   it('dismisses on close button click', () => {
-    const api = enhanceToast(document);
-    api.show('Closeable', { duration: 0 });
+    const toast = api(document);
+    toast.show('Closeable', { duration: 0 });
 
     const closeBtn = document.querySelector<HTMLElement>('[data-hl-toast-close]')!;
     closeBtn.click();
@@ -62,11 +66,11 @@ describe('enhanceToast', () => {
   });
 
   it('programmatic dismiss removes the toast', () => {
-    const api = enhanceToast(document);
-    const toast = api.show('Remove me', { duration: 0 });
+    const toast = api(document);
+    const el = toast.show('Remove me', { duration: 0 });
     expect(document.querySelector('[data-hl-toast]')).not.toBeNull();
 
-    api.dismiss(toast);
+    toast.dismiss(el);
     expect(document.querySelector('[data-hl-toast]')).toBeNull();
   });
 
@@ -79,9 +83,9 @@ describe('enhanceToast', () => {
   });
 
   it('stacks multiple toasts', () => {
-    const api = enhanceToast(document);
-    api.show('First', { duration: 0 });
-    api.show('Second', { duration: 0 });
+    const toast = api(document);
+    toast.show('First', { duration: 0 });
+    toast.show('Second', { duration: 0 });
 
     const toasts = document.querySelectorAll('[data-hl-toast]');
     expect(toasts.length).toBe(2);

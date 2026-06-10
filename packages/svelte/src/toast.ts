@@ -1,17 +1,28 @@
-import { enhanceToast, type ToastApi } from '@hydrateless/enhancers';
+import { enhanceToast, type EnhanceToastOptions, type ToastApi } from '@hydrateless/enhancers';
+
+let shared: ToastApi | null = null;
 
 /**
- * Create a toast controller. Call in `onMount` and tear down in `onDestroy`:
+ * Imperative toast API backed by a lazily-created document-level region (or a
+ * `[data-hl-toast-region]` you render yourself, e.g. via `<ToastRegion>`).
+ * Safe to call from anywhere — no setup required:
  *
  * ```ts
- * import { onMount, onDestroy } from 'svelte';
- * import { createToast } from '@hydrateless/svelte';
+ * import { useToast } from '@hydrateless/svelte';
  *
- * let toast: ReturnType<typeof createToast>;
- * onMount(() => (toast = createToast()));
- * onDestroy(() => toast?.destroy());
+ * const toast = useToast();
+ * toast.show('Saved', { variant: 'success' });
  * ```
  */
-export function createToast(container: Document | HTMLElement = document): ToastApi {
-  return enhanceToast(container);
+export function useToast(options?: EnhanceToastOptions): ToastApi {
+  return {
+    show(message, opts) {
+      // The toast enhancer always creates a region, so `api` is never null.
+      const api = (shared ??= enhanceToast(document, options).api!);
+      return api.show(message, opts);
+    },
+    dismiss(toast) {
+      shared?.dismiss(toast);
+    },
+  };
 }

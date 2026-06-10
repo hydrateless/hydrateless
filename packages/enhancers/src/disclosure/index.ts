@@ -1,4 +1,12 @@
-import { combine, on, selectRoots, type Disposer, type Enhancer } from '../core/index.js';
+import {
+  combine,
+  on,
+  selectRoots,
+  toHandle,
+  type Disposer,
+  type Enhancer,
+  type EnhancerInstance,
+} from '../core/index.js';
 
 export type EnhanceDisclosureOptions = {
   /** Allow more than one disclosure in the group open at a time. */
@@ -16,20 +24,17 @@ const enhanced = new WeakSet<Element>();
 export const enhanceDisclosure: Enhancer<EnhanceDisclosureOptions> = (
   container = document,
   options = {},
-): Disposer => {
+) => {
   const { allowMultiple = false } = options;
   const items = selectRoots<HTMLDetailsElement>(container, 'details[data-hl-disclosure]').filter(
     (item) => !enhanced.has(item),
   );
 
-  const disposers: Disposer[] = [];
-  for (const item of items) {
+  const instances: EnhancerInstance<null>[] = items.map((item) => {
     enhanced.add(item);
-    disposers.push(() => enhanced.delete(item));
-  }
+    const disposers: Disposer[] = [() => enhanced.delete(item)];
 
-  if (!allowMultiple) {
-    for (const item of items) {
+    if (!allowMultiple) {
       disposers.push(
         on(item, 'toggle', () => {
           if (!item.open) return;
@@ -39,7 +44,9 @@ export const enhanceDisclosure: Enhancer<EnhanceDisclosureOptions> = (
         }),
       );
     }
-  }
 
-  return combine(disposers);
+    return { root: item, api: null, destroy: combine(disposers) };
+  });
+
+  return toHandle(instances);
 };

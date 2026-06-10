@@ -13,7 +13,6 @@
     ComboboxInput,
     ComboboxList,
     ComboboxOption,
-    createToast,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -32,13 +31,10 @@
     TabList,
     TabPanel,
     Tabs,
+    useToast,
   } from '@hydrateless/svelte';
 
-  let toast: ReturnType<typeof createToast> | undefined = $state();
-  $effect(() => {
-    toast = createToast();
-    return () => toast?.destroy();
-  });
+  const toast = useToast();
 
   let open = $state(false);
   let page = $state(3);
@@ -53,7 +49,7 @@
       <BreadcrumbItem href="#">Examples</BreadcrumbItem>
       <BreadcrumbItem current>Svelte</BreadcrumbItem>
     </Breadcrumb>
-    <h1>Hydrateless for Svelte <Badge intent="primary">v0.4</Badge></h1>
+    <h1>Hydrateless for Svelte <Badge intent="primary">v0.5</Badge></h1>
   </header>
 
   <div class="row">
@@ -62,13 +58,13 @@
         <Button>Actions</Button>
       </DropdownTrigger>
       <DropdownMenu>
-        <DropdownItem onSelect={() => toast?.show('Edited')}>Edit</DropdownItem>
-        <DropdownItem onSelect={() => toast?.show('Duplicated')}>Duplicate</DropdownItem>
+        <DropdownItem onSelect={() => toast.show('Edited')}>Edit</DropdownItem>
+        <DropdownItem onSelect={() => toast.show('Duplicated')}>Duplicate</DropdownItem>
         <DropdownSeparator />
-        <DropdownItem onSelect={() => toast?.show('Deleted')}>Delete</DropdownItem>
+        <DropdownItem onSelect={() => toast.show('Deleted')}>Delete</DropdownItem>
       </DropdownMenu>
     </Dropdown>
-    <Button intent="primary" onclick={() => toast?.show('Saved!')}>Save</Button>
+    <Button intent="primary" onclick={() => toast.show('Saved!')}>Save</Button>
   </div>
 
   <Alert intent="info" title="First-class components">
@@ -77,9 +73,9 @@
 
   <Tabs>
     <TabList>
-      <Tab>Overview</Tab>
-      <Tab>Form</Tab>
-      <Tab>Search</Tab>
+      <Tab value="overview">Overview</Tab>
+      <Tab value="form">Form</Tab>
+      <Tab value="search">Search</Tab>
     </TabList>
 
     <TabPanel>
@@ -103,7 +99,7 @@
     </TabPanel>
 
     <TabPanel>
-      <Combobox onValueChange={(v) => (fruit = v)}>
+      <Combobox bind:value={fruit}>
         <ComboboxInput placeholder="Search fruit…" />
         <ComboboxList>
           <ComboboxOption value="apple">Apple</ComboboxOption>
@@ -117,7 +113,7 @@
 
   <Pagination {page} count={10} onPageChange={(p) => (page = p)} />
 
-  <Modal {open} onclose={() => (open = false)}>
+  <Modal bind:open>
     <ModalHeader><h2>Confirm</h2></ModalHeader>
     <ModalBody><p>Are you sure you want to continue?</p></ModalBody>
     <ModalFooter>

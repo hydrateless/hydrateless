@@ -1,21 +1,32 @@
 import {
   useEffect,
-  useRef,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type LiHTMLAttributes,
 } from 'react';
-import { enhanceDropdown, type EnhanceDropdownOptions } from '@hydrateless/enhancers';
+import {
+  enhanceDropdown,
+  type DropdownApi,
+  type EnhanceDropdownOptions,
+} from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
+import { useLatest } from './util.js';
 
 export interface DropdownProps extends HTMLAttributes<HTMLDivElement> {
   placement?: EnhanceDropdownOptions['placement'];
+  /** Controlled open state (pair with `onOpenChange`). */
+  open?: boolean;
+  /** Open the menu initially for uncontrolled usage. */
+  defaultOpen?: boolean;
+  /** Called after the menu opens or closes. */
+  onOpenChange?: (open: boolean) => void;
 }
 
 /**
  * Button-triggered menu following the WAI-ARIA menu-button pattern. Compose with
  * `<DropdownTrigger>`, `<DropdownMenu>`, `<DropdownItem>`, and
  * `<DropdownSeparator>`. The enhancer adds keyboard navigation, typeahead, and
- * `aria-expanded`/`role` wiring.
+ * `aria-expanded`/`role` wiring; open state works uncontrolled or controlled.
  *
  * ```tsx
  * <Dropdown>
@@ -28,13 +39,30 @@ export interface DropdownProps extends HTMLAttributes<HTMLDivElement> {
  * </Dropdown>
  * ```
  */
-export function Dropdown({ placement, children, ...rest }: DropdownProps) {
-  const ref = useRef<HTMLDivElement>(null);
+export function Dropdown({
+  placement,
+  open,
+  defaultOpen,
+  onOpenChange,
+  children,
+  ...rest
+}: DropdownProps) {
+  const onOpenChangeRef = useLatest(onOpenChange);
+  const initialOpenRef = useLatest(open ?? defaultOpen);
+
+  const { ref, api } = useEnhancer<HTMLDivElement, DropdownApi>(
+    (el) =>
+      enhanceDropdown(el, {
+        placement,
+        defaultOpen: initialOpenRef.current,
+        onOpenChange: (next) => onOpenChangeRef.current?.(next),
+      }),
+    [placement],
+  );
 
   useEffect(() => {
-    if (!ref.current) return;
-    return enhanceDropdown(ref.current, { placement });
-  }, [placement]);
+    if (open != null) api.current?.setOpen(open);
+  }, [open, api]);
 
   return (
     <div {...rest} data-hl-dropdown ref={ref}>

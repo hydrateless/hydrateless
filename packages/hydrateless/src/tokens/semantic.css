@@ -49,19 +49,6 @@
     --hl-scrim: hsl(222deg 47% 11% / 0.5);
     --hl-overlay: var(--hl-surface);
     --hl-overlay-shadow: var(--hl-shadow-lg);
-
-    /* Component-facing aliases — a single mapping onto the tokens above so every
-       component (old and new) themes and dark-modes from one source of truth. */
-    --hl-color-bg: var(--hl-surface);
-    --hl-color-fg: var(--hl-fg);
-    --hl-color-muted: var(--hl-surface-2);
-    --hl-color-accent: var(--hl-primary);
-    --hl-radius-2: var(--hl-radius-sm);
-    --hl-radius-3: var(--hl-radius-lg);
-    --hl-spacing-1: var(--hl-space-1);
-    --hl-spacing-2: var(--hl-space-2);
-    --hl-spacing-3: var(--hl-space-3);
-    --hl-spacing-4: var(--hl-space-4);
   }
 
   /* Dark theme values, shared by auto + manual dark. */

@@ -13,7 +13,7 @@ export {
   combobox,
   command,
 } from './actions.js';
-export { createToast } from './toast.js';
+export { useToast } from './toast.js';
 
 // Field/radio context helpers
 export { fieldBindings } from './context.js';
@@ -115,4 +115,16 @@ export { default as Pagination } from './components/Pagination.svelte';
 export { default as Toc } from './components/Toc.svelte';
 export { default as SkipLink } from './components/SkipLink.svelte';
 
-export type { Disposer } from '@hydrateless/enhancers';
+export type {
+  AccordionApi,
+  ComboboxApi,
+  Disposer,
+  DrawerApi,
+  DropdownApi,
+  EnhancerHandle,
+  ModalApi,
+  PopoverApi,
+  TabsApi,
+  ToastApi,
+  TooltipApi,
+} from '@hydrateless/enhancers';

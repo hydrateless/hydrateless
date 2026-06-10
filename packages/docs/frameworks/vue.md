@@ -40,7 +40,34 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/vue';
 </template>
 ```
 
-Controlled overlays take an `open` prop and emit `close`:
+### `v-model` state
+
+Interactive components support `v-model` on their state — `v-model` (value) on
+`Tabs`, `Accordion`, and `Combobox`; `v-model:open` on `Modal`, `Drawer`,
+`Dropdown`, and `Popover`. Escape, backdrop clicks, and in-component
+interactions all flow back into your bound ref:
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/vue';
+
+const tab = ref('overview');
+</script>
+
+<template>
+  <Tabs v-model="tab">
+    <TabList>
+      <Tab value="overview">Overview</Tab>
+      <Tab value="install">Install</Tab>
+    </TabList>
+    <TabPanel>…</TabPanel>
+    <TabPanel>…</TabPanel>
+  </Tabs>
+</template>
+```
+
+Overlays are driven with `v-model:open`:
 
 ```vue
 <script setup>
@@ -53,7 +80,7 @@ const open = ref(false);
 <template>
   <Button @click="open = true">Open</Button>
 
-  <Modal :open="open" @close="open = false">
+  <Modal v-model:open="open">
     <ModalHeader><h2>Confirm</h2></ModalHeader>
     <ModalBody>Are you sure?</ModalBody>
     <ModalFooter>
@@ -143,7 +170,8 @@ import { vHlDropdown } from '@hydrateless/vue';
 
 ### The `useEnhancer` composable
 
-For full control, attach any enhancer to a template ref:
+For full control, attach any enhancer to a template ref. It returns a shallow
+ref to the enhancer's imperative API:
 
 ```vue
 <script setup>
@@ -152,7 +180,8 @@ import { useEnhancer } from '@hydrateless/vue';
 import { enhanceTabs } from '@hydrateless/enhancers';
 
 const el = ref(null);
-useEnhancer(el, enhanceTabs);
+const tabs = useEnhancer(el, enhanceTabs);
+// tabs.value?.setValue('install')
 </script>
 
 <template>
@@ -162,8 +191,9 @@ useEnhancer(el, enhanceTabs);
 
 ## Toasts
 
-`useToast` sets up a toast region for the current component tree and returns an
-imperative API. The region is torn down automatically on unmount.
+`useToast()` returns the imperative toast API and works from any component —
+no provider required. The first `show()` creates a polite live region at the
+end of `<body>`; render `<ToastRegion />` once to control where toasts appear.
 
 ```vue
 <script setup>
@@ -173,11 +203,12 @@ const toast = useToast();
 </script>
 
 <template>
-  <button @click="toast.show('Saved!')">Save</button>
+  <button @click="toast.show('Saved!', { variant: 'success' })">Save</button>
 </template>
 ```
 
 ## TypeScript
 
-Type definitions ship with the package. Component props, the `Disposer` type,
-and toast option types are all exported for reuse.
+Type definitions ship with the package. Component props, the enhancer API
+types (`TabsApi`, `ModalApi`, `ToastApi`, …), and toast option types are all
+exported for reuse.

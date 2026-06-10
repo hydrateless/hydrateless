@@ -1,6 +1,6 @@
-import { defineComponent, h, onBeforeUnmount, onMounted, ref } from 'vue';
+import { defineComponent, h } from 'vue';
 import { enhanceCommand } from '@hydrateless/enhancers';
-import { cx } from '../internal.js';
+import { cx, useHostEnhancer } from '../internal.js';
 
 /**
  * Command palette. Compose with `<CommandInput>`, `<CommandList>`,
@@ -15,19 +15,12 @@ export const Command = defineComponent({
   },
   emits: ['select'],
   setup(props, { slots, attrs, emit }) {
-    const host = ref<HTMLElement | null>(null);
-    let dispose: (() => void) | null = null;
-    const onCommand = (e: Event) => emit('select', (e as CustomEvent).detail.value as string);
-    onMounted(() => {
-      if (!host.value) return;
-      dispose = enhanceCommand(host.value, { hotkey: props.hotkey });
-      host.value.addEventListener('hl:command', onCommand);
-    });
-    onBeforeUnmount(() => {
-      host.value?.removeEventListener('hl:command', onCommand);
-      dispose?.();
-      dispose = null;
-    });
+    const { host } = useHostEnhancer((el) =>
+      enhanceCommand(el, {
+        hotkey: props.hotkey,
+        onCommand: (value) => emit('select', value),
+      }),
+    );
     return () =>
       h(
         'div',

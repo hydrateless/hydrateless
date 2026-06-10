@@ -13,7 +13,7 @@ import Base from '../layouts/Base.astro';
 
   <h1>
     Hydrateless for Astro
-    <span class="hl-badge" data-hl-intent="primary" data-hl-variant="soft">v0.4</span>
+    <span class="hl-badge" data-hl-intent="primary" data-hl-variant="soft">v0.5</span>
   </h1>
   <p>
     Astro ships static HTML; Hydrateless components <em>are</em> static HTML. The auto-initializer lazy-loads
@@ -37,11 +37,13 @@ import Base from '../layouts/Base.astro';
     <div data-hl-accordion>
       <details>
         <summary>What is Hydrateless?</summary>
-        <div class="accordion-panel">A CSS-first component library with optional JS enhancers.</div>
+        <div class="hl-accordion-panel">
+          A CSS-first component library with optional JS enhancers.
+        </div>
       </details>
       <details>
         <summary>Do I need JavaScript?</summary>
-        <div class="accordion-panel">Most components work without it.</div>
+        <div class="hl-accordion-panel">Most components work without it.</div>
       </details>
     </div>
   </section>
@@ -62,7 +64,7 @@ import Base from '../layouts/Base.astro';
   <section>
     <h2>Modal</h2>
     <button data-hl-modal-open="demo-modal">Open modal</button>
-    <dialog id="demo-modal" class="hydrateless-modal" data-hl-modal>
+    <dialog id="demo-modal" class="hl-modal" data-hl-modal>
       <div class="hl-modal-header"><strong>Confirm</strong></div>
       <div class="hl-modal-body"><p>Focus is trapped. Press Escape to close.</p></div>
       <div class="hl-modal-footer"><button data-hl-modal-close>Close</button></div>

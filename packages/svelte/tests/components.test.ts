@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import { axe } from 'vitest-axe';
 import TabsHarness from './harness/TabsHarness.svelte';
+import TabsBindHarness from './harness/TabsBindHarness.svelte';
 import ComboboxHarness from './harness/ComboboxHarness.svelte';
 import FieldHarness from './harness/FieldHarness.svelte';
 import RadioHarness from './harness/RadioHarness.svelte';
@@ -29,6 +30,22 @@ describe('@hydrateless/svelte components', () => {
     expect(tabs).toHaveLength(2);
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
     expect(tabs[1].getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('Tabs binds value two-way', async () => {
+    const { container, getByText, getByTestId } = render(TabsBindHarness);
+    const tabs = container.querySelectorAll<HTMLElement>('[role="tab"]');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+
+    // Clicking a tab updates the bound state.
+    await fireEvent.click(tabs[0]);
+    expect(getByTestId('value').textContent).toBe('one');
+
+    // Driving the state selects the tab... and back again.
+    await fireEvent.click(tabs[1]);
+    expect(getByTestId('value').textContent).toBe('two');
+    await fireEvent.click(getByText('go'));
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
   });
 
   it('Combobox commits a selected value via onValueChange', async () => {

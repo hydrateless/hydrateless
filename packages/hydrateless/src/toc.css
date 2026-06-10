@@ -1,8 +1,8 @@
 @layer components {
   nav[data-hl-toc] {
-    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
-    border-radius: var(--hl-radius-3, 0.5rem);
-    padding: var(--hl-spacing-3, 0.75rem);
+    border: 1px solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    padding: var(--hl-space-3);
   }
 
   nav[data-hl-toc] ul {
@@ -18,17 +18,22 @@
 
   nav[data-hl-toc] a {
     display: block;
-    padding: var(--hl-spacing-1, 0.25rem) var(--hl-spacing-2, 0.5rem);
-    border-radius: var(--hl-radius-2, 0.25rem);
+    padding: var(--hl-space-1) var(--hl-space-2);
+    border-radius: var(--hl-radius-sm);
     color: inherit;
     text-decoration: none;
   }
 
+  nav[data-hl-toc] a:focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: -2px;
+  }
+
   nav[data-hl-toc] a[aria-current='true'] {
-    background: var(--hl-color-muted);
+    background: var(--hl-surface-2);
   }
 
   nav[data-hl-toc] ul ul {
-    padding-left: var(--hl-spacing-3, 0.75rem);
+    padding-inline-start: var(--hl-space-3);
   }
 }

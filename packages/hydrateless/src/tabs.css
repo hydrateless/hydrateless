@@ -1,39 +1,51 @@
 @layer components {
   [data-hl-tabs] {
-    border: 1px solid color-mix(in oklab, var(--hl-color-fg) 15%, transparent);
-    border-radius: var(--hl-radius-3, 0.5rem);
+    border: 1px solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
   }
 
   [data-hl-tabs] [role='tablist'] {
     display: flex;
-    gap: var(--hl-spacing-2, 0.5rem);
-    padding: var(--hl-spacing-2, 0.5rem);
-    border-bottom: 1px solid color-mix(in oklab, var(--hl-color-fg) 12%, transparent);
+    gap: var(--hl-space-2);
+    padding: var(--hl-space-2);
+    border-bottom: 1px solid var(--hl-border);
   }
 
   [data-hl-tabs] [role='tab'] {
     appearance: none;
     background: transparent;
     border: 0;
-    border-radius: var(--hl-radius-2, 0.25rem);
-    padding: var(--hl-spacing-2, 0.5rem) var(--hl-spacing-3, 0.75rem);
+    border-radius: var(--hl-radius-sm);
+    padding: var(--hl-space-2) var(--hl-space-3);
     color: inherit;
   }
 
   [data-hl-tabs] [role='tab'][aria-selected='true'] {
-    background: var(--hl-color-muted);
+    background: var(--hl-surface-2);
+  }
+
+  [data-hl-tabs] [role='tab'][disabled],
+  [data-hl-tabs] [role='tab'][aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   [data-hl-tabs] [role='tab']:focus-visible {
-    outline: var(--hl-focus-ring, 2px solid #1f6feb);
+    outline: var(--hl-focus-ring);
     outline-offset: 2px;
   }
 
   [data-hl-tabs] [role='tabpanel'] {
-    padding: var(--hl-spacing-4, 1rem);
+    padding: var(--hl-space-4);
   }
 
   [role='tabpanel'][hidden] {
+    display: none;
+  }
+
+  /* No-JS fallback: until the enhancer marks the root ready, show only the
+     first panel so server-rendered content degrades to readable output. */
+  [data-hl-tabs]:not([data-hl-ready]) [role='tabpanel'] ~ [role='tabpanel'] {
     display: none;
   }
 }
