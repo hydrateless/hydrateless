@@ -1,3 +1,13 @@
+## [0.6.0](https://github.com/hydrateless/hydrateless/compare/v0.5.0...v0.6.0) (2026-06-10)
+
+### ⚠ BREAKING CHANGES
+
+- rework enhancer core around handles and controlled state (#4)
+
+### Features
+
+- rework enhancer core around handles and controlled state ([#4](https://github.com/hydrateless/hydrateless/issues/4)) ([309348b](https://github.com/hydrateless/hydrateless/commit/309348bf64060206f85ac833d10773234c20c8ae))
+
 ## [0.5.0](https://github.com/hydrateless/hydrateless/compare/v0.4.0...v0.5.0) (2026-06-07)
 
 ### ⚠ BREAKING CHANGES
