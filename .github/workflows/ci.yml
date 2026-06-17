@@ -38,3 +38,25 @@ jobs:
         run: npm test
       - name: Size limit
         run: npm run size
+
+  docs:
+    name: Docs build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      # Build-only validation of the docs site (packages + TypeDoc + VitePress)
+      # so a broken build (such as invalid YAML frontmatter) fails the PR before
+      # merge. Building and deploying on push to main stays in docs.yml.
+      - name: Build docs (packages + TypeDoc + VitePress)
+        run: npm run docs:build
+        env:
+          # Mirror the deploy build. GitHub Project Pages serve from /<repo>/.
+          DOCS_BASE: /${{ github.event.repository.name }}/

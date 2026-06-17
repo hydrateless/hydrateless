@@ -29,7 +29,7 @@ features:
     details: Every component is driven by CSS variables for color, spacing, radius, and typography. Dark mode is built in.
   - icon: 🧱
     title: CSS layers
-    details: All styles ship inside @layer, so your own CSS always wins: no specificity battles, no !important.
+    details: 'All styles ship inside @layer, so your own CSS always wins: no specificity battles, no !important.'
   - icon: 🔌
     title: Framework bindings
     details: First-class packages for React, Vue, and Svelte (plus an Astro guide) wrap the same enhancers idiomatically.
