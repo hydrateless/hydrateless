@@ -14,9 +14,9 @@
 </p>
 
 <p align="center">
-  <a href="https://hydrateless.github.io/hydrateless/">Documentation</a> ·
-  <a href="https://hydrateless.github.io/hydrateless/guide/getting-started">Getting Started</a> ·
-  <a href="https://hydrateless.github.io/hydrateless/components/accordion">Components</a> ·
+  <a href="https://hydrateless.com/">Documentation</a> ·
+  <a href="https://hydrateless.com/guide/getting-started">Getting Started</a> ·
+  <a href="https://hydrateless.com/components/accordion">Components</a> ·
   <a href="examples/">Examples</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
@@ -39,7 +39,7 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
 - **Accessible by default:** ARIA roles, keyboard support, focus management, and skip links are built in.
 - **Modular imports:** Import the full bundle or individual component stylesheets as needed.
-- **Framework parity:** First-class, fully typed component suites for [React](https://hydrateless.github.io/hydrateless/frameworks/react), [Vue](https://hydrateless.github.io/hydrateless/frameworks/vue), and [Svelte](https://hydrateless.github.io/hydrateless/frameworks/svelte) (the same components and API surface in every framework), plus low-level hooks/directives/actions and an [Astro](https://hydrateless.github.io/hydrateless/frameworks/astro) guide.
+- **Framework parity:** First-class, fully typed component suites for [React](https://hydrateless.com/frameworks/react), [Vue](https://hydrateless.com/frameworks/vue), and [Svelte](https://hydrateless.com/frameworks/svelte) (the same components and API surface in every framework), plus low-level hooks/directives/actions and an [Astro](https://hydrateless.com/frameworks/astro) guide.
 - **CDN ready:** Drop in minified CSS and a self-contained auto-initializer from unpkg or jsDelivr. No build step required.
 
 ## Quick Start
@@ -112,7 +112,7 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 </Tabs>
 ```
 
-See the framework guides for [React](https://hydrateless.github.io/hydrateless/frameworks/react), [Vue](https://hydrateless.github.io/hydrateless/frameworks/vue), [Svelte](https://hydrateless.github.io/hydrateless/frameworks/svelte), and [Astro](https://hydrateless.github.io/hydrateless/frameworks/astro).
+See the framework guides for [React](https://hydrateless.com/frameworks/react), [Vue](https://hydrateless.com/frameworks/vue), [Svelte](https://hydrateless.com/frameworks/svelte), and [Astro](https://hydrateless.com/frameworks/astro).
 
 ### Use via CDN
 
@@ -125,7 +125,7 @@ No build step? Pull the minified CSS and the self-contained auto-initializer str
 
 ## Documentation
 
-Full documentation (guides, framework integrations, per-component live demos, and the generated API reference) lives at **[hydrateless.github.io/hydrateless](https://hydrateless.github.io/hydrateless/)**.
+Full documentation (guides, framework integrations, per-component live demos, and the generated API reference) lives at **[hydrateless.com](https://hydrateless.com/)**.
 
 ## Contributing
 
