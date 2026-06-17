@@ -2,10 +2,10 @@
 
 Astro and Hydrateless share the same philosophy: ship HTML and CSS, send
 JavaScript only where it earns its place. Astro renders static HTML by default,
-and Hydrateless components are static HTML — so there is no hydration to pay
+and Hydrateless components are static HTML, so there's no hydration to pay
 for. Add a tiny enhancer only on the pages that need interactivity.
 
-There is no dedicated Astro package; you use `hydrateless` and
+There's no dedicated Astro package; you use `hydrateless` and
 `@hydrateless/auto` (or `@hydrateless/enhancers`) directly.
 
 ## Install
@@ -107,4 +107,4 @@ component and directive APIs.
 ## CDN alternative
 
 For a content site with no build pipeline for assets, you can also pull
-Hydrateless straight from a CDN — see [CDN Usage](/guide/cdn).
+Hydrateless straight from a CDN. See [CDN Usage](/guide/cdn).

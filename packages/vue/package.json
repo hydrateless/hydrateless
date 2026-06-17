@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/vue",
   "version": "0.6.0",
-  "description": "Vue 3 bindings for Hydrateless — first-class components, directives, composables, and a plugin.",
+  "description": "Vue 3 bindings for Hydrateless: first-class components, directives, composables, and a plugin.",
   "license": "MIT",
   "repository": {
     "type": "git",

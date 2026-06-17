@@ -10,7 +10,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
   shape?: 'circle' | 'square';
 }
 
-/** Avatar primitive — `hl-avatar` with image + graceful fallback. */
+/** Avatar primitive: `hl-avatar` with image + graceful fallback. */
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
   { src, alt = '', fallback, size, shape, className, children, ...rest },
   ref,

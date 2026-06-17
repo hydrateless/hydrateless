@@ -42,7 +42,7 @@ toast.show('Something went wrong.', { duration: 8000, variant: 'danger' });
 
 ## Frameworks
 
-`useToast()` works anywhere in every binding — no provider or setup required.
+`useToast()` works anywhere in every binding, no provider or setup required.
 
 ::: code-group
 

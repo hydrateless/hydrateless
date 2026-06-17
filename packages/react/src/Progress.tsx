@@ -9,7 +9,7 @@ export interface ProgressProps extends Omit<ProgressHTMLAttributes<HTMLProgressE
   size?: 'sm' | 'md' | 'lg';
 }
 
-/** Progress primitive — native `<progress class="hl-progress">`. */
+/** Progress primitive: native `<progress class="hl-progress">`. */
 export const Progress = forwardRef<HTMLProgressElement, ProgressProps>(function Progress(
   { value, max = 100, intent, size, className, ...rest },
   ref,

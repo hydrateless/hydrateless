@@ -5,7 +5,7 @@ let shared: ToastApi | null = null;
 /**
  * Imperative toast API backed by a lazily-created document-level region (or a
  * `[data-hl-toast-region]` you render yourself, e.g. via `<ToastRegion>`).
- * Safe to call from anywhere — no setup required:
+ * Safe to call from anywhere, no setup required:
  *
  * ```ts
  * import { useToast } from '@hydrateless/svelte';

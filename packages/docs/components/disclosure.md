@@ -1,6 +1,6 @@
 # Disclosure
 
-A single expandable section. Purely CSS via the native `<details>` element — no
+A single expandable section. Purely CSS via the native `<details>` element, no
 enhancer needed for a lone disclosure. Use the disclosure enhancer on a wrapper
 only when you want a group of disclosures to be mutually exclusive.
 
@@ -23,7 +23,7 @@ only when you want a group of disclosures to be mutually exclusive.
 ```
 
 - **CSS**: `hydrateless/disclosure.css`
-- **JS**: `enhanceDisclosure(container, { allowMultiple?: boolean })` — only for
+- **JS**: `enhanceDisclosure(container, { allowMultiple?: boolean })`, only for
   grouping multiple disclosures.
 
 ## Frameworks

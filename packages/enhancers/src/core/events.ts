@@ -8,10 +8,10 @@ export interface EmitOptions {
  * Event names every stateful enhancer emits, so frameworks and vanilla code
  * observe state changes through one vocabulary:
  *
- * - `hl:change` — a value changed; `detail: { value }`.
- * - `hl:open-change` — an overlay opened or closed; `detail: { open }`.
- * - `hl:select` — an item was committed; `detail: { value, item }` (cancelable).
- * - `hl:command` — a command ran; `detail: { value, item }` (cancelable).
+ * - `hl:change`: a value changed; `detail: { value }`.
+ * - `hl:open-change`: an overlay opened or closed; `detail: { open }`.
+ * - `hl:select`: an item was committed; `detail: { value, item }` (cancelable).
+ * - `hl:command`: a command ran; `detail: { value, item }` (cancelable).
  */
 export const Events = {
   change: 'hl:change',

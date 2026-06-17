@@ -1,5 +1,5 @@
 /**
- * Card — `<div class="hl-card">` with optional `.hl-card-header`,
+ * Card: `<div class="hl-card">` with optional `.hl-card-header`,
  * `.hl-card-body`, `.hl-card-footer`, `.hl-card-title`, `.hl-card-description`.
  *   data-hl-interactive: hover/active elevation for clickable cards
  */

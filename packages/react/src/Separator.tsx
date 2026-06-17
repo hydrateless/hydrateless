@@ -3,11 +3,11 @@ import { forwardRef, type HTMLAttributes } from 'react';
 /** Props for {@link Separator}. */
 export interface SeparatorProps extends HTMLAttributes<HTMLHRElement> {
   orientation?: 'horizontal' | 'vertical';
-  /** Purely decorative — removes it from the accessibility tree. */
+  /** Purely decorative: removes it from the accessibility tree. */
   decorative?: boolean;
 }
 
-/** Separator primitive — `<hr class="hl-separator">`. */
+/** Separator primitive: `<hr class="hl-separator">`. */
 export const Separator = forwardRef<HTMLHRElement, SeparatorProps>(function Separator(
   { orientation = 'horizontal', decorative, className, ...rest },
   ref,

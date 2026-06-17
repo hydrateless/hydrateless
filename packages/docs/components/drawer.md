@@ -31,8 +31,8 @@ and slide animation (which respects `prefers-reduced-motion`).
 ```
 
 - **CSS**: `hydrateless/drawer.css`
-- **JS**: `enhanceDrawer(container, { closeOnBackdrop?, defaultOpen?, onOpenChange? })`
-  — the handle's `api` exposes `open` and `setOpen(open)`; the dialog also
+- **JS**: `enhanceDrawer(container, { closeOnBackdrop?, defaultOpen?, onOpenChange? })`.
+  The handle's `api` exposes `open` and `setOpen(open)`; the dialog also
   emits `hl:open-change`.
 - **Variants**: `data-side="left"` or `data-side="right"`.
 

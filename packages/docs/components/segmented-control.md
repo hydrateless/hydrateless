@@ -1,7 +1,7 @@
 # Segmented Control
 
 A compact single-select control built on native radios under
-`role="radiogroup"`. CSS-only — the radios give you keyboard navigation and form
+`role="radiogroup"`. CSS-only. The radios give you keyboard navigation and form
 semantics for free.
 
 ## Demo

@@ -31,8 +31,8 @@ open/close triggers and optional backdrop dismissal.
 ```
 
 - **CSS**: `hydrateless/modal.css`
-- **JS**: `enhanceModal(container, { closeOnBackdrop?, defaultOpen?, onOpenChange? })`
-  — the handle's `api` exposes `open` and `setOpen(open)`; the dialog also
+- **JS**: `enhanceModal(container, { closeOnBackdrop?, defaultOpen?, onOpenChange? })`.
+  The handle's `api` exposes `open` and `setOpen(open)`; the dialog also
   emits `hl:open-change`.
 - **Keyboard**: `Esc` closes (native `<dialog>`), `Tab` is trapped within the
   modal; the page behind is scroll-locked and `inert`.

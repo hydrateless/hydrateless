@@ -1,5 +1,5 @@
 /**
- * Checkbox — `<label class="hl-checkbox"><input type="checkbox"><span>…</span></label>`.
+ * Checkbox: `<label class="hl-checkbox"><input type="checkbox"><span>…</span></label>`.
  * The native input is restyled (appearance:none) with a CSS checkmark, keeping
  * full keyboard + form semantics.
  */

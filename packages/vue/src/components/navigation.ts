@@ -25,7 +25,7 @@ function paginationRange(
   return [1, ELLIPSIS, ...range(leftSibling, rightSibling), ELLIPSIS, count];
 }
 
-/** Pagination primitive — `hl-pagination` with smart ellipsis truncation. Emits `update:page`. */
+/** Pagination primitive: `hl-pagination` with smart ellipsis truncation. Emits `update:page`. */
 export const Pagination = defineComponent({
   name: 'HlPagination',
   inheritAttrs: false,

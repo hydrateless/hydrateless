@@ -1,5 +1,5 @@
 /**
- * Menubar / navigation menu — `<ul data-hl-menu role="menubar">` with optional
+ * Menubar / navigation menu: `<ul data-hl-menu role="menubar">` with optional
  * single-level submenus (`<ul role="menu" data-hl-menu-submenu>`). The enhancer
  * handles roving focus, arrow navigation, and open/close.
  */

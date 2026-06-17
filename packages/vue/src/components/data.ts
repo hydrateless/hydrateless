@@ -1,7 +1,7 @@
 import { defineComponent, h, ref, type PropType } from 'vue';
 import { cx } from '../internal.js';
 
-/** Card container — `hl-card`. Compose with the Card* parts. */
+/** Card container: `hl-card`. Compose with the Card* parts. */
 export const Card = defineComponent({
   name: 'HlCard',
   inheritAttrs: false,
@@ -43,7 +43,7 @@ export const CardTitle = part('HlCardTitle', 'h3', 'hl-card-title');
 /** Descriptive text of a {@link Card}. */
 export const CardDescription = part('HlCardDescription', 'p', 'hl-card-description');
 
-/** Avatar primitive — `hl-avatar` with image + graceful fallback. */
+/** Avatar primitive: `hl-avatar` with image + graceful fallback. */
 export const Avatar = defineComponent({
   name: 'HlAvatar',
   inheritAttrs: false,
@@ -74,10 +74,10 @@ export const Avatar = defineComponent({
 /** Overlapping stack of avatars. */
 export const AvatarGroup = part('HlAvatarGroup', 'div', 'hl-avatar-group');
 
-/** Keyboard key primitive — `<kbd class="hl-kbd">`. */
+/** Keyboard key primitive: `<kbd class="hl-kbd">`. */
 export const Kbd = part('HlKbd', 'kbd', 'hl-kbd');
 
-/** Separator primitive — `<hr class="hl-separator">`. */
+/** Separator primitive: `<hr class="hl-separator">`. */
 export const Separator = defineComponent({
   name: 'HlSeparator',
   inheritAttrs: false,

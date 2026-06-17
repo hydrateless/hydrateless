@@ -1,6 +1,6 @@
 # Switch
 
-A toggle switch built on a native checkbox with `role="switch"`. CSS-only — it
+A toggle switch built on a native checkbox with `role="switch"`. CSS-only. It
 keeps full keyboard and form semantics for free.
 
 ## Demo

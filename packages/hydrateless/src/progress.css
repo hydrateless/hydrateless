@@ -1,5 +1,5 @@
 /**
- * Progress — native `<progress class="hl-progress" value max>`. Omit `value`
+ * Progress: native `<progress class="hl-progress" value max>`. Omit `value`
  * for an indeterminate bar.
  *   data-hl-intent: primary (default) | success | warning | danger | info
  *   data-hl-size:   sm | md (default) | lg

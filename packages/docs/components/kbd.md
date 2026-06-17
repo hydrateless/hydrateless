@@ -1,6 +1,6 @@
 # Kbd
 
-A styled keyboard key for documenting shortcuts. CSS-only — built on the native
+A styled keyboard key for documenting shortcuts. CSS-only, built on the native
 `<kbd>` element.
 
 ## Demo

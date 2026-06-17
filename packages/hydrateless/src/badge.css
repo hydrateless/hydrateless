@@ -1,5 +1,5 @@
 /**
- * Badge — `<span class="hl-badge" data-hl-intent="…" data-hl-variant="…">`.
+ * Badge: `<span class="hl-badge" data-hl-intent="…" data-hl-variant="…">`.
  *   data-hl-intent:  neutral (default) | primary | danger | success | warning | info
  *   data-hl-variant: soft (default) | solid | outline
  *   data-hl-size:    sm | md (default)

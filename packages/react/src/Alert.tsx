@@ -8,7 +8,7 @@ export interface AlertProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'
   icon?: ReactNode;
 }
 
-/** Alert primitive — `hl-alert` with intent, optional icon + title. */
+/** Alert primitive: `hl-alert` with intent, optional icon + title. */
 export const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   { intent, title, icon, className, children, ...rest },
   ref,

@@ -1,6 +1,6 @@
 # Pagination
 
-Page navigation with first/last anchors and ellipsis truncation. CSS-only — it's
+Page navigation with first/last anchors and ellipsis truncation. CSS-only. It's
 a semantic `<nav>` wrapping a list of links.
 
 ## Demo

@@ -1,7 +1,7 @@
 # Table
 
-A styled native `<table>` with optional zebra striping and row hover. CSS-only —
-apply the class to standard table markup.
+A styled native `<table>` with optional zebra striping and row hover. CSS-only.
+Apply the class to standard table markup.
 
 ## Demo
 

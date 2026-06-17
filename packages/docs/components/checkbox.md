@@ -1,7 +1,7 @@
 # Checkbox
 
 A checkbox built on a native `<input type="checkbox">`, label-wrapped for a
-larger hit target. CSS-only — it keeps `:checked`, `:focus-visible`, the `Space`
+larger hit target. CSS-only. It keeps `:checked`, `:focus-visible`, the `Space`
 key, and form participation.
 
 ## Demo

@@ -20,7 +20,7 @@ import 'hydrateless/hydrateless.css';
 
 ## Components
 
-Composable primitives use a **compound API** — a parent plus named parts you
+Composable primitives use a **compound API**: a parent plus named parts you
 arrange yourself. Behavior (keyboard navigation, ARIA wiring, focus traps) comes
 from the underlying enhancer.
 
@@ -49,9 +49,9 @@ export function Example() {
 
 Every interactive component supports both modes, mirroring native inputs:
 
-- **Uncontrolled** — pass `defaultValue` (or `defaultOpen`) and let the
+- **Uncontrolled**: pass `defaultValue` (or `defaultOpen`) and let the
   enhancer manage state internally.
-- **Controlled** — pass `value` + `onValueChange` (or `open` + `onOpenChange`)
+- **Controlled**: pass `value` + `onValueChange` (or `open` + `onOpenChange`)
   and own the state yourself.
 
 ```tsx
@@ -129,13 +129,12 @@ The package also ships styled **form controls** (`Button`, `Input`, `Textarea`,
 `Select`, `Checkbox`, `Radio` / `RadioGroup`, `Field` with `FieldLabel` /
 `FieldHelp` / `FieldError` and `useField()`, `Fieldset`, `Switch`, `Slider`,
 `SegmentedControl`) and **presentational primitives** (`Alert`, `Badge`, `Card`
-
-- parts, `Avatar` / `AvatarGroup`, `Progress`, `Spinner`, `Skeleton`, `Kbd`,
-  `Separator`). These render the same markup as the core CSS and need no enhancer.
+and parts, `Avatar` / `AvatarGroup`, `Progress`, `Spinner`, `Skeleton`, `Kbd`,
+`Separator`). These render the same markup as the core CSS and need no enhancer.
 
 ## Toasts
 
-`useToast()` works from any component — no provider required. The first
+`useToast()` works from any component, no provider required. The first
 `show()` call creates a polite live region at the end of `<body>`; render
 `<ToastRegion />` once if you want to control where toasts appear:
 
@@ -160,7 +159,7 @@ export function App() {
 ## Hooks
 
 Prefer to render your own markup? Use a hook to attach an enhancer to a ref.
-You get `{ ref, api }` back — `api` is a ref to the enhancer's imperative API —
+You get `{ ref, api }` back (`api` is a ref to the enhancer's imperative API),
 and the instance is destroyed automatically on unmount.
 
 ```tsx

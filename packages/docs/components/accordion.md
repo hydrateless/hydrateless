@@ -18,7 +18,7 @@ single-panel-open behavior and adds the right ARIA wiring.
   </details>
   <details>
     <summary>Is it themeable?</summary>
-    <div class="hl-accordion-panel">Yes — every component is driven by CSS variables, with dark mode built in.</div>
+    <div class="hl-accordion-panel">Yes. Every component is driven by CSS variables, with dark mode built in.</div>
   </details>
 </div>
 </div>
@@ -39,12 +39,12 @@ single-panel-open behavior and adds the right ARIA wiring.
 ```
 
 - **CSS**: `hydrateless/accordion.css`
-- **JS**: `enhanceAccordion(container, { allowMultiple?, defaultValue?, onValueChange? })`
-  — item values come from `data-hl-value` (default: index); the handle's `api`
+- **JS**: `enhanceAccordion(container, { allowMultiple?, defaultValue?, onValueChange? })`.
+  Item values come from `data-hl-value` (default: index); the handle's `api`
   exposes `value`/`setValue`, and changes emit `hl:change`.
 
 Without the enhancer, each `<details>` toggles independently. With it, opening
-one panel closes the others — unless you pass `allowMultiple: true`.
+one panel closes the others, unless you pass `allowMultiple: true`.
 
 ## Frameworks
 

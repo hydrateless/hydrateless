@@ -20,7 +20,7 @@ import 'hydrateless/hydrateless.css';
 
 ## Components
 
-Composable primitives use a **compound API** — a parent plus named parts you
+Composable primitives use a **compound API**: a parent plus named parts you
 arrange with slots:
 
 ```vue
@@ -42,7 +42,7 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/vue';
 
 ### `v-model` state
 
-Interactive components support `v-model` on their state — `v-model` (value) on
+Interactive components support `v-model` on their state: `v-model` (value) on
 `Tabs`, `Accordion`, and `Combobox`; `v-model:open` on `Modal`, `Drawer`,
 `Dropdown`, and `Popover`. Escape, backdrop clicks, and in-component
 interactions all flow back into your bound ref:
@@ -191,7 +191,7 @@ const tabs = useEnhancer(el, enhanceTabs);
 
 ## Toasts
 
-`useToast()` returns the imperative toast API and works from any component —
+`useToast()` returns the imperative toast API and works from any component,
 no provider required. The first `show()` creates a polite live region at the
 end of `<body>`; render `<ToastRegion />` once to control where toasts appear.
 

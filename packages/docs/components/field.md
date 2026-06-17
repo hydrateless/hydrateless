@@ -1,7 +1,7 @@
 # Field
 
 An accessible layout wrapper for a single form control: a label, the control,
-optional help text, and a validation message — all wired together. CSS-only.
+optional help text, and a validation message, all wired together. CSS-only.
 
 ## Demo
 
@@ -51,7 +51,7 @@ Group related fields with a fieldset:
 
 ## Frameworks
 
-In React, spread `useField()` onto the control — it returns
+In React, spread `useField()` onto the control; it returns
 `{ id, 'aria-describedby', 'aria-invalid' }` so the label, help, and error are
 linked automatically. `Field` accepts `invalid` and `required` props.
 

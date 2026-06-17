@@ -1,7 +1,7 @@
 # Breadcrumb
 
 Breadcrumb navigation using a semantic `<nav>` wrapping an ordered list.
-CSS-only — no enhancer required.
+CSS-only, no enhancer required.
 
 ## Demo
 

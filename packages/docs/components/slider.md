@@ -1,6 +1,6 @@
 # Slider
 
-A range slider styled with the `hl-slider` primitive. CSS-only — it's a native
+A range slider styled with the `hl-slider` primitive. CSS-only. It's a native
 `<input type="range">`, so keyboard support and form values come built in.
 
 ## Demo

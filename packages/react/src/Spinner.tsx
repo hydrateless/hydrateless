@@ -7,7 +7,7 @@ export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
   label?: string;
 }
 
-/** Spinner primitive — `hl-spinner`. Inherits `currentColor`. */
+/** Spinner primitive: `hl-spinner`. Inherits `currentColor`. */
 export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(function Spinner(
   { size, label = 'Loading', className, ...rest },
   ref,

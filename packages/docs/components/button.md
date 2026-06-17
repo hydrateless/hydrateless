@@ -1,7 +1,7 @@
 # Button
 
-A native `<button>` styled with intent, variant, and size modifiers. CSS-only —
-it keeps focus, form submission, and keyboard semantics for free.
+A native `<button>` styled with intent, variant, and size modifiers. CSS-only.
+It keeps focus, form submission, and keyboard semantics for free.
 
 ## Demo
 

@@ -10,7 +10,7 @@ enhancers, with automatic cleanup on unmount.
 npm install hydrateless @hydrateless/react
 ```
 
-Import the CSS once (e.g. in your root):
+Import the CSS once (e.g., in your root):
 
 ```ts
 import 'hydrateless/hydrateless.css';
@@ -59,7 +59,7 @@ const [open, setOpen] = useState(false);
 
 ### Toasts
 
-`useToast()` works anywhere — no provider required. Render `<ToastRegion />`
+`useToast()` works anywhere, no provider required. Render `<ToastRegion />`
 once if you want to control where toasts appear:
 
 ```tsx

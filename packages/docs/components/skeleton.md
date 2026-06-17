@@ -1,6 +1,6 @@
 # Skeleton
 
-A placeholder shown while content loads. CSS-only — mark it `aria-hidden="true"`
+A placeholder shown while content loads. CSS-only. Mark it `aria-hidden="true"`
 so screen readers skip it, and it respects `prefers-reduced-motion`.
 
 ## Demo

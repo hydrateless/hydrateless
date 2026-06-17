@@ -7,7 +7,7 @@ export interface SkeletonProps extends HTMLAttributes<HTMLSpanElement> {
   height?: string | number;
 }
 
-/** Skeleton placeholder primitive — `hl-skeleton`. */
+/** Skeleton placeholder primitive: `hl-skeleton`. */
 export const Skeleton = forwardRef<HTMLSpanElement, SkeletonProps>(function Skeleton(
   { variant, width, height, className, style, ...rest },
   ref,

@@ -1,7 +1,7 @@
 import { defineComponent, h, type PropType } from 'vue';
 import { cx } from '../internal.js';
 
-/** Button primitive — `hl-button` with intent/variant/size modifiers. */
+/** Button primitive: `hl-button` with intent/variant/size modifiers. */
 export const Button = defineComponent({
   name: 'HlButton',
   inheritAttrs: false,

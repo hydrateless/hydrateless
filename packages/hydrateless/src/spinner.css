@@ -1,5 +1,5 @@
 /**
- * Spinner — `<span class="hl-spinner" role="status" aria-label="Loading">`.
+ * Spinner: `<span class="hl-spinner" role="status" aria-label="Loading">`.
  * Inherits `currentColor`, so set `color` to theme it.
  *   data-hl-size: sm | md (default) | lg | xl
  */

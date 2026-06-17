@@ -10,7 +10,7 @@ enhancers, with automatic cleanup when components unmount.
 npm install hydrateless @hydrateless/vue
 ```
 
-Import the CSS once (e.g. in your entry):
+Import the CSS once (e.g., in your entry):
 
 ```ts
 import 'hydrateless/hydrateless.css';
@@ -43,7 +43,7 @@ Then use the directives in any template:
 
 Available directives: `v-hl-accordion`, `v-hl-disclosure`, `v-hl-tabs`,
 `v-hl-dropdown`, `v-hl-modal`, `v-hl-drawer`, `v-hl-popover`, `v-hl-tooltip`,
-`v-hl-toc`. You can also import individual directives (e.g. `vHlTabs`) and
+`v-hl-toc`. You can also import individual directives (e.g., `vHlTabs`) and
 register them locally.
 
 ## Components

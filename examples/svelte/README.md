@@ -3,7 +3,7 @@
 A minimal Vite + Svelte 5 app using `@hydrateless/svelte`. It showcases the
 compound component API with runes (`$state`, `$effect`), `bind:` two-way
 binding, snippet-based composition (`Tabs`, `Dropdown`, `Combobox`), a
-a `bind:open` Modal, and imperative toasts via `useToast`.
+`bind:open` Modal, and imperative toasts via `useToast`.
 
 ```bash
 npm install

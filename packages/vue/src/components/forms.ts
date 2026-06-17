@@ -355,7 +355,7 @@ export const Radio = defineComponent({
   },
 });
 
-/** Segmented control — a styled radiogroup. Supports `v-model`. */
+/** Segmented control: a styled radiogroup. Supports `v-model`. */
 export const SegmentedControl = defineComponent({
   name: 'HlSegmentedControl',
   inheritAttrs: false,

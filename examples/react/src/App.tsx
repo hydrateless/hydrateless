@@ -117,7 +117,7 @@ export function App() {
               <ComboboxOption value="cherry">Cherry</ComboboxOption>
             </ComboboxList>
           </Combobox>
-          <p>Selected: {fruit || '—'}</p>
+          <p>Selected: {fruit || 'None'}</p>
         </TabPanel>
       </Tabs>
 

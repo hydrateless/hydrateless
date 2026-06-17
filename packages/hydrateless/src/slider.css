@@ -1,5 +1,5 @@
 /**
- * Slider — native `<input type="range" class="hl-slider">`. Restyled track and
+ * Slider: native `<input type="range" class="hl-slider">`. Restyled track and
  * thumb across WebKit/Blink and Firefox while keeping native keyboard support.
  */
 @layer components {

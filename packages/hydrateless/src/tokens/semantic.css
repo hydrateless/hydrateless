@@ -1,7 +1,7 @@
 /**
  * Semantic tokens map the raw palette to roles (surface, text, border, intent
  * colors). Components reference only these, so theming and dark mode are a
- * matter of remapping a couple dozen variables — never touching component CSS.
+ * matter of remapping a couple dozen variables, never touching component CSS.
  *
  * Light is the default in `:root`. Dark applies automatically via
  * `prefers-color-scheme` (unless `[data-theme="light"]` opts out) and always

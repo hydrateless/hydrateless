@@ -3,7 +3,7 @@ import { cx } from '../internal.js';
 
 type Intent = 'neutral' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
 
-/** Alert primitive — `hl-alert` with intent, optional `icon` slot + `title`. */
+/** Alert primitive: `hl-alert` with intent, optional `icon` slot + `title`. */
 export const Alert = defineComponent({
   name: 'HlAlert',
   inheritAttrs: false,
@@ -32,7 +32,7 @@ export const Alert = defineComponent({
   },
 });
 
-/** Badge primitive — `hl-badge` with intent/variant/size modifiers. */
+/** Badge primitive: `hl-badge` with intent/variant/size modifiers. */
 export const Badge = defineComponent({
   name: 'HlBadge',
   inheritAttrs: false,
@@ -57,7 +57,7 @@ export const Badge = defineComponent({
   },
 });
 
-/** Progress primitive — native `<progress class="hl-progress">`. */
+/** Progress primitive: native `<progress class="hl-progress">`. */
 export const Progress = defineComponent({
   name: 'HlProgress',
   inheritAttrs: false,
@@ -83,7 +83,7 @@ export const Progress = defineComponent({
   },
 });
 
-/** Spinner primitive — `hl-spinner`, announced via `role="status"`. */
+/** Spinner primitive: `hl-spinner`, announced via `role="status"`. */
 export const Spinner = defineComponent({
   name: 'HlSpinner',
   inheritAttrs: false,
@@ -103,7 +103,7 @@ export const Spinner = defineComponent({
   },
 });
 
-/** Skeleton placeholder primitive — `hl-skeleton`. */
+/** Skeleton placeholder primitive: `hl-skeleton`. */
 export const Skeleton = defineComponent({
   name: 'HlSkeleton',
   inheritAttrs: false,

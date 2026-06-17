@@ -1,5 +1,5 @@
 /**
- * Multi-line text input — `<textarea class="hl-textarea">`.
+ * Multi-line text input: `<textarea class="hl-textarea">`.
  *   data-hl-invalid: error styling (pair with aria-invalid)
  */
 @layer components {

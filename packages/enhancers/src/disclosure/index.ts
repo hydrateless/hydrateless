@@ -18,8 +18,8 @@ const enhanced = new WeakSet<Element>();
 
 /**
  * Group every `details[data-hl-disclosure]` inside the container so that, by
- * default, opening one collapses the others. The container itself is the group
- * — a framework binding can scope it by passing a specific node, while the
+ * default, opening one collapses the others. The container itself is the group;
+ * a framework binding can scope it by passing a specific node, while the
  * auto-loader scopes it to the whole document.
  */
 export const enhanceDisclosure: Enhancer<EnhanceDisclosureOptions> = (

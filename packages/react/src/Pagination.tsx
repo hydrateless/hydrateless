@@ -41,7 +41,7 @@ function paginationRange(
   return [1, ELLIPSIS, ...range(leftSibling, rightSibling), ELLIPSIS, count];
 }
 
-/** Pagination primitive — `hl-pagination` with smart ellipsis truncation. */
+/** Pagination primitive: `hl-pagination` with smart ellipsis truncation. */
 export function Pagination({
   page,
   count,

@@ -1,7 +1,7 @@
 # Alert
 
-A short, prominent message with an intent color and optional title. CSS-only —
-use `role="alert"` so assistive technology announces it.
+A short, prominent message with an intent color and optional title. CSS-only.
+Use `role="alert"` so assistive technology announces it.
 
 ## Demo
 

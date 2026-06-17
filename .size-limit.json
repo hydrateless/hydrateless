@@ -5,7 +5,7 @@
     "limit": "15 kB"
   },
   {
-    "name": "CDN auto bundle — every enhancer (gzip)",
+    "name": "CDN auto bundle: every enhancer (gzip)",
     "path": "packages/auto/dist/hydrateless.js",
     "limit": "12 kB"
   },

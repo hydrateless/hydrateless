@@ -1,5 +1,5 @@
 /**
- * Radio — `<label class="hl-radio"><input type="radio"><span>…</span></label>`,
+ * Radio: `<label class="hl-radio"><input type="radio"><span>…</span></label>`,
  * grouped in `<div class="hl-radio-group" role="radiogroup">`.
  */
 @layer components {
