@@ -43,5 +43,5 @@ npm run build    # production build
 
 Every framework app renders the **same component suite** with an identical API
 surface; only the framework idioms differ. See the
-[framework guides](https://hydrateless.github.io/hydrateless/frameworks/react)
+[framework guides](https://hydrateless.com/frameworks/react)
 for the full API.

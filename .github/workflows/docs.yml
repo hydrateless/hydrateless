@@ -33,11 +33,10 @@ jobs:
         run: npm ci
       # docs:build builds the workspace packages first (TypeDoc reads each
       # package's source but resolves cross-package types from their dist).
+      # The site is served at the root of the custom domain (hydrateless.com),
+      # so the VitePress base stays at its '/' default (no DOCS_BASE override).
       - name: Build docs (packages + TypeDoc + VitePress)
         run: npm run docs:build
-        env:
-          # GitHub Project Pages serve from /<repo>/.
-          DOCS_BASE: /${{ github.event.repository.name }}/
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

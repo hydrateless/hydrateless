@@ -6,9 +6,11 @@ export default defineConfig({
   lang: 'en-US',
   lastUpdated: true,
   cleanUrls: true,
-  // Overridable for deployment. GitHub Project Pages serve from a subpath
-  // (e.g. /hydrateless/), set via DOCS_BASE in the Pages workflow.
+  // The site is served at the root of the custom domain (hydrateless.com), so
+  // the base is '/'. Overridable via DOCS_BASE for a subpath deployment (e.g.
+  // a GitHub Project Pages preview at /hydrateless/).
   base: process.env.DOCS_BASE || '/',
+  sitemap: { hostname: 'https://hydrateless.com/' },
   ignoreDeadLinks: [/^\.\/api\//],
   head: [['meta', { name: 'theme-color', content: '#3b82f6' }]],
   themeConfig: {

@@ -54,9 +54,7 @@ jobs:
         run: npm ci
       # Build-only validation of the docs site (packages + TypeDoc + VitePress)
       # so a broken build (such as invalid YAML frontmatter) fails the PR before
-      # merge. Building and deploying on push to main stays in docs.yml.
+      # merge. Building and deploying on push to main stays in docs.yml. This
+      # mirrors the deploy build, which serves from the root of hydrateless.com.
       - name: Build docs (packages + TypeDoc + VitePress)
         run: npm run docs:build
-        env:
-          # Mirror the deploy build. GitHub Project Pages serve from /<repo>/.
-          DOCS_BASE: /${{ github.event.repository.name }}/
