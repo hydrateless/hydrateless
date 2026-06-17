@@ -32,14 +32,14 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 - **CSS-first components:** Accordions, tabs, modals, drawers, tooltips, and more work out of the box with no JavaScript.
 - **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, table, kbd), and navigation (breadcrumb, pagination, table of contents, separator).
 - **Optional JS enhancers:** Add keyboard navigation, focus traps, and ARIA management only where needed. Every enhancer returns an imperative API (`setValue`, `setOpen`, …) and emits `hl:*` DOM events.
-- **Controlled or uncontrolled:** Framework components support both modes — `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
+- **Controlled or uncontrolled:** Framework components support both modes: `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
 - **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes, lazy-loads the right enhancers, and keeps watching the DOM so dynamic content is enhanced automatically.
 - **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, and typography.
 - **Dark mode:** Automatic support via `prefers-color-scheme`, with manual overrides using `data-theme`.
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
 - **Accessible by default:** ARIA roles, keyboard support, focus management, and skip links are built in.
 - **Modular imports:** Import the full bundle or individual component stylesheets as needed.
-- **Framework parity:** First-class, fully-typed component suites for [React](https://hydrateless.github.io/hydrateless/frameworks/react), [Vue](https://hydrateless.github.io/hydrateless/frameworks/vue), and [Svelte](https://hydrateless.github.io/hydrateless/frameworks/svelte) — the same components and API surface in every framework — plus low-level hooks/directives/actions and an [Astro](https://hydrateless.github.io/hydrateless/frameworks/astro) guide.
+- **Framework parity:** First-class, fully typed component suites for [React](https://hydrateless.github.io/hydrateless/frameworks/react), [Vue](https://hydrateless.github.io/hydrateless/frameworks/vue), and [Svelte](https://hydrateless.github.io/hydrateless/frameworks/svelte) (the same components and API surface in every framework), plus low-level hooks/directives/actions and an [Astro](https://hydrateless.github.io/hydrateless/frameworks/astro) guide.
 - **CDN ready:** Drop in minified CSS and a self-contained auto-initializer from unpkg or jsDelivr. No build step required.
 
 ## Quick Start
@@ -78,7 +78,7 @@ npm install hydrateless @hydrateless/svelte
 ```
 
 Every binding ships the same first-class component suite with an identical,
-compound API — only the framework idioms differ:
+compound API; only the framework idioms differ:
 
 ```tsx
 // React

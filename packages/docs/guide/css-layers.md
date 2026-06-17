@@ -12,10 +12,10 @@ Hydrateless declares its layers up front, in this order:
 @layer reset, tokens, theme, components;
 ```
 
-- **reset** — minimal normalization
-- **tokens** — design token variables
-- **theme** — theme wiring (background, color, `color-scheme`)
-- **components** — all component styles
+- **reset**: minimal normalization
+- **tokens**: design token variables
+- **theme**: theme wiring (background, color, `color-scheme`)
+- **components**: all component styles
 
 ## Why it matters
 

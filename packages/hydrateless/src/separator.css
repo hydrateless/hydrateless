@@ -1,5 +1,5 @@
 /**
- * Separator — `<hr class="hl-separator">` or
+ * Separator: `<hr class="hl-separator">` or
  * `<div class="hl-separator" role="separator" aria-orientation="vertical">`.
  */
 @layer components {

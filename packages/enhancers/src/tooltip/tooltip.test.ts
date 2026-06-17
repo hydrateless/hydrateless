@@ -20,7 +20,7 @@ describe('enhanceTooltip', () => {
     const tooltip = document.getElementById('tip1')!;
 
     trigger.dispatchEvent(new Event('mouseenter'));
-    expect(tooltip.hidden).toBe(true); // not yet — delay pending
+    expect(tooltip.hidden).toBe(true); // not yet, delay pending
     vi.advanceTimersByTime(150);
     expect(tooltip.hidden).toBe(false);
   });

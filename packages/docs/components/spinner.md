@@ -1,6 +1,6 @@
 # Spinner
 
-A loading indicator that inherits `currentColor`. CSS-only — use
+A loading indicator that inherits `currentColor`. CSS-only. Use
 `role="status"` with an `aria-label` so it's announced.
 
 ## Demo

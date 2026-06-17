@@ -21,7 +21,7 @@ import 'hydrateless/hydrateless.css';
 
 ## Components
 
-Composable primitives use a **compound API** — a parent plus named parts you
+Composable primitives use a **compound API**: a parent plus named parts you
 arrange yourself:
 
 ```svelte
@@ -41,7 +41,7 @@ arrange yourself:
 
 ### Two-way bindable state
 
-Interactive components expose their state as a bindable prop — `bind:value` on
+Interactive components expose their state as a bindable prop: `bind:value` on
 `Tabs`, `Accordion`, and `Combobox`; `bind:open` on `Modal`, `Drawer`,
 `Dropdown`, and `Popover`. Escape, backdrop clicks, and in-component
 interactions all flow back into your bound state:
@@ -145,7 +145,7 @@ Available actions: `accordion`, `disclosure`, `tabs`, `dropdown`, `menu`,
 
 ## Toasts
 
-`useToast()` returns the imperative toast API and works anywhere — no setup
+`useToast()` returns the imperative toast API and works anywhere, no setup
 required. The first `show()` creates a polite live region at the end of
 `<body>`; render `<ToastRegion />` once to control where toasts appear:
 

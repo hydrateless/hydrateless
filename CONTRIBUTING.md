@@ -28,13 +28,13 @@ npm run format
 ## Project layout (high-level)
 
 - `packages/`
-  - `hydrateless/` – all CSS: reset, tokens, theme, and component styles with subpath exports
-  - `enhancers/` – optional JS enhancers with internal utilities (focus trap, tabbable)
-  - `auto/` – drop-in auto-loader that detects `data-hl-*` attributes and lazy-loads enhancers
-  - `react/` – React components and hooks wrapping the enhancers
-  - `vue/` – Vue directives, plugin, and composables
-  - `svelte/` – Svelte actions
-  - `docs/` – the VitePress documentation site (private; deployed to GitHub Pages)
+  - `hydrateless/`: all CSS (reset, tokens, theme, and component styles) with subpath exports
+  - `enhancers/`: optional JS enhancers with internal utilities (focus trap, tabbable)
+  - `auto/`: drop-in auto-loader that detects `data-hl-*` attributes and lazy-loads enhancers
+  - `react/`: React components and hooks wrapping the enhancers
+  - `vue/`: Vue directives, plugin, and composables
+  - `svelte/`: Svelte actions
+  - `docs/`: the VitePress documentation site (private; deployed to GitHub Pages)
 
 ## Coding guidelines
 
@@ -62,7 +62,7 @@ Notes:
 
 ## Conventional Commits
 
-This repo uses Conventional Commits for all commits. Keep it simple: we do not use scopes.
+This repo uses Conventional Commits for all commits. Keep it simple: we don't use scopes.
 
 Use the form:
 
@@ -81,17 +81,17 @@ Subject rules:
 
 Accepted types:
 
-- `build` – build system or external dependencies (e.g., package.json, tooling)
-- `chore` – maintenance (no app behavior change)
-- `ci` – continuous integration configuration (workflows, pipelines)
-- `docs` – documentation only
-- `feat` – user-facing feature or capability
-- `fix` – bug fix
-- `perf` – performance improvements
-- `refactor` – code change that neither fixes a bug nor adds a feature
-- `revert` – revert of a previous commit
-- `style` – formatting/whitespace (no code behavior)
-- `test` – add/adjust tests only
+- `build`: build system or external dependencies (e.g., package.json, tooling)
+- `chore`: maintenance (no app behavior change)
+- `ci`: continuous integration configuration (workflows, pipelines)
+- `docs`: documentation only
+- `feat`: user-facing feature or capability
+- `fix`: bug fix
+- `perf`: performance improvements
+- `refactor`: code change that neither fixes a bug nor adds a feature
+- `revert`: revert of a previous commit
+- `style`: formatting/whitespace (no code behavior)
+- `test`: add/adjust tests only
 
 Examples:
 
@@ -177,7 +177,7 @@ Co-authored-by: Name <email>
 - Commit types that trigger a release: `feat` (minor), `fix` and `perf` (patch), `BREAKING CHANGE` (minor while pre-1.0). All other types (`build`, `chore`, `ci`, `docs`, `refactor`, `revert`, `style`, `test`) are recorded in the changelog but do **not** trigger a release on their own.
 - **Pre-1.0 breaking changes**: The `{ "breaking": true, "release": "minor" }` rule in `.releaserc.json` caps breaking changes to a minor bump. When the project is ready for 1.0.0, remove that rule so breaking changes bump major as normal.
 - Tag format: `v`-prefixed (e.g., `v0.1.0`).
-- Manual version bumps are no longer needed — just merge PRs with valid Conventional Commit titles. For ad-hoc runs, use the workflow's **Run workflow** button (`workflow_dispatch`).
+- Manual version bumps are no longer needed; just merge PRs with valid Conventional Commit titles. For ad-hoc runs, use the workflow's **Run workflow** button (`workflow_dispatch`).
 
 ### Branching rules
 

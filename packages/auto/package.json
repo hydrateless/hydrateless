@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/auto",
   "version": "0.6.0",
-  "description": "Drop-in auto-initializer for Hydrateless — detects data-hl-* attributes and lazy-loads enhancers.",
+  "description": "Drop-in auto-initializer for Hydrateless: detects data-hl-* attributes and lazy-loads enhancers.",
   "license": "MIT",
   "repository": {
     "type": "git",

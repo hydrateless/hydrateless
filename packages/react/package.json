@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/react",
   "version": "0.6.0",
-  "description": "React bindings for Hydrateless — hooks and components that wire the framework-agnostic enhancers.",
+  "description": "React bindings for Hydrateless: hooks and components that wire the framework-agnostic enhancers.",
   "license": "MIT",
   "repository": {
     "type": "git",

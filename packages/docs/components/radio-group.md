@@ -1,6 +1,6 @@
 # Radio Group
 
-A set of native radios grouped under `role="radiogroup"`. CSS-only — sharing a
+A set of native radios grouped under `role="radiogroup"`. CSS-only. Sharing a
 `name` gives you single-selection and arrow-key navigation for free.
 
 ## Demo

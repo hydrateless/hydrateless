@@ -1,7 +1,7 @@
 # Progress
 
 A determinate or indeterminate progress bar built on the native `<progress>`
-element. CSS-only — the browser handles the accessible value announcement.
+element. CSS-only. The browser handles the accessible value announcement.
 
 ## Demo
 

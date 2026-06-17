@@ -13,7 +13,7 @@ mkdirSync(distDir, { recursive: true });
 
 const basePlugins = [
   postcssImport(),
-  // Keep native `@layer` rules intact — the cascade-layers polyfill flattens
+  // Keep native `@layer` rules intact: the cascade-layers polyfill flattens
   // them into specificity hacks, which silently breaks the documented layer
   // order. `@layer` is widely supported, so we ship it as authored.
   postcssPresetEnv({ stage: 1, features: { 'cascade-layers': false } }),

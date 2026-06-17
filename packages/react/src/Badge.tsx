@@ -7,7 +7,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   size?: 'sm' | 'md';
 }
 
-/** Badge primitive — `hl-badge` with intent/variant/size modifiers. */
+/** Badge primitive: `hl-badge` with intent/variant/size modifiers. */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
   { intent, variant, size, className, children, ...rest },
   ref,

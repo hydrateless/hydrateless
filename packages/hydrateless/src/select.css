@@ -1,5 +1,5 @@
 /**
- * Native select — `<span class="hl-select-wrapper"><select class="hl-select">`.
+ * Native select: `<span class="hl-select-wrapper"><select class="hl-select">`.
  * The wrapper draws a custom caret while the native control keeps full
  * keyboard/mobile behavior.
  *   data-hl-size:    sm | md (default) | lg

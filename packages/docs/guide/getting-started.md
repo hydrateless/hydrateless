@@ -47,7 +47,7 @@ Or import individual layers and components for the smallest possible payload:
 Most components work with CSS alone. For components that need JavaScript (tabs,
 modals, focus traps), you have two options.
 
-**Option A: Auto-init** — import once and forget. It scans the DOM for
+**Option A: Auto-init.** Import once and forget. It scans the DOM for
 `data-hl-*` attributes, lazy-loads only the enhancers that are needed, and
 keeps watching so dynamically added markup is enhanced too.
 
@@ -55,7 +55,7 @@ keeps watching so dynamically added markup is enhanced too.
 import '@hydrateless/auto';
 ```
 
-**Option B: Manual** — import specific enhancers and call them yourself. Each
+**Option B: Manual.** Import specific enhancers and call them yourself. Each
 returns a handle with the component's imperative API and a `destroy` teardown.
 
 ```js
@@ -108,7 +108,7 @@ Components use standard HTML elements with `data-hl-*` attributes:
 
 ## Next steps
 
-- Explore the [components](/components/button) — forms, actions & overlays,
+- Explore the [components](/components/button): forms, actions & overlays,
   disclosure, feedback, data display, and navigation primitives.
 - Learn about [theming](./theming) and [dark mode](./dark-mode).
 - Using a framework? See the [React](/frameworks/react), [Vue](/frameworks/vue),

@@ -34,7 +34,7 @@ export {
 // Manifest (single source of truth for the auto-loader)
 export { MANIFEST, type ManifestEntry, type ComponentName } from './manifest.js';
 
-// Shared headless core — utilities for building custom enhancers.
+// Shared headless core: utilities for building custom enhancers.
 export {
   type Disposer,
   noop,

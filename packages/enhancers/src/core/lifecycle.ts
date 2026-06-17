@@ -36,7 +36,7 @@ export function combine(disposers: Disposer[]): Disposer {
 
 /**
  * Find component roots for `selector` within `container`. Unlike a plain
- * `querySelectorAll`, this also includes `container` itself when it matches —
+ * `querySelectorAll`, this also includes `container` itself when it matches,
  * so an enhancer works whether it is handed a broad container (e.g. `document`)
  * or the component root directly (as framework bindings do via a ref).
  */

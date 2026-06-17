@@ -1,5 +1,5 @@
 /**
- * Alert — `<div class="hl-alert" role="alert" data-hl-intent="…">` with an
+ * Alert: `<div class="hl-alert" role="alert" data-hl-intent="…">` with an
  * optional icon, `.hl-alert-title`, and body content.
  *   data-hl-intent: info (default) | success | warning | danger | neutral
  */

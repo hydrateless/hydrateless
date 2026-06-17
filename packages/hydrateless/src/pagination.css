@@ -1,5 +1,5 @@
 /**
- * Pagination — `<nav class="hl-pagination" aria-label="Pagination">` wrapping a
+ * Pagination: `<nav class="hl-pagination" aria-label="Pagination">` wrapping a
  * list of `.hl-pagination-item` links/buttons; mark the active page with
  * `aria-current="page"` and use `.hl-pagination-ellipsis` for gaps.
  */

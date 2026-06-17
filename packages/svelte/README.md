@@ -10,7 +10,7 @@ automatically when the element is destroyed.
 npm install hydrateless @hydrateless/svelte
 ```
 
-Import the CSS once (e.g. in your root layout):
+Import the CSS once (e.g., in your root layout):
 
 ```ts
 import 'hydrateless/hydrateless.css';
@@ -75,7 +75,7 @@ Interactive components support two-way binding on their state:
 
 ## Toasts
 
-`useToast()` works anywhere — no setup required:
+`useToast()` works anywhere, no setup required:
 
 ```svelte
 <script lang="ts">

@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/svelte",
   "version": "0.6.0",
-  "description": "Svelte 5 bindings for Hydrateless — first-class components, actions, and a toast store.",
+  "description": "Svelte 5 bindings for Hydrateless: first-class components, actions, and a toast store.",
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -57,7 +57,7 @@
     --hl-font-semibold: 600;
     --hl-font-bold: 700;
 
-    /* Elevation (shadows) — tuned for light surfaces */
+    /* Elevation (shadows), tuned for light surfaces */
     --hl-shadow-xs: 0 1px 2px 0 hsl(222deg 47% 11% / 0.05);
     --hl-shadow-sm: 0 1px 3px 0 hsl(222deg 47% 11% / 0.1), 0 1px 2px -1px hsl(222deg 47% 11% / 0.1);
     --hl-shadow-md:

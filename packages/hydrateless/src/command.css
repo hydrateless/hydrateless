@@ -1,5 +1,5 @@
 /**
- * Command palette — `<div data-hl-command>` containing a search input
+ * Command palette: `<div data-hl-command>` containing a search input
  * (`[data-hl-command-input]`), an empty state (`[data-hl-command-empty]`), and a
  * `[data-hl-command-list] role="listbox"` of grouped `[role="option"]` items.
  * Often placed inside a `<dialog class="hl-modal">`.

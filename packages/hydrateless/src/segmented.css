@@ -1,5 +1,5 @@
 /**
- * Segmented control — `<div class="hl-segmented" role="radiogroup">` of
+ * Segmented control: `<div class="hl-segmented" role="radiogroup">` of
  * `<label class="hl-segmented-item"><input type="radio">…</label>` segments.
  * Radio inputs give free keyboard navigation; the checked segment is raised.
  * A button variant using `aria-pressed="true"` is also supported.

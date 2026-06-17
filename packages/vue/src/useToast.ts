@@ -5,7 +5,7 @@ let shared: ToastApi | null = null;
 /**
  * Imperative toast API backed by a lazily-created document-level region (or a
  * `[data-hl-toast-region]` you render yourself, e.g. via `<ToastRegion>`).
- * Safe to call from any component — no provider required.
+ * Safe to call from any component: no provider required.
  */
 export function useToast(options?: EnhanceToastOptions): ToastApi {
   return {

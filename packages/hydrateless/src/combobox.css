@@ -1,5 +1,5 @@
 /**
- * Combobox — `<div data-hl-combobox>` wrapping an `<input>` and a
+ * Combobox: `<div data-hl-combobox>` wrapping an `<input>` and a
  * `<ul role="listbox">` of `<li role="option">`. The enhancer toggles the
  * listbox and manages `aria-activedescendant`.
  */

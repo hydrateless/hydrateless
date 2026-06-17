@@ -1,6 +1,6 @@
 # Separator
 
-A thin divider between content. CSS-only — use a native `<hr>` for horizontal
+A thin divider between content. CSS-only. Use a native `<hr>` for horizontal
 rules, or a `role="separator"` element for vertical ones.
 
 ## Demo

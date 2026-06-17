@@ -1,7 +1,7 @@
 # Theming
 
 Every Hydrateless component is driven by CSS custom properties (variables).
-Override them anywhere in your own CSS — typically on `:root` — and the change
+Override them anywhere in your own CSS (typically on `:root`), and the change
 cascades to every component automatically.
 
 ## Design tokens
@@ -72,5 +72,5 @@ hard-coding values:
 ## Working with CSS layers
 
 Hydrateless ships all styles inside `@layer`, so any un-layered CSS you write
-automatically wins over component defaults — no `!important` needed. See
+automatically wins over component defaults, no `!important` needed. See
 [CSS Layers](./css-layers) for details.

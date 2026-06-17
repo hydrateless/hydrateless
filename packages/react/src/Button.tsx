@@ -13,7 +13,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
 }
 
-/** Button primitive — `hl-button` with intent/variant/size modifiers. */
+/** Button primitive: `hl-button` with intent/variant/size modifiers. */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant, intent, size, block, icon, loading, className, children, disabled, type, ...rest },
   ref,

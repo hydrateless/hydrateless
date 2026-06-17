@@ -18,7 +18,7 @@ export interface SegmentedControlProps extends Omit<HTMLAttributes<HTMLDivElemen
 }
 
 /**
- * Segmented control — `hl-segmented` radiogroup. Controlled via `value` or
+ * Segmented control: `hl-segmented` radiogroup. Controlled via `value` or
  * uncontrolled via `defaultValue`. Built on native radios for free keyboard
  * navigation.
  */

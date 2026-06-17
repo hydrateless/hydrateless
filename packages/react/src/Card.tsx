@@ -6,7 +6,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
 }
 
-/** Card container — `hl-card`. Compose with the Card.* parts. */
+/** Card container: `hl-card`. Compose with the Card.* parts. */
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   { interactive, className, children, ...rest },
   ref,

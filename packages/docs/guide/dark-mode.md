@@ -1,6 +1,6 @@
 # Dark Mode
 
-Hydrateless supports dark mode out of the box. There is nothing to configure
+Hydrateless supports dark mode out of the box. There's nothing to configure
 for the common case.
 
 ## Automatic (OS preference)

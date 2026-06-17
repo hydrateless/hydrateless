@@ -31,8 +31,8 @@ With the data-attribute fallback (no `popover` attribute):
 ```
 
 - **CSS**: `hydrateless/popover.css`
-- **JS**: `enhancePopover(container, { triggerEvent?, placement?, defaultOpen?, onOpenChange? })`
-  — the handle's `api` exposes `open`/`setOpen`; openers get `aria-expanded`
+- **JS**: `enhancePopover(container, { triggerEvent?, placement?, defaultOpen?, onOpenChange? })`.
+  The handle's `api` exposes `open`/`setOpen`; openers get `aria-expanded`
   and `aria-controls`, and the popover emits `hl:open-change`.
 
 ## Frameworks

@@ -39,7 +39,7 @@ export interface EnhancerInstance<Api = null> {
 
 /**
  * What every enhancer call returns. `api` is the first instance's API (or
- * `null` when nothing matched) — the common case for framework bindings, which
+ * `null` when nothing matched), the common case for framework bindings, which
  * always enhance a single root. `instances` carries one entry per enhanced
  * root for callers that enhance a whole container.
  */

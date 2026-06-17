@@ -19,7 +19,7 @@ teardown and the component's imperative API.
 | Function            | State options                                    | API (`handle.api`)                       |
 | ------------------- | ------------------------------------------------ | ---------------------------------------- |
 | `enhanceAccordion`  | `defaultValue`, `onValueChange`                  | `value`, `setValue(values)`              |
-| `enhanceDisclosure` | `{ allowMultiple?: boolean }`                    | —                                        |
+| `enhanceDisclosure` | `{ allowMultiple?: boolean }`                    | None                                     |
 | `enhanceTabs`       | `defaultValue`, `onValueChange`                  | `value`, `setValue(value, { focus? })`   |
 | `enhanceDropdown`   | `defaultOpen`, `onOpenChange`, `onSelect`        | `open`, `setOpen(open, { focus? })`      |
 | `enhanceModal`      | `defaultOpen`, `onOpenChange`, `closeOnBackdrop` | `open`, `setOpen(open)`                  |
@@ -27,8 +27,8 @@ teardown and the component's imperative API.
 | `enhancePopover`    | `defaultOpen`, `onOpenChange`, `triggerEvent`    | `open`, `setOpen(open)`                  |
 | `enhanceTooltip`    | `showDelay`, `hideDelay`, `placement`            | `show()`, `hide()`                       |
 | `enhanceCombobox`   | `defaultValue`, `onValueChange`                  | `value`, `setValue`, `open`, `setOpen`   |
-| `enhanceCommand`    | `hotkey`, `onCommand`                            | —                                        |
-| `enhanceToc`        | `headings`, `scrollSpy`, `contentSelector`       | —                                        |
+| `enhanceCommand`    | `hotkey`, `onCommand`                            | None                                     |
+| `enhanceToc`        | `headings`, `scrollSpy`, `contentSelector`       | None                                     |
 | `enhanceToast`      | `duration`                                       | `show(message, options?)`, `dismiss(el)` |
 
 ## EnhancerHandle
@@ -46,8 +46,8 @@ interface EnhancerHandle<Api> {
 }
 ```
 
-Enhancers are idempotent — re-running one on an already-enhanced element is a
-no-op — so they're safe to call after the DOM changes.
+Enhancers are idempotent (re-running one on an already-enhanced element is a
+no-op), so they're safe to call after the DOM changes.
 
 ```ts
 import { enhanceTabs } from '@hydrateless/enhancers';

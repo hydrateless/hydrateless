@@ -39,11 +39,11 @@ import map or any bundler. It scans the page for `data-hl-*` attributes on
 
 ## CSS options
 
-| File                                   | Use case                                              |
-| -------------------------------------- | ----------------------------------------------------- |
-| `hydrateless/dist/hydrateless.min.css` | Minified, all components — recommended for production |
-| `hydrateless/dist/hydrateless.css`     | Unminified, all components                            |
-| `hydrateless/dist/tabs.css` (etc.)     | Individual component styles                           |
+| File                                   | Use case                                             |
+| -------------------------------------- | ---------------------------------------------------- |
+| `hydrateless/dist/hydrateless.min.css` | Minified, all components; recommended for production |
+| `hydrateless/dist/hydrateless.css`     | Unminified, all components                           |
+| `hydrateless/dist/tabs.css` (etc.)     | Individual component styles                          |
 
 ```html
 <!-- Just the pieces you need -->
@@ -63,7 +63,7 @@ version so upgrades are deliberate:
 <script type="module" src="https://unpkg.com/@hydrateless/auto@0.3.0/dist/hydrateless.js"></script>
 ```
 
-The same paths work on jsDelivr — swap the host for
+The same paths work on jsDelivr; swap the host for
 `https://cdn.jsdelivr.net/npm/`:
 
 ```html

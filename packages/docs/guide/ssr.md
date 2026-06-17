@@ -3,7 +3,7 @@
 Hydrateless is a natural fit for server-side rendering (SSR) and static site
 generation (SSG). Because components are plain semantic HTML styled with CSS,
 the markup you render on the server is fully functional before any JavaScript
-runs — there is no hydration step and no flash of unstyled or non-interactive
+runs: there's no hydration step and no flash of unstyled or non-interactive
 content.
 
 ## The mental model
@@ -17,8 +17,8 @@ content.
    (keyboard nav, focus traps, single-open accordions), run the enhancers after
    the document loads.
 
-There is no server/client markup mismatch to worry about, because the enhancers
-only **add** behavior (event listeners and ARIA attributes) to existing DOM —
+There's no server/client markup mismatch to worry about, because the enhancers
+only **add** behavior (event listeners and ARIA attributes) to existing DOM;
 they never replace it.
 
 ## Enhancing after load
@@ -36,7 +36,7 @@ const dispose = await auto(document);
 
 `auto()` keeps a `MutationObserver` on the container, so content swapped in by
 your router is enhanced automatically and instances are disposed when their
-roots leave the document — one call at startup is all you need:
+roots leave the document; one call at startup is all you need:
 
 ```js
 import { auto } from '@hydrateless/auto';

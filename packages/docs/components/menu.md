@@ -43,7 +43,7 @@ navigation, submenu toggling, and typeahead.
 ```
 
 - **CSS**: `hydrateless/menu.css`
-- **JS**: `enhanceMenu(container, { orientation })` — `orientation` is
+- **JS**: `enhanceMenu(container, { orientation })`, where `orientation` is
   `'horizontal'` (default) or `'vertical'`.
 - **Keyboard**: `←`/`→` (or `↑`/`↓` when vertical) move between top-level items,
   `Enter`/`Space`/arrow opens a submenu, `Home`/`End` jump to first/last, `Esc`

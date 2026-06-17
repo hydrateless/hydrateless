@@ -1,5 +1,5 @@
 /**
- * Button — `<button class="hl-button">` (works on `<a>`/`<input>` too).
+ * Button: `<button class="hl-button">` (works on `<a>`/`<input>` too).
  *
  * Color is driven by a small set of local custom properties so the
  * intent × variant matrix stays DRY: `data-hl-intent` swaps the accent set,

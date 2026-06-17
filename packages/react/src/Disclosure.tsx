@@ -8,7 +8,7 @@ export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>
 }
 
 /**
- * A single expandable section. Purely presentational — native `<details>`
+ * A single expandable section. Purely presentational: native `<details>`
  * handles open/close, so no enhancer is required for a lone disclosure. Use
  * `useEnhancer(enhanceDisclosure)` on a wrapper if you need a mutually
  * exclusive group.

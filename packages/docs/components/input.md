@@ -1,6 +1,6 @@
 # Input
 
-A text input styled with the `hl-input` primitive. CSS-only — it's a native
+A text input styled with the `hl-input` primitive. CSS-only. It's a native
 `<input>`, so validation, autofill, and form behavior work as expected.
 
 ## Demo
