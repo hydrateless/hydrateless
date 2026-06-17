@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { enhanceMenu, type EnhanceMenuOptions } from '@hydrateless/enhancers';
 
+/** Props for {@link Menu}. */
 export interface MenuProps extends HTMLAttributes<HTMLUListElement> {
   orientation?: EnhanceMenuOptions['orientation'];
 }
@@ -45,6 +46,7 @@ export function Menu({ orientation = 'horizontal', children, ...rest }: MenuProp
   );
 }
 
+/** Props for {@link MenuItem}. */
 export interface MenuItemProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   'href' | 'type'

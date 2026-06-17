@@ -7,6 +7,7 @@ export type Run = (container: Document | HTMLElement) => EnhancerHandle<unknown>
 /** Resolve a component name to its run function, possibly asynchronously. */
 export type Loader = (name: ComponentName) => Run | Promise<Run> | undefined;
 
+/** Options controlling how the auto-initializer scans and watches a container. */
 export interface AutoOptions {
   /**
    * Keep watching the container with a MutationObserver, enhancing markup as
@@ -16,6 +17,10 @@ export interface AutoOptions {
   watch?: boolean;
 }
 
+/**
+ * Handle for a running auto-initializer: its `ready` promise resolves after the
+ * first scan, and `dispose` stops watching and tears every instance down.
+ */
 export interface AutoController {
   /** Resolves once the initial scan has loaded and run every enhancer. */
   ready: Promise<void>;

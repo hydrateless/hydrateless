@@ -12,6 +12,7 @@ import {
 import { useEnhancer } from './useEnhancer.js';
 import { useLatest } from './util.js';
 
+/** Props for {@link Dropdown}. */
 export interface DropdownProps extends HTMLAttributes<HTMLDivElement> {
   placement?: EnhanceDropdownOptions['placement'];
   /** Controlled open state (pair with `onOpenChange`). */
@@ -71,6 +72,7 @@ export function Dropdown({
   );
 }
 
+/** Props for {@link DropdownTrigger}. */
 export type DropdownTriggerProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 /** The button that opens the menu. */
@@ -82,6 +84,7 @@ export function DropdownTrigger({ children, type, ...rest }: DropdownTriggerProp
   );
 }
 
+/** Props for {@link DropdownMenu}. */
 export type DropdownMenuProps = HTMLAttributes<HTMLUListElement>;
 
 /** The menu surface; holds `<DropdownItem>` and `<DropdownSeparator>`. */
@@ -93,6 +96,7 @@ export function DropdownMenu({ children, ...rest }: DropdownMenuProps) {
   );
 }
 
+/** Props for {@link DropdownItem}. */
 export interface DropdownItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Convenience handler fired on click; you can also pass `onClick`. */
   onSelect?: () => void;
@@ -117,6 +121,7 @@ export function DropdownItem({ children, onSelect, onClick, type, ...rest }: Dro
   );
 }
 
+/** Props for {@link DropdownSeparator}. */
 export type DropdownSeparatorProps = Omit<LiHTMLAttributes<HTMLLIElement>, 'role'>;
 
 /** A visual divider between groups of items. */

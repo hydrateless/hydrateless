@@ -32,10 +32,15 @@ function part(name: string, tag: string, klass: string) {
   });
 }
 
+/** Header region of a {@link Card}. */
 export const CardHeader = part('HlCardHeader', 'div', 'hl-card-header');
+/** Body region of a {@link Card}. */
 export const CardBody = part('HlCardBody', 'div', 'hl-card-body');
+/** Footer region of a {@link Card}. */
 export const CardFooter = part('HlCardFooter', 'div', 'hl-card-footer');
+/** Title heading of a {@link Card}. */
 export const CardTitle = part('HlCardTitle', 'h3', 'hl-card-title');
+/** Descriptive text of a {@link Card}. */
 export const CardDescription = part('HlCardDescription', 'p', 'hl-card-description');
 
 /** Avatar primitive — `hl-avatar` with image + graceful fallback. */

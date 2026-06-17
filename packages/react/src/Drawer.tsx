@@ -3,6 +3,7 @@ import { enhanceDrawer, type DrawerApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
 import { cx, useLatest } from './util.js';
 
+/** Props for {@link Drawer}. */
 export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
   open: boolean;
   /** Called after the drawer opens or closes (Escape, backdrop, close buttons). */
@@ -54,6 +55,7 @@ export function Drawer({
   );
 }
 
+/** Props shared by the {@link Drawer} section components. */
 export type DrawerSectionProps = HTMLAttributes<HTMLDivElement>;
 
 /** Drawer heading region. */

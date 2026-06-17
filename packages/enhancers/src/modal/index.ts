@@ -1,7 +1,9 @@
 import { defineEnhancer } from '../core/index.js';
 import { setupDialog, type DialogApi, type DialogOptions } from '../core/dialog.js';
 
+/** Options for {@link enhanceModal}; an alias of {@link DialogOptions}. */
 export type EnhanceModalOptions = DialogOptions;
+/** Imperative handle returned by {@link enhanceModal}; an alias of {@link DialogApi}. */
 export type ModalApi = DialogApi;
 
 /**

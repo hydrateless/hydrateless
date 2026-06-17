@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 
+/** Props for {@link Badge}. */
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   intent?: 'neutral' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
   variant?: 'soft' | 'solid' | 'outline';

@@ -1,19 +1,27 @@
 import { combine, on, toHandle, type Disposer, type EnhancerHandle } from '../core/index.js';
 
+/** Visual style of a toast. */
 export type ToastVariant = 'info' | 'success' | 'warning' | 'danger';
 
+/** Options for an individual toast shown through {@link ToastApi}. */
 export type ToastOptions = {
+  /** Auto-dismiss delay in ms. `0` keeps the toast until it's dismissed. */
   duration?: number;
+  /** Visual style of the toast. */
   variant?: ToastVariant;
 };
 
+/** Options for {@link enhanceToast}. */
 export type EnhanceToastOptions = {
   /** Default auto-dismiss duration in ms for toasts without an explicit one. */
   duration?: number;
 };
 
+/** Imperative handle returned by {@link enhanceToast}. */
 export type ToastApi = {
+  /** Show a toast with `message` and return its element. */
   show: (message: string, options?: ToastOptions) => HTMLElement;
+  /** Dismiss a toast element previously returned by `show`. */
   dismiss: (toast: HTMLElement) => void;
 };
 

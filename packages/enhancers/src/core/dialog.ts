@@ -6,6 +6,7 @@ import { noop, type Disposer } from './lifecycle.js';
 import { Events } from './events.js';
 import type { EnhancerContext } from './define.js';
 
+/** Shared options for the modal and drawer dialog enhancers. */
 export type DialogOptions = {
   /** Dismiss the dialog when its backdrop is clicked. Defaults to `true`. */
   closeOnBackdrop?: boolean;
@@ -15,6 +16,7 @@ export type DialogOptions = {
   onOpenChange?: (open: boolean) => void;
 };
 
+/** Imperative handle shared by the modal and drawer enhancers. */
 export type DialogApi = {
   /** Whether the dialog is currently open. */
   readonly open: boolean;

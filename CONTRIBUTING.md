@@ -43,6 +43,23 @@ npm run format
 - **Typecheck**: TypeScript. Run `npm run typecheck`.
 - **Tests**: if you add tests, place them alongside the source or under a `tests/` directory and keep them fast.
 
+### Documentation comments
+
+Every exported symbol in the packages' TypeScript source (functions, classes, interfaces, type aliases, enums, and `const`s) must carry a [TSDoc](https://tsdoc.org/) doc comment. These comments document the public API: they ship in each package's generated `.d.ts` (so they surface as editor tooltips for consumers), and TypeDoc renders the `@hydrateless/enhancers` surface into the docs site's API reference (see `packages/docs/typedoc.json` and `reference.md`), so a doc comment and its rendered docs never drift apart.
+
+This is enforced by ESLint across `packages/*/src/**/*.{ts,tsx}`, so `npm run lint` fails on an undocumented export:
+
+- `jsdoc/require-jsdoc` requires a doc comment on each exported declaration.
+- `jsdoc/require-description` requires that comment to have a description.
+- `tsdoc/syntax` validates that the comment is well-formed TSDoc (the format TypeDoc consumes).
+
+Notes:
+
+- A one-line summary is enough; per-parameter `@param`/`@returns` tags aren't required, though documenting non-obvious option fields with inline `/** ... */` comments is encouraged.
+- Re-export barrels (`export { x } from './y'`) and internal (non-exported) helpers are exempt, as are test files.
+- Svelte `.svelte` single-file components aren't ESLint-parsed, so document their exports directly in the component files by convention.
+- Match the prose style of the docs (Chicago Manual of Style, straight quotes, no em dashes, contractions where natural).
+
 ## Conventional Commits
 
 This repo uses Conventional Commits for all commits. Keep it simple: we do not use scopes.

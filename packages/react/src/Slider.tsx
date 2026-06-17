@@ -1,5 +1,6 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
 
+/** Props for {@link Slider}. */
 export type SliderProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>;
 
 /** Range slider primitive — `<input type="range" class="hl-slider">`. */

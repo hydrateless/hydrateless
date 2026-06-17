@@ -20,6 +20,7 @@ export function wrapIndex(index: number, length: number): number {
   return ((index % length) + length) % length;
 }
 
+/** Direction argument for {@link nextIndex} list navigation. */
 export type MoveDirection = 'next' | 'prev' | 'first' | 'last';
 
 /** Compute the next index for list navigation, optionally looping at the ends. */

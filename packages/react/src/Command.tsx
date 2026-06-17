@@ -8,6 +8,7 @@ import {
 import { enhanceCommand } from '@hydrateless/enhancers';
 import { cx } from './util.js';
 
+/** Props for {@link Command}. */
 export interface CommandProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   /** Lowercased key that opens the palette's dialog with Cmd/Ctrl. */
   hotkey?: string;
@@ -43,6 +44,7 @@ export function Command({ hotkey, onSelect, children, ...rest }: CommandProps) {
   );
 }
 
+/** Props for {@link CommandInput}. */
 export interface CommandInputProps extends InputHTMLAttributes<HTMLInputElement> {
   styled?: boolean;
 }
@@ -52,6 +54,7 @@ export function CommandInput({ styled = true, className, ...rest }: CommandInput
   return <input {...rest} className={cx(styled && 'hl-input', className)} data-hl-command-input />;
 }
 
+/** Props for {@link CommandList}. */
 export type CommandListProps = HTMLAttributes<HTMLDivElement>;
 
 /** The scrollable list of commands (`role="listbox"`). */
@@ -63,6 +66,7 @@ export function CommandList({ children, ...rest }: CommandListProps) {
   );
 }
 
+/** Props for {@link CommandGroup}. */
 export interface CommandGroupProps extends HTMLAttributes<HTMLDivElement> {
   /** Optional heading shown above the grouped items. */
   label?: ReactNode;
@@ -82,6 +86,7 @@ export function CommandGroup({ label, children, ...rest }: CommandGroupProps) {
   );
 }
 
+/** Props for {@link CommandItem}. */
 export interface CommandItemProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   value: string;
   /** Extra search terms for filtering. */
@@ -100,6 +105,7 @@ export function CommandItem({ value, keywords, icon, children, ...rest }: Comman
   );
 }
 
+/** Props for {@link CommandEmpty}. */
 export type CommandEmptyProps = HTMLAttributes<HTMLDivElement>;
 
 /** Shown when no commands match the query. */

@@ -2,6 +2,7 @@ import { useEffect, useRef, type HTMLAttributes, type ReactNode } from 'react';
 import { onClickOutside, onEscape, combine } from '@hydrateless/enhancers';
 import { useLatest } from './util.js';
 
+/** Props for {@link Popover}. */
 export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
   open: boolean;
   /** Called when Escape or an outside click requests dismissal. */

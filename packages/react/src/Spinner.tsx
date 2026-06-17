@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 
+/** Props for {@link Spinner}. */
 export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Accessible label; announced via `role="status"`. */

@@ -11,6 +11,10 @@ export interface ManifestEntry {
   selector: string;
 }
 
+/**
+ * The components that ship a JS enhancer, paired with the selector that signals
+ * each one's presence in the DOM. The auto-loader is generated from this list.
+ */
 export const MANIFEST = [
   { name: 'accordion', selector: '[data-hl-accordion]' },
   { name: 'tabs', selector: '[data-hl-tabs]' },
@@ -27,4 +31,5 @@ export const MANIFEST = [
   { name: 'toast', selector: '[data-hl-toast-region], [data-hl-toast-trigger]' },
 ] as const satisfies readonly ManifestEntry[];
 
+/** Union of the component names declared in {@link MANIFEST}. */
 export type ComponentName = (typeof MANIFEST)[number]['name'];

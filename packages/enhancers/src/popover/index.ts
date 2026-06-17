@@ -10,6 +10,7 @@ import {
   type Placement,
 } from '../core/index.js';
 
+/** Options for {@link enhancePopover}. */
 export type EnhancePopoverOptions = {
   triggerEvent?: 'click' | 'hover';
   placement?: Placement;
@@ -23,6 +24,7 @@ export type EnhancePopoverOptions = {
   onOpenChange?: (open: boolean) => void;
 };
 
+/** Imperative handle returned by {@link enhancePopover}. */
 export type PopoverApi = {
   /** Whether the popover is currently shown. */
   readonly open: boolean;

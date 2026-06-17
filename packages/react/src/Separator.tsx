@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 
+/** Props for {@link Separator}. */
 export interface SeparatorProps extends HTMLAttributes<HTMLHRElement> {
   orientation?: 'horizontal' | 'vertical';
   /** Purely decorative — removes it from the accessibility tree. */

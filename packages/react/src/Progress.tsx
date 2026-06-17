@@ -1,5 +1,6 @@
 import { forwardRef, type ProgressHTMLAttributes } from 'react';
 
+/** Props for {@link Progress}. */
 export interface ProgressProps extends Omit<ProgressHTMLAttributes<HTMLProgressElement>, 'value'> {
   /** Omit for an indeterminate bar. */
   value?: number;

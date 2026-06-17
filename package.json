@@ -16,7 +16,7 @@
     "test": "npm -ws run test --if-present",
     "size": "size-limit",
     "docs:dev": "npm -w @hydrateless/docs run docs:dev",
-    "docs:build": "npm -w @hydrateless/docs run docs:build",
+    "docs:build": "npm run build && npm -w @hydrateless/docs run docs:build",
     "clean": "npm -ws run clean --if-present",
     "prepare": "husky"
   },
@@ -30,6 +30,8 @@
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "cssnano": "^6.1.2",
     "eslint": "^9.13.0",
+    "eslint-plugin-jsdoc": "^63.0.5",
+    "eslint-plugin-tsdoc": "^0.5.2",
     "husky": "^9.1.6",
     "jsdom": "^29.0.0",
     "lint-staged": "^15.2.10",

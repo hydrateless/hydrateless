@@ -8,6 +8,7 @@ import {
   type EnhancerInstance,
 } from '../core/index.js';
 
+/** Options for {@link enhanceDisclosure}. */
 export type EnhanceDisclosureOptions = {
   /** Allow more than one disclosure in the group open at a time. */
   allowMultiple?: boolean;

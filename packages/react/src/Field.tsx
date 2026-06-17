@@ -19,6 +19,7 @@ interface FieldContextValue {
 
 const FieldContext = createContext<FieldContextValue | null>(null);
 
+/** Props for {@link Field}. */
 export interface FieldProps extends HTMLAttributes<HTMLDivElement> {
   id?: string;
   invalid?: boolean;
@@ -86,6 +87,7 @@ export function useField() {
   };
 }
 
+/** Props for {@link FieldLabel}. */
 export type FieldLabelProps = LabelHTMLAttributes<HTMLLabelElement>;
 
 /** Label bound to the enclosing field's control via `htmlFor`. */
@@ -129,6 +131,7 @@ export function FieldError({ className, children, ...rest }: HTMLAttributes<HTML
   );
 }
 
+/** Props for {@link Fieldset}. */
 export interface FieldsetProps extends HTMLAttributes<HTMLFieldSetElement> {
   legend?: ReactNode;
 }

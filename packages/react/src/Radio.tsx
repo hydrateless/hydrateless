@@ -15,6 +15,7 @@ interface RadioGroupContextValue {
 
 const RadioGroupContext = createContext<RadioGroupContextValue | null>(null);
 
+/** Props for {@link Radio}. */
 export interface RadioProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   children?: ReactNode;
   value: string;
@@ -47,6 +48,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
   );
 });
 
+/** Props for {@link RadioGroup}. */
 export interface RadioGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   name?: string;
   value?: string;

@@ -52,6 +52,7 @@ export interface EnhancerHandle<Api = null> {
   instances: EnhancerInstance<Api>[];
 }
 
+/** Declarative description of an enhancer, passed to {@link defineEnhancer}. */
 export interface EnhancerDefinition<Options extends object = Record<string, never>, Api = null> {
   /** Stable name, used for generated ids and the auto-loader manifest. */
   name: string;
@@ -63,6 +64,7 @@ export interface EnhancerDefinition<Options extends object = Record<string, neve
   setup: (ctx: EnhancerContext<Options>) => Api | void;
 }
 
+/** The callable produced by {@link defineEnhancer}: enhances a container and returns a handle. */
 export type Enhancer<Options extends object = Record<string, never>, Api = null> = (
   container?: Document | HTMLElement,
   options?: Partial<Options>,

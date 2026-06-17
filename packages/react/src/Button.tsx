@@ -1,5 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 
+/** Props for {@link Button}. */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'solid' | 'soft' | 'outline' | 'ghost' | 'link';
   intent?: 'neutral' | 'primary' | 'danger' | 'success' | 'warning' | 'info';

@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 
+/** Props for {@link Card}. */
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   /** Hover/active elevation for clickable cards. */
   interactive?: boolean;
@@ -22,8 +23,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   );
 });
 
+/** Props shared by the {@link Card} section components. */
 export type CardSectionProps = HTMLAttributes<HTMLDivElement>;
 
+/** Header region of a {@link Card}. */
 export const CardHeader = forwardRef<HTMLDivElement, CardSectionProps>(function CardHeader(
   { className, ...rest },
   ref,
@@ -33,6 +36,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardSectionProps>(function 
   );
 });
 
+/** Body region of a {@link Card}. */
 export const CardBody = forwardRef<HTMLDivElement, CardSectionProps>(function CardBody(
   { className, ...rest },
   ref,
@@ -42,6 +46,7 @@ export const CardBody = forwardRef<HTMLDivElement, CardSectionProps>(function Ca
   );
 });
 
+/** Footer region of a {@link Card}. */
 export const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>(function CardFooter(
   { className, ...rest },
   ref,
@@ -51,6 +56,7 @@ export const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>(function 
   );
 });
 
+/** Title heading of a {@link Card}. */
 export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
   function CardTitle({ className, ...rest }, ref) {
     return (
@@ -59,6 +65,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadi
   },
 );
 
+/** Description text of a {@link Card}. */
 export const CardDescription = forwardRef<
   HTMLParagraphElement,
   HTMLAttributes<HTMLParagraphElement>

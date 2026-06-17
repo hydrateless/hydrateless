@@ -1,5 +1,6 @@
 import { forwardRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 
+/** Props for {@link Avatar}. */
 export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
   src?: string;
   alt?: string;
@@ -34,6 +35,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
   );
 });
 
+/** Props for {@link AvatarGroup}. */
 export type AvatarGroupProps = HTMLAttributes<HTMLDivElement>;
 
 /** Overlapping stack of avatars. */

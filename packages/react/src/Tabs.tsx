@@ -3,6 +3,7 @@ import { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from '@hydrateless
 import { useEnhancer } from './useEnhancer.js';
 import { useLatest } from './util.js';
 
+/** Props for {@link Tabs}. */
 export interface TabsProps extends HTMLAttributes<HTMLDivElement> {
   /** `manual` (default): arrows move focus, Enter/Space activates. `automatic`: arrows activate immediately. */
   activation?: EnhanceTabsOptions['activation'];
@@ -67,6 +68,7 @@ export function Tabs({
   );
 }
 
+/** Props for {@link TabList}. */
 export type TabListProps = HTMLAttributes<HTMLDivElement>;
 
 /** The row of tab triggers. Renders `role="tablist"`. */
@@ -78,6 +80,7 @@ export function TabList({ children, ...rest }: TabListProps) {
   );
 }
 
+/** Props for {@link Tab}. */
 export interface TabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Stable value identifying this tab; defaults to its index. */
   value?: string;
@@ -92,6 +95,7 @@ export function Tab({ children, type, value, ...rest }: TabProps) {
   );
 }
 
+/** Props for {@link TabPanel}. */
 export type TabPanelProps = HTMLAttributes<HTMLDivElement>;
 
 /** Content for the matching tab. Renders `role="tabpanel"`. */

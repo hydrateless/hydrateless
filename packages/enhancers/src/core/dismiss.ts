@@ -1,6 +1,7 @@
 import { getDocument } from './dom.js';
 import { on, type Disposer } from './lifecycle.js';
 
+/** Options for {@link onClickOutside}. */
 export type ClickOutsideOptions = {
   /** Event used to detect the outside interaction. Defaults to `pointerdown`. */
   event?: 'pointerdown' | 'mousedown' | 'click';

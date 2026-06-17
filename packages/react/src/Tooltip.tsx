@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { enhanceTooltip } from '@hydrateless/enhancers';
 
+/** Props for {@link Tooltip}. */
 export interface TooltipProps {
   /** The hint text shown on hover/focus. */
   label: ReactNode;
