@@ -7,6 +7,7 @@ import {
   Events,
 } from '../core/index.js';
 
+/** Options for {@link enhanceCombobox}. */
 export type EnhanceComboboxOptions = {
   /** Hide options that don't match the typed query. Defaults to `true`. */
   filter?: boolean;
@@ -18,6 +19,7 @@ export type EnhanceComboboxOptions = {
   onValueChange?: (value: string) => void;
 };
 
+/** Imperative handle returned by {@link enhanceCombobox}. */
 export type ComboboxApi = {
   /** The input's current text. */
   readonly value: string;

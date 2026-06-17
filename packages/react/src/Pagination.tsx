@@ -1,5 +1,6 @@
 import { type HTMLAttributes, type ReactNode } from 'react';
 
+/** Props for {@link Pagination}. */
 export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange'> {
   page: number;
   count: number;

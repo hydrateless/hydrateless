@@ -1,10 +1,12 @@
 # API Reference
 
-The full, type-level API documentation for `@hydrateless/enhancers` is generated
-from source with [TypeDoc](https://typedoc.org/).
+The full, type-level API documentation for every Hydrateless package is generated
+from source with [TypeDoc](https://typedoc.org/): the framework-agnostic
+`@hydrateless/enhancers`, the `@hydrateless/auto` initializer, and the
+`@hydrateless/react`, `@hydrateless/vue`, and `@hydrateless/svelte` bindings.
 
 <div class="hl-demo">
-  <p style="margin:0 0 0.5rem">Browse the complete enhancer API — every function, option type, and return type.</p>
+  <p style="margin:0 0 0.5rem">Browse the complete API for every package: each function, component, option type, and return type.</p>
   <a href="./api/" target="_blank" rel="noreferrer">Open the generated API reference →</a>
 </div>
 
@@ -70,8 +72,13 @@ without holding a handle:
 
 ## Framework APIs
 
-The framework bindings are documented in their own guides:
+The framework bindings are included in the generated reference above:
+`@hydrateless/react`, `@hydrateless/vue`, and the action and store layer of
+`@hydrateless/svelte`. Svelte's single-file components can't be read by TypeDoc,
+so their props are covered in the Svelte guide instead.
+
+For usage patterns and examples, see the framework guides:
 
 - [React components & hooks](/frameworks/react)
 - [Vue directives & composables](/frameworks/vue)
-- [Svelte actions](/frameworks/svelte)
+- [Svelte actions & components](/frameworks/svelte)

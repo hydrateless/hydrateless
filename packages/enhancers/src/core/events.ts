@@ -1,3 +1,4 @@
+/** Options for {@link emit}. */
 export interface EmitOptions {
   /** Allow listeners to `preventDefault()` the event. Defaults to `false`. */
   cancelable?: boolean;

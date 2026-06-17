@@ -104,11 +104,17 @@ function section(name: string, klass: string) {
   });
 }
 
+/** Header region of a {@link Modal}. */
 export const ModalHeader = section('HlModalHeader', 'hl-modal-header');
+/** Body region of a {@link Modal}. */
 export const ModalBody = section('HlModalBody', 'hl-modal-body');
+/** Footer region of a {@link Modal}. */
 export const ModalFooter = section('HlModalFooter', 'hl-modal-footer');
+/** Header region of a {@link Drawer}. */
 export const DrawerHeader = section('HlDrawerHeader', 'hl-drawer-header');
+/** Body region of a {@link Drawer}. */
 export const DrawerBody = section('HlDrawerBody', 'hl-drawer-body');
+/** Footer region of a {@link Drawer}. */
 export const DrawerFooter = section('HlDrawerFooter', 'hl-drawer-footer');
 
 /**

@@ -1,11 +1,20 @@
 import { defineEnhancer, ensureId } from '../core/index.js';
 
+/** Options for {@link enhanceToc}. */
 export type EnhanceTocOptions = {
+  /** Selector for the region whose headings populate the list. Defaults to `main, article`. */
   contentSelector?: string;
+  /** Selector for which headings to include. Defaults to `h2,h3`. */
   headings?: string;
+  /** Highlight the entry for the heading currently in view. Defaults to `true`. */
   scrollSpy?: boolean;
 };
 
+/**
+ * Build a nested table of contents from the headings inside a content region
+ * and render it as a list of anchor links. With `scrollSpy` enabled, the entry
+ * for the heading currently in view is marked with `aria-current`.
+ */
 export const enhanceToc = defineEnhancer<EnhanceTocOptions>({
   name: 'toc',
   selector: '[data-hl-toc]',

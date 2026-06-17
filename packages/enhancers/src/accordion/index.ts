@@ -1,5 +1,6 @@
 import { defineEnhancer, Events } from '../core/index.js';
 
+/** Options for {@link enhanceAccordion}. */
 export type EnhanceAccordionOptions = {
   /** Allow more than one panel open at a time. Defaults to `false`. */
   allowMultiple?: boolean;
@@ -13,6 +14,7 @@ export type EnhanceAccordionOptions = {
   onValueChange?: (value: string[]) => void;
 };
 
+/** Imperative handle returned by {@link enhanceAccordion}. */
 export type AccordionApi = {
   /** Values of the currently open items, in document order. */
   readonly value: string[];

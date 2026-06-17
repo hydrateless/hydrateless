@@ -12,6 +12,7 @@ import {
 import { useEnhancer } from './useEnhancer.js';
 import { cx, useLatest } from './util.js';
 
+/** Props for {@link Combobox}. */
 export interface ComboboxProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   filter?: EnhanceComboboxOptions['filter'];
   autoHighlight?: EnhanceComboboxOptions['autoHighlight'];
@@ -74,6 +75,7 @@ export function Combobox({
   );
 }
 
+/** Props for {@link ComboboxInput}. */
 export interface ComboboxInputProps extends InputHTMLAttributes<HTMLInputElement> {
   /** Apply the `hl-input` style. Defaults to `true`. */
   styled?: boolean;
@@ -84,6 +86,7 @@ export function ComboboxInput({ styled = true, className, ...rest }: ComboboxInp
   return <input {...rest} className={cx(styled && 'hl-input', className)} />;
 }
 
+/** Props for {@link ComboboxList}. */
 export type ComboboxListProps = HTMLAttributes<HTMLUListElement>;
 
 /** The option popup (`role="listbox"`). */
@@ -95,6 +98,7 @@ export function ComboboxList({ children, ...rest }: ComboboxListProps) {
   );
 }
 
+/** Props for {@link ComboboxOption}. */
 export interface ComboboxOptionProps extends Omit<LiHTMLAttributes<HTMLLIElement>, 'value'> {
   value: string;
 }

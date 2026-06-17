@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 
+/** Props for {@link Kbd}. */
 export type KbdProps = HTMLAttributes<HTMLElement>;
 
 /** Keyboard key primitive — `<kbd class="hl-kbd">`. */

@@ -31,9 +31,9 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Build packages
-        run: npm run build
-      - name: Build docs (TypeDoc + VitePress)
+      # docs:build builds the workspace packages first (TypeDoc reads each
+      # package's source but resolves cross-package types from their dist).
+      - name: Build docs (packages + TypeDoc + VitePress)
         run: npm run docs:build
         env:
           # GitHub Project Pages serve from /<repo>/.

@@ -8,7 +8,9 @@ import {
   type MoveDirection,
 } from '../core/index.js';
 
+/** Options for {@link enhanceMenu}. */
 export type EnhanceMenuOptions = {
+  /** Layout of the top-level menu. Defaults to `horizontal` (menubar). */
   orientation?: 'horizontal' | 'vertical';
 };
 

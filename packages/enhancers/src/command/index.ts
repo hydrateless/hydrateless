@@ -1,5 +1,6 @@
 import { defineEnhancer, ensureId, setAttrs, nextIndex, Events } from '../core/index.js';
 
+/** Options for {@link enhanceCommand}. */
 export type EnhanceCommandOptions = {
   /** Lowercased key that, with Cmd/Ctrl, opens the palette's dialog. */
   hotkey?: string;

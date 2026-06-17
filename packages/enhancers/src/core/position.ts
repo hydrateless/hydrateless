@@ -1,9 +1,13 @@
 import { getWindow } from './dom.js';
 
+/** Edge of the anchor a floating element is placed against. */
 export type Side = 'top' | 'bottom' | 'left' | 'right';
+/** Alignment of a floating element along its chosen side. */
 export type Align = 'start' | 'center' | 'end';
+/** A {@link Side}, optionally suffixed with an {@link Align} (e.g. `bottom-start`). */
 export type Placement = Side | `${Side}-${Align}`;
 
+/** Options for {@link placeFloating}. */
 export interface PositionOptions {
   placement?: Placement;
   /** Gap between the anchor and the floating element, in pixels. */
@@ -13,6 +17,7 @@ export interface PositionOptions {
   strategy?: 'absolute' | 'fixed';
 }
 
+/** The resolved side and alignment returned by {@link placeFloating}. */
 export interface PositionResult {
   side: Side;
   align: Align;

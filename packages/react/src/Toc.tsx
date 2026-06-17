@@ -1,6 +1,7 @@
 import { useEffect, useRef, type HTMLAttributes } from 'react';
 import { enhanceToc } from '@hydrateless/enhancers';
 
+/** Props for {@link Toc}. */
 export interface TocProps extends HTMLAttributes<HTMLElement> {
   /** CSS selector for the content root to scan for headings. */
   contentSelector?: string;

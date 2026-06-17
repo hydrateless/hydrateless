@@ -3,6 +3,7 @@ import { enhanceModal, type ModalApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
 import { cx, useLatest } from './util.js';
 
+/** Props for {@link Modal}. */
 export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
   open: boolean;
   /** Called after the dialog opens or closes (Escape, backdrop, close buttons). */
@@ -55,6 +56,7 @@ export function Modal({
   );
 }
 
+/** Props shared by the {@link Modal} section components. */
 export type ModalSectionProps = HTMLAttributes<HTMLDivElement>;
 
 /** Modal heading region; its content labels the dialog for assistive tech. */

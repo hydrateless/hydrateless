@@ -9,6 +9,7 @@ import {
   type MoveDirection,
 } from '../core/index.js';
 
+/** Options for {@link enhanceDropdown}. */
 export type EnhanceDropdownOptions = {
   /** Preferred side; flips to `top` when there is no room below. */
   placement?: 'bottom' | 'top';
@@ -20,6 +21,7 @@ export type EnhanceDropdownOptions = {
   onSelect?: (value: string, item: HTMLElement) => void;
 };
 
+/** Imperative handle returned by {@link enhanceDropdown}. */
 export type DropdownApi = {
   /** Whether the menu is currently open. */
   readonly open: boolean;

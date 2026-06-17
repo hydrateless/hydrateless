@@ -7,6 +7,7 @@ import {
   type Placement,
 } from '../core/index.js';
 
+/** Options for {@link enhanceTooltip}. */
 export type EnhanceTooltipOptions = {
   /** Preferred placement relative to the trigger. Defaults to `top`. */
   placement?: Placement;
@@ -18,6 +19,7 @@ export type EnhanceTooltipOptions = {
   hideDelay?: number;
 };
 
+/** Imperative handle returned by {@link enhanceTooltip}. */
 export type TooltipApi = {
   /** Show the tooltip immediately. */
   show: () => void;

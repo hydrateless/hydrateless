@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 
+/** Props for {@link Alert}. */
 export interface AlertProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   intent?: 'info' | 'success' | 'warning' | 'danger' | 'neutral';
   title?: ReactNode;

@@ -5,6 +5,7 @@ import {
   type ReactNode,
 } from 'react';
 
+/** Props for {@link Breadcrumb}. */
 export type BreadcrumbProps = HTMLAttributes<HTMLElement>;
 
 /**
@@ -26,6 +27,7 @@ export function Breadcrumb({ children, ...rest }: BreadcrumbProps) {
   );
 }
 
+/** Props for {@link BreadcrumbItem}. */
 export interface BreadcrumbItemProps extends Omit<LiHTMLAttributes<HTMLLIElement>, 'children'> {
   href?: string;
   /** Marks the current page; renders a non-link with `aria-current="page"`. */

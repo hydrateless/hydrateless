@@ -1,11 +1,13 @@
 import { forwardRef, type ReactNode, type SelectHTMLAttributes } from 'react';
 
+/** A single option in a {@link Select}. */
 export interface SelectOption {
   label: ReactNode;
   value: string;
   disabled?: boolean;
 }
 
+/** Props for {@link Select}. */
 export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
   size?: 'sm' | 'md' | 'lg';
   invalid?: boolean;

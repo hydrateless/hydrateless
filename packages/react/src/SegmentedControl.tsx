@@ -1,11 +1,13 @@
 import { useId, useState, type HTMLAttributes, type ReactNode } from 'react';
 
+/** A single option in a {@link SegmentedControl}. */
 export interface SegmentedOption {
   label: ReactNode;
   value: string;
   disabled?: boolean;
 }
 
+/** Props for {@link SegmentedControl}. */
 export interface SegmentedControlProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   options: SegmentedOption[];
   value?: string;

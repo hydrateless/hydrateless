@@ -1,6 +1,7 @@
 import { useEffect, useRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from './util.js';
 
+/** Props for {@link Disclosure}. */
 export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'title'> {
   summary: ReactNode;
   defaultOpen?: boolean;

@@ -1,10 +1,27 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["../../packages/enhancers/src/index.ts"],
-  "tsconfig": "../../packages/enhancers/tsconfig.json",
+  "entryPointStrategy": "packages",
+  "entryPoints": ["../enhancers", "../auto", "../react", "../vue", "../svelte"],
   "out": "public/api",
-  "name": "Hydrateless Enhancers API",
+  "name": "Hydrateless API",
   "readme": "none",
   "githubPages": false,
-  "excludeInternal": true
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "js",
+    "json",
+    "jsonc",
+    "json5",
+    "yaml",
+    "jsx",
+    "tsx",
+    "typescript",
+    "ts",
+    "svelte",
+    "vue"
+  ]
 }

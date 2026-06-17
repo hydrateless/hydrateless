@@ -7,6 +7,7 @@ import {
   type MoveDirection,
 } from '../core/index.js';
 
+/** Options for {@link enhanceTabs}. */
 export type EnhanceTabsOptions = {
   /**
    * `manual` (default): arrows move focus, Enter/Space activates. `automatic`:
@@ -24,6 +25,7 @@ export type EnhanceTabsOptions = {
   onValueChange?: (value: string) => void;
 };
 
+/** Imperative handle returned by {@link enhanceTabs}. */
 export type TabsApi = {
   /** Value of the currently selected tab. */
   readonly value: string;

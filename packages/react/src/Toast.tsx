@@ -17,6 +17,7 @@ const facade: ToastApi = {
   dismiss: (toast) => ensureApi().dismiss(toast),
 };
 
+/** Props for {@link ToastRegion}. */
 export type ToastRegionProps = HTMLAttributes<HTMLDivElement>;
 
 /**

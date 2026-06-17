@@ -115,7 +115,7 @@ export default defineConfig({
       '/reference': [
         {
           text: 'Reference',
-          items: [{ text: 'Enhancer API', link: '/reference' }],
+          items: [{ text: 'API Reference', link: '/reference' }],
         },
       ],
     },

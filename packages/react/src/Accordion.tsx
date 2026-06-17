@@ -3,6 +3,7 @@ import { enhanceAccordion, type AccordionApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
 import { useLatest } from './util.js';
 
+/** Props for {@link Accordion}. */
 export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
   /** Allow more than one panel to stay open at a time. */
   allowMultiple?: boolean;
@@ -52,6 +53,7 @@ export function Accordion({
   );
 }
 
+/** Props for {@link AccordionItem}. */
 export interface AccordionItemProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'title'> {
   summary: ReactNode;
   /** Stable value identifying this item; defaults to its index. */
@@ -59,6 +61,7 @@ export interface AccordionItemProps extends Omit<HTMLAttributes<HTMLDetailsEleme
   defaultOpen?: boolean;
 }
 
+/** A single collapsible item within an {@link Accordion}, rendered as a native `<details>`. */
 export function AccordionItem({
   summary,
   value,

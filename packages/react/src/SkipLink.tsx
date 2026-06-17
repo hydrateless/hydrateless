@@ -1,6 +1,7 @@
 import { type AnchorHTMLAttributes, type ReactNode } from 'react';
 import { cx } from './util.js';
 
+/** Props for {@link SkipLink}. */
 export type SkipLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   children?: ReactNode;
 };

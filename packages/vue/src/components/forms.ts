@@ -71,6 +71,7 @@ export function useFieldBindings() {
   };
 }
 
+/** Label for a {@link Field}'s control, associated with it by id. */
 export const FieldLabel = defineComponent({
   name: 'HlFieldLabel',
   inheritAttrs: false,
@@ -90,6 +91,7 @@ export const FieldLabel = defineComponent({
   },
 });
 
+/** Help text for a {@link Field}, linked to its control via `aria-describedby`. */
 export const FieldHelp = defineComponent({
   name: 'HlFieldHelp',
   inheritAttrs: false,
@@ -104,6 +106,7 @@ export const FieldHelp = defineComponent({
   },
 });
 
+/** Validation message for a {@link Field}; renders nothing until it has content. */
 export const FieldError = defineComponent({
   name: 'HlFieldError',
   inheritAttrs: false,
@@ -121,6 +124,7 @@ export const FieldError = defineComponent({
   },
 });
 
+/** Groups related controls in a native fieldset with an optional `legend` slot. */
 export const Fieldset = defineComponent({
   name: 'HlFieldset',
   inheritAttrs: false,

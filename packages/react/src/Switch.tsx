@@ -1,5 +1,6 @@
 import { type InputHTMLAttributes, type ReactNode } from 'react';
 
+/** Props for {@link Switch}. */
 export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   children?: ReactNode;
 }

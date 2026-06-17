@@ -33,6 +33,7 @@ export function tabbablesIn(container: HTMLElement): HTMLElement[] {
   return candidates.filter((el) => !el.hasAttribute('disabled') && isVisible(el));
 }
 
+/** Handle for a focus trap created by {@link createFocusTrap}. */
 export type FocusTrap = {
   activate: () => void;
   deactivate: () => void;
