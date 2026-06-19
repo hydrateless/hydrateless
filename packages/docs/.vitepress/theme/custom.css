@@ -4,12 +4,37 @@
 
 /* ============================================================== Code view */
 .hl-code {
+  /* The surface and token palette are theme-aware: a light, github-light-style
+     palette by default and a Night Owl-style palette under `.dark`. This tracks
+     VitePress's own code blocks (its default light/dark Shiki pair) so our
+     runtime-highlighted snippets sit alongside fenced blocks without clashing.
+     Driving every token color from a variable keeps the rules below DRY. */
+  --hlc-bg: #f6f8fa;
+  --hlc-fg: #1f2328;
+  --hlc-comment: #6e7781;
+  --hlc-string: #0a3069;
+  --hlc-tag: #116329;
+  --hlc-attr: #0550ae;
+  --hlc-keyword: #cf222e;
+  --hlc-number: #0550ae;
+  --hlc-punct: #57606a;
   position: relative;
   margin: 0.75rem 0;
   border: 1px solid var(--vp-c-divider);
   border-radius: 10px;
   overflow: hidden;
-  background: var(--vp-code-block-bg, #1b1b1f);
+  background: var(--hlc-bg);
+}
+.dark .hl-code {
+  --hlc-bg: #1b1b1f;
+  --hlc-fg: #d6deeb;
+  --hlc-comment: #637777;
+  --hlc-string: #ecc48d;
+  --hlc-tag: #7fdbca;
+  --hlc-attr: #addb67;
+  --hlc-keyword: #c792ea;
+  --hlc-number: #f78c6c;
+  --hlc-punct: #89a4bb;
 }
 .hl-code-filename {
   font-family: var(--vp-font-family-mono);
@@ -17,7 +42,6 @@
   padding: 0.4rem 0.85rem;
   color: var(--vp-c-text-2);
   border-bottom: 1px solid var(--vp-c-divider);
-  background: rgba(255, 255, 255, 0.03);
 }
 .hl-code pre {
   margin: 0;
@@ -28,7 +52,7 @@
   font-family: var(--vp-font-family-mono);
   font-size: 0.82rem;
   line-height: 1.6;
-  color: #d6deeb;
+  color: var(--hlc-fg);
   white-space: pre;
 }
 .hl-code-copy {
@@ -39,9 +63,9 @@
   font-size: 0.7rem;
   padding: 0.25rem 0.6rem;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  color: #d6deeb;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s;
@@ -51,28 +75,28 @@
   opacity: 1;
 }
 
-/* Token colors (Night Owl-ish, readable on the dark code surface). */
+/* Token colors, driven by the theme-aware variables defined above. */
 .hl-code .hl-c {
-  color: #637777;
+  color: var(--hlc-comment);
   font-style: italic;
 }
 .hl-code .hl-s {
-  color: #ecc48d;
+  color: var(--hlc-string);
 }
 .hl-code .hl-t {
-  color: #7fdbca;
+  color: var(--hlc-tag);
 }
 .hl-code .hl-a {
-  color: #addb67;
+  color: var(--hlc-attr);
 }
 .hl-code .hl-k {
-  color: #c792ea;
+  color: var(--hlc-keyword);
 }
 .hl-code .hl-n {
-  color: #f78c6c;
+  color: var(--hlc-number);
 }
 .hl-code .hl-p {
-  color: #89a4bb;
+  color: var(--hlc-punct);
 }
 
 /* ===================================================== Framework switcher */

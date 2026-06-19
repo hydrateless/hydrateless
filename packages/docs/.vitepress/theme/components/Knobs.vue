@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Knob, KnobOption, KnobValues } from '../../data/types';
 
-const props = defineProps<{ knobs: Knob[]; modelValue: KnobValues }>();
-const emit = defineEmits<{ 'update:modelValue': [KnobValues] }>();
+defineProps<{ knobs: Knob[]; values: KnobValues }>();
+const emit = defineEmits<{ change: [string, string | boolean | number] }>();
 
 function set(id: string, value: string | boolean | number) {
-  emit('update:modelValue', { ...props.modelValue, [id]: value });
+  emit('change', id, value);
 }
 
 function optionLabel(option: string | KnobOption): string {
@@ -24,7 +24,7 @@ function optionValue(option: string | KnobOption): string {
       <select
         v-if="knob.type === 'select'"
         class="hl-knob-select"
-        :value="modelValue[knob.id]"
+        :value="values[knob.id]"
         @change="set(knob.id, ($event.target as HTMLSelectElement).value)"
       >
         <option v-for="opt in knob.options" :key="optionValue(opt)" :value="optionValue(opt)">
@@ -36,7 +36,7 @@ function optionValue(option: string | KnobOption): string {
         v-else-if="knob.type === 'boolean'"
         type="checkbox"
         class="hl-knob-check"
-        :checked="Boolean(modelValue[knob.id])"
+        :checked="Boolean(values[knob.id])"
         @change="set(knob.id, ($event.target as HTMLInputElement).checked)"
       />
 
@@ -44,7 +44,7 @@ function optionValue(option: string | KnobOption): string {
         v-else-if="knob.type === 'text'"
         type="text"
         class="hl-knob-input"
-        :value="modelValue[knob.id]"
+        :value="values[knob.id]"
         :placeholder="knob.placeholder"
         @input="set(knob.id, ($event.target as HTMLInputElement).value)"
       />
@@ -55,10 +55,10 @@ function optionValue(option: string | KnobOption): string {
           :min="knob.min"
           :max="knob.max"
           :step="knob.step"
-          :value="Number(modelValue[knob.id])"
+          :value="Number(values[knob.id])"
           @input="set(knob.id, Number(($event.target as HTMLInputElement).value))"
         />
-        <output>{{ modelValue[knob.id] }}</output>
+        <output>{{ values[knob.id] }}</output>
       </span>
     </label>
   </div>

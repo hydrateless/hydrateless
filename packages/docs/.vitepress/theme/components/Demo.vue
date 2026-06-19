@@ -134,7 +134,12 @@ function renderInline(text: string): string {
         <div v-else ref="stageEl" class="hl-demo-stage" :class="`is-${layout}`"><slot /></div>
       </div>
 
-      <Knobs v-if="demo?.knobs?.length" v-model="values" :knobs="demo.knobs" />
+      <Knobs
+        v-if="demo?.knobs?.length"
+        :knobs="demo.knobs"
+        :values="values"
+        @change="(id, val) => (values[id] = val)"
+      />
     </div>
 
     <div v-if="demo" class="hl-demo-code">
