@@ -10,7 +10,10 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: Browse Components
-      link: /components/accordion
+      link: /components/
+    - theme: alt
+      text: Theme Studio
+      link: /playground/theme
     - theme: alt
       text: View on GitHub
       link: https://github.com/hydrateless/hydrateless
@@ -34,3 +37,37 @@ features:
     title: Framework bindings
     details: First-class packages for React, Vue, and Svelte (plus an Astro guide) wrap the same enhancers idiomatically.
 ---
+
+<div class="hl-home-showcase">
+
+## Live by default
+
+These are real Hydrateless components, not screenshots. Toggle JavaScript off in any frame to see how much works with CSS alone.
+
+<Demo layout="row">
+  <button class="hl-button" data-hl-intent="primary">Primary</button>
+  <button class="hl-button" data-hl-intent="primary" data-hl-variant="soft">Soft</button>
+  <button class="hl-button" data-hl-variant="outline">Outline</button>
+  <span class="hl-badge" data-hl-intent="success" data-hl-variant="soft">Stable</span>
+  <label data-hl-switch><input type="checkbox" role="switch" checked /> Notifications</label>
+</Demo>
+
+<Demo layout="fill">
+  <div data-hl-tabs style="width:100%">
+    <div role="tablist">
+      <button role="tab">Overview</button>
+      <button role="tab">Install</button>
+      <button role="tab">Theme</button>
+    </div>
+    <div role="tabpanel"><p style="margin:0">Accessible primitives with full keyboard support and ARIA wired by tiny enhancers.</p></div>
+    <div role="tabpanel"><p style="margin:0">Ship the CSS, then add enhancers only where an interaction needs them.</p></div>
+    <div role="tabpanel"><p style="margin:0">Restyle everything from a handful of CSS variables in the theme studio.</p></div>
+  </div>
+</Demo>
+
+<p class="hl-home-cta">
+  <a class="hl-button" data-hl-intent="primary" href="/components/">Explore all components</a>
+  <a class="hl-button" data-hl-variant="outline" href="/playground/theme">Open the theme studio</a>
+</p>
+
+</div>

@@ -2,22 +2,577 @@
   --vp-home-hero-name-color: var(--vp-c-brand-1);
 }
 
-/* Live demo container used throughout the component docs. */
-.hl-demo {
-  margin: 1rem 0;
-  padding: 1.5rem;
+/* ============================================================== Code view */
+.hl-code {
+  /* The surface and token palette are theme-aware: a light, github-light-style
+     palette by default and a Night Owl-style palette under `.dark`. This tracks
+     VitePress's own code blocks (its default light/dark Shiki pair) so our
+     runtime-highlighted snippets sit alongside fenced blocks without clashing.
+     Driving every token color from a variable keeps the rules below DRY. */
+  --hlc-bg: #f6f8fa;
+  --hlc-fg: #1f2328;
+  --hlc-comment: #6e7781;
+  --hlc-string: #0a3069;
+  --hlc-tag: #116329;
+  --hlc-attr: #0550ae;
+  --hlc-keyword: #cf222e;
+  --hlc-number: #0550ae;
+  --hlc-punct: #57606a;
+  position: relative;
+  margin: 0.75rem 0;
   border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--hlc-bg);
+}
+.dark .hl-code {
+  --hlc-bg: #1b1b1f;
+  --hlc-fg: #d6deeb;
+  --hlc-comment: #637777;
+  --hlc-string: #ecc48d;
+  --hlc-tag: #7fdbca;
+  --hlc-attr: #addb67;
+  --hlc-keyword: #c792ea;
+  --hlc-number: #f78c6c;
+  --hlc-punct: #89a4bb;
+}
+.hl-code-filename {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.72rem;
+  padding: 0.4rem 0.85rem;
+  color: var(--vp-c-text-2);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+.hl-code pre {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+}
+.hl-code code {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--hlc-fg);
+  white-space: pre;
+}
+.hl-code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.hl-code:hover .hl-code-copy,
+.hl-code-copy:focus-visible {
+  opacity: 1;
+}
+
+/* Token colors, driven by the theme-aware variables defined above. */
+.hl-code .hl-c {
+  color: var(--hlc-comment);
+  font-style: italic;
+}
+.hl-code .hl-s {
+  color: var(--hlc-string);
+}
+.hl-code .hl-t {
+  color: var(--hlc-tag);
+}
+.hl-code .hl-a {
+  color: var(--hlc-attr);
+}
+.hl-code .hl-k {
+  color: var(--hlc-keyword);
+}
+.hl-code .hl-n {
+  color: var(--hlc-number);
+}
+.hl-code .hl-p {
+  color: var(--hlc-punct);
+}
+
+/* ===================================================== Framework switcher */
+.hl-fw-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
   background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+}
+.hl-fw-switch button {
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  color: var(--vp-c-text-2);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.hl-fw-switch button:hover {
+  color: var(--vp-c-text-1);
+}
+.hl-fw-switch button.active {
+  background: var(--vp-c-brand-1);
+  color: #fff;
 }
 
-.hl-demo + div[class*='language-'] {
-  margin-top: 0.5rem;
-}
-
-.hl-demo .demo-row {
+/* ================================================================== Knobs */
+.hl-knobs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.75rem 1.25rem;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+}
+.hl-knob {
+  display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--vp-c-text-2);
+}
+.hl-knob-label {
+  font-weight: 500;
+}
+.hl-knob-select,
+.hl-knob-input {
+  font-size: 0.78rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+}
+.hl-knob-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hl-knob-range output {
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+}
+
+/* =============================================================== Live demo */
+.hl-demo-block {
+  margin: 1.5rem 0 2rem;
+}
+.hl-demo-head h3 {
+  margin: 0 0 0.25rem;
+  border: 0;
+  padding: 0;
+  font-size: 1.05rem;
+}
+.hl-demo-head p {
+  margin: 0 0 0.6rem;
+  color: var(--vp-c-text-2);
+  font-size: 0.9rem;
+}
+.hl-demo-frame {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--vp-c-bg);
+}
+.hl-demo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+}
+.hl-demo-spacer {
+  flex: 1;
+}
+.hl-demo-tag {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vp-c-brand-1);
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--vp-c-brand-1);
+  border-radius: 999px;
+}
+.hl-demo-btn {
+  font-size: 0.73rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+  white-space: nowrap;
+}
+.hl-demo-btn:hover {
+  color: var(--vp-c-text-1);
+  border-color: var(--vp-c-brand-1);
+}
+.hl-demo-btn.off {
+  color: #fff;
+  background: var(--vp-c-warning-1, #d97706);
+  border-color: transparent;
+}
+.hl-demo-preview {
+  background: var(--hl-bg);
+  color: var(--hl-fg);
+  padding: 2rem 1.5rem;
+}
+.hl-demo-stage {
+  display: flex;
+  gap: 0.75rem;
+}
+.hl-demo-stage.is-row {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.hl-demo-stage.is-column {
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 24rem;
+  margin: 0 auto;
+}
+.hl-demo-stage.is-center {
+  justify-content: center;
+  align-items: center;
+}
+.hl-demo-stage.is-fill {
+  display: block;
+}
+
+/* Isolate live demos from the host (VitePress) unlayered content styles.
+   Hydrateless ships entirely inside @layer, so any unlayered rule on the page,
+   like VitePress's `button { background: transparent }` reset, would otherwise
+   win over the library's layered component styles. `revert-layer` drops the
+   host's unlayered contribution so the layered Hydrateless styles apply,
+   exactly as they would in a real app whose own resets are layered. The
+   doubled class and ancestor chain keep specificity above VitePress's
+   `.vp-doc` content rules. */
+.hl-demo-frame .hl-demo-preview .hl-demo-stage *,
+.hl-studio .hl-studio-preview.hl-studio-preview * {
+  all: revert-layer;
+}
+
+/* Landing-page showcase below the hero/features. */
+.hl-home-showcase {
+  max-width: 1152px;
+  margin: 4rem auto 0;
+  padding: 0 24px;
+}
+.hl-home-showcase h2 {
+  border: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+}
+.hl-home-showcase > p {
+  margin: 0 0 1.5rem;
+  color: var(--hl-fg-muted, #64748b);
+}
+.hl-home-cta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+/* The CTA anchors live outside a demo stage, so revert the host's unlayered
+   anchor reset to let the layered .hl-button styles apply. */
+.hl-home-showcase .hl-home-cta .hl-button {
+  all: revert-layer;
+  text-decoration: none;
+}
+.hl-demo-code {
+  margin-top: 0.5rem;
+}
+.hl-demo-code-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ============================================================ API tables */
+.hl-api-table {
+  display: table;
+  width: 100%;
+  margin: 0.75rem 0 0;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+.hl-api-table th,
+.hl-api-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--vp-c-divider);
+}
+.hl-api-table th {
+  background: var(--vp-c-bg-soft);
+  font-weight: 600;
+}
+.hl-api-table code {
+  font-size: 0.8rem;
+}
+.hl-api-table .hl-type {
+  color: var(--vp-c-brand-1);
+}
+.hl-muted {
+  color: var(--vp-c-text-3);
+}
+.hl-req {
+  color: var(--vp-c-danger-1, #e11d48);
+  font-weight: 700;
+}
+
+/* ======================================================= Component page */
+.hl-cmp-head {
+  margin-bottom: 1.25rem;
+}
+.hl-cmp-cat {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vp-c-brand-1);
+}
+.hl-cmp-head h1 {
+  margin: 0.2rem 0 0.4rem;
+  font-size: 2.1rem;
+  letter-spacing: -0.02em;
+}
+.hl-cmp-summary {
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+  color: var(--vp-c-text-2);
+}
+.hl-cmp-desc {
+  color: var(--vp-c-text-1);
+}
+.hl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.hl-chip {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+}
+.hl-chip code {
+  font-size: 0.72rem;
+  background: none;
+  color: inherit;
+}
+.hl-chip.is-stable {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+.hl-chip.is-beta {
+  border-color: #d97706;
+  color: #d97706;
+}
+.hl-chip.is-css {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}
+.hl-section {
+  margin-top: 2.5rem;
+}
+.hl-a11y {
+  padding-left: 1.1rem;
+}
+.hl-a11y li {
+  margin: 0.3rem 0;
+}
+.hl-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.hl-related-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.hl-related-card:hover {
+  border-color: var(--vp-c-brand-1);
+}
+.hl-related-card strong {
+  color: var(--vp-c-text-1);
+}
+.hl-related-card span {
+  font-size: 0.82rem;
+  color: var(--vp-c-text-2);
+}
+
+/* ================================================================ Gallery */
+.hl-gallery-count {
+  color: var(--vp-c-text-2);
+  font-size: 0.9rem;
+}
+.hl-gallery-group {
+  margin-top: 2rem;
+}
+.hl-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+.hl-gallery-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  text-decoration: none;
+  background: var(--vp-c-bg);
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.hl-gallery-card:hover {
+  border-color: var(--vp-c-brand-1);
+  transform: translateY(-2px);
+}
+.hl-gallery-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+.hl-gallery-summary {
+  font-size: 0.82rem;
+  color: var(--vp-c-text-2);
+}
+.hl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.hl-dot.is-css {
+  background: #16a34a;
+}
+.hl-dot.is-js {
+  background: var(--vp-c-brand-1);
+}
+/* VitePress styles `.vp-doc a` (underline, brand color, weight 500) unlayered,
+   which beats the gallery card's own rules and bleeds onto the card text. Tie
+   the reset to the anchor element so it outranks both `.vp-doc a` and
+   `.vp-doc a:hover` and the cards read as cards, not links. */
+.vp-doc a.hl-gallery-card,
+.vp-doc a.hl-gallery-card:hover {
+  text-decoration: none;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* =========================================================== Theme studio */
+.hl-studio {
+  margin: 1.5rem 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.hl-studio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+.hl-studio-controls input[type='color'] {
+  width: 38px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  background: none;
+}
+.hl-studio-preview {
+  padding: 2rem;
+  background: var(--hl-bg);
+  color: var(--hl-fg);
+}
+.hl-studio-output {
+  padding: 0 1.25rem 1rem;
+}
+.hl-studio-output p {
+  font-size: 0.85rem;
+  color: var(--vp-c-text-2);
+}
+
+/* ================================================================ Install */
+.hl-install {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.hl-install-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem;
+  background: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+.hl-install-tabs button {
+  font-size: 0.76rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 6px;
+  color: var(--vp-c-text-2);
+}
+.hl-install-tabs button.active {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  box-shadow: 0 0 0 1px var(--vp-c-divider);
+}
+.hl-install-copy {
+  font-size: 0.72rem;
+  color: var(--vp-c-text-2);
+}
+.hl-install-cmd {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.84rem;
+  overflow-x: auto;
+}
+
+@media (max-width: 640px) {
+  .hl-demo-preview {
+    padding: 1.5rem 1rem;
+  }
 }

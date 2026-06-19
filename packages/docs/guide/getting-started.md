@@ -74,24 +74,18 @@ modal.api?.setOpen(true);
 
 Components use standard HTML elements with `data-hl-*` attributes:
 
-<div class="hl-demo">
-<div data-hl-tabs>
-  <div role="tablist">
-    <button role="tab">Overview</button>
-    <button role="tab">Features</button>
-    <button role="tab">Install</button>
+<Demo layout="fill">
+  <div data-hl-tabs style="width:100%">
+    <div role="tablist">
+      <button role="tab">Overview</button>
+      <button role="tab">Features</button>
+      <button role="tab">Install</button>
+    </div>
+    <div role="tabpanel"><p style="margin:0">Hydrateless delivers accessible UI primitives with zero runtime cost by default.</p></div>
+    <div role="tabpanel"><p style="margin:0">CSS-first components, optional JS enhancers, auto-init, design tokens, and full ARIA support.</p></div>
+    <div role="tabpanel"><p style="margin:0"><code>npm install hydrateless @hydrateless/auto</code></p></div>
   </div>
-  <div role="tabpanel">
-    <p>Hydrateless delivers accessible UI primitives with zero runtime cost by default.</p>
-  </div>
-  <div role="tabpanel">
-    <p>CSS-first components, optional JS enhancers, auto-init, design tokens, and full ARIA support.</p>
-  </div>
-  <div role="tabpanel">
-    <p><code>npm install hydrateless @hydrateless/auto</code></p>
-  </div>
-</div>
-</div>
+</Demo>
 
 ```html
 <div data-hl-tabs>
@@ -108,7 +102,7 @@ Components use standard HTML elements with `data-hl-*` attributes:
 
 ## Next steps
 
-- Explore the [components](/components/button): forms, actions & overlays,
+- Explore the [components](/components/): forms, actions & overlays,
   disclosure, feedback, data display, and navigation primitives.
 - Learn about [theming](./theming) and [dark mode](./dark-mode).
 - Using a framework? See the [React](/frameworks/react), [Vue](/frameworks/vue),

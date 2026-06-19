@@ -5,10 +5,9 @@ from source with [TypeDoc](https://typedoc.org/): the framework-agnostic
 `@hydrateless/enhancers`, the `@hydrateless/auto` initializer, and the
 `@hydrateless/react`, `@hydrateless/vue`, and `@hydrateless/svelte` bindings.
 
-<div class="hl-demo">
-  <p style="margin:0 0 0.5rem">Browse the complete API for every package: each function, component, option type, and return type.</p>
-  <a href="./api/" target="_blank" rel="noreferrer">Open the generated API reference →</a>
-</div>
+::: tip Generated reference
+Browse the complete API for every package, with each function, component, option type, and return type. [Open the generated API reference →](./api/)
+:::
 
 ## Enhancers at a glance
 
