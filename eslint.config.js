@@ -30,6 +30,19 @@ module.exports = [
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
       'no-console': 'warn',
+      // Honor the `_` prefix as "intentionally unused" for arguments, variables,
+      // and caught errors. typescript-eslint's recommended config flags these by
+      // default; opting the convention in keeps forward-looking parameters (e.g.
+      // a not-yet-consumed `lang` hint) from tripping the rule, repo-wide,
+      // including the docs sources the pre-commit hook lints.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
   // Documentation enforcement for every package's public TypeScript API. These

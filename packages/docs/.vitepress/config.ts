@@ -1,4 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitepress';
+
+// Single source of truth for the version chip: the published library package.
+const { version } = JSON.parse(
+  readFileSync(new URL('../../hydrateless/package.json', import.meta.url), 'utf8'),
+) as { version: string };
 
 export default defineConfig({
   title: 'Hydrateless',
@@ -16,10 +22,20 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Components', link: '/components/button' },
+      { text: 'Components', link: '/components/' },
+      { text: 'Playground', link: '/playground/theme' },
       { text: 'Frameworks', link: '/frameworks/react' },
       { text: 'API', link: '/reference' },
-      { text: '0.4.0', link: '/guide/getting-started' },
+      {
+        text: `v${version}`,
+        items: [
+          { text: 'Getting Started', link: '/guide/getting-started' },
+          {
+            text: 'Changelog',
+            link: 'https://github.com/hydrateless/hydrateless/blob/main/CHANGELOG.md',
+          },
+        ],
+      },
     ],
     sidebar: {
       '/guide/': [
@@ -46,7 +62,17 @@ export default defineConfig({
           ],
         },
       ],
+      '/playground/': [
+        {
+          text: 'Playground',
+          items: [{ text: 'Theme Studio', link: '/playground/theme' }],
+        },
+      ],
       '/components/': [
+        {
+          text: 'Overview',
+          items: [{ text: 'All components', link: '/components/' }],
+        },
         {
           text: 'Forms',
           items: [
