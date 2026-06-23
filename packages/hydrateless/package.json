@@ -1,6 +1,6 @@
 {
   "name": "hydrateless",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Accessible, themeable UI primitives: semantic HTML and modern CSS first, optional JS enhancers.",
   "license": "MIT",
   "repository": {

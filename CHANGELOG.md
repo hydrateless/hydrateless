@@ -1,3 +1,13 @@
+## [0.7.0](https://github.com/hydrateless/hydrateless/compare/v0.6.0...v0.7.0) (2026-06-23)
+
+### ⚠ BREAKING CHANGES
+
+- rebuild overlays on native web platform primitives (#10)
+
+### Features
+
+- rebuild overlays on native web platform primitives ([#10](https://github.com/hydrateless/hydrateless/issues/10)) ([6084b8b](https://github.com/hydrateless/hydrateless/commit/6084b8b8e257e9712967ec9fb7c973f60a0e90ce))
+
 ## [0.6.0](https://github.com/hydrateless/hydrateless/compare/v0.5.0...v0.6.0) (2026-06-10)
 
 ### ⚠ BREAKING CHANGES
