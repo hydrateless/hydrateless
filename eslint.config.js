@@ -26,6 +26,24 @@ module.exports = [
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+  // Plain `.js` files that run in a DOM rather than Node: the Playwright fixture
+  // bootstrapper and the jsdom platform shim the Vitest setup loads. typescript-eslint
+  // only exempts typed sources from core `no-undef`, so declare the browser globals
+  // these untyped files rely on (the `.cjs` block above does the same for Node).
+  {
+    files: ['test-setup/**/*.js', 'packages/e2e/fixtures/**/*.js'],
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        location: 'readonly',
+        URLSearchParams: 'readonly',
+        Event: 'readonly',
+        Element: 'readonly',
+        HTMLElement: 'readonly',
+      },
+    },
+  },
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {

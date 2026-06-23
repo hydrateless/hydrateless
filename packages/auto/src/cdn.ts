@@ -14,12 +14,18 @@ import {
   enhanceToast,
   type Disposer,
 } from '@hydrateless/enhancers';
+import type { ComponentName } from '@hydrateless/enhancers/manifest';
 import { createAuto, type AutoOptions, type Run } from './runtime.js';
 
 export type { AutoOptions };
 
-/** All enhancers statically bundled for the self-contained CDN build. */
-const runners: Record<string, Run> = {
+/**
+ * All enhancers statically bundled for the self-contained CDN build. Typed as a
+ * complete `Record<ComponentName>` so the manifest stays the single source of
+ * truth: the build fails if the map drifts from the manifest in either
+ * direction.
+ */
+const runners: Record<ComponentName, Run> = {
   accordion: enhanceAccordion,
   tabs: enhanceTabs,
   disclosure: enhanceDisclosure,

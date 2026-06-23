@@ -21,3 +21,9 @@ examples/*/package-lock.json
 packages/docs/.vitepress/cache/
 packages/docs/.vitepress/dist/
 packages/docs/public/api/
+
+# Playwright E2E artifacts
+packages/e2e/playwright-report/
+packages/e2e/test-results/
+packages/e2e/blob-report/
+.cache/ms-playwright/

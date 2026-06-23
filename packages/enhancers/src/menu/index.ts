@@ -2,7 +2,6 @@ import {
   defineEnhancer,
   ensureId,
   setAttrs,
-  onClickOutside,
   nextIndex,
   createTypeahead,
   type MoveDirection,
@@ -24,7 +23,7 @@ export type EnhanceMenuOptions = {
 export const enhanceMenu = defineEnhancer<EnhanceMenuOptions>({
   name: 'menu',
   selector: '[data-hl-menu]',
-  setup({ root, options, on, add }) {
+  setup({ root, options, on }) {
     const vertical =
       root.getAttribute('aria-orientation') === 'vertical' || options.orientation === 'vertical';
     setAttrs(root, {
@@ -207,10 +206,16 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions>({
       }
     });
 
-    add(
-      onClickOutside(root, () => {
-        if (openIndex !== -1) closeSubmenu(openIndex);
-      }),
+    // Submenus stay inline (not in the top layer), so close an open one when a
+    // pointer lands outside the menubar. Capture phase still fires when inner
+    // handlers stop propagation.
+    on(
+      root.ownerDocument,
+      'pointerdown',
+      (e) => {
+        if (openIndex !== -1 && !root.contains(e.target as Node)) closeSubmenu(openIndex);
+      },
+      true,
     );
   },
 });

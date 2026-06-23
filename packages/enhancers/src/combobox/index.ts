@@ -2,8 +2,9 @@ import {
   defineEnhancer,
   ensureId,
   setAttrs,
-  onClickOutside,
   nextIndex,
+  supportsAnchorPositioning,
+  positionFallback,
   Events,
 } from '../core/index.js';
 
@@ -45,7 +46,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
   name: 'combobox',
   selector: '[data-hl-combobox]',
   defaults: { filter: true, autoHighlight: true },
-  setup({ root, options, on, add, emit }) {
+  setup({ root, options, on, emit }) {
     const input = root.querySelector<HTMLInputElement>('input, [role="combobox"]');
     const listbox = root.querySelector<HTMLElement>('[role="listbox"], [data-hl-combobox-list]');
     if (!input || !listbox) return;
@@ -60,6 +61,12 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       autocomplete: 'off',
     });
     listbox.hidden = true;
+
+    // Link the listbox to the input for CSS anchor positioning. `position: fixed`
+    // in the stylesheet then escapes any clipping ancestor without the top layer.
+    const anchorName = `--${ensureId(input, 'hl-combobox')}`;
+    input.style.setProperty('anchor-name', anchorName);
+    listbox.style.setProperty('position-anchor', anchorName);
 
     const allOptions = () => Array.from(listbox.querySelectorAll<HTMLElement>('[role="option"]'));
     for (const option of allOptions()) ensureId(option, 'hl-option');
@@ -82,6 +89,9 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       if (isOpen()) return;
       listbox.hidden = false;
       setAttrs(input, { 'aria-expanded': 'true' });
+      if (!supportsAnchorPositioning()) {
+        positionFallback(input, listbox, { placement: 'bottom-start' });
+      }
     };
     const close = () => {
       if (!isOpen()) return;
@@ -193,7 +203,11 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       if (option) select(option);
     });
 
-    add(onClickOutside(root, close, { ignore: [input] }));
+    // Native light-dismiss isn't available for a non-button invoker, so close
+    // when focus leaves the combobox entirely (covers Tab and outside clicks).
+    on(root, 'focusout', (e) => {
+      if (!root.contains((e as FocusEvent).relatedTarget as Node | null)) close();
+    });
 
     return {
       get value() {

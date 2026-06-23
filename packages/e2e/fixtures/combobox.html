@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Combobox — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Combobox</h1>
+      <div data-hl-combobox>
+        <label for="cb-input">Choose a fruit</label>
+        <input id="cb-input" type="text" />
+        <ul role="listbox" data-hl-combobox-list hidden>
+          <li role="option" data-hl-value="Apple">Apple</li>
+          <li role="option" data-hl-value="Apricot">Apricot</li>
+          <li role="option" data-hl-value="Banana">Banana</li>
+          <li role="option" data-hl-value="Cherry">Cherry</li>
+        </ul>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

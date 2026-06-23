@@ -1,13 +1,12 @@
 import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type PropType } from 'vue';
 import {
-  combine,
   enhanceDrawer,
   enhanceModal,
+  enhancePopover,
   enhanceTooltip,
-  onClickOutside,
-  onEscape,
   type DialogApi,
   type Disposer,
+  type PopoverApi,
 } from '@hydrateless/enhancers';
 import { cx, useHostEnhancer } from '../internal.js';
 
@@ -118,9 +117,10 @@ export const DrawerBody = section('HlDrawerBody', 'hl-drawer-body');
 export const DrawerFooter = section('HlDrawerFooter', 'hl-drawer-footer');
 
 /**
- * Controlled floating content. Visibility follows `open`; Escape and outside
- * clicks emit `update:open` so `v-model:open` can dismiss it. Pair with your
- * own trigger.
+ * Controlled floating content built on the native Popover API. The surface
+ * lives in the top layer with light-dismiss and Escape handled by the browser;
+ * visibility follows `open` and `update:open` is emitted when the browser
+ * dismisses it, so `v-model:open` stays in sync. Pair with your own trigger.
  */
 export const Popover = defineComponent({
   name: 'HlPopover',
@@ -130,28 +130,21 @@ export const Popover = defineComponent({
   },
   emits: ['update:open'],
   setup(props, { slots, attrs, emit }) {
-    const host = ref<HTMLElement | null>(null);
-    let dispose: Disposer | null = null;
-
-    const sync = () => {
-      dispose?.();
-      dispose = null;
-      const el = host.value;
-      if (!el || !props.open) return;
-      const dismiss = () => emit('update:open', false);
-      dispose = combine([onClickOutside(el, dismiss), onEscape(dismiss, el.ownerDocument)]);
-    };
-    onMounted(sync);
-    watch(() => props.open, sync);
-    onBeforeUnmount(() => {
-      dispose?.();
-      dispose = null;
+    const { host, api } = useHostEnhancer<PopoverApi>((el) =>
+      enhancePopover(el, { onOpenChange: (open) => emit('update:open', open) }),
+    );
+    onMounted(() => {
+      if (props.open) api.value?.setOpen(true);
     });
+    watch(
+      () => props.open,
+      (open) => api.value?.setOpen(open),
+    );
 
     return () =>
       h(
         'div',
-        { ...attrs, 'data-hl-popover': '', role: 'dialog', hidden: !props.open, ref: host },
+        { ...attrs, 'data-hl-popover': '', popover: 'auto', role: 'dialog', ref: host },
         slots.default?.(),
       );
   },

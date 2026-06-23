@@ -2,18 +2,22 @@ import {
   defineEnhancer,
   ensureId,
   setAttrs,
-  onClickOutside,
   nextIndex,
   createTypeahead,
+  supportsAnchorPositioning,
+  positionFallback,
   Events,
   type MoveDirection,
+  type Placement,
 } from '../core/index.js';
 
 /** Options for {@link enhanceDropdown}. */
 export type EnhanceDropdownOptions = {
-  /** Preferred side; flips to `top` when there is no room below. */
-  placement?: 'bottom' | 'top';
-  /** Open the menu immediately on enhance. Defaults to `false`. */
+  /** Placement passed to the JS positioning fallback. Defaults to `bottom-start`. */
+  placement?: Placement;
+  /** Run the JS positioning fallback when CSS anchor positioning is missing. Defaults to `true`. */
+  position?: boolean;
+  /** Open the menu immediately on enhance, without moving focus. Defaults to `false`. */
   defaultOpen?: boolean;
   /** Called after the menu opens or closes. */
   onOpenChange?: (open: boolean) => void;
@@ -30,17 +34,21 @@ export type DropdownApi = {
 };
 
 /**
- * Menu-button pattern: a trigger toggles a `role="menu"` of `role="menuitem"`
- * children with full arrow/Home/End/typeahead navigation, Escape + outside
- * click to dismiss, and ARIA expanded/haspopup wiring. Open state is
- * observable through `onOpenChange`/`hl:open-change` and controllable through
- * the returned API; activating an item emits a cancelable `hl:select`.
+ * Menu-button pattern built on the native Popover API. The menu is a `popover`
+ * the trigger toggles through `popovertarget`, so opening, closing, Escape, and
+ * light-dismiss all work with no JavaScript, and CSS anchor positioning places
+ * it. This enhancer adds the menu semantics the platform doesn't: `role="menu"`
+ * wiring, roving focus into the items on open, arrow/Home/End/typeahead
+ * navigation, and a JS positioning fallback for engines without anchor
+ * positioning. Open state is observable through `onOpenChange`/`hl:open-change`
+ * and activating an item emits a cancelable `hl:select`.
  */
 export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownApi>({
   name: 'dropdown',
   selector: '[data-hl-dropdown]',
-  defaults: { placement: 'bottom', defaultOpen: false },
-  setup({ root, options, on, add, emit }) {
+  defaults: { placement: 'bottom-start', position: true },
+  setup({ root, options, on, emit }) {
+    const doc = root.ownerDocument;
     const trigger = root.querySelector<HTMLElement>('[data-hl-dropdown-trigger]');
     const menu = root.querySelector<HTMLElement>('[data-hl-dropdown-menu]');
     if (!trigger || !menu) return;
@@ -48,80 +56,71 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]'));
     if (items.length === 0) return;
 
+    if (!menu.hasAttribute('popover')) menu.setAttribute('popover', 'auto');
+    const menuId = ensureId(menu, 'hl-dropdown-menu');
     const triggerId = ensureId(trigger, 'hl-dropdown-trigger');
-    setAttrs(trigger, { 'aria-haspopup': 'true', 'aria-expanded': 'false' });
+    setAttrs(trigger, {
+      'aria-haspopup': 'menu',
+      'aria-expanded': 'false',
+      'aria-controls': menuId,
+    });
+    if (trigger.tagName === 'BUTTON' && !trigger.hasAttribute('popovertarget')) {
+      trigger.setAttribute('popovertarget', menuId);
+    }
     setAttrs(menu, { role: 'menu', 'aria-labelledby': triggerId });
-    menu.hidden = true;
     for (const item of items) item.tabIndex = -1;
 
     const labels = items.map((item) => item.textContent ?? '');
     const typeahead = createTypeahead();
-    const isOpen = () => !menu.hidden;
+    const isOpen = () => menu.matches(':popover-open');
 
-    const place = () => {
-      menu.dataset.hlSide = options.placement;
-      const triggerRect = trigger.getBoundingClientRect();
-      const menuRect = menu.getBoundingClientRect();
-      const viewport = root.ownerDocument.documentElement.clientHeight || 0;
-      const spaceBelow = viewport - triggerRect.bottom;
-      if (spaceBelow < menuRect.height && triggerRect.top > spaceBelow) {
-        menu.dataset.hlSide = 'top';
+    let focusOnOpen: 'first' | 'last' | 'none' = 'first';
+    const focusItem = (which: 'first' | 'last') =>
+      (which === 'last' ? items[items.length - 1] : items[0])?.focus();
+
+    on(menu, 'toggle', (e) => {
+      const open = (e as ToggleEvent).newState === 'open';
+      setAttrs(trigger, { 'aria-expanded': open ? 'true' : 'false' });
+      if (open) {
+        if (options.position && !supportsAnchorPositioning()) {
+          positionFallback(trigger, menu, { placement: options.placement });
+        }
+        if (focusOnOpen !== 'none') focusItem(focusOnOpen === 'last' ? 'last' : 'first');
+        focusOnOpen = 'first';
       }
-    };
-
-    const notify = (open: boolean) => {
       options.onOpenChange?.(open);
       emit(Events.openChange, { open });
-    };
+    });
 
-    const open = (focusItem: 'first' | 'last' | 'none' = 'first') => {
-      if (isOpen()) return;
-      menu.hidden = false;
-      place();
-      setAttrs(trigger, { 'aria-expanded': 'true' });
-      if (focusItem !== 'none') {
-        (focusItem === 'last' ? items[items.length - 1] : items[0])?.focus();
-      }
-      notify(true);
+    const show = (focus: 'first' | 'last' | 'none' = 'first') => {
+      focusOnOpen = focus;
+      if (!isOpen()) menu.showPopover();
+      else if (focus !== 'none') focusItem(focus === 'last' ? 'last' : 'first');
     };
-
-    const close = (restoreFocus = true) => {
-      if (!isOpen()) return;
-      menu.hidden = true;
-      setAttrs(trigger, { 'aria-expanded': 'false' });
-      if (restoreFocus) trigger.focus();
-      notify(false);
+    const hide = () => {
+      if (isOpen()) menu.hidePopover();
     };
 
     const move = (direction: MoveDirection) => {
-      const active = root.ownerDocument.activeElement as HTMLElement | null;
+      const active = doc.activeElement as HTMLElement | null;
       const current = active ? items.indexOf(active) : -1;
       items[nextIndex(current, items.length, direction)]?.focus();
     };
 
     const select = (item: HTMLElement) => {
       const value = item.dataset.hlValue ?? item.textContent?.trim() ?? '';
-      const proceed = emit(Events.select, { value, item }, { cancelable: true });
-      if (!proceed) return;
+      if (!emit(Events.select, { value, item }, { cancelable: true })) return;
       options.onSelect?.(value, item);
-      close();
+      hide();
     };
 
-    on(trigger, 'click', (e) => {
-      e.preventDefault();
-      if (isOpen()) close();
-      else open();
-    });
-
     on<KeyboardEvent>(trigger, 'keydown', (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-        if (!isOpen()) {
-          e.preventDefault();
-          open();
-        }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        show('first');
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        if (!isOpen()) open('last');
+        show('last');
       }
     });
 
@@ -144,15 +143,14 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
           move('last');
           break;
         case 'Escape':
-          e.preventDefault();
-          close();
+          hide();
           break;
         case 'Tab':
-          close(false);
+          hide();
           break;
         default: {
           if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-            const active = root.ownerDocument.activeElement as HTMLElement | null;
+            const active = doc.activeElement as HTMLElement | null;
             const from = active ? items.indexOf(active) : -1;
             const match = typeahead(e.key, labels, from);
             if (match !== -1) items[match]?.focus();
@@ -165,17 +163,15 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
       on(item, 'click', () => select(item));
     }
 
-    add(onClickOutside(root, () => isOpen() && close(false)));
-
-    if (options.defaultOpen) open('none');
+    if (options.defaultOpen) show('none');
 
     return {
       get open() {
         return isOpen();
       },
       setOpen(next, { focus = false } = {}) {
-        if (next) open(focus ? 'first' : 'none');
-        else close(focus);
+        if (next) show(focus ? 'first' : 'none');
+        else hide();
       },
     };
   },

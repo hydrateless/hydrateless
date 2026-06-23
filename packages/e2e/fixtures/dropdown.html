@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dropdown — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Dropdown</h1>
+      <div data-hl-dropdown>
+        <button data-hl-dropdown-trigger popovertarget="dd-menu">Actions</button>
+        <ul id="dd-menu" data-hl-dropdown-menu popover="auto" role="menu" aria-label="Actions">
+          <li role="none"><button role="menuitem" data-hl-value="edit">Edit</button></li>
+          <li role="none"><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
+          <li role="none"><button role="menuitem" data-hl-value="delete">Delete</button></li>
+        </ul>
+      </div>
+      <p id="result" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+    <script type="module">
+      document.addEventListener('hl:select', (event) => {
+        document.getElementById('result').textContent = `selected:${event.detail.value}`;
+      });
+    </script>
+  </body>
+</html>

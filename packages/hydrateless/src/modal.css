@@ -28,7 +28,7 @@
     border-top: 1px solid var(--hl-border);
   }
 
-  .hl-modal [data-hl-modal-close]:focus-visible {
+  .hl-modal [command='close']:focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: 2px;
   }

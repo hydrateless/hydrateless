@@ -3,7 +3,8 @@ import {
   ensureId,
   setAttrs,
   resolveRef,
-  placeFloating,
+  supportsAnchorPositioning,
+  positionFallback,
   type Placement,
 } from '../core/index.js';
 
@@ -11,7 +12,7 @@ import {
 export type EnhanceTooltipOptions = {
   /** Preferred placement relative to the trigger. Defaults to `top`. */
   placement?: Placement;
-  /** Position the tooltip with collision-aware JS. Defaults to `true`. */
+  /** Run the JS positioning fallback when CSS anchor positioning is missing. Defaults to `true`. */
   position?: boolean;
   /** Delay in ms before showing on hover. Focus shows immediately. */
   showDelay?: number;
@@ -28,12 +29,14 @@ export type TooltipApi = {
 };
 
 /**
- * Show/hide a tooltip referenced by a trigger's `aria-describedby` (or
- * `data-hl-tooltip`) on hover and focus, dismissing on Escape. The enhancer
- * wires `role="tooltip"` and `aria-describedby` automatically, shows after a
- * short hover delay (focus is immediate), and keeps the tooltip open while the
- * pointer crosses onto it. Positioning is collision-aware and respects the
- * trigger's `data-hl-placement` override.
+ * Upgrade a CSS tooltip with the behavior the platform can't express in styles
+ * alone. The baseline needs no JavaScript: the stylesheet reveals the tip on
+ * the trigger's `:hover`/`:focus-visible` and places it with CSS anchor
+ * positioning. When this enhancer runs, it wires `role="tooltip"` and
+ * `aria-describedby`, then takes over visibility (marking the trigger
+ * `data-hl-tooltip-managed`) so it can add show/hide delays, a grace period for
+ * crossing onto the tip, Escape-to-dismiss, and a JS positioning fallback on
+ * engines without anchor positioning.
  */
 export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>({
   name: 'tooltip',
@@ -46,7 +49,20 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
 
     const win = root.ownerDocument.defaultView;
     setAttrs(tip, { role: 'tooltip' });
-    setAttrs(root, { 'aria-describedby': ensureId(tip, 'hl-tooltip') });
+    setAttrs(root, {
+      'aria-describedby': ensureId(tip, 'hl-tooltip'),
+      'data-hl-tooltip-managed': '',
+    });
+    add(() => root.removeAttribute('data-hl-tooltip-managed'));
+    // The enhancer owns visibility now, so start closed (the no-JS CSS hover
+    // baseline only applies when this code isn't running).
+    tip.setAttribute('hidden', '');
+
+    // Link the tip to its trigger for CSS anchor positioning; `position: fixed`
+    // in the stylesheet then escapes any clipping ancestor without the top layer.
+    const anchorName = `--${ensureId(root, 'hl-tooltip-anchor')}`;
+    root.style.setProperty('anchor-name', anchorName);
+    tip.style.setProperty('position-anchor', anchorName);
 
     const placement = (root.getAttribute('data-hl-placement') as Placement) || options.placement;
 
@@ -59,13 +75,20 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     };
     add(clearTimers);
 
+    // `data-hl-tooltip-open` is the CSS-first hook (transitionable); `hidden` is
+    // toggled alongside it as a hard fallback for engines/styles that haven't
+    // adopted the open-state selector yet. Both always move together.
     const show = () => {
       clearTimers();
       tip.removeAttribute('hidden');
-      if (options.position) placeFloating(root, tip, { placement });
+      tip.setAttribute('data-hl-tooltip-open', '');
+      if (options.position && !supportsAnchorPositioning()) {
+        positionFallback(root, tip, { placement });
+      }
     };
     const hide = () => {
       clearTimers();
+      tip.removeAttribute('data-hl-tooltip-open');
       tip.setAttribute('hidden', '');
     };
     const scheduleShow = () => {
@@ -83,8 +106,7 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     on(root, 'mouseleave', scheduleHide);
     on(root, 'focus', show);
     on(root, 'blur', hide);
-    // Let the pointer rest on the tooltip without dismissing it.
-    on(tip, 'mouseenter', () => clearTimers());
+    on(tip, 'mouseenter', clearTimers);
     on(tip, 'mouseleave', scheduleHide);
     on<KeyboardEvent>(root, 'keydown', (e) => {
       if (e.key === 'Escape') hide();

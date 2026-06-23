@@ -25,11 +25,13 @@
 
 ## Overview
 
-Hydrateless is a lightweight component library that delivers accessible, themeable UI primitives using semantic HTML and modern CSS first, with no JavaScript by default. It relies on native browser capabilities such as `<details>` and the `:has()` selector to keep runtime cost near zero, then selectively auto-loads tiny JavaScript enhancers only when an interaction truly requires it.
+Hydrateless is a lightweight component library that delivers accessible, themeable UI primitives using semantic HTML and modern CSS first, with no JavaScript by default. Overlays ride on the web platform's own building blocks: the Popover API, HTML Invoker Commands (`command`/`commandfor`), the native `<dialog>` element, and CSS anchor positioning, while `<details>` and the `:has()` selector drive disclosures and tabs. A button opens a modal or a popover with no script at all. That keeps runtime cost near zero, and tiny JavaScript enhancers auto-load only to add the accessibility the platform can't yet express on its own, such as roving focus, arrow-key navigation, and ARIA wiring.
 
 ## Features
 
 - **CSS-first components:** Accordions, tabs, modals, drawers, tooltips, and more work out of the box with no JavaScript.
+- **Built on the web platform:** Overlays use the Popover API, Invoker Commands, the native `<dialog>`, and CSS anchor positioning instead of reinventing them in script, so light-dismiss, the top layer, focus trapping, and positioning come from the browser. Targets the modern Baseline.
+- **Tested in real browsers:** Beyond unit tests, a Playwright and axe end-to-end suite exercises every component, with JavaScript both off and on, across Chromium, Firefox, and WebKit, so the no-JS baseline and the enhanced experience are both verified for accessibility.
 - **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, table, kbd), and navigation (breadcrumb, pagination, table of contents, separator).
 - **Optional JS enhancers:** Add keyboard navigation, focus traps, and ARIA management only where needed. Every enhancer returns an imperative API (`setValue`, `setOpen`, …) and emits `hl:*` DOM events.
 - **Controlled or uncontrolled:** Framework components support both modes: `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
@@ -122,6 +124,10 @@ No build step? Pull the minified CSS and the self-contained auto-initializer str
 <link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/hydrateless.min.css" />
 <script type="module" src="https://unpkg.com/@hydrateless/auto/dist/hydrateless.js"></script>
 ```
+
+## Browser support
+
+Hydrateless targets the modern Baseline. Components build on the Popover API, the native `<dialog>` element, HTML Invoker Commands (`command`/`commandfor`), and CSS anchor positioning, which are interoperable across current Chrome, Edge, Firefox, and Safari. Where an engine hasn't shipped CSS anchor positioning yet, the enhancers fall back to a tiny JavaScript positioner so floating surfaces still land against their anchor. Behavior is verified continuously against Chromium, Firefox, and WebKit (see `packages/e2e`).
 
 ## Documentation
 

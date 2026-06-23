@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modal — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Modal</h1>
+      <button id="open" command="show-modal" commandfor="dlg">Open modal</button>
+
+      <dialog id="dlg" class="hl-modal" data-hl-modal aria-labelledby="dlg-title">
+        <div class="hl-modal-header">
+          <h2 id="dlg-title">Confirm action</h2>
+        </div>
+        <div class="hl-modal-body">
+          <p>This change can't be undone. Continue?</p>
+          <a id="learn" href="#more">Learn more</a>
+        </div>
+        <div class="hl-modal-footer">
+          <button id="cancel" command="close" commandfor="dlg">Cancel</button>
+          <button id="confirm" command="close" commandfor="dlg">Confirm</button>
+        </div>
+      </dialog>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

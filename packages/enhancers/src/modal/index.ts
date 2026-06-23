@@ -7,11 +7,13 @@ export type EnhanceModalOptions = DialogOptions;
 export type ModalApi = DialogApi;
 
 /**
- * Wire a native `<dialog data-hl-modal>` to its `[data-hl-modal-open]` triggers
- * and `[data-hl-modal-close]` buttons, layering on a focus trap, body
- * scroll-lock, and a background `inert` barrier for assistive tech. Open state
- * is observable through `onOpenChange`/`hl:open-change` and controllable
- * through the returned API.
+ * Enhance a native `<dialog data-hl-modal>`. Opening and closing are fully
+ * declarative through Invoker Commands: a button with `command="show-modal"`
+ * and `commandfor` opens it, and a `command="close"` button inside closes it,
+ * with no JavaScript. `showModal()` already provides the top layer, focus trap,
+ * background `inert`, and `::backdrop`; this enhancer only labels the dialog,
+ * locks background scroll while open, and mirrors the native open/close into
+ * `onOpenChange`/`hl:open-change` and the returned imperative API.
  */
 export const enhanceModal = defineEnhancer<EnhanceModalOptions, ModalApi>({
   name: 'modal',

@@ -7,7 +7,7 @@ export const modal: ComponentDoc = {
   importName: 'Modal',
   summary: 'A dialog overlay built on the native <dialog> element.',
   description:
-    'A dialog overlay built on the native `<dialog>` element and `showModal()`, which provides top-layer rendering and focus containment for free. The enhancer wires open/close triggers and optional backdrop dismissal.',
+    'A dialog overlay built on the native `<dialog>` element and `showModal()`, which provides top-layer rendering and focus containment for free. Buttons open and close it declaratively with HTML Invoker Commands (`command="show-modal"` and `command="close"`), so it works with no JavaScript; the enhancer adds labeling, background scroll-lock, and the controlled API.',
   status: 'stable',
   cssOnly: false,
   native: '<dialog>',
@@ -25,13 +25,13 @@ export const modal: ComponentDoc = {
         'Open the dialog, then press `Esc` or click the backdrop to close. Toggle JS off to see the native fallback.',
       layout: 'center',
       render: () =>
-        `<button class="hl-button" data-hl-modal-open="demo-modal">Open modal</button>
+        `<button class="hl-button" command="show-modal" commandfor="demo-modal">Open modal</button>
 <dialog id="demo-modal" class="hl-modal" data-hl-modal>
   <div class="hl-modal-header">Confirm action</div>
   <div class="hl-modal-body">This dialog is the native dialog element. Press Escape or click the backdrop to close.</div>
   <div class="hl-modal-footer">
-    <button class="hl-button" data-hl-variant="ghost" data-hl-modal-close>Cancel</button>
-    <button class="hl-button" data-hl-intent="primary" data-hl-modal-close>Confirm</button>
+    <button class="hl-button" data-hl-variant="ghost" command="close" commandfor="demo-modal">Cancel</button>
+    <button class="hl-button" data-hl-intent="primary" command="close" commandfor="demo-modal">Confirm</button>
   </div>
 </dialog>`,
       code: {

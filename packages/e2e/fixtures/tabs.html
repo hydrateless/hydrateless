@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tabs — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Tabs</h1>
+      <div data-hl-tabs>
+        <div class="hl-tablist">
+          <label class="hl-tab">
+            <input type="radio" name="demo-tabs" value="overview" checked />
+            Overview
+          </label>
+          <label class="hl-tab">
+            <input type="radio" name="demo-tabs" value="pricing" />
+            Pricing
+          </label>
+          <label class="hl-tab">
+            <input type="radio" name="demo-tabs" value="faq" />
+            FAQ
+          </label>
+        </div>
+        <div class="hl-tabpanels">
+          <div class="hl-tabpanel"><p id="panel-overview">Overview content</p></div>
+          <div class="hl-tabpanel"><p id="panel-pricing">Pricing content</p></div>
+          <div class="hl-tabpanel"><p id="panel-faq">FAQ content</p></div>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

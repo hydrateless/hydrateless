@@ -8,8 +8,10 @@ export type DrawerApi = DialogApi;
 
 /**
  * A drawer is a native `<dialog data-hl-drawer>` that slides in from a screen
- * edge (the side is chosen in CSS). Shares the modal's focus trap, scroll-lock,
- * background `inert`, and open-state API; only the presentation differs.
+ * edge (the side is chosen in CSS). Like the modal, it opens declaratively with
+ * a `<button command="show-modal" commandfor="…">` and closes with
+ * `command="close"`, and shares the modal's scroll-lock and open-state API;
+ * only the presentation differs.
  */
 export const enhanceDrawer = defineEnhancer<EnhanceDrawerOptions, DrawerApi>({
   name: 'drawer',

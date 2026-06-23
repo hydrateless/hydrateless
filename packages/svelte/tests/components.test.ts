@@ -93,7 +93,7 @@ describe('@hydrateless/svelte components', () => {
   it('Dropdown wires the menu-button pattern and fires onSelect', async () => {
     const { container, getByTestId, getByText } = render(DropdownHarness);
     const trigger = getByText('Actions');
-    expect(trigger.getAttribute('aria-haspopup')).toBe('true');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     const items = container.querySelectorAll('[role="menuitem"]');
     expect(items).toHaveLength(2);
