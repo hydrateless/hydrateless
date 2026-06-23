@@ -25,6 +25,19 @@
     box-shadow: var(--hl-overlay-shadow);
   }
 
+  /* Modern engines pin the listbox to the input via the anchor-name the
+     enhancer sets, so it escapes overflow-clipping ancestors. */
+  @supports (anchor-name: --x) {
+    [data-hl-combobox] [role='listbox'] {
+      position: fixed;
+      inset: auto;
+      inline-size: anchor-size(width);
+      position-area: block-end;
+      position-try-fallbacks: flip-block;
+      margin-block: var(--hl-space-1);
+    }
+  }
+
   [data-hl-combobox] [role='listbox'][hidden] {
     display: none;
   }

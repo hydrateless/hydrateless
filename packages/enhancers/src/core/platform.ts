@@ -1,4 +1,4 @@
-import { getWindow } from './dom.js';
+import { getWindow, isBrowser } from './dom.js';
 
 /** Edge of the anchor a floating element is placed against. */
 export type Side = 'top' | 'bottom' | 'left' | 'right';
@@ -7,20 +7,58 @@ export type Align = 'start' | 'center' | 'end';
 /** A {@link Side}, optionally suffixed with an {@link Align} (e.g. `bottom-start`). */
 export type Placement = Side | `${Side}-${Align}`;
 
-/** Options for {@link placeFloating}. */
+/** Options for {@link positionFallback}. */
 export interface PositionOptions {
+  /** Preferred placement; flips to the opposite side when there is no room. */
   placement?: Placement;
   /** Gap between the anchor and the floating element, in pixels. */
   gutter?: number;
   /** Viewport edge padding used when shifting, in pixels. */
   padding?: number;
+  /** CSS `position` value to apply. Defaults to `fixed`. */
   strategy?: 'absolute' | 'fixed';
 }
 
-/** The resolved side and alignment returned by {@link placeFloating}. */
+/** The resolved side and alignment returned by {@link positionFallback}. */
 export interface PositionResult {
   side: Side;
   align: Align;
+}
+
+/**
+ * Whether the engine understands the native Popover API (`popover` attribute,
+ * `showPopover`/`hidePopover`, light-dismiss). Baseline since 2024.
+ */
+export function supportsPopover(): boolean {
+  return isBrowser && typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype;
+}
+
+/**
+ * Whether the engine understands HTML Invoker Commands (`command`/`commandfor`
+ * on `<button>`), which open dialogs and toggle popovers with no JavaScript.
+ * Baseline since December 2025.
+ */
+export function supportsInvokers(): boolean {
+  return (
+    isBrowser &&
+    typeof HTMLButtonElement !== 'undefined' &&
+    'commandForElement' in HTMLButtonElement.prototype
+  );
+}
+
+/**
+ * Whether the engine understands CSS anchor positioning (`anchor-name`,
+ * `position-anchor`, `position-area`, `position-try`). Baseline since January
+ * 2026. When this is `false`, the auto-loader pulls in the JS positioning
+ * fallback so floating surfaces are still placed against their anchor.
+ */
+export function supportsAnchorPositioning(): boolean {
+  return (
+    isBrowser &&
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('anchor-name', '--x')
+  );
 }
 
 const OPPOSITE: Record<Side, Side> = {
@@ -36,14 +74,14 @@ function parse(placement: Placement): { side: Side; align: Align } {
 }
 
 /**
- * Position `floating` relative to `anchor` with flip + shift collision
- * handling. Sets inline `position`/`top`/`left` and a `data-hl-side` attribute
- * for CSS to react to (e.g. arrow direction). Returns the resolved side/align.
- *
- * No-ops gracefully when the anchor has no layout box (e.g. jsdom), leaving the
- * floating element where CSS placed it.
+ * JavaScript positioning fallback for browsers without CSS anchor positioning.
+ * Places `floating` relative to `anchor` with flip + shift collision handling,
+ * setting inline `position`/`top`/`left` plus `data-hl-side`/`data-hl-align`
+ * for CSS to react to (e.g. arrow direction). Modern engines never call this:
+ * the stylesheet positions floating surfaces declaratively. No-ops gracefully
+ * when the anchor has no layout box (e.g. jsdom).
  */
-export function placeFloating(
+export function positionFallback(
   anchor: HTMLElement,
   floating: HTMLElement,
   options: PositionOptions = {},

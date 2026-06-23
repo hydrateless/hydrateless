@@ -1,50 +1,121 @@
+/**
+ * Tabs. Two markups are supported and styled together:
+ *
+ *   - CSS-only baseline: `.hl-tablist` of `<label class="hl-tab">` wrapping a
+ *     radio, then a `.hl-tabpanels` of `.hl-tabpanel`s. `:has(input:checked)`
+ *     switches panels with no JavaScript (up to 8 tabs).
+ *   - Enhanced: the enhancer adds `role="tab"`/`tabpanel`, roving focus, and
+ *     `aria-selected`, toggles `[hidden]` on panels, and marks the root
+ *     `data-hl-ready`, at which point the no-JS rules below stand down.
+ */
 @layer components {
   [data-hl-tabs] {
-    border: 1px solid var(--hl-border);
+    border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
   }
 
+  .hl-tablist,
   [data-hl-tabs] [role='tablist'] {
     display: flex;
     gap: var(--hl-space-2);
     padding: var(--hl-space-2);
-    border-bottom: 1px solid var(--hl-border);
+    border-bottom: var(--hl-border-width) solid var(--hl-border);
   }
 
+  .hl-tab,
   [data-hl-tabs] [role='tab'] {
+    position: relative;
     appearance: none;
+    display: inline-flex;
+    align-items: center;
     background: transparent;
     border: 0;
     border-radius: var(--hl-radius-sm);
     padding: var(--hl-space-2) var(--hl-space-3);
     color: inherit;
+    font: inherit;
+    cursor: pointer;
   }
 
+  /* The baseline keeps selection in a visually hidden radio per tab label. */
+  .hl-tab > input[type='radio'] {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .hl-tab:has(input:checked),
   [data-hl-tabs] [role='tab'][aria-selected='true'] {
     background: var(--hl-surface-2);
   }
 
+  .hl-tab:has(input:focus-visible),
+  [data-hl-tabs] [role='tab']:focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hl-tab:has(input:disabled),
   [data-hl-tabs] [role='tab'][disabled],
   [data-hl-tabs] [role='tab'][aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  [data-hl-tabs] [role='tab']:focus-visible {
-    outline: var(--hl-focus-ring);
-    outline-offset: 2px;
-  }
-
+  .hl-tabpanel,
   [data-hl-tabs] [role='tabpanel'] {
     padding: var(--hl-space-4);
   }
 
+  .hl-tabpanel[hidden],
   [role='tabpanel'][hidden] {
     display: none;
   }
 
-  /* No-JS fallback: until the enhancer marks the root ready, show only the
-     first panel so server-rendered content degrades to readable output. */
+  /* No-JS baseline: reveal the panel whose tab radio is checked, by position.
+     These stand down once the enhancer sets data-hl-ready and owns [hidden]. */
+  [data-hl-tabs]:not([data-hl-ready]) .hl-tabpanels > .hl-tabpanel {
+    display: none;
+  }
+
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(1) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(1),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(2) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(2),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(3) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(3),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(4) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(4),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(5) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(5),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(6) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(6),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(7) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(7),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(8) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(8) {
+    display: block;
+  }
+
+  /* Role-only markup (no radios) before JS: degrade to showing the first panel. */
   [data-hl-tabs]:not([data-hl-ready]) [role='tabpanel'] ~ [role='tabpanel'] {
     display: none;
   }

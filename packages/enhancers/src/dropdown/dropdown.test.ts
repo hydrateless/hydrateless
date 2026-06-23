@@ -18,13 +18,22 @@ describe('enhanceDropdown', () => {
   it('sets ARIA attributes on init', () => {
     enhanceDropdown(document);
     const trigger = document.querySelector('[data-hl-dropdown-trigger]')!;
-    const menu = document.querySelector('[data-hl-dropdown-menu]')!;
+    const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
 
-    expect(trigger.getAttribute('aria-haspopup')).toBe('true');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(menu.getAttribute('role')).toBe('menu');
     expect(menu.getAttribute('aria-labelledby')).toBe(trigger.id);
-    expect((menu as HTMLElement).hidden).toBe(true);
+    expect(menu.matches(':popover-open')).toBe(false);
+  });
+
+  it('turns the menu into a native popover the trigger controls', () => {
+    enhanceDropdown(document);
+    const trigger = document.querySelector('[data-hl-dropdown-trigger]')!;
+    const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
+
+    expect(menu.getAttribute('popover')).toBe('auto');
+    expect(trigger.getAttribute('popovertarget')).toBe(menu.id);
   });
 
   it('sets tabindex=-1 on all menuitems', () => {
@@ -42,7 +51,7 @@ describe('enhanceDropdown', () => {
     const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
 
     trigger.click();
-    expect(menu.hidden).toBe(false);
+    expect(menu.matches(':popover-open')).toBe(true);
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
   });
 
@@ -62,7 +71,7 @@ describe('enhanceDropdown', () => {
 
     trigger.click();
     trigger.click();
-    expect(menu.hidden).toBe(true);
+    expect(menu.matches(':popover-open')).toBe(false);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
@@ -73,7 +82,7 @@ describe('enhanceDropdown', () => {
 
     trigger.click();
     menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    expect(menu.hidden).toBe(true);
+    expect(menu.matches(':popover-open')).toBe(false);
   });
 
   it('navigates with ArrowDown', () => {
@@ -142,7 +151,7 @@ describe('enhanceDropdown', () => {
 
     trigger.click();
     items[0].click();
-    expect(menu.hidden).toBe(true);
+    expect(menu.matches(':popover-open')).toBe(false);
   });
 
   it('handles no matching elements', () => {
@@ -154,7 +163,7 @@ describe('enhanceDropdown', () => {
     it('opens initially with defaultOpen', () => {
       enhanceDropdown(document, { defaultOpen: true });
       const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
-      expect(menu.hidden).toBe(false);
+      expect(menu.matches(':popover-open')).toBe(true);
     });
 
     it('exposes open and setOpen through the api', () => {
@@ -163,10 +172,10 @@ describe('enhanceDropdown', () => {
 
       expect(api.open).toBe(false);
       api.setOpen(true);
-      expect(menu.hidden).toBe(false);
+      expect(menu.matches(':popover-open')).toBe(true);
       expect(api.open).toBe(true);
       api.setOpen(false);
-      expect(menu.hidden).toBe(true);
+      expect(menu.matches(':popover-open')).toBe(false);
     });
 
     it('reports open changes through onOpenChange and hl:open-change', () => {

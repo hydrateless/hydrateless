@@ -1,22 +1,27 @@
 [
   {
-    "name": "CSS bundle (hydrateless.min.css, gzip)",
+    "name": "CSS bundle (hydrateless.min.css, brotli)",
     "path": "packages/hydrateless/dist/hydrateless.min.css",
-    "limit": "15 kB"
+    "limit": "10 kB"
   },
   {
-    "name": "CDN auto bundle: every enhancer (gzip)",
+    "name": "CDN auto bundle: every enhancer (brotli)",
     "path": "packages/auto/dist/hydrateless.js",
-    "limit": "12 kB"
+    "limit": "10 kB"
   },
   {
-    "name": "@hydrateless/react (gzip)",
+    "name": "Auto loader core, lazy ESM entry (brotli)",
+    "path": "packages/auto/dist/index.js",
+    "limit": "2 kB"
+  },
+  {
+    "name": "@hydrateless/react (brotli)",
     "path": "packages/react/dist/index.js",
-    "limit": "12 kB"
+    "limit": "8 kB"
   },
   {
-    "name": "@hydrateless/vue (gzip)",
+    "name": "@hydrateless/vue (brotli)",
     "path": "packages/vue/dist/index.js",
-    "limit": "12 kB"
+    "limit": "8.5 kB"
   }
 ]

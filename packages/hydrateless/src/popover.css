@@ -1,7 +1,16 @@
+/**
+ * Popover: a `[popover] [data-hl-popover]` surface opened by a
+ * `<button popovertarget="…">` (or `command="toggle-popover"`). The browser
+ * owns the top layer, light-dismiss, and Escape with no JavaScript; the
+ * enhancer only mirrors `aria-expanded`, adds optional hover, and runs the JS
+ * positioning fallback on engines without CSS anchor positioning.
+ */
 @layer components {
-  [popover],
   [data-hl-popover] {
-    border: 1px solid var(--hl-border);
+    margin: 0;
+    inline-size: max-content;
+    max-inline-size: min(92vw, 22rem);
+    border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     padding: var(--hl-space-3);
     background: var(--hl-surface);
@@ -9,11 +18,27 @@
     box-shadow: var(--hl-overlay-shadow);
   }
 
+  /* Until the `popover` attribute is present (author omitted it and JS hasn't
+     upgraded the element yet), keep the surface out of the flow. */
   [data-hl-popover]:not([popover]) {
+    display: none;
+  }
+
+  /* Engines without the Popover API can't promote it to the top layer, so the
+     JS fallback positions it; give it a stacking context to land above content. */
+  [data-hl-popover]:not(:popover-open) {
     z-index: var(--hl-z-popover);
   }
 
-  [data-hl-popover][hidden] {
-    display: none;
+  /* Modern placement: anchor to the invoking control (the popover's implicit
+     anchor) and flip when there isn't room. Older engines use the JS fallback,
+     which writes inline position/inset and wins over these rules. */
+  @supports (position-area: block-end) {
+    [data-hl-popover] {
+      position: fixed;
+      position-area: block-end;
+      position-try-fallbacks: flip-block, flip-inline;
+      margin-block: var(--hl-space-1);
+    }
   }
 }

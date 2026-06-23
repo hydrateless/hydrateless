@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Drawer — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Drawer</h1>
+      <button id="open" command="show-modal" commandfor="dr">Open drawer</button>
+
+      <dialog id="dr" class="hl-drawer" data-hl-drawer data-side="right" aria-labelledby="dr-title">
+        <div class="hl-drawer-header">
+          <h2 id="dr-title">Navigation</h2>
+        </div>
+        <div class="hl-drawer-body">
+          <nav aria-label="Drawer">
+            <a id="first-link" href="#dashboard">Dashboard</a>
+            <a href="#settings">Settings</a>
+          </nav>
+        </div>
+        <div class="hl-drawer-footer">
+          <button id="close" command="close" commandfor="dr">Close</button>
+        </div>
+      </dialog>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

@@ -1,14 +1,16 @@
-import { createFocusTrap, type FocusTrap } from './focus.js';
 import { lockScroll } from './scroll-lock.js';
-import { setBackgroundInert } from './inert.js';
-import { resolveRef, ensureId, setAttrs } from './dom.js';
+import { ensureId, setAttrs } from './dom.js';
 import { noop, type Disposer } from './lifecycle.js';
 import { Events } from './events.js';
 import type { EnhancerContext } from './define.js';
 
 /** Shared options for the modal and drawer dialog enhancers. */
 export type DialogOptions = {
-  /** Dismiss the dialog when its backdrop is clicked. Defaults to `true`. */
+  /**
+   * Enable native light-dismiss (Escape and backdrop click) by setting the
+   * `closedby="any"` attribute. Defaults to `true`. Authors can set `closedby`
+   * directly in markup so dismissal works with no JavaScript at all.
+   */
   closeOnBackdrop?: boolean;
   /** Open the dialog immediately on enhance. Defaults to `false`. */
   defaultOpen?: boolean;
@@ -25,12 +27,14 @@ export type DialogApi = {
 };
 
 /**
- * Shared behavior behind the modal and drawer enhancers: wire a native
- * `<dialog>` to its `[data-hl-<name>-open]` / `[data-hl-<name>-close]`
- * triggers and layer on a focus trap, body scroll-lock, and a background
- * `inert` barrier. The browser still provides top-layer rendering and
- * Escape-to-close for free; both paths funnel through one notifier so
- * `onOpenChange`/`hl:open-change` fire exactly once per transition.
+ * Thin upgrade over a native `<dialog>` for the modal and drawer enhancers.
+ * The platform already provides everything that used to need JavaScript: a
+ * `<button command="show-modal" commandfor="…">` opens the dialog with no
+ * script, and `showModal()` supplies the top layer, focus trap, background
+ * `inert`, and `::backdrop`. This enhancer only labels the dialog, locks
+ * background scroll while it's open, mirrors the native open/close into
+ * `onOpenChange`/`hl:open-change`, and exposes an imperative API for the
+ * controlled framework bindings.
  */
 export function setupDialog(
   name: 'modal' | 'drawer',
@@ -44,81 +48,43 @@ export function setupDialog(
     if (header) setAttrs(dialog, { 'aria-labelledby': ensureId(header, `hl-${name}-title`) });
   }
 
-  let trap: FocusTrap | null = null;
+  if (options.closeOnBackdrop && !dialog.hasAttribute('closedby')) {
+    dialog.setAttribute('closedby', 'any');
+  }
+
   let releaseScroll: Disposer = noop;
-  let releaseInert: Disposer = noop;
   let isOpen = dialog.open;
 
-  const notify = (open: boolean) => {
+  const sync = (open: boolean) => {
     if (open === isOpen) return;
     isOpen = open;
+    if (open) {
+      releaseScroll = lockScroll(doc);
+    } else {
+      releaseScroll();
+      releaseScroll = noop;
+    }
     options.onOpenChange?.(open);
     emit(Events.openChange, { open });
   };
 
-  const teardown = () => {
-    trap?.deactivate();
-    releaseScroll();
-    releaseScroll = noop;
-    releaseInert();
-    releaseInert = noop;
-  };
+  // `toggle` covers every path: Invoker Commands, Escape, backdrop light-
+  // dismiss, and the imperative API below. `close` is a backstop for engines
+  // that don't yet fire `toggle` on `<dialog>`.
+  on(dialog, 'toggle', (e) => sync((e as ToggleEvent).newState === 'open'));
+  on(dialog, 'close', () => sync(false));
+  add(() => releaseScroll());
 
-  const open = () => {
-    if (dialog.open) return;
-    dialog.showModal();
-    trap ??= createFocusTrap(dialog);
-    trap.activate();
-    releaseScroll = lockScroll(doc);
-    releaseInert = setBackgroundInert(dialog);
-    notify(true);
-  };
-
-  const close = () => {
-    teardown();
-    if (dialog.open) dialog.close();
-    notify(false);
-  };
-
-  const openers = Array.from(doc.querySelectorAll<HTMLElement>(`[data-hl-${name}-open]`)).filter(
-    (opener) => resolveRef(doc, opener.getAttribute(`data-hl-${name}-open`)) === dialog,
-  );
-  for (const opener of openers) {
-    on(opener, 'click', (e) => {
-      e.preventDefault();
-      open();
-    });
-  }
-
-  for (const closer of dialog.querySelectorAll<HTMLElement>(`[data-hl-${name}-close]`)) {
-    on(closer, 'click', (e) => {
-      e.preventDefault();
-      close();
-    });
-  }
-
-  if (options.closeOnBackdrop) {
-    on(dialog, 'click', (e) => {
-      if (e.target === dialog) close();
-    });
-  }
-
-  // Covers native closes (Escape, form method="dialog") as well as `close()`.
-  on(dialog, 'close', () => {
-    teardown();
-    notify(false);
-  });
-  add(teardown);
-
-  if (options.defaultOpen) open();
+  if (options.defaultOpen && !dialog.open) dialog.showModal();
 
   return {
     get open() {
       return dialog.open;
     },
     setOpen(next) {
-      if (next) open();
-      else close();
+      if (next === dialog.open) return;
+      if (next) dialog.showModal();
+      else dialog.close();
     },
   };
 }

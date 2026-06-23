@@ -57,65 +57,59 @@ describe('enhancer lifecycle', () => {
     });
 
     it('does not double-bind when enhanced twice', () => {
-      enhanceDropdown(document);
-      enhanceDropdown(document);
+      const first = enhanceDropdown(document);
+      const second = enhanceDropdown(document);
+      // The second pass sees an already-enhanced root and skips it.
+      expect(first.instances).toHaveLength(1);
+      expect(second.instances).toHaveLength(0);
 
       const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
       const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
 
       trigger.click();
-      // A double-bound toggle would open then immediately close again.
-      expect(menu.hidden).toBe(false);
+      expect(menu.matches(':popover-open')).toBe(true);
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
     });
 
     it('re-enhances after destroy', () => {
       const handle = enhanceDropdown(document);
-      handle.destroy();
-
       const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
       const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
 
-      // Listeners removed: clicking does nothing.
+      // Enhanced: the toggle listener mirrors aria-expanded onto the trigger.
       trigger.click();
-      expect(menu.hidden).toBe(true);
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
+      trigger.click();
 
-      // Re-enhancing wires it back up.
-      enhanceDropdown(document);
+      handle.destroy();
+
+      // The declarative invoker (popovertarget) still toggles the popover, but
+      // the enhancer's listener is gone, so aria-expanded is no longer synced.
       trigger.click();
-      expect(menu.hidden).toBe(false);
+      expect(menu.matches(':popover-open')).toBe(true);
+      expect(trigger.getAttribute('aria-expanded')).toBe('false');
+      trigger.click();
+
+      // Re-enhancing the same root works (its WeakSet entry cleared on destroy).
+      const second = enhanceDropdown(document);
+      expect(second.instances).toHaveLength(1);
+      trigger.click();
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
     });
   });
 
-  it('dropdown destroy removes the global outside-click listener', () => {
+  it('popover destroy detaches hover listeners', () => {
     document.body.innerHTML = `
-      <div data-hl-dropdown>
-        <button data-hl-dropdown-trigger>Menu</button>
-        <ul data-hl-dropdown-menu>
-          <li><button role="menuitem">Alpha</button></li>
-        </ul>
-      </div>
-      <button id="outside">Outside</button>
+      <button popovertarget="pop1">Toggle</button>
+      <div id="pop1" data-hl-popover>Content</div>
     `;
-    const handle = enhanceDropdown(document);
-    const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
-    trigger.click();
-    handle.destroy();
+    enhancePopover(document, { triggerEvent: 'hover' }).destroy();
 
-    // After disposal the outside-click handler must not run anymore.
-    expect(() => document.getElementById('outside')!.click()).not.toThrow();
-  });
-
-  it('popover destroy detaches opener listeners', () => {
-    document.body.innerHTML = `
-      <button data-hl-popover-open="pop1">Toggle</button>
-      <div id="pop1" data-hl-popover hidden>Content</div>
-    `;
-    enhancePopover(document).destroy();
-
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
     const popover = document.getElementById('pop1')!;
-    opener.click();
-    expect(popover.hidden).toBe(true);
+    // The hover listener was removed, so pointer entry no longer opens it.
+    opener.dispatchEvent(new Event('mouseenter'));
+    expect(popover.matches(':popover-open')).toBe(false);
   });
 
   it('toast api stops responding after destroy', () => {

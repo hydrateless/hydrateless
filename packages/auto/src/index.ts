@@ -1,4 +1,5 @@
 import type { Disposer } from '@hydrateless/enhancers/core';
+import type { ComponentName } from '@hydrateless/enhancers/manifest';
 import { createAuto, type AutoOptions, type Run } from './runtime.js';
 
 export type { AutoOptions };
@@ -6,9 +7,11 @@ export type { AutoOptions };
 /**
  * Lazy loaders keyed by component name. Static `import()` specifiers keep
  * every component in its own chunk so only the enhancers a page actually
- * needs are ever fetched.
+ * needs are ever fetched. Typing the map as a complete `Record<ComponentName>`
+ * makes the manifest the source of truth: the build fails if a component is
+ * added to the manifest without a matching loader here (or vice versa).
  */
-const loaders: Record<string, () => Promise<Run>> = {
+const loaders: Record<ComponentName, () => Promise<Run>> = {
   accordion: () => import('@hydrateless/enhancers/accordion').then((m) => m.enhanceAccordion),
   tabs: () => import('@hydrateless/enhancers/tabs').then((m) => m.enhanceTabs),
   disclosure: () => import('@hydrateless/enhancers/disclosure').then((m) => m.enhanceDisclosure),

@@ -1,30 +1,43 @@
+/**
+ * Dropdown menu button: `<div data-hl-dropdown>` wrapping a
+ * `[data-hl-dropdown-trigger]` button and a `[data-hl-dropdown-menu]` list. The
+ * enhancer turns the menu into a native `popover` the trigger controls through
+ * `popovertarget`, so opening, Escape, and light-dismiss need no JavaScript;
+ * the menu lives in the top layer and is placed with CSS anchor positioning.
+ */
 @layer components {
   [data-hl-dropdown] {
-    position: relative;
     display: inline-block;
   }
 
   [data-hl-dropdown-menu] {
-    position: absolute;
-    z-index: var(--hl-z-dropdown);
-    min-width: 10rem;
-    border: 1px solid var(--hl-border);
+    margin: 0;
+    min-inline-size: 10rem;
+    border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     background: var(--hl-surface);
     box-shadow: var(--hl-overlay-shadow);
     padding: var(--hl-space-1);
     list-style: none;
-    margin: var(--hl-space-1) 0 0;
   }
 
-  [data-hl-dropdown-menu][hidden] {
+  /* Before the menu is promoted to a popover (JS not yet loaded), hide it. */
+  [data-hl-dropdown-menu]:not([popover]) {
     display: none;
   }
 
-  [data-hl-dropdown-menu][data-hl-side='top'] {
-    top: auto;
-    bottom: 100%;
-    margin: 0 0 var(--hl-space-1);
+  [data-hl-dropdown-menu]:not(:popover-open) {
+    z-index: var(--hl-z-dropdown);
+  }
+
+  /* Open below the trigger, start-aligned, flipping when cramped. */
+  @supports (position-area: block-end) {
+    [data-hl-dropdown-menu] {
+      position: fixed;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline;
+      margin-block: var(--hl-space-1);
+    }
   }
 
   [data-hl-dropdown-menu] [role='menuitem'] {

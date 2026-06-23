@@ -4,81 +4,74 @@ import { enhancePopover } from './index.js';
 describe('enhancePopover', () => {
   beforeEach(() => {
     document.body.innerHTML = `
-      <button data-hl-popover-open="pop1">Toggle</button>
-      <div id="pop1" data-hl-popover hidden>Popover content</div>
-      <button data-hl-popover-close="pop1">Close</button>
+      <button popovertarget="pop1">Toggle</button>
+      <div id="pop1" data-hl-popover>Popover content</div>
     `;
   });
 
-  it('shows popover on opener click (fallback)', () => {
+  it('adopts the native popover attribute and wires invoker ARIA', () => {
     enhancePopover(document);
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
+    const opener = document.querySelector<HTMLButtonElement>('[popovertarget]')!;
     const popover = document.getElementById('pop1')!;
 
-    opener.click();
-    expect(popover.hidden).toBe(false);
+    expect(popover.getAttribute('popover')).toBe('auto');
+    expect(opener.getAttribute('aria-controls')).toBe('pop1');
+    expect(opener.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('hides popover on closer click (fallback)', () => {
+  it('toggles through the native invoker and mirrors aria-expanded', () => {
     enhancePopover(document);
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
-    const closer = document.querySelector<HTMLElement>('[data-hl-popover-close]')!;
+    const opener = document.querySelector<HTMLButtonElement>('[popovertarget]')!;
     const popover = document.getElementById('pop1')!;
 
     opener.click();
-    closer.click();
-    expect(popover.hidden).toBe(true);
+    expect(popover.matches(':popover-open')).toBe(true);
+    expect(opener.getAttribute('aria-expanded')).toBe('true');
+
+    opener.click();
+    expect(popover.matches(':popover-open')).toBe(false);
+    expect(opener.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('uses native popover API when available', () => {
+  it('opens immediately with defaultOpen', () => {
+    enhancePopover(document, { defaultOpen: true });
     const popover = document.getElementById('pop1')!;
-    Object.defineProperty(popover, 'popover', {
-      value: 'auto',
-      writable: true,
-    });
-    popover.showPopover = vi.fn();
-    popover.hidePopover = vi.fn();
-
-    enhancePopover(document);
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
-
-    opener.click();
-    expect(popover.showPopover).toHaveBeenCalled();
+    expect(popover.matches(':popover-open')).toBe(true);
   });
 
   it('handles hover trigger mode with a close grace period', () => {
     vi.useFakeTimers();
-    enhancePopover(document, { triggerEvent: 'hover' });
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
+    enhancePopover(document, { triggerEvent: 'hover', hoverCloseDelay: 100 });
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
     const popover = document.getElementById('pop1')!;
 
     opener.dispatchEvent(new Event('mouseenter'));
-    expect(popover.hidden).toBe(false);
+    expect(popover.matches(':popover-open')).toBe(true);
 
     opener.dispatchEvent(new Event('mouseleave'));
-    expect(popover.hidden).toBe(false); // grace period pending
+    expect(popover.matches(':popover-open')).toBe(true); // grace period pending
     vi.advanceTimersByTime(100);
-    expect(popover.hidden).toBe(true);
+    expect(popover.matches(':popover-open')).toBe(false);
     vi.useRealTimers();
   });
 
   it('keeps a hover popover open while the pointer is over it', () => {
     vi.useFakeTimers();
     enhancePopover(document, { triggerEvent: 'hover' });
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
     const popover = document.getElementById('pop1')!;
 
     opener.dispatchEvent(new Event('mouseenter'));
     opener.dispatchEvent(new Event('mouseleave'));
     popover.dispatchEvent(new Event('mouseenter')); // cancels the pending close
     vi.advanceTimersByTime(500);
-    expect(popover.hidden).toBe(false);
+    expect(popover.matches(':popover-open')).toBe(true);
     vi.useRealTimers();
   });
 
   it('wires aria-expanded and aria-controls on openers', () => {
     enhancePopover(document);
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
     expect(opener.getAttribute('aria-expanded')).toBe('false');
     expect(opener.getAttribute('aria-controls')).toBe('pop1');
 
@@ -93,10 +86,10 @@ describe('enhancePopover', () => {
 
     expect(api.open).toBe(false);
     api.setOpen(true);
-    expect(popover.hidden).toBe(false);
+    expect(popover.matches(':popover-open')).toBe(true);
     expect(api.open).toBe(true);
     api.setOpen(false);
-    expect(popover.hidden).toBe(true);
+    expect(popover.matches(':popover-open')).toBe(false);
   });
 
   it('reports open changes through onOpenChange and hl:open-change', () => {
@@ -107,7 +100,7 @@ describe('enhancePopover', () => {
       .addEventListener('hl:open-change', (e) => events.push((e as CustomEvent).detail.open));
     enhancePopover(document, { onOpenChange: (open) => changes.push(open) });
 
-    const opener = document.querySelector<HTMLElement>('[data-hl-popover-open]')!;
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
     opener.click();
     opener.click();
     expect(changes).toEqual([true, false]);

@@ -26,12 +26,12 @@ export const drawer: ComponentDoc = {
         { id: 'side', type: 'select', label: 'Side', options: ['right', 'left'], default: 'right' },
       ],
       render: (v) =>
-        `<button class="hl-button" data-hl-drawer-open="demo-drawer">Open drawer</button>
+        `<button class="hl-button" command="show-modal" commandfor="demo-drawer">Open drawer</button>
 <dialog id="demo-drawer" class="hl-drawer" data-hl-drawer data-side="${v.side}">
   <div class="hl-drawer-header">Settings</div>
   <div class="hl-drawer-body">A drawer slides in from the chosen side. Click the backdrop or press Escape to close.</div>
   <div class="hl-drawer-footer">
-    <button class="hl-button" data-hl-variant="ghost" data-hl-drawer-close>Close</button>
+    <button class="hl-button" data-hl-variant="ghost" command="close" commandfor="demo-drawer">Close</button>
   </div>
 </dialog>`,
       code: {

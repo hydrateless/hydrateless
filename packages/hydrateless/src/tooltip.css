@@ -1,19 +1,46 @@
+/**
+ * Tooltip: a `[role="tooltip"]` element described by a `[data-hl-tooltip]`
+ * trigger. With no JavaScript it shows on the trigger's `:hover`/`:focus-visible`
+ * (the tip must be the trigger's next sibling). When the enhancer runs it marks
+ * the trigger `data-hl-tooltip-managed` and drives visibility through
+ * `data-hl-tooltip-open` instead, adding show/hide delays, a grace period, and
+ * Escape-to-dismiss.
+ */
 @layer components {
   [role='tooltip'] {
+    /* Fallback placement: the JS positioner writes inline position/inset on
+       engines without CSS anchor positioning. */
     position: absolute;
     z-index: var(--hl-z-tooltip);
-    inset: auto auto auto 0;
-    translate: 0 -0.25rem;
+    inline-size: max-content;
+    max-inline-size: 32ch;
+    margin: 0;
     padding: var(--hl-space-1) var(--hl-space-2);
     border-radius: var(--hl-radius-sm);
     background: var(--hl-fg);
     color: var(--hl-surface);
     font-size: var(--hl-text-sm);
-    max-width: 32ch;
-    width: max-content;
   }
 
   [role='tooltip'][hidden] {
     display: none;
+  }
+
+  /* No-JS baseline: reveal while the adjacent trigger is hovered or focused.
+     Suppressed once the enhancer takes over (trigger gains -managed). */
+  [data-hl-tooltip]:not([data-hl-tooltip-managed]):hover + [role='tooltip'],
+  [data-hl-tooltip]:not([data-hl-tooltip-managed]):focus-visible + [role='tooltip'] {
+    display: block;
+  }
+
+  /* Modern placement: pin above the trigger via the anchor-name the enhancer
+     sets, flipping below when there's no room. */
+  @supports (anchor-name: --x) {
+    [role='tooltip'] {
+      position: fixed;
+      position-area: block-start;
+      position-try-fallbacks: flip-block;
+      margin-block: var(--hl-space-1);
+    }
   }
 }

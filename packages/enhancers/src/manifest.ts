@@ -21,7 +21,7 @@ export const MANIFEST = [
   { name: 'disclosure', selector: 'details[data-hl-disclosure]' },
   { name: 'modal', selector: 'dialog[data-hl-modal]' },
   { name: 'drawer', selector: 'dialog[data-hl-drawer]' },
-  { name: 'popover', selector: '[popover], [data-hl-popover]' },
+  { name: 'popover', selector: '[data-hl-popover]' },
   { name: 'tooltip', selector: '[data-hl-tooltip]' },
   { name: 'dropdown', selector: '[data-hl-dropdown]' },
   { name: 'menu', selector: '[data-hl-menu]' },

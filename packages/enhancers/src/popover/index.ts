@@ -2,19 +2,19 @@ import {
   defineEnhancer,
   ensureId,
   setAttrs,
-  resolveRef,
-  onClickOutside,
-  onEscape,
-  placeFloating,
+  supportsAnchorPositioning,
+  positionFallback,
   Events,
   type Placement,
 } from '../core/index.js';
 
 /** Options for {@link enhancePopover}. */
 export type EnhancePopoverOptions = {
+  /** `click` (default) toggles via the native invoker; `hover` opens on pointer/focus. */
   triggerEvent?: 'click' | 'hover';
+  /** Placement passed to the JS positioning fallback. Defaults to `bottom`. */
   placement?: Placement;
-  /** Position with collision-aware JS in the non-native fallback. */
+  /** Run the JS positioning fallback when CSS anchor positioning is missing. Defaults to `true`. */
   position?: boolean;
   /** Grace period in ms before a hover popover closes. Defaults to `100`. */
   hoverCloseDelay?: number;
@@ -33,12 +33,13 @@ export type PopoverApi = {
 };
 
 /**
- * Drive a popover from `[data-hl-popover-open]`/`[data-hl-popover-close]`
- * triggers. Prefers the native Popover API (`showPopover`/`hidePopover`,
- * including light-dismiss) and falls back to toggling `hidden` with JS
- * positioning, outside-click, and Escape dismissal. Triggers get
- * `aria-expanded`/`aria-controls` wiring; open state is observable through
- * `onOpenChange`/`hl:open-change` and controllable through the returned API.
+ * Thin upgrade over the native Popover API. The popover lives in the top layer
+ * with light-dismiss and Escape handled by the browser, and a button with
+ * `popovertarget` (or `command="toggle-popover"`) opens it with no JavaScript.
+ * CSS anchor positioning places it against the invoker. This enhancer only
+ * mirrors `aria-expanded` onto the invokers, runs a JS positioning fallback on
+ * engines without anchor positioning, adds optional hover triggering, and
+ * exposes an imperative open/close API.
  */
 export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>({
   name: 'popover',
@@ -54,108 +55,69 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
     const popover = root;
     const doc = popover.ownerDocument;
     const win = doc.defaultView;
-    const isNative = () => popover.popover != null;
+
+    if (!popover.hasAttribute('popover')) popover.setAttribute('popover', 'auto');
     const popoverId = ensureId(popover, 'hl-popover');
 
-    const matching = (attr: string) =>
-      Array.from(doc.querySelectorAll<HTMLElement>(`[${attr}]`)).filter(
-        (el) => resolveRef(doc, el.getAttribute(attr)) === popover,
-      );
-    const openers = matching('data-hl-popover-open');
-    const closers = matching('data-hl-popover-close');
-    let anchor: HTMLElement = openers[0] ?? popover;
-
+    const openers = Array.from(doc.querySelectorAll<HTMLButtonElement>('[popovertarget]')).filter(
+      (el) => el.popoverTargetElement === popover || el.getAttribute('popovertarget') === popoverId,
+    );
     for (const opener of openers) {
       setAttrs(opener, { 'aria-expanded': 'false', 'aria-controls': popoverId });
     }
+    const anchor = openers[0] ?? popover;
 
-    let isOpen = isNative() ? false : !popover.hidden;
-    const notify = (open: boolean) => {
-      if (open === isOpen) return;
-      isOpen = open;
+    const reposition = () => {
+      if (options.position && !supportsAnchorPositioning()) {
+        positionFallback(anchor, popover, { placement: options.placement });
+      }
+    };
+
+    // The native `toggle` event is the single source of truth for open state.
+    on(popover, 'toggle', (e) => {
+      const open = (e as ToggleEvent).newState === 'open';
+      if (open) reposition();
       for (const opener of openers) {
         setAttrs(opener, { 'aria-expanded': open ? 'true' : 'false' });
       }
       options.onOpenChange?.(open);
       emit(Events.openChange, { open });
-    };
+    });
 
-    let closeTimer: number | undefined;
-    const cancelClose = () => {
-      if (closeTimer !== undefined) {
-        win?.clearTimeout(closeTimer);
-        closeTimer = undefined;
-      }
-    };
-    add(cancelClose);
-
-    const show = (from?: HTMLElement) => {
-      cancelClose();
-      if (from) anchor = from;
-      if (isNative()) {
-        popover.showPopover();
-      } else {
-        popover.hidden = false;
-        if (options.position) placeFloating(anchor, popover, { placement: options.placement });
-      }
-      notify(true);
+    const isOpen = () => popover.matches(':popover-open');
+    const show = () => {
+      if (!isOpen()) popover.showPopover();
     };
     const hide = () => {
-      cancelClose();
-      if (isNative()) popover.hidePopover();
-      else popover.hidden = true;
-      notify(false);
+      if (isOpen()) popover.hidePopover();
     };
-    /** Hover-mode close with a grace period so the pointer can cross the gap. */
-    const scheduleHide = () => {
-      cancelClose();
-      if (!win) return hide();
-      closeTimer = win.setTimeout(hide, options.hoverCloseDelay);
-    };
-
-    for (const opener of openers) {
-      if (options.triggerEvent === 'hover') {
-        on(opener, 'mouseenter', () => show(opener));
-        on(opener, 'mouseleave', scheduleHide);
-        on(opener, 'focus', () => show(opener));
-        on(opener, 'blur', scheduleHide);
-      } else {
-        on(opener, 'click', (e) => {
-          e.preventDefault();
-          if (isOpen) hide();
-          else show(opener);
-        });
-      }
-    }
 
     if (options.triggerEvent === 'hover') {
+      let closeTimer: number | undefined;
+      const cancelClose = () => {
+        if (closeTimer !== undefined) win?.clearTimeout(closeTimer);
+        closeTimer = undefined;
+      };
+      const scheduleHide = () => {
+        cancelClose();
+        closeTimer = win?.setTimeout(hide, options.hoverCloseDelay);
+      };
+      add(cancelClose);
+      for (const opener of openers) {
+        on(opener, 'mouseenter', show);
+        on(opener, 'mouseleave', scheduleHide);
+        on(opener, 'focus', show);
+        on(opener, 'blur', scheduleHide);
+      }
       on(popover, 'mouseenter', cancelClose);
       on(popover, 'mouseleave', scheduleHide);
-    }
-
-    for (const closer of closers) {
-      on(closer, 'click', (e) => {
-        e.preventDefault();
-        hide();
-      });
-    }
-
-    if (isNative()) {
-      // Track light-dismiss and programmatic toggles from the native API.
-      on(popover, 'toggle', (e) => {
-        const open = (e as ToggleEvent).newState === 'open';
-        notify(open);
-      });
-    } else if (options.triggerEvent === 'click') {
-      add(onClickOutside(popover, () => isOpen && hide(), { ignore: openers }));
-      add(onEscape(() => isOpen && hide(), doc));
     }
 
     if (options.defaultOpen) show();
 
     return {
       get open() {
-        return isOpen;
+        return isOpen();
       },
       setOpen(next) {
         if (next) show();
