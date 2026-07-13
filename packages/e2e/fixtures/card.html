@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Card — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Card</h1>
+      <div class="hl-card">
+        <div class="hl-card-header">
+          <h2 class="hl-card-title">Monthly report</h2>
+          <p class="hl-card-description">Usage summary for June.</p>
+        </div>
+        <div class="hl-card-body">
+          <p>Requests are up 12 percent month over month.</p>
+        </div>
+        <div class="hl-card-footer">
+          <button type="button" class="hl-button" data-hl-intent="primary">Download</button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

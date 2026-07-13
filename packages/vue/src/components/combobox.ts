@@ -4,7 +4,8 @@ import {
   type ComboboxApi,
   type EnhanceComboboxOptions,
 } from '@hydrateless/enhancers';
-import { cx, useHostEnhancer } from '../internal.js';
+import { cx } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 /**
  * Editable combobox (input + listbox), APG pattern. Compose with
@@ -28,16 +29,18 @@ export const Combobox = defineComponent({
   },
   emits: ['select', 'update:modelValue'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useHostEnhancer<ComboboxApi>((el) =>
-      enhanceCombobox(el, {
-        filter: props.filter,
-        autoHighlight: props.autoHighlight,
-        defaultValue: props.modelValue ?? props.defaultValue,
-        onValueChange: (value) => {
-          emit('select', value);
-          emit('update:modelValue', value);
-        },
-      }),
+    const { host, api } = useEnhancer<ComboboxApi>(
+      (el) =>
+        enhanceCombobox(el, {
+          filter: props.filter,
+          autoHighlight: props.autoHighlight,
+          defaultValue: props.modelValue ?? props.defaultValue,
+          onValueChange: (value) => {
+            emit('select', value);
+            emit('update:modelValue', value);
+          },
+        }),
+      () => [props.filter, props.autoHighlight],
     );
     watch(
       () => props.modelValue,

@@ -105,4 +105,47 @@ describe('enhanceToast', () => {
     expect(toast).not.toBeNull();
     expect(toast!.textContent).toContain('Triggered!');
   });
+
+  it('handles triggers added after enhancement through delegation', () => {
+    enhanceToast(document);
+
+    const trigger = document.createElement('button');
+    trigger.setAttribute('data-hl-toast-trigger', 'Late');
+    document.body.appendChild(trigger);
+    trigger.click();
+
+    const toast = document.querySelector('[data-hl-toast]');
+    expect(toast).not.toBeNull();
+    expect(toast!.textContent).toContain('Late');
+  });
+
+  it('notifies onOpenChange and emits hl:open-change on show and dismiss', () => {
+    const onOpenChange = vi.fn();
+    const events: Array<{ open: boolean }> = [];
+    document.addEventListener('hl:open-change', (e) => {
+      events.push((e as CustomEvent).detail);
+    });
+    const toast = api(document, { onOpenChange });
+
+    const el = toast.show('Hello', { duration: 0 });
+    expect(onOpenChange).toHaveBeenCalledWith(true, el);
+    toast.dismiss(el);
+    expect(onOpenChange).toHaveBeenCalledWith(false, el);
+    expect(events.map((d) => d.open)).toEqual([true, false]);
+  });
+
+  it('adopts the existing instance instead of double-enhancing', () => {
+    const first = enhanceToast(document);
+    const second = enhanceToast(document);
+
+    expect(second.api).not.toBeNull();
+    second.api!.show('From the adopter', { duration: 0 });
+    expect(document.querySelectorAll('[data-hl-toast-region]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-hl-toast]')).toHaveLength(1);
+
+    // The adopter's destroy must not tear down the owning instance.
+    second.destroy();
+    first.api!.show('Still alive', { duration: 0 });
+    expect(document.querySelectorAll('[data-hl-toast]')).toHaveLength(2);
+  });
 });

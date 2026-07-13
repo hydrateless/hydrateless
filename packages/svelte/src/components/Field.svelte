@@ -11,8 +11,9 @@
   }
 
   let { id, invalid = false, required = false, class: klass, children, ...rest }: Props = $props();
-  const generatedId = `hl-field-${Math.random().toString(36).slice(2, 8)}`;
-  const baseId = $derived(id ?? generatedId);
+  // SSR-safe: $props.id() is stable across server and client renders.
+  const generatedId = $props.id();
+  const baseId = $derived(id ?? `hl-field-${generatedId}`);
 
   setFieldContext({
     get id() {

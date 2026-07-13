@@ -15,20 +15,21 @@ Each enhancer takes a container (`Document` or `HTMLElement`, defaulting to
 `document`) and returns an [`EnhancerHandle`](#enhancerhandle) with a `destroy`
 teardown and the component's imperative API.
 
-| Function            | State options                                    | API (`handle.api`)                       |
-| ------------------- | ------------------------------------------------ | ---------------------------------------- |
-| `enhanceAccordion`  | `defaultValue`, `onValueChange`                  | `value`, `setValue(values)`              |
-| `enhanceDisclosure` | `{ allowMultiple?: boolean }`                    | None                                     |
-| `enhanceTabs`       | `defaultValue`, `onValueChange`                  | `value`, `setValue(value, { focus? })`   |
-| `enhanceDropdown`   | `defaultOpen`, `onOpenChange`, `onSelect`        | `open`, `setOpen(open, { focus? })`      |
-| `enhanceModal`      | `defaultOpen`, `onOpenChange`, `closeOnBackdrop` | `open`, `setOpen(open)`                  |
-| `enhanceDrawer`     | `defaultOpen`, `onOpenChange`, `closeOnBackdrop` | `open`, `setOpen(open)`                  |
-| `enhancePopover`    | `defaultOpen`, `onOpenChange`, `triggerEvent`    | `open`, `setOpen(open)`                  |
-| `enhanceTooltip`    | `showDelay`, `hideDelay`, `placement`            | `show()`, `hide()`                       |
-| `enhanceCombobox`   | `defaultValue`, `onValueChange`                  | `value`, `setValue`, `open`, `setOpen`   |
-| `enhanceCommand`    | `hotkey`, `onCommand`                            | None                                     |
-| `enhanceToc`        | `headings`, `scrollSpy`, `contentSelector`       | None                                     |
-| `enhanceToast`      | `duration`                                       | `show(message, options?)`, `dismiss(el)` |
+| Function            | State options                                          | API (`handle.api`)                       |
+| ------------------- | ------------------------------------------------------ | ---------------------------------------- |
+| `enhanceAccordion`  | `allowMultiple`, `defaultValue`, `onValueChange`       | `value`, `setValue(values)`              |
+| `enhanceDisclosure` | `defaultOpen`, `onOpenChange`                          | `open`, `setOpen(open)`                  |
+| `enhanceTabs`       | `defaultValue`, `onValueChange`                        | `value`, `setValue(value, { focus? })`   |
+| `enhanceDropdown`   | `defaultOpen`, `onOpenChange`, `onSelect`              | `open`, `setOpen(open, { focus? })`      |
+| `enhanceModal`      | `defaultOpen`, `onOpenChange`, `closeOnBackdrop`       | `open`, `setOpen(open)`                  |
+| `enhanceDrawer`     | `defaultOpen`, `onOpenChange`, `closeOnBackdrop`       | `open`, `setOpen(open)`                  |
+| `enhancePopover`    | `defaultOpen`, `onOpenChange`, `triggerEvent`          | `open`, `setOpen(open)`                  |
+| `enhanceTooltip`    | `placement`, `showDelay`, `hideDelay`, `onOpenChange`  | `open`, `setOpen(open)`                  |
+| `enhanceMenu`       | `orientation`, `onOpenChange`, `onSelect`              | `open`, `setOpen(value \| null)`         |
+| `enhanceCombobox`   | `defaultValue`, `onValueChange`, `onOpenChange`        | `value`, `setValue`, `open`, `setOpen`   |
+| `enhanceCommand`    | `hotkey`, `defaultValue`, `onValueChange`, `onCommand` | `value`, `setValue(query)`               |
+| `enhanceToc`        | `headings`, `scrollSpy`, `contentSelector`             | `refresh()`                              |
+| `enhanceToast`      | `duration`, `onOpenChange`                             | `show(message, options?)`, `dismiss(el)` |
 
 ## EnhancerHandle
 
@@ -62,12 +63,15 @@ tabs.destroy();
 State changes are also broadcast as bubbling DOM events, so you can listen
 without holding a handle:
 
-| Event            | Detail                      | Fired by                         |
-| ---------------- | --------------------------- | -------------------------------- |
-| `hl:change`      | `{ value }`                 | tabs, accordion, combobox        |
-| `hl:open-change` | `{ open }`                  | dropdown, modal, drawer, popover |
-| `hl:select`      | `{ value, item \| option }` | dropdown, combobox (cancelable)  |
-| `hl:command`     | `{ value, item }`           | command palette (cancelable)     |
+| Event            | Detail                      | Fired by                                                                     |
+| ---------------- | --------------------------- | ---------------------------------------------------------------------------- |
+| `hl:change`      | `{ value }`                 | tabs, accordion, combobox, command                                           |
+| `hl:open-change` | `{ open, ... }`             | disclosure, dropdown, modal, drawer, popover, tooltip, combobox, menu, toast |
+| `hl:select`      | `{ value, item \| option }` | dropdown, combobox, menu (cancelable)                                        |
+| `hl:command`     | `{ value, item }`           | command palette (cancelable)                                                 |
+
+Some `hl:open-change` details carry extra context: menus include the open
+submenu's `value`, and toast includes the `toast` element.
 
 ## Framework APIs
 

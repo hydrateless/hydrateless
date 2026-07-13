@@ -49,7 +49,7 @@ test.describe('baseline (no JS)', () => {
     await expectNoAxeViolations(page);
   });
 
-  test('disclosure: native <details> toggles, no exclusivity', async ({ page }) => {
+  test('disclosure: native <details name> toggles with exclusivity', async ({ page }) => {
     await gotoFixture(page, 'disclosure', 'baseline');
     const details = page.locator('details');
 
@@ -57,9 +57,56 @@ test.describe('baseline (no JS)', () => {
     await page.locator('#s1').click();
     await expect(details.nth(0)).toHaveJSProperty('open', true);
 
+    // The shared `name` attribute makes the browser itself close the sibling.
     await page.locator('#s2').click();
     await expect(details.nth(1)).toHaveJSProperty('open', true);
+    await expect(details.nth(0)).toHaveJSProperty('open', false);
+    await expectNoAxeViolations(page);
+  });
+
+  test('accordion: independent native <details>, no exclusivity', async ({ page }) => {
+    await gotoFixture(page, 'accordion', 'baseline');
+    const details = page.locator('details');
+
+    await page.locator('#a1').click();
+    await page.locator('#a2').click();
     await expect(details.nth(0)).toHaveJSProperty('open', true);
+    await expect(details.nth(1)).toHaveJSProperty('open', true);
+    await expectNoAxeViolations(page);
+  });
+
+  test('menu: top-level items render, submenu stays hidden', async ({ page }) => {
+    await gotoFixture(page, 'menu', 'baseline');
+    await expect(page.locator('#file')).toBeVisible();
+    await expect(page.locator('#edit')).toBeVisible();
+    await expect(page.locator('[data-hl-menu-submenu]')).toBeHidden();
+    await expectNoAxeViolations(page);
+  });
+
+  test('command: labelled input and full command list render', async ({ page }) => {
+    await gotoFixture(page, 'command', 'baseline');
+    await expect(page.locator('#cmd-input')).toBeVisible();
+    await expect(page.locator('[role="option"]')).toHaveCount(3);
+
+    // Without the enhancer, typing must not hide any commands.
+    await page.locator('#cmd-input').fill('theme');
+    await expect(page.locator('[role="option"]:visible')).toHaveCount(3);
+    await expectNoAxeViolations(page);
+  });
+
+  test('toast: server-rendered toast is visible, trigger is inert', async ({ page }) => {
+    await gotoFixture(page, 'toast', 'baseline');
+    await expect(page.locator('#server-toast')).toBeVisible();
+
+    await page.locator('#show').click();
+    await expect(page.locator('[data-hl-toast]')).toHaveCount(1);
+    await expectNoAxeViolations(page);
+  });
+
+  test('toc: server-rendered placeholder stays in place', async ({ page }) => {
+    await gotoFixture(page, 'toc', 'baseline');
+    await expect(page.locator('#toc-placeholder')).toBeVisible();
+    await expect(page.locator('[data-hl-toc] a')).toHaveCount(0);
     await expectNoAxeViolations(page);
   });
 

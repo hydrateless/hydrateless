@@ -15,7 +15,8 @@ export const combobox: ComponentDoc = {
   enhancer: {
     fn: 'enhanceCombobox',
     subpath: '@hydrateless/enhancers/combobox',
-    signature: 'enhanceCombobox(container, { filter, autoHighlight, defaultValue, onValueChange })',
+    signature:
+      'enhanceCombobox(container, { filter, autoHighlight, defaultValue, onValueChange, onOpenChange })',
   },
   demos: [
     {
@@ -62,6 +63,11 @@ export const combobox: ComponentDoc = {
       name: 'hl:change',
       detail: '{ value: string }',
       description: 'Fires after the value commits.',
+    },
+    {
+      name: 'hl:open-change',
+      detail: '{ open: boolean }',
+      description: 'Fires when the listbox expands or collapses.',
     },
   ],
   tokens: [

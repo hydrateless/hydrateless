@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Switch — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Switch</h1>
+      <label data-hl-switch>
+        <input type="checkbox" role="switch" id="notify" />
+        <span>Notifications</span>
+      </label>
+      <label data-hl-switch>
+        <input type="checkbox" role="switch" id="dark" checked />
+        <span>Dark mode</span>
+      </label>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

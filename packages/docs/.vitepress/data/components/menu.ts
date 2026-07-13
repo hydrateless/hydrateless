@@ -7,7 +7,7 @@ export const menu: ComponentDoc = {
   importName: 'Menu',
   summary: 'A menubar with single-level submenus.',
   description:
-    'A menubar or navigation menu with single-level submenus, following the WAI-ARIA menubar pattern. The enhancer wires a roving tabindex, orientation-aware arrow navigation, submenu toggling, and typeahead.',
+    'A menubar or navigation menu with single-level submenus, following the WAI-ARIA menubar pattern. The enhancer wires a roving tabindex, orientation-aware arrow navigation, submenu toggling, and typeahead. Submenus are promoted to native popovers so they render in the top layer, positioned against their trigger with CSS anchor positioning (with a JS fallback).',
   status: 'stable',
   cssOnly: false,
   native: '<ul role="menubar">',
@@ -15,7 +15,7 @@ export const menu: ComponentDoc = {
   enhancer: {
     fn: 'enhanceMenu',
     subpath: '@hydrateless/enhancers/menu',
-    signature: "enhanceMenu(container, { orientation: 'horizontal' | 'vertical' })",
+    signature: 'enhanceMenu(container, { orientation, onOpenChange, onSelect })',
   },
   demos: [
     {
@@ -58,6 +58,28 @@ export const menu: ComponentDoc = {
       type: `'horizontal' | 'vertical'`,
       default: `'horizontal'`,
       description: 'Direction of the top-level items.',
+    },
+    {
+      name: 'open',
+      type: 'string | null',
+      description: 'Controlled open submenu value; pair with `onOpenChange`.',
+    },
+    {
+      name: 'onSelect',
+      type: '(value: string) => void',
+      description: 'Called with the item value when a leaf menu item is activated.',
+    },
+  ],
+  events: [
+    {
+      name: 'hl:open-change',
+      detail: '{ open: boolean, value: string | null }',
+      description: 'Fires when a submenu opens or closes, with the open submenu value.',
+    },
+    {
+      name: 'hl:select',
+      detail: '{ value: string, item: HTMLElement }',
+      description: 'Fires when a leaf item is activated. Cancelable.',
     },
   ],
   tokens: [

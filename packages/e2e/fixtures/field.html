@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Field — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Field</h1>
+      <div class="hl-field">
+        <label class="hl-label" for="username">Username</label>
+        <input
+          class="hl-input"
+          id="username"
+          type="text"
+          aria-describedby="username-help username-error"
+          aria-invalid="true"
+          data-hl-invalid
+        />
+        <p class="hl-help" id="username-help">Lowercase letters and digits only.</p>
+        <p class="hl-error" id="username-error">That username is taken.</p>
+      </div>
+      <fieldset class="hl-fieldset">
+        <legend class="hl-legend">Shipping address</legend>
+        <div class="hl-field">
+          <label class="hl-label" for="city">City</label>
+          <input class="hl-input" id="city" type="text" />
+        </div>
+      </fieldset>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

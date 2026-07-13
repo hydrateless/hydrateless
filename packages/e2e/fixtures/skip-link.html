@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skip link — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <a class="hl-skip-link" href="#content">Skip to content</a>
+    <nav aria-label="Main">
+      <a href="#home">Home</a>
+      <a href="#docs">Docs</a>
+    </nav>
+    <main id="content" tabindex="-1">
+      <h1>Skip link</h1>
+      <p>The skip link is the first focusable element on the page.</p>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

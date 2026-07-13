@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alert — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Alert</h1>
+      <div class="hl-alert" role="alert">
+        <div>
+          <p class="hl-alert-title">Heads up</p>
+          <p>A new version is available.</p>
+        </div>
+      </div>
+      <div class="hl-alert" role="alert" data-hl-intent="danger">
+        <div>
+          <p class="hl-alert-title">Payment failed</p>
+          <p>Your card was declined.</p>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

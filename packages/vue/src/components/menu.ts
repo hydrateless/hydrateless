@@ -1,10 +1,12 @@
-import { defineComponent, h, type PropType } from 'vue';
-import { enhanceMenu, type EnhanceMenuOptions } from '@hydrateless/enhancers';
-import { useHostEnhancer } from '../internal.js';
+import { defineComponent, h, watch, type PropType } from 'vue';
+import { enhanceMenu, type EnhanceMenuOptions, type MenuApi } from '@hydrateless/enhancers';
+import { useEnhancer } from '../useEnhancer.js';
 
 /**
- * Menubar / navigation menu with single-level submenus. Compose with
- * `<MenuItem>`; nest a flyout via the `submenu` slot.
+ * Menubar / navigation menu with single-level submenus rendered in the top
+ * layer. Compose with `<MenuItem>`; nest a flyout via the `submenu` slot. The
+ * open submenu works uncontrolled or with `v-model:open` (a submenu value or
+ * `null`), and activating a leaf item emits `select` with its value.
  */
 export const Menu = defineComponent({
   name: 'HlMenu',
@@ -14,9 +16,26 @@ export const Menu = defineComponent({
       type: String as PropType<EnhanceMenuOptions['orientation']>,
       default: 'horizontal',
     },
+    /** Controlled open submenu value (`v-model:open`), or `null` for none. */
+    open: { type: String as PropType<string | null | undefined>, default: undefined },
   },
-  setup(props, { slots, attrs }) {
-    const { host } = useHostEnhancer((el) => enhanceMenu(el, { orientation: props.orientation }));
+  emits: ['update:open', 'select'],
+  setup(props, { slots, attrs, emit }) {
+    const { host, api } = useEnhancer<MenuApi>(
+      (el) =>
+        enhanceMenu(el, {
+          orientation: props.orientation,
+          onOpenChange: (value) => emit('update:open', value),
+          onSelect: (value) => emit('select', value),
+        }),
+      () => props.orientation,
+    );
+    watch(
+      () => props.open,
+      (open) => {
+        if (open !== undefined) api.value?.setOpen(open);
+      },
+    );
     return () =>
       h(
         'ul',
@@ -41,6 +60,8 @@ export const MenuItem = defineComponent({
   inheritAttrs: false,
   props: {
     href: { type: String, default: undefined },
+    /** Stable value identifying this item; defaults to its label text. */
+    value: { type: String, default: undefined },
   },
   emits: ['select'],
   setup(props, { slots, attrs, emit }) {
@@ -48,10 +69,20 @@ export const MenuItem = defineComponent({
       const hasSubmenu = !!slots.submenu;
       const label =
         props.href && !hasSubmenu
-          ? h('a', { ...attrs, role: 'menuitem', href: props.href }, slots.default?.())
+          ? h(
+              'a',
+              { ...attrs, role: 'menuitem', href: props.href, 'data-hl-value': props.value },
+              slots.default?.(),
+            )
           : h(
               'button',
-              { type: 'button', ...attrs, role: 'menuitem', onClick: () => emit('select') },
+              {
+                type: 'button',
+                ...attrs,
+                role: 'menuitem',
+                'data-hl-value': props.value,
+                onClick: () => emit('select'),
+              },
               slots.default?.(),
             );
       const children = [label];

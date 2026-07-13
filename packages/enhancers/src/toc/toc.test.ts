@@ -60,4 +60,30 @@ describe('enhanceToc', () => {
     `;
     expect(() => enhanceToc(document, { scrollSpy: false })).not.toThrow();
   });
+
+  it('rebuilds the list through the refresh api', () => {
+    const handle = enhanceToc(document, { scrollSpy: false });
+    const main = document.querySelector('main')!;
+    const heading = document.createElement('h2');
+    heading.textContent = 'Section Three';
+    main.appendChild(heading);
+
+    handle.api!.refresh();
+    const links = document.querySelectorAll('[data-hl-toc] a');
+    expect(links.length).toBe(4);
+    expect(links[3].textContent).toBe('Section Three');
+  });
+
+  it('restores the placeholder content on destroy', () => {
+    const nav = document.querySelector('[data-hl-toc]')!;
+    nav.innerHTML = '<p>Placeholder</p>';
+
+    const handle = enhanceToc(document, { scrollSpy: false });
+    expect(nav.querySelector('p')).toBeNull();
+    expect(nav.querySelectorAll('a').length).toBe(3);
+
+    handle.destroy();
+    expect(nav.querySelectorAll('a').length).toBe(0);
+    expect(nav.textContent).toBe('Placeholder');
+  });
 });

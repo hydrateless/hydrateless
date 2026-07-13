@@ -1,16 +1,54 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 
-/** Fixture pages, served from the repo root by `server.mjs`. */
-export type Fixture =
-  | 'modal'
-  | 'drawer'
-  | 'popover'
-  | 'dropdown'
-  | 'tooltip'
-  | 'tabs'
+/** Fixture pages with a JavaScript enhancer, served from the repo root by `server.mjs`. */
+export type EnhancedFixture =
+  | 'accordion'
   | 'combobox'
-  | 'disclosure';
+  | 'command'
+  | 'disclosure'
+  | 'drawer'
+  | 'dropdown'
+  | 'menu'
+  | 'modal'
+  | 'popover'
+  | 'tabs'
+  | 'toast'
+  | 'toc'
+  | 'tooltip';
+
+/** CSS-only fixture pages that render identically with and without JavaScript. */
+export const STATIC_FIXTURES = [
+  'alert',
+  'avatar',
+  'badge',
+  'breadcrumb',
+  'button',
+  'card',
+  'checkbox',
+  'field',
+  'input',
+  'kbd',
+  'pagination',
+  'progress',
+  'radio',
+  'segmented',
+  'select',
+  'separator',
+  'skeleton',
+  'skip-link',
+  'slider',
+  'spinner',
+  'switch',
+  'table',
+  'textarea',
+] as const;
+
+/** A CSS-only fixture page name. */
+export type StaticFixture = (typeof STATIC_FIXTURES)[number];
+
+/** Any fixture page. */
+export type Fixture = EnhancedFixture | StaticFixture;
 
 type Mode = 'enhanced' | 'baseline';
 

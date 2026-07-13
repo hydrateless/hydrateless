@@ -5,6 +5,7 @@ import {
   resolveRef,
   supportsAnchorPositioning,
   positionFallback,
+  Events,
   type Placement,
 } from '../core/index.js';
 
@@ -18,14 +19,16 @@ export type EnhanceTooltipOptions = {
   showDelay?: number;
   /** Grace period in ms before hiding, so the pointer can reach the tooltip. */
   hideDelay?: number;
+  /** Called after the tooltip shows or hides. */
+  onOpenChange?: (open: boolean) => void;
 };
 
 /** Imperative handle returned by {@link enhanceTooltip}. */
 export type TooltipApi = {
-  /** Show the tooltip immediately. */
-  show: () => void;
-  /** Hide the tooltip immediately. */
-  hide: () => void;
+  /** Whether the tooltip is currently shown. */
+  readonly open: boolean;
+  /** Show or hide the tooltip immediately (no delays). */
+  setOpen: (open: boolean) => void;
 };
 
 /**
@@ -36,13 +39,14 @@ export type TooltipApi = {
  * `aria-describedby`, then takes over visibility (marking the trigger
  * `data-hl-tooltip-managed`) so it can add show/hide delays, a grace period for
  * crossing onto the tip, Escape-to-dismiss, and a JS positioning fallback on
- * engines without anchor positioning.
+ * engines without anchor positioning. Visibility is observable through
+ * `onOpenChange`/`hl:open-change` and controllable through the returned API.
  */
 export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>({
   name: 'tooltip',
   selector: '[data-hl-tooltip]',
   defaults: { placement: 'top', position: true, showDelay: 150, hideDelay: 100 },
-  setup({ root, options, on, add }) {
+  setup({ root, options, on, add, emit }) {
     const ref = root.getAttribute('aria-describedby') || root.getAttribute('data-hl-tooltip');
     const tip = resolveRef(root.ownerDocument, ref);
     if (!tip) return;
@@ -75,21 +79,31 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     };
     add(clearTimers);
 
+    const isOpen = () => !tip.hasAttribute('hidden');
+    const notify = (open: boolean) => {
+      options.onOpenChange?.(open);
+      emit(Events.openChange, { open });
+    };
+
     // `data-hl-tooltip-open` is the CSS-first hook (transitionable); `hidden` is
     // toggled alongside it as a hard fallback for engines/styles that haven't
     // adopted the open-state selector yet. Both always move together.
     const show = () => {
       clearTimers();
+      if (isOpen()) return;
       tip.removeAttribute('hidden');
       tip.setAttribute('data-hl-tooltip-open', '');
       if (options.position && !supportsAnchorPositioning()) {
         positionFallback(root, tip, { placement });
       }
+      notify(true);
     };
     const hide = () => {
       clearTimers();
+      if (!isOpen()) return;
       tip.removeAttribute('data-hl-tooltip-open');
       tip.setAttribute('hidden', '');
+      notify(false);
     };
     const scheduleShow = () => {
       clearTimers();
@@ -112,6 +126,14 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
       if (e.key === 'Escape') hide();
     });
 
-    return { show, hide };
+    return {
+      get open() {
+        return isOpen();
+      },
+      setOpen(next) {
+        if (next) show();
+        else hide();
+      },
+    };
   },
 });

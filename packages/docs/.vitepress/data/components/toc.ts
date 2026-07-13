@@ -7,7 +7,7 @@ export const toc: ComponentDoc = {
   importName: 'Toc',
   summary: 'Auto-generated navigation built from page headings.',
   description:
-    'Auto-generated navigation built from the headings on the page, with optional scroll-spy highlighting of the current section. Add an empty `<nav data-hl-toc>` and the enhancer fills it in.',
+    'Auto-generated navigation built from the headings on the page, with optional scroll-spy highlighting of the current section. Add an empty `<nav data-hl-toc>` and the enhancer fills it in; call `refresh()` on the returned API after the content changes.',
   status: 'stable',
   cssOnly: false,
   native: '<nav>',

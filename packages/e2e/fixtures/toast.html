@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toast — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Toast</h1>
+      <button
+        type="button"
+        id="show"
+        data-hl-toast-trigger="Saved!"
+        data-hl-toast-variant="success"
+        data-hl-toast-duration="60000"
+      >
+        Show toast
+      </button>
+    </main>
+    <div data-hl-toast-region role="status" aria-live="polite">
+      <div data-hl-toast id="server-toast">
+        <span class="hl-toast-message">Server-rendered note</span>
+        <button type="button" data-hl-toast-close aria-label="Dismiss">&times;</button>
+      </div>
+    </div>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

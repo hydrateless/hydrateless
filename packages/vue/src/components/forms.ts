@@ -4,6 +4,7 @@ import {
   h,
   inject,
   provide,
+  ref,
   type InjectionKey,
   type PropType,
 } from 'vue';
@@ -355,12 +356,17 @@ export const Radio = defineComponent({
   },
 });
 
-/** Segmented control: a styled radiogroup. Supports `v-model`. */
+/**
+ * Segmented control: a styled radiogroup. The selected value works
+ * uncontrolled (`defaultValue`) or with `v-model`.
+ */
 export const SegmentedControl = defineComponent({
   name: 'HlSegmentedControl',
   inheritAttrs: false,
   props: {
     modelValue: { type: String, default: undefined },
+    /** Initially selected value for uncontrolled usage. */
+    defaultValue: { type: String, default: undefined },
     options: {
       type: Array as PropType<Array<{ label: string; value: string; disabled?: boolean }>>,
       default: () => [],
@@ -371,6 +377,8 @@ export const SegmentedControl = defineComponent({
   emits: ['update:modelValue'],
   setup(props, { attrs, emit }) {
     const groupName = props.name ?? `hl-seg-${(fieldCounter += 1)}`;
+    const internal = ref(props.defaultValue);
+    const current = computed(() => props.modelValue ?? internal.value);
     return () =>
       h(
         'div',
@@ -386,9 +394,12 @@ export const SegmentedControl = defineComponent({
               type: 'radio',
               name: groupName,
               value: option.value,
-              checked: props.modelValue === option.value,
+              checked: current.value === option.value,
               disabled: option.disabled,
-              onChange: () => emit('update:modelValue', option.value),
+              onChange: () => {
+                internal.value = option.value;
+                emit('update:modelValue', option.value);
+              },
             }),
             h('span', option.label),
           ]),

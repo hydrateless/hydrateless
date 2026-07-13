@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Radio — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Radio</h1>
+      <div class="hl-radio-group" role="radiogroup" aria-label="Plan">
+        <label class="hl-radio">
+          <input type="radio" name="plan" id="free" value="free" checked />
+          <span>Free</span>
+        </label>
+        <label class="hl-radio">
+          <input type="radio" name="plan" id="pro" value="pro" />
+          <span>Pro</span>
+        </label>
+        <label class="hl-radio">
+          <input type="radio" name="plan" id="team" value="team" />
+          <span>Team</span>
+        </label>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

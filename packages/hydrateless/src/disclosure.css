@@ -1,36 +1,42 @@
+/**
+ * Disclosure: a styled native `<details>`. The class and the `data-hl-disclosure`
+ * attribute (which also opts into the state enhancer) are interchangeable, so
+ * plain HTML needs only one of them. Exclusive groups need no JavaScript:
+ * give related disclosures the same `name` attribute.
+ */
 @layer components {
-  details.hl-disclosure {
+  details:is(.hl-disclosure, [data-hl-disclosure]) {
     border: 1px solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     background: var(--hl-surface);
   }
 
-  details.hl-disclosure > summary {
+  details:is(.hl-disclosure, [data-hl-disclosure]) > summary {
     list-style: none;
     cursor: pointer;
     padding: var(--hl-space-3) var(--hl-space-4);
   }
 
-  details.hl-disclosure > summary::-webkit-details-marker {
+  details:is(.hl-disclosure, [data-hl-disclosure]) > summary::-webkit-details-marker {
     display: none;
   }
 
-  details.hl-disclosure > summary:focus-visible {
+  details:is(.hl-disclosure, [data-hl-disclosure]) > summary:focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: 2px;
   }
 
-  details.hl-disclosure > summary::after {
+  details:is(.hl-disclosure, [data-hl-disclosure]) > summary::after {
     content: '\25B8';
     float: right;
     transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
-  details.hl-disclosure[open] > summary::after {
+  details:is(.hl-disclosure, [data-hl-disclosure])[open] > summary::after {
     transform: rotate(90deg);
   }
 
-  details.hl-disclosure > .hl-disclosure-panel {
+  details:is(.hl-disclosure, [data-hl-disclosure]) > .hl-disclosure-panel {
     padding: var(--hl-space-3) var(--hl-space-4) var(--hl-space-4);
   }
 }

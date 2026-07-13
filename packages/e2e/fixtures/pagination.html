@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pagination — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Pagination</h1>
+      <nav class="hl-pagination" aria-label="Pagination">
+        <ul>
+          <li><a class="hl-pagination-item" href="#p1">1</a></li>
+          <li><a class="hl-pagination-item" href="#p2" aria-current="page">2</a></li>
+          <li><a class="hl-pagination-item" href="#p3">3</a></li>
+          <li><span class="hl-pagination-ellipsis" aria-hidden="true">…</span></li>
+          <li><a class="hl-pagination-item" href="#p9">9</a></li>
+        </ul>
+      </nav>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

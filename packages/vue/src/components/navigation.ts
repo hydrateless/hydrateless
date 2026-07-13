@@ -1,6 +1,7 @@
 import { defineComponent, h, type PropType } from 'vue';
-import { enhanceToc } from '@hydrateless/enhancers';
-import { cx, useHostEnhancer } from '../internal.js';
+import { enhanceToc, type TocApi } from '@hydrateless/enhancers';
+import { cx } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 const ELLIPSIS = 'ellipsis';
 
@@ -128,12 +129,14 @@ export const Toc = defineComponent({
     scrollSpy: { type: Boolean as PropType<boolean | undefined>, default: undefined },
   },
   setup(props, { attrs }) {
-    const { host } = useHostEnhancer((el) =>
-      enhanceToc(el.ownerDocument, {
-        contentSelector: props.contentSelector,
-        headings: props.headings,
-        scrollSpy: props.scrollSpy,
-      }),
+    const { host } = useEnhancer<TocApi>(
+      (el) =>
+        enhanceToc(el.ownerDocument, {
+          contentSelector: props.contentSelector,
+          headings: props.headings,
+          scrollSpy: props.scrollSpy,
+        }),
+      () => [props.contentSelector, props.headings, props.scrollSpy],
     );
     return () => h('nav', { ...attrs, 'data-hl-toc': '', ref: host });
   },

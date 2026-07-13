@@ -15,7 +15,7 @@ export const commandPalette: ComponentDoc = {
   enhancer: {
     fn: 'enhanceCommand',
     subpath: '@hydrateless/enhancers/command',
-    signature: 'enhanceCommand(container, { hotkey, onCommand })',
+    signature: 'enhanceCommand(container, { hotkey, defaultValue, onValueChange, onCommand })',
   },
   demos: [
     {
@@ -68,6 +68,11 @@ export const commandPalette: ComponentDoc = {
       detail: '{ value: string; item: HTMLElement }',
       description:
         'Cancelable CustomEvent when a command runs; `preventDefault()` to handle navigation yourself.',
+    },
+    {
+      name: 'hl:change',
+      detail: '{ value: string }',
+      description: 'Fires when the filter query changes (also the `onValueChange` callback).',
     },
   ],
   tokens: [

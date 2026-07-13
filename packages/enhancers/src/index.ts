@@ -4,14 +4,18 @@ export {
   type EnhanceAccordionOptions,
   type AccordionApi,
 } from './accordion/index.js';
-export { enhanceDisclosure, type EnhanceDisclosureOptions } from './disclosure/index.js';
+export {
+  enhanceDisclosure,
+  type EnhanceDisclosureOptions,
+  type DisclosureApi,
+} from './disclosure/index.js';
 export { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from './tabs/index.js';
 export {
   enhanceDropdown,
   type EnhanceDropdownOptions,
   type DropdownApi,
 } from './dropdown/index.js';
-export { enhanceMenu, type EnhanceMenuOptions } from './menu/index.js';
+export { enhanceMenu, type EnhanceMenuOptions, type MenuApi } from './menu/index.js';
 export { enhanceModal, type EnhanceModalOptions, type ModalApi } from './modal/index.js';
 export { enhanceDrawer, type EnhanceDrawerOptions, type DrawerApi } from './drawer/index.js';
 export { enhancePopover, type EnhancePopoverOptions, type PopoverApi } from './popover/index.js';
@@ -21,8 +25,8 @@ export {
   type EnhanceComboboxOptions,
   type ComboboxApi,
 } from './combobox/index.js';
-export { enhanceCommand, type EnhanceCommandOptions } from './command/index.js';
-export { enhanceToc, type EnhanceTocOptions } from './toc/index.js';
+export { enhanceCommand, type EnhanceCommandOptions, type CommandApi } from './command/index.js';
+export { enhanceToc, type EnhanceTocOptions, type TocApi } from './toc/index.js';
 export {
   enhanceToast,
   type EnhanceToastOptions,

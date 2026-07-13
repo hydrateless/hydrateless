@@ -51,6 +51,12 @@ export const modal: ComponentDoc = {
       description: 'Controlled visibility; pair with `onOpenChange`.',
     },
     {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Uncontrolled initial visibility.',
+    },
+    {
       name: 'closeOnBackdrop',
       type: 'boolean',
       default: 'true',

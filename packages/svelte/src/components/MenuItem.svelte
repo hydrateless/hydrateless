@@ -2,9 +2,11 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
 
-  interface Props extends Omit<HTMLButtonAttributes, 'type'> {
+  interface Props extends Omit<HTMLButtonAttributes, 'type' | 'value'> {
     /** Render as a link instead of a button. */
     href?: string;
+    /** Stable value identifying this item; defaults to its label text. */
+    value?: string;
     /** Convenience handler fired on activation. */
     onSelect?: () => void;
     /** Nested `<MenuItem>`s; renders a single-level submenu. */
@@ -14,17 +16,18 @@
     children?: Snippet;
   }
 
-  let { href, onSelect, onclick, submenu, anchorProps, children, ...rest }: Props = $props();
+  let { href, value, onSelect, onclick, submenu, anchorProps, children, ...rest }: Props = $props();
 </script>
 
 <li role="none">
   {#if href && !submenu}
-    <a {...anchorProps} role="menuitem" {href}>{@render children?.()}</a>
+    <a {...anchorProps} role="menuitem" {href} data-hl-value={value}>{@render children?.()}</a>
   {:else}
     <button
       {...rest}
       type="button"
       role="menuitem"
+      data-hl-value={value}
       onclick={(e) => {
         onSelect?.();
         onclick?.(e);

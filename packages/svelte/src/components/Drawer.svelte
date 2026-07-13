@@ -7,19 +7,24 @@
   interface Props extends HTMLDialogAttributes {
     /** Open state; two-way bindable (`bind:open`). */
     open?: boolean;
+    /** Open the drawer initially for uncontrolled usage. */
+    defaultOpen?: boolean;
     side?: 'left' | 'right';
     closeOnBackdrop?: boolean;
     children?: Snippet;
   }
 
   let {
-    open = $bindable(false),
+    defaultOpen = false,
+    open = $bindable(),
     side = 'right',
     closeOnBackdrop = true,
     class: klass,
     children,
     ...rest
   }: Props = $props();
+  // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
+  if (open === undefined) open = defaultOpen;
   let dialog = $state<HTMLDialogElement>();
   let api = $state<DrawerApi | null>(null);
 
@@ -27,10 +32,10 @@
     if (!dialog) return;
     const handle = enhanceDrawer(dialog, {
       closeOnBackdrop,
+      defaultOpen: untrack(() => open),
       onOpenChange: (next) => (open = next),
     });
     api = handle.api;
-    if (untrack(() => open)) handle.api?.setOpen(true);
     return () => {
       handle.destroy();
       api = null;
@@ -38,7 +43,7 @@
   });
 
   $effect(() => {
-    api?.setOpen(open);
+    if (open != null) api?.setOpen(open);
   });
 </script>
 

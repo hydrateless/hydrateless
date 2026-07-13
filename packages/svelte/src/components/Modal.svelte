@@ -7,17 +7,22 @@
   interface Props extends HTMLDialogAttributes {
     /** Open state; two-way bindable (`bind:open`). */
     open?: boolean;
+    /** Open the dialog initially for uncontrolled usage. */
+    defaultOpen?: boolean;
     closeOnBackdrop?: boolean;
     children?: Snippet;
   }
 
   let {
-    open = $bindable(false),
+    defaultOpen = false,
+    open = $bindable(),
     closeOnBackdrop = true,
     class: klass,
     children,
     ...rest
   }: Props = $props();
+  // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
+  if (open === undefined) open = defaultOpen;
   let dialog = $state<HTMLDialogElement>();
   let api = $state<ModalApi | null>(null);
 
@@ -25,10 +30,10 @@
     if (!dialog) return;
     const handle = enhanceModal(dialog, {
       closeOnBackdrop,
+      defaultOpen: untrack(() => open),
       onOpenChange: (next) => (open = next),
     });
     api = handle.api;
-    if (untrack(() => open)) handle.api?.setOpen(true);
     return () => {
       handle.destroy();
       api = null;
@@ -36,7 +41,7 @@
   });
 
   $effect(() => {
-    api?.setOpen(open);
+    if (open != null) api?.setOpen(open);
   });
 </script>
 

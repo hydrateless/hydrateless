@@ -170,22 +170,22 @@ import { vHlDropdown } from '@hydrateless/vue';
 
 ### The `useEnhancer` composable
 
-For full control, attach any enhancer to a template ref. It returns a shallow
-ref to the enhancer's imperative API:
+For full control, attach any enhancer to your own markup. It returns a `host`
+template ref to bind onto the element plus a shallow ref to the enhancer's
+imperative API. Pass a reactive source as the second argument to re-attach the
+enhancer whenever an option changes:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
 import { useEnhancer } from '@hydrateless/vue';
 import { enhanceTabs } from '@hydrateless/enhancers';
 
-const el = ref(null);
-const tabs = useEnhancer(el, enhanceTabs);
-// tabs.value?.setValue('install')
+const { host, api } = useEnhancer((el) => enhanceTabs(el));
+// api.value?.setValue('install')
 </script>
 
 <template>
-  <div ref="el" data-hl-tabs>…</div>
+  <div ref="host" data-hl-tabs>…</div>
 </template>
 ```
 

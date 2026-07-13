@@ -117,14 +117,18 @@ export { cx } from './util.js';
 
 export type {
   AccordionApi,
+  CommandApi,
   ComboboxApi,
+  DisclosureApi,
   Disposer,
   DrawerApi,
   DropdownApi,
   EnhancerHandle,
+  MenuApi,
   ModalApi,
   PopoverApi,
   TabsApi,
   ToastApi,
+  TocApi,
   TooltipApi,
 } from '@hydrateless/enhancers';
