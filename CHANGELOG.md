@@ -1,3 +1,13 @@
+## [0.8.0](https://github.com/hydrateless/hydrateless/compare/v0.7.0...v0.8.0) (2026-07-13)
+
+### ⚠ BREAKING CHANGES
+
+- unify enhancer contracts, and cover all components with E2E (#11)
+
+### Features
+
+- unify enhancer contracts, and cover all components with E2E ([#11](https://github.com/hydrateless/hydrateless/issues/11)) ([9ab03c9](https://github.com/hydrateless/hydrateless/commit/9ab03c9a62ee669861c6eff05b1e0e0e56794f0a))
+
 ## [0.7.0](https://github.com/hydrateless/hydrateless/compare/v0.6.0...v0.7.0) (2026-06-23)
 
 ### ⚠ BREAKING CHANGES
