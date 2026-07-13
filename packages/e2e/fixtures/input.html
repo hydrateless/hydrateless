@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Input — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Input</h1>
+      <label class="hl-label" for="email">Email</label>
+      <input class="hl-input" id="email" type="email" placeholder="you@example.com" />
+      <label class="hl-label" for="bad">Invalid</label>
+      <input
+        class="hl-input"
+        id="bad"
+        type="text"
+        data-hl-invalid
+        aria-invalid="true"
+        value="oops"
+      />
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

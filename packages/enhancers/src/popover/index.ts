@@ -43,7 +43,10 @@ export type PopoverApi = {
  */
 export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>({
   name: 'popover',
-  selector: '[data-hl-popover], [popover]',
+  // Matches the auto-loader manifest exactly: enhancement is an explicit
+  // opt-in via `data-hl-popover`, so bare `[popover]` elements (often used
+  // for app-specific overlays) are left alone.
+  selector: '[data-hl-popover]',
   defaults: {
     triggerEvent: 'click',
     placement: 'bottom',

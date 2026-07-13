@@ -9,7 +9,8 @@ export interface EmitOptions {
  * observe state changes through one vocabulary:
  *
  * - `hl:change`: a value changed; `detail: { value }`.
- * - `hl:open-change`: an overlay opened or closed; `detail: { open }`.
+ * - `hl:open-change`: something opened or closed; `detail: { open }`, plus
+ *   component-specific context (the menu adds `value`, the toast adds `toast`).
  * - `hl:select`: an item was committed; `detail: { value, item }` (cancelable).
  * - `hl:command`: a command ran; `detail: { value, item }` (cancelable).
  */

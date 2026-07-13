@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Menu — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Menu</h1>
+      <ul data-hl-menu role="menubar" aria-label="Main">
+        <li role="none">
+          <button type="button" id="file" role="menuitem" data-hl-value="file">File</button>
+          <ul role="menu" data-hl-menu-submenu aria-label="File" hidden>
+            <li role="none">
+              <button type="button" role="menuitem" data-hl-value="new">New</button>
+            </li>
+            <li role="none">
+              <button type="button" role="menuitem" data-hl-value="open">Open</button>
+            </li>
+          </ul>
+        </li>
+        <li role="none">
+          <button type="button" id="edit" role="menuitem" data-hl-value="edit">Edit</button>
+        </li>
+      </ul>
+      <p id="result" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+    <script type="module">
+      document.addEventListener('hl:select', (event) => {
+        document.getElementById('result').textContent = `selected:${event.detail.value}`;
+      });
+    </script>
+  </body>
+</html>

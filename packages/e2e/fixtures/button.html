@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Button — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Button</h1>
+      <p>
+        <button type="button" class="hl-button" data-hl-intent="primary">Save</button>
+        <button type="button" class="hl-button" data-hl-variant="outline">Cancel</button>
+        <button type="button" class="hl-button" data-hl-variant="ghost" data-hl-intent="danger">
+          Delete
+        </button>
+        <button type="button" class="hl-button" disabled>Disabled</button>
+        <a class="hl-button" data-hl-variant="link" href="#docs">Docs</a>
+      </p>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

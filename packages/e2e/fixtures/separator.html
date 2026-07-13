@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Separator — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Separator</h1>
+      <p>Above the line.</p>
+      <hr class="hl-separator" />
+      <p>Below the line.</p>
+      <div style="display: flex; gap: 1rem; align-items: stretch">
+        <span>Left</span>
+        <div class="hl-separator" role="separator" aria-orientation="vertical"></div>
+        <span>Right</span>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

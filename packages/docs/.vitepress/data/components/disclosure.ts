@@ -7,7 +7,7 @@ export const disclosure: ComponentDoc = {
   importName: 'Disclosure',
   summary: 'A single expandable section via native <details>.',
   description:
-    'A single expandable section. Purely CSS via the native `<details>` element, with no enhancer needed for a lone disclosure. Use the disclosure enhancer on a wrapper only when you want a group of disclosures to be mutually exclusive.',
+    'A single expandable section. Purely CSS via the native `<details>` element; give several disclosures the same `name` attribute and the browser itself makes them mutually exclusive. The optional enhancer only adds observable state: an `open`/`setOpen` API, an `onOpenChange` callback, and a bubbling `hl:open-change` event.',
   status: 'stable',
   cssOnly: true,
   native: '<details>',
@@ -15,7 +15,7 @@ export const disclosure: ComponentDoc = {
   enhancer: {
     fn: 'enhanceDisclosure',
     subpath: '@hydrateless/enhancers/disclosure',
-    signature: 'enhanceDisclosure(container, { allowMultiple })',
+    signature: 'enhanceDisclosure(container, { defaultOpen, onOpenChange })',
   },
   demos: [
     {
@@ -43,6 +43,29 @@ export const disclosure: ComponentDoc = {
       type: 'string',
       description: 'The visible toggle label (or use the `summary` slot).',
     },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state; pair with `onOpenChange`.',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Uncontrolled initial open state.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Shared group name; the browser closes the other disclosures in the group.',
+    },
+  ],
+  events: [
+    {
+      name: 'hl:open-change',
+      detail: '{ open: boolean }',
+      description: 'Fires after the disclosure opens or closes (also the `onOpenChange` callback).',
+    },
   ],
   tokens: [
     { name: '--hl-border', description: 'Panel border.' },
@@ -51,6 +74,7 @@ export const disclosure: ComponentDoc = {
   a11y: [
     'The native `<details>` summary is a real button with built-in keyboard support.',
     'No ARIA is needed for a single disclosure; the element is self-describing.',
+    'Exclusivity comes from the native `name` attribute, so it works without JavaScript.',
   ],
   related: ['accordion', 'tabs'],
 };

@@ -45,6 +45,11 @@ export const segmentedControl: ComponentDoc = {
     },
     { name: 'value', type: 'string', description: 'Controlled value; pair with `onValueChange`.' },
     {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Uncontrolled initially selected value.',
+    },
+    {
       name: 'size',
       type: `'sm' | 'md' | 'lg'`,
       default: `'md'`,

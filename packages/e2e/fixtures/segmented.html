@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Segmented control — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Segmented control</h1>
+      <div class="hl-segmented" role="radiogroup" aria-label="View">
+        <label class="hl-segmented-item">
+          <input type="radio" name="view" value="list" checked />
+          <span>List</span>
+        </label>
+        <label class="hl-segmented-item">
+          <input type="radio" name="view" value="grid" />
+          <span>Grid</span>
+        </label>
+        <label class="hl-segmented-item">
+          <input type="radio" name="view" value="map" />
+          <span>Map</span>
+        </label>
+      </div>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

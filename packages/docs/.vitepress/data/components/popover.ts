@@ -45,6 +45,12 @@ export const popover: ComponentDoc = {
       description: 'Controlled visibility; pair with `onOpenChange`.',
     },
     {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Uncontrolled initial visibility.',
+    },
+    {
       name: 'placement',
       type: 'string',
       default: `'bottom'`,

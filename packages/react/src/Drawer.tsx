@@ -5,7 +5,10 @@ import { cx, useLatest } from './util.js';
 
 /** Props for {@link Drawer}. */
 export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
-  open: boolean;
+  /** Controlled open state (pair with `onOpenChange`). */
+  open?: boolean;
+  /** Open the drawer initially for uncontrolled usage. */
+  defaultOpen?: boolean;
   /** Called after the drawer opens or closes (Escape, backdrop, close buttons). */
   onOpenChange?: (open: boolean) => void;
   side?: 'left' | 'right';
@@ -13,13 +16,16 @@ export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'ti
 }
 
 /**
- * Controlled off-canvas panel built on the native `<dialog>` element and the
- * drawer enhancer (focus trap, scroll-lock, background `inert`). Mirrors
+ * Off-canvas panel built on the native `<dialog>` element and the drawer
+ * enhancer (focus trap, scroll-lock, background `inert`). Mirrors
  * {@link Modal} but slides in from the chosen `side`. Compose with
- * `<DrawerHeader>`, `<DrawerBody>`, and `<DrawerFooter>`.
+ * `<DrawerHeader>`, `<DrawerBody>`, and `<DrawerFooter>`. Open state works
+ * uncontrolled (`defaultOpen`, or an invoker button) or controlled (`open` +
+ * `onOpenChange`).
  */
 export function Drawer({
   open,
+  defaultOpen,
   onOpenChange,
   side = 'right',
   closeOnBackdrop = true,
@@ -28,18 +34,20 @@ export function Drawer({
   ...rest
 }: DrawerProps) {
   const onOpenChangeRef = useLatest(onOpenChange);
+  const initialOpenRef = useLatest(open ?? defaultOpen);
 
   const { ref, api } = useEnhancer<HTMLDialogElement, DrawerApi>(
     (el) =>
       enhanceDrawer(el, {
         closeOnBackdrop,
+        defaultOpen: initialOpenRef.current,
         onOpenChange: (next) => onOpenChangeRef.current?.(next),
       }),
     [closeOnBackdrop],
   );
 
   useEffect(() => {
-    api.current?.setOpen(open);
+    if (open != null) api.current?.setOpen(open);
   }, [open, api]);
 
   return (

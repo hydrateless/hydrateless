@@ -89,14 +89,33 @@ describe('enhanceTooltip', () => {
     expect(trigger.getAttribute('aria-describedby')).toBe('tip2');
   });
 
-  it('exposes show/hide through the handle api', () => {
+  it('exposes open state through the handle api', () => {
     const handle = enhanceTooltip(document);
     const tooltip = document.getElementById('tip1')!;
 
-    handle.api!.show();
+    expect(handle.api!.open).toBe(false);
+    handle.api!.setOpen(true);
     expect(tooltip.hidden).toBe(false);
-    handle.api!.hide();
+    expect(handle.api!.open).toBe(true);
+    handle.api!.setOpen(false);
     expect(tooltip.hidden).toBe(true);
+    expect(handle.api!.open).toBe(false);
+  });
+
+  it('notifies onOpenChange and emits hl:open-change', () => {
+    const onOpenChange = vi.fn();
+    const events: boolean[] = [];
+    document.addEventListener('hl:open-change', (e) => {
+      events.push((e as CustomEvent).detail.open);
+    });
+    enhanceTooltip(document, { onOpenChange });
+    const trigger = document.querySelector<HTMLElement>('[data-hl-tooltip]')!;
+
+    trigger.dispatchEvent(new Event('focus'));
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    trigger.dispatchEvent(new Event('blur'));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(events).toEqual([true, false]);
   });
 
   it('handles no matching elements', () => {

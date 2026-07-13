@@ -13,8 +13,9 @@
   }
 
   let { label, tip, id, children }: Props = $props();
-  const generatedId = `hl-tip-${Math.random().toString(36).slice(2, 8)}`;
-  const tipId = $derived(id ?? generatedId);
+  // SSR-safe: $props.id() is stable across server and client renders.
+  const generatedId = $props.id();
+  const tipId = $derived(id ?? `hl-tip-${generatedId}`);
   let host = $state<HTMLSpanElement>();
 
   $effect(() => {

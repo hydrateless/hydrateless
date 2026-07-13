@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Breadcrumb — Hydrateless E2E</title>
+    <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Breadcrumb</h1>
+      <nav data-hl-breadcrumb aria-label="Breadcrumb">
+        <ol>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#docs">Docs</a></li>
+          <li><a href="#components" aria-current="page">Components</a></li>
+        </ol>
+      </nav>
+    </main>
+    <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+  </body>
+</html>

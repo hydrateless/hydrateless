@@ -90,7 +90,7 @@ function CustomTabs() {
 ```
 
 Convenience hooks: `useTabs`, `useDropdown`, `useTooltip`, `useAccordion`,
-`useDisclosureGroup`, `useModalGroup`, `useTocEnhancer`.
+`useModalGroup`, `useTocEnhancer`.
 
 ## License
 

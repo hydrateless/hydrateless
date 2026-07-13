@@ -1,7 +1,9 @@
 /**
  * Menubar / navigation menu: `<ul data-hl-menu role="menubar">` with optional
  * single-level submenus (`<ul role="menu" data-hl-menu-submenu>`). The enhancer
- * handles roving focus, arrow navigation, and open/close.
+ * handles roving focus, arrow navigation, and open/close, promoting each
+ * submenu to a native popover so it renders in the top layer, anchored to its
+ * trigger with CSS anchor positioning.
  */
 @layer components {
   [data-hl-menu] {
@@ -87,6 +89,29 @@
 
   [data-hl-menu] [role='menu'][hidden] {
     display: none;
+  }
+
+  /* Enhanced path: the submenu is a native popover in the top layer, anchored
+     to its trigger. The absolute-position rules above stay as the fallback for
+     engines without the Popover API. */
+  [data-hl-menu] [role='menu'][popover] {
+    position: fixed;
+    inset: auto;
+  }
+
+  @supports (position-area: block-end) {
+    [data-hl-menu] [role='menu'][popover] {
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline;
+      margin-block: var(--hl-space-1);
+    }
+
+    [data-hl-menu][aria-orientation='vertical'] [role='menu'][popover] {
+      position-area: inline-end span-block-end;
+      position-try-fallbacks: flip-inline, flip-block;
+      margin-block: 0;
+      margin-inline: var(--hl-space-1);
+    }
   }
 
   [data-hl-menu] [role='separator'] {

@@ -80,19 +80,17 @@ const open = ref(false);
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useEnhancer, useToast } from '@hydrateless/vue';
 import { enhanceDropdown } from '@hydrateless/enhancers';
 
-const menu = ref<HTMLElement | null>(null);
-const dropdown = useEnhancer(menu, enhanceDropdown);
-// dropdown.value?.setOpen(true)
+const { host, api } = useEnhancer((el) => enhanceDropdown(el));
+// api.value?.setOpen(true)
 
 const toast = useToast(); // no provider required
 </script>
 
 <template>
-  <div ref="menu" data-hl-dropdown>…</div>
+  <div ref="host" data-hl-dropdown>…</div>
   <button @click="toast.show('Saved')">Save</button>
 </template>
 ```

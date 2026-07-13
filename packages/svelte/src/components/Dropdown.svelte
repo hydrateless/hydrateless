@@ -12,10 +12,14 @@
     placement?: EnhanceDropdownOptions['placement'];
     /** Open state; two-way bindable (`bind:open`). */
     open?: boolean;
+    /** Open the menu initially for uncontrolled usage. */
+    defaultOpen?: boolean;
     children?: Snippet;
   }
 
-  let { placement, open = $bindable(false), children, ...rest }: Props = $props();
+  let { placement, defaultOpen = false, open = $bindable(), children, ...rest }: Props = $props();
+  // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
+  if (open === undefined) open = defaultOpen;
   let host = $state<HTMLDivElement>();
   let api = $state<DropdownApi | null>(null);
 
@@ -34,7 +38,7 @@
   });
 
   $effect(() => {
-    api?.setOpen(open);
+    if (open != null) api?.setOpen(open);
   });
 </script>
 

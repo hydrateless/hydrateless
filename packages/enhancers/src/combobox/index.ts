@@ -18,6 +18,8 @@ export type EnhanceComboboxOptions = {
   defaultValue?: string;
   /** Called with the committed value after a selection or `setValue`. */
   onValueChange?: (value: string) => void;
+  /** Called after the listbox expands or collapses. */
+  onOpenChange?: (open: boolean) => void;
 };
 
 /** Imperative handle returned by {@link enhanceCombobox}. */
@@ -40,7 +42,9 @@ const PAGE = 10;
  * pattern: `aria-expanded`, `aria-activedescendant`, arrow/Home/End/PageUp/
  * PageDown navigation, type-to-filter, Enter to commit, Escape/outside-click
  * to dismiss. Selection emits a cancelable `hl:select` followed by
- * `hl:change`; the committed value is controllable through the returned API.
+ * `hl:change`, expanding or collapsing the listbox emits `hl:open-change`,
+ * and both the committed value and the open state are controllable through
+ * the returned API.
  */
 export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxApi>({
   name: 'combobox',
@@ -85,6 +89,10 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     };
 
     const isOpen = () => !listbox.hidden;
+    const notifyOpen = (open: boolean) => {
+      options.onOpenChange?.(open);
+      emit(Events.openChange, { open });
+    };
     const open = () => {
       if (isOpen()) return;
       listbox.hidden = false;
@@ -92,12 +100,14 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       if (!supportsAnchorPositioning()) {
         positionFallback(input, listbox, { placement: 'bottom-start' });
       }
+      notifyOpen(true);
     };
     const close = () => {
       if (!isOpen()) return;
       listbox.hidden = true;
       active = -1;
       setAttrs(input, { 'aria-expanded': 'false', 'aria-activedescendant': null });
+      notifyOpen(false);
     };
 
     const filter = (query: string) => {

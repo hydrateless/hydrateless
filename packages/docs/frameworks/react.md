@@ -177,7 +177,7 @@ export function MyTabs() {
 ```
 
 Built-in hooks: `useTabs`, `useDropdown`, `useTooltip`, `useAccordion`,
-`useDisclosureGroup`, `useModalGroup`, `useTocEnhancer`.
+`useModalGroup`, `useTocEnhancer`.
 
 For any enhancer not covered by a dedicated hook, use the generic `useEnhancer`:
 

@@ -79,6 +79,26 @@ describe('enhanceCombobox', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('emits hl:open-change when the listbox expands and collapses', () => {
+    document.body.innerHTML = `
+      <div data-hl-combobox>
+        <input />
+        <ul role="listbox"><li role="option" data-hl-value="apple">Apple</li></ul>
+      </div>
+    `;
+    const seen: boolean[] = [];
+    enhanceCombobox(document, { onOpenChange: (open) => seen.push(open) });
+    const root = document.querySelector<HTMLElement>('[data-hl-combobox]')!;
+    const input = document.querySelector('input')!;
+    const events: boolean[] = [];
+    root.addEventListener('hl:open-change', (e) => events.push((e as CustomEvent).detail.open));
+
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(seen).toEqual([true, false]);
+    expect(events).toEqual([true, false]);
+  });
+
   it('handles missing structure gracefully', () => {
     document.body.innerHTML = '<div data-hl-combobox></div>';
     expect(() => enhanceCombobox(document)).not.toThrow();

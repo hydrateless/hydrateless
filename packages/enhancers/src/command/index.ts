@@ -4,18 +4,32 @@ import { defineEnhancer, ensureId, setAttrs, nextIndex, Events } from '../core/i
 export type EnhanceCommandOptions = {
   /** Lowercased key that, with Cmd/Ctrl, opens the palette's dialog. */
   hotkey?: string;
+  /** Initial filter query; pre-fills the input. */
+  defaultValue?: string;
+  /** Called with the filter query after every change. */
+  onValueChange?: (value: string) => void;
   /** Called with the command's value when a command runs. */
   onCommand?: (value: string, item: HTMLElement) => void;
+};
+
+/** Imperative handle returned by {@link enhanceCommand}. */
+export type CommandApi = {
+  /** The current filter query. */
+  readonly value: string;
+  /** Set the filter query: updates the input and re-filters the list. */
+  setValue: (value: string) => void;
 };
 
 /**
  * Command palette: a filterable `role="listbox"` of `role="option"` commands
  * with arrow navigation, type-to-filter (matching text + `data-hl-keywords`),
  * automatic empty-state and group hiding, and Enter to run the active command
- * (emits a cancelable `hl:command` CustomEvent). When the palette lives inside
- * a `<dialog>`, an optional `data-hl-command-hotkey` opens it with Cmd/Ctrl+key.
+ * (emits a cancelable `hl:command` CustomEvent). The filter query is
+ * observable through `onValueChange`/`hl:change` and controllable through the
+ * returned API. When the palette lives inside a `<dialog>`, an optional
+ * `data-hl-command-hotkey` opens it with Cmd/Ctrl+key.
  */
-export const enhanceCommand = defineEnhancer<EnhanceCommandOptions>({
+export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>({
   name: 'command',
   selector: '[data-hl-command]',
   setup({ root, options, on, add, emit }) {
@@ -88,7 +102,18 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions>({
       if (link) link.click();
     };
 
-    on(input, 'input', () => filter(input.value));
+    let lastValue = input.value;
+    const notify = () => {
+      if (input.value === lastValue) return;
+      lastValue = input.value;
+      options.onValueChange?.(input.value);
+      emit(Events.change, { value: input.value });
+    };
+
+    on(input, 'input', () => {
+      filter(input.value);
+      notify();
+    });
 
     on<KeyboardEvent>(input, 'keydown', (e) => {
       const items = visible();
@@ -139,13 +164,29 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions>({
           e.preventDefault();
           if (!dialog.open) dialog.showModal();
           input.focus();
+          input.value = '';
           filter('');
+          notify();
         }
       });
     }
 
-    // Initialize active option / empty state.
-    filter('');
+    // Initialize the input, active option, and empty state.
+    if (options.defaultValue != null) input.value = options.defaultValue;
+    lastValue = input.value;
+    filter(input.value);
     add(() => setAttrs(input, { 'aria-activedescendant': null }));
+
+    return {
+      get value() {
+        return input.value;
+      },
+      setValue(value) {
+        if (input.value === value) return;
+        input.value = value;
+        filter(value);
+        notify();
+      },
+    };
   },
 });

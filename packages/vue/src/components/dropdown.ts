@@ -4,7 +4,7 @@ import {
   type DropdownApi,
   type EnhanceDropdownOptions,
 } from '@hydrateless/enhancers';
-import { useHostEnhancer } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 /**
  * Button-triggered menu (WAI-ARIA menu-button pattern). Compose with
@@ -27,12 +27,14 @@ export const Dropdown = defineComponent({
   },
   emits: ['update:open'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useHostEnhancer<DropdownApi>((el) =>
-      enhanceDropdown(el, {
-        placement: props.placement,
-        defaultOpen: props.open ?? props.defaultOpen,
-        onOpenChange: (open) => emit('update:open', open),
-      }),
+    const { host, api } = useEnhancer<DropdownApi>(
+      (el) =>
+        enhanceDropdown(el, {
+          placement: props.placement,
+          defaultOpen: props.open ?? props.defaultOpen,
+          onOpenChange: (open) => emit('update:open', open),
+        }),
+      () => props.placement,
     );
     watch(
       () => props.open,

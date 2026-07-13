@@ -1,6 +1,12 @@
 import { defineComponent, h, onMounted, ref, watch, type PropType } from 'vue';
-import { enhanceAccordion, type AccordionApi } from '@hydrateless/enhancers';
-import { cx, useHostEnhancer } from '../internal.js';
+import {
+  enhanceAccordion,
+  enhanceDisclosure,
+  type AccordionApi,
+  type DisclosureApi,
+} from '@hydrateless/enhancers';
+import { cx } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 /**
  * Accordion root of native `<details>` items. Compose with `<AccordionItem>`.
@@ -20,12 +26,14 @@ export const Accordion = defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useHostEnhancer<AccordionApi>((el) =>
-      enhanceAccordion(el, {
-        allowMultiple: props.allowMultiple,
-        defaultValue: props.modelValue ?? props.defaultValue,
-        onValueChange: (value) => emit('update:modelValue', value),
-      }),
+    const { host, api } = useEnhancer<AccordionApi>(
+      (el) =>
+        enhanceAccordion(el, {
+          allowMultiple: props.allowMultiple,
+          defaultValue: props.modelValue ?? props.defaultValue,
+          onValueChange: (value) => emit('update:modelValue', value),
+        }),
+      () => props.allowMultiple,
     );
     watch(
       () => props.modelValue,
@@ -60,20 +68,33 @@ export const AccordionItem = defineComponent({
 });
 
 /**
- * A single expandable section. Native `<details>` handles open/close; the
- * enhancer only matters for a mutually-exclusive group.
+ * A single expandable section built on native `<details>`, which handles
+ * open/close (and exclusive groups, via the `name` attribute) on its own.
+ * Open state works uncontrolled (`defaultOpen`) or with `v-model:open`.
  */
 export const Disclosure = defineComponent({
   name: 'HlDisclosure',
   inheritAttrs: false,
   props: {
+    /** Controlled open state (`v-model:open`). */
+    open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+    /** Open the disclosure initially for uncontrolled usage. */
     defaultOpen: { type: Boolean, default: false },
   },
-  setup(props, { slots, attrs }) {
-    const el = ref<HTMLDetailsElement | null>(null);
-    onMounted(() => {
-      if (el.value && props.defaultOpen) el.value.open = true;
-    });
+  emits: ['update:open'],
+  setup(props, { slots, attrs, emit }) {
+    const { host, api } = useEnhancer<DisclosureApi>((el) =>
+      enhanceDisclosure(el, {
+        defaultOpen: props.open ?? props.defaultOpen,
+        onOpenChange: (open) => emit('update:open', open),
+      }),
+    );
+    watch(
+      () => props.open,
+      (open) => {
+        if (open != null) api.value?.setOpen(open);
+      },
+    );
     return () =>
       h(
         'details',
@@ -81,7 +102,7 @@ export const Disclosure = defineComponent({
           ...attrs,
           class: cx('hl-disclosure', attrs.class as string),
           'data-hl-disclosure': '',
-          ref: el,
+          ref: host,
         },
         [
           h('summary', slots.summary?.()),

@@ -7,7 +7,7 @@ export const toast: ComponentDoc = {
   importName: 'useToast',
   summary: 'Non-modal notifications that auto-dismiss.',
   description:
-    'Non-modal notifications that appear temporarily and auto-dismiss. The region uses an ARIA live region so screen readers announce new messages.',
+    'Non-modal notifications that appear temporarily and auto-dismiss. The region uses an ARIA live region so screen readers announce new messages. Declarative `data-hl-toast-trigger` buttons are handled through event delegation, so triggers added after enhancement just work.',
   status: 'stable',
   cssOnly: false,
   cssFile: 'toast.css',
@@ -47,6 +47,13 @@ export const toast: ComponentDoc = {
       name: 'variant',
       type: `'info' | 'success' | 'warning' | 'danger'`,
       description: 'Color of the toast passed to `show()`.',
+    },
+  ],
+  events: [
+    {
+      name: 'hl:open-change',
+      detail: '{ open: boolean, toast: HTMLElement }',
+      description: 'Fires when a toast appears or is dismissed (also the `onOpenChange` callback).',
     },
   ],
   tokens: [

@@ -1,6 +1,5 @@
 import {
   enhanceAccordion,
-  enhanceDisclosure,
   enhanceDropdown,
   enhanceModal,
   enhanceTabs,
@@ -11,6 +10,7 @@ import {
   type EnhanceTocOptions,
   type ModalApi,
   type TabsApi,
+  type TocApi,
   type TooltipApi,
 } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
@@ -31,17 +31,13 @@ export const useTooltip = <T extends HTMLElement = HTMLElement>() =>
 export const useAccordion = <T extends HTMLElement = HTMLDivElement>(allowMultiple = false) =>
   useEnhancer<T, AccordionApi>((el) => enhanceAccordion(el, { allowMultiple }), [allowMultiple]);
 
-/** Ref hook that groups `[data-hl-disclosure]` elements for mutual exclusivity. */
-export const useDisclosureGroup = <T extends HTMLElement = HTMLElement>(allowMultiple = false) =>
-  useEnhancer<T>((el) => enhanceDisclosure(el, { allowMultiple }), [allowMultiple]);
-
 /** Ref hook that wires modal openers/closers + focus trap within a container. */
 export const useModalGroup = <T extends HTMLElement = HTMLElement>(closeOnBackdrop = true) =>
   useEnhancer<T, ModalApi>((el) => enhanceModal(el, { closeOnBackdrop }), [closeOnBackdrop]);
 
 /** Ref hook that builds a table of contents from the surrounding document. */
 export const useTocEnhancer = <T extends HTMLElement = HTMLElement>(options?: EnhanceTocOptions) =>
-  useEnhancer<T>(
+  useEnhancer<T, TocApi>(
     (el) => enhanceToc(el.ownerDocument, options),
     [options?.contentSelector, options?.headings, options?.scrollSpy],
   );

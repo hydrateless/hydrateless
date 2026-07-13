@@ -15,7 +15,7 @@ export const tooltip: ComponentDoc = {
   enhancer: {
     fn: 'enhanceTooltip',
     subpath: '@hydrateless/enhancers/tooltip',
-    signature: 'enhanceTooltip(container, { placement, showDelay, hideDelay })',
+    signature: 'enhanceTooltip(container, { placement, showDelay, hideDelay, onOpenChange })',
   },
   demos: [
     {
@@ -45,6 +45,13 @@ export const tooltip: ComponentDoc = {
       type: 'string',
       default: `'top'`,
       description: 'Preferred side relative to the trigger.',
+    },
+  ],
+  events: [
+    {
+      name: 'hl:open-change',
+      detail: '{ open: boolean }',
+      description: 'Fires after the tooltip shows or hides (also the `onOpenChange` callback).',
     },
   ],
   tokens: [

@@ -1,6 +1,6 @@
 import { defineComponent, h, watch, type PropType } from 'vue';
 import { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from '@hydrateless/enhancers';
-import { useHostEnhancer } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 /**
  * Tabbed interface root. Compose with `<TabList>`, `<Tab>`, and `<TabPanel>`.
@@ -34,13 +34,15 @@ export const Tabs = defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useHostEnhancer<TabsApi>((el) =>
-      enhanceTabs(el, {
-        activation: props.activation,
-        orientation: props.orientation,
-        defaultValue: props.modelValue ?? props.defaultValue,
-        onValueChange: (value) => emit('update:modelValue', value),
-      }),
+    const { host, api } = useEnhancer<TabsApi>(
+      (el) =>
+        enhanceTabs(el, {
+          activation: props.activation,
+          orientation: props.orientation,
+          defaultValue: props.modelValue ?? props.defaultValue,
+          onValueChange: (value) => emit('update:modelValue', value),
+        }),
+      () => [props.activation, props.orientation],
     );
     watch(
       () => props.modelValue,

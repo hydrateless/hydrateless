@@ -5,18 +5,22 @@ import { cx, useLatest } from './util.js';
 
 /** Props for {@link Modal}. */
 export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
-  open: boolean;
+  /** Controlled open state (pair with `onOpenChange`). */
+  open?: boolean;
+  /** Open the dialog initially for uncontrolled usage. */
+  defaultOpen?: boolean;
   /** Called after the dialog opens or closes (Escape, backdrop, close buttons). */
   onOpenChange?: (open: boolean) => void;
   closeOnBackdrop?: boolean;
 }
 
 /**
- * Controlled dialog overlay. Driven by the `open` prop via the native
- * `<dialog>` element and the modal enhancer, which adds a focus trap, body
- * scroll-lock, and a background `inert` barrier. Compose with `<ModalHeader>`,
- * `<ModalBody>`, and `<ModalFooter>`. Wire `onOpenChange` so Escape and
- * backdrop clicks can update your state.
+ * Dialog overlay built on the native `<dialog>` element and the modal
+ * enhancer, which adds a focus trap, body scroll-lock, and a background
+ * `inert` barrier. Compose with `<ModalHeader>`, `<ModalBody>`, and
+ * `<ModalFooter>`. Open state works uncontrolled (`defaultOpen`, or a
+ * `command="show-modal"` invoker button) or controlled (`open` +
+ * `onOpenChange`).
  *
  * ```tsx
  * <Modal open={open} onOpenChange={setOpen}>
@@ -28,6 +32,7 @@ export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'tit
  */
 export function Modal({
   open,
+  defaultOpen,
   onOpenChange,
   closeOnBackdrop = true,
   className,
@@ -35,18 +40,20 @@ export function Modal({
   ...rest
 }: ModalProps) {
   const onOpenChangeRef = useLatest(onOpenChange);
+  const initialOpenRef = useLatest(open ?? defaultOpen);
 
   const { ref, api } = useEnhancer<HTMLDialogElement, ModalApi>(
     (el) =>
       enhanceModal(el, {
         closeOnBackdrop,
+        defaultOpen: initialOpenRef.current,
         onOpenChange: (next) => onOpenChangeRef.current?.(next),
       }),
     [closeOnBackdrop],
   );
 
   useEffect(() => {
-    api.current?.setOpen(open);
+    if (open != null) api.current?.setOpen(open);
   }, [open, api]);
 
   return (

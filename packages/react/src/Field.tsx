@@ -13,8 +13,6 @@ interface FieldContextValue {
   errorId: string;
   invalid: boolean;
   required: boolean;
-  hasHelp: boolean;
-  hasError: boolean;
 }
 
 const FieldContext = createContext<FieldContextValue | null>(null);
@@ -48,8 +46,6 @@ export function Field({
     errorId: `${baseId}-error`,
     invalid,
     required,
-    hasHelp: true,
-    hasError: invalid,
   };
 
   return (
@@ -77,9 +73,7 @@ function useFieldContext(component: string): FieldContextValue {
  */
 export function useField() {
   const ctx = useFieldContext('useField');
-  const describedBy = [ctx.hasHelp ? ctx.helpId : null, ctx.invalid ? ctx.errorId : null]
-    .filter(Boolean)
-    .join(' ');
+  const describedBy = [ctx.helpId, ctx.invalid ? ctx.errorId : null].filter(Boolean).join(' ');
   return {
     id: ctx.id,
     'aria-describedby': describedBy || undefined,

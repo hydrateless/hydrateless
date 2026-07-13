@@ -1,11 +1,13 @@
 import { defineComponent, h } from 'vue';
-import { enhanceCommand } from '@hydrateless/enhancers';
-import { cx, useHostEnhancer } from '../internal.js';
+import { enhanceCommand, type CommandApi } from '@hydrateless/enhancers';
+import { cx } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 /**
  * Command palette. Compose with `<CommandInput>`, `<CommandList>`,
  * `<CommandGroup>`, `<CommandItem>`, `<CommandEmpty>`. Emits `select` with the
- * chosen value. Place inside a `<dialog>` to use `hotkey`.
+ * chosen value and `update:query` as the filter changes. Place inside a
+ * `<dialog>` to use `hotkey`.
  */
 export const Command = defineComponent({
   name: 'HlCommand',
@@ -13,13 +15,16 @@ export const Command = defineComponent({
   props: {
     hotkey: { type: String, default: undefined },
   },
-  emits: ['select'],
+  emits: ['select', 'update:query'],
   setup(props, { slots, attrs, emit }) {
-    const { host } = useHostEnhancer((el) =>
-      enhanceCommand(el, {
-        hotkey: props.hotkey,
-        onCommand: (value) => emit('select', value),
-      }),
+    const { host } = useEnhancer<CommandApi>(
+      (el) =>
+        enhanceCommand(el, {
+          hotkey: props.hotkey,
+          onValueChange: (value) => emit('update:query', value),
+          onCommand: (value) => emit('select', value),
+        }),
+      () => props.hotkey,
     );
     return () =>
       h(

@@ -9,15 +9,21 @@
   <body>
     <main>
       <h1>Disclosure</h1>
-      <details data-hl-disclosure>
+      <details data-hl-disclosure name="faq">
         <summary id="s1">Shipping</summary>
-        <p>Ships in 2 to 3 business days.</p>
+        <div class="hl-disclosure-panel">Ships in 2 to 3 business days.</div>
       </details>
-      <details data-hl-disclosure>
+      <details data-hl-disclosure name="faq">
         <summary id="s2">Returns</summary>
-        <p>Free returns within 30 days.</p>
+        <div class="hl-disclosure-panel">Free returns within 30 days.</div>
       </details>
+      <p id="result" aria-live="polite"></p>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+    <script type="module">
+      document.addEventListener('hl:open-change', (event) => {
+        document.getElementById('result').textContent = `open:${event.detail.open}`;
+      });
+    </script>
   </body>
 </html>

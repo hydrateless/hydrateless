@@ -8,40 +8,47 @@ import {
   type Disposer,
   type PopoverApi,
 } from '@hydrateless/enhancers';
-import { cx, useHostEnhancer } from '../internal.js';
+import { cx } from '../internal.js';
+import { useEnhancer } from '../useEnhancer.js';
 
 function useDialogEnhancer(
-  props: { open: boolean; closeOnBackdrop: boolean },
+  props: { open?: boolean; defaultOpen: boolean; closeOnBackdrop: boolean },
   emit: (e: 'update:open', open: boolean) => void,
   enhance: typeof enhanceModal,
 ) {
-  const { host, api } = useHostEnhancer<DialogApi>((el) =>
-    enhance(el, {
-      closeOnBackdrop: props.closeOnBackdrop,
-      onOpenChange: (open) => emit('update:open', open),
-    }),
+  const { host, api } = useEnhancer<DialogApi>(
+    (el) =>
+      enhance(el, {
+        closeOnBackdrop: props.closeOnBackdrop,
+        defaultOpen: props.open ?? props.defaultOpen,
+        onOpenChange: (open) => emit('update:open', open),
+      }),
+    () => props.closeOnBackdrop,
   );
-  onMounted(() => {
-    if (props.open) api.value?.setOpen(true);
-  });
   watch(
     () => props.open,
-    (open) => api.value?.setOpen(open),
+    (open) => {
+      if (open != null) api.value?.setOpen(open);
+    },
   );
   return host;
 }
 
 /**
- * Controlled dialog overlay on the native `<dialog>` plus the modal enhancer
- * (focus trap, scroll-lock, background `inert`). Drive with `v-model:open`;
- * Escape and backdrop clicks emit `update:open`. Compose with `<ModalHeader>`,
- * `<ModalBody>`, `<ModalFooter>`.
+ * Dialog overlay on the native `<dialog>` plus the modal enhancer (focus
+ * trap, scroll-lock, background `inert`). Open state works uncontrolled
+ * (`defaultOpen`, or a `command="show-modal"` invoker button) or with
+ * `v-model:open`; Escape and backdrop clicks emit `update:open`. Compose
+ * with `<ModalHeader>`, `<ModalBody>`, `<ModalFooter>`.
  */
 export const Modal = defineComponent({
   name: 'HlModal',
   inheritAttrs: false,
   props: {
-    open: { type: Boolean, required: true },
+    /** Controlled open state (`v-model:open`). */
+    open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+    /** Open the dialog initially for uncontrolled usage. */
+    defaultOpen: { type: Boolean, default: false },
     closeOnBackdrop: { type: Boolean, default: true },
   },
   emits: ['update:open'],
@@ -62,15 +69,19 @@ export const Modal = defineComponent({
 });
 
 /**
- * Controlled off-canvas panel on the native `<dialog>` plus the drawer
- * enhancer. Drive with `v-model:open`; choose a `side`. Compose with
- * `<DrawerHeader>`, `<DrawerBody>`, `<DrawerFooter>`.
+ * Off-canvas panel on the native `<dialog>` plus the drawer enhancer. Open
+ * state works uncontrolled (`defaultOpen`, or an invoker button) or with
+ * `v-model:open`; choose a `side`. Compose with `<DrawerHeader>`,
+ * `<DrawerBody>`, `<DrawerFooter>`.
  */
 export const Drawer = defineComponent({
   name: 'HlDrawer',
   inheritAttrs: false,
   props: {
-    open: { type: Boolean, required: true },
+    /** Controlled open state (`v-model:open`). */
+    open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+    /** Open the drawer initially for uncontrolled usage. */
+    defaultOpen: { type: Boolean, default: false },
     side: { type: String as PropType<'left' | 'right'>, default: 'right' },
     closeOnBackdrop: { type: Boolean, default: true },
   },
@@ -117,28 +128,34 @@ export const DrawerBody = section('HlDrawerBody', 'hl-drawer-body');
 export const DrawerFooter = section('HlDrawerFooter', 'hl-drawer-footer');
 
 /**
- * Controlled floating content built on the native Popover API. The surface
- * lives in the top layer with light-dismiss and Escape handled by the browser;
- * visibility follows `open` and `update:open` is emitted when the browser
- * dismisses it, so `v-model:open` stays in sync. Pair with your own trigger.
+ * Floating content built on the native Popover API. The surface lives in the
+ * top layer with light-dismiss and Escape handled by the browser; visibility
+ * works uncontrolled (`defaultOpen`, or a `popovertarget` trigger button) or
+ * with `v-model:open` (`update:open` is emitted when the browser dismisses
+ * it).
  */
 export const Popover = defineComponent({
   name: 'HlPopover',
   inheritAttrs: false,
   props: {
-    open: { type: Boolean, default: false },
+    /** Controlled open state (`v-model:open`). */
+    open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+    /** Show the popover initially for uncontrolled usage. */
+    defaultOpen: { type: Boolean, default: false },
   },
   emits: ['update:open'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useHostEnhancer<PopoverApi>((el) =>
-      enhancePopover(el, { onOpenChange: (open) => emit('update:open', open) }),
+    const { host, api } = useEnhancer<PopoverApi>((el) =>
+      enhancePopover(el, {
+        defaultOpen: props.open ?? props.defaultOpen,
+        onOpenChange: (open) => emit('update:open', open),
+      }),
     );
-    onMounted(() => {
-      if (props.open) api.value?.setOpen(true);
-    });
     watch(
       () => props.open,
-      (open) => api.value?.setOpen(open),
+      (open) => {
+        if (open != null) api.value?.setOpen(open);
+      },
     );
 
     return () =>
