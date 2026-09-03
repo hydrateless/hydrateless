@@ -1,6 +1,6 @@
 {
   "name": "@hydrateless/e2e",
-  "version": "0.9.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Real-browser end-to-end and accessibility tests for Hydrateless across Chromium, Firefox, and WebKit.",
   "type": "module",
