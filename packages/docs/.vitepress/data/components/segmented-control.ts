@@ -12,7 +12,7 @@ export const segmentedControl: ComponentDoc = {
   status: 'stable',
   cssOnly: true,
   native: '<input type="radio">',
-  cssFile: 'segmented.css',
+  cssFile: 'segmented-control.css',
   demos: [
     {
       id: 'playground',
@@ -47,7 +47,12 @@ export const segmentedControl: ComponentDoc = {
     {
       name: 'defaultValue',
       type: 'string',
-      description: 'Uncontrolled initially selected value.',
+      description: 'Uncontrolled initially selected value. Defaults to the first option.',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called with the selected value (Vue: `v-model`, Svelte: `bind:value`).',
     },
     {
       name: 'size',

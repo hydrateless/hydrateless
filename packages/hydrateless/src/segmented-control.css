@@ -1,8 +1,9 @@
 /**
  * Segmented control: `<div class="hl-segmented" role="radiogroup">` of
- * `<label class="hl-segmented-item"><input type="radio">…</label>` segments.
+ * `<label class="hl-segmented-item"><input type="radio">...</label>` segments.
  * Radio inputs give free keyboard navigation; the checked segment is raised.
- * A button variant using `aria-pressed="true"` is also supported.
+ * A button variant using `aria-pressed="true"` is also supported. Pure CSS;
+ * there is no enhancer.
  *   data-hl-size: sm | md (default) | lg
  */
 @layer components {
@@ -60,12 +61,12 @@
   .hl-segmented-item:has(input:focus-visible),
   .hl-segmented-item[aria-pressed]:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   .hl-segmented-item:has(input:disabled),
   .hl-segmented-item:disabled {
-    opacity: 0.5;
+    opacity: var(--hl-disabled-opacity);
     cursor: not-allowed;
   }
 
@@ -77,5 +78,18 @@
   .hl-segmented[data-hl-size='lg'] .hl-segmented-item {
     padding: var(--hl-space-2) var(--hl-space-4);
     font-size: var(--hl-text-base);
+  }
+
+  /* The raised segment relies on a shadow, which forced colors remove. */
+  @media (forced-colors: active) {
+    .hl-segmented-item {
+      border: var(--hl-border-width) solid ButtonBorder;
+    }
+
+    .hl-segmented-item:has(input:checked),
+    .hl-segmented-item[aria-pressed='true'] {
+      background: Highlight;
+      color: HighlightText;
+    }
   }
 }

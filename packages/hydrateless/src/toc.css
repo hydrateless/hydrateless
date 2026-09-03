@@ -1,6 +1,13 @@
+/**
+ * Table of contents: `<nav data-hl-toc>` with nested `<ul>` lists of anchor
+ * links. With no JavaScript it is a plain link list; the enhancer marks the
+ * link for the heading in view with `aria-current="true"`.
+ *   data-hl-toc:         the nav
+ *   data-hl-toc-content: optional element whose headings are observed
+ */
 @layer components {
   nav[data-hl-toc] {
-    border: 1px solid var(--hl-border);
+    border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     padding: var(--hl-space-3);
   }
@@ -26,7 +33,7 @@
 
   nav[data-hl-toc] a:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: -2px;
+    outline-offset: calc(var(--hl-focus-offset) * -1);
   }
 
   nav[data-hl-toc] a[aria-current='true'] {
@@ -35,5 +42,12 @@
 
   nav[data-hl-toc] ul ul {
     padding-inline-start: var(--hl-space-3);
+  }
+
+  @media (forced-colors: active) {
+    nav[data-hl-toc] a[aria-current='true'] {
+      background: Highlight;
+      color: HighlightText;
+    }
   }
 }

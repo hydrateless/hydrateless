@@ -3,15 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Drawer — Hydrateless E2E</title>
+    <title>Drawer | Hydrateless E2E</title>
     <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
   </head>
   <body>
     <main>
       <h1>Drawer</h1>
-      <button id="open" command="show-modal" commandfor="dr">Open drawer</button>
+      <p>
+        <button id="open" command="show-modal" commandfor="dr">Open end drawer</button>
+        <button id="open-start" command="show-modal" commandfor="dr-start">
+          Open start drawer
+        </button>
+      </p>
 
-      <dialog id="dr" class="hl-drawer" data-hl-drawer data-side="right" aria-labelledby="dr-title">
+      <!-- Sides are logical (`start`/`end`), so they flip under `dir="rtl"`. -->
+      <dialog
+        id="dr"
+        class="hl-drawer"
+        data-hl-drawer
+        data-hl-side="end"
+        aria-labelledby="dr-title"
+      >
         <div class="hl-drawer-header">
           <h2 id="dr-title">Navigation</h2>
         </div>
@@ -23,6 +35,24 @@
         </div>
         <div class="hl-drawer-footer">
           <button id="close" command="close" commandfor="dr">Close</button>
+        </div>
+      </dialog>
+
+      <dialog
+        id="dr-start"
+        class="hl-drawer"
+        data-hl-drawer
+        data-hl-side="start"
+        aria-labelledby="dr-start-title"
+      >
+        <div class="hl-drawer-header">
+          <h2 id="dr-start-title">Filters</h2>
+        </div>
+        <div class="hl-drawer-body">
+          <p>Narrow the results.</p>
+        </div>
+        <div class="hl-drawer-footer">
+          <button id="close-start" command="close" commandfor="dr-start">Close</button>
         </div>
       </dialog>
     </main>

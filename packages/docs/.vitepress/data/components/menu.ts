@@ -7,7 +7,7 @@ export const menu: ComponentDoc = {
   importName: 'Menu',
   summary: 'A menubar with single-level submenus.',
   description:
-    'A menubar or navigation menu with single-level submenus, following the WAI-ARIA menubar pattern. The enhancer wires a roving tabindex, orientation-aware arrow navigation, submenu toggling, and typeahead. Submenus are promoted to native popovers so they render in the top layer, positioned against their trigger with CSS anchor positioning (with a JS fallback).',
+    "A menubar or navigation menu with single-level submenus, following the WAI-ARIA menubar pattern. Without JavaScript the stylesheet reveals submenus on hover and `:focus-within`. The enhancer marks the root `data-hl-ready`, takes over visibility, and wires a roving tabindex, orientation-aware arrow navigation, typeahead, checkable items, and disabled skipping. Submenus are promoted to native popovers so they render in the top layer, positioned against their trigger with CSS anchor positioning (with a JS fallback). The open submenu is the menu's value.",
   status: 'stable',
   cssOnly: false,
   native: '<ul role="menubar">',
@@ -15,81 +15,134 @@ export const menu: ComponentDoc = {
   enhancer: {
     fn: 'enhanceMenu',
     subpath: '@hydrateless/enhancers/menu',
-    signature: 'enhanceMenu(container, { orientation, onOpenChange, onSelect })',
+    signature: 'enhanceMenu(container, { orientation, defaultValue, onValueChange, onSelect })',
   },
   demos: [
     {
       id: 'default',
       title: 'Menubar',
-      description: 'Arrow keys move between items; `Enter` or an arrow opens a submenu.',
+      description:
+        "Arrow keys move between items; `Enter`, `Space`, or `Down` opens a submenu and `Esc` closes it. Each top-level trigger's `data-hl-value` is the value reported while its submenu is open.",
       layout: 'fill',
       render: () =>
-        `<ul data-hl-menu role="menubar">
+        `<ul data-hl-menu role="menubar" aria-label="Editor">
   <li>
-    <button role="menuitem">File</button>
+    <button role="menuitem" data-hl-value="file">File</button>
     <ul role="menu" data-hl-menu-submenu>
-      <li><button role="menuitem">New</button></li>
-      <li><button role="menuitem">Open</button></li>
-      <li><button role="menuitem">Save As…</button></li>
+      <li><button role="menuitem" data-hl-value="new">New</button></li>
+      <li><button role="menuitem" data-hl-value="open">Open</button></li>
+      <li><button role="menuitem" data-hl-value="save-as" disabled>Save As</button></li>
     </ul>
   </li>
   <li>
-    <button role="menuitem">Edit</button>
+    <button role="menuitem" data-hl-value="view">View</button>
     <ul role="menu" data-hl-menu-submenu>
-      <li><button role="menuitem">Undo</button></li>
-      <li><button role="menuitem">Redo</button></li>
+      <li><button role="menuitemcheckbox" aria-checked="true" data-hl-value="sidebar">Sidebar</button></li>
+      <li><button role="menuitemcheckbox" aria-checked="false" data-hl-value="minimap">Minimap</button></li>
     </ul>
   </li>
-  <li><button role="menuitem">View</button></li>
+  <li><a role="menuitem" href="#help" data-hl-value="help">Help</a></li>
 </ul>`,
       code: {
         react: () =>
-          `import { Menu, MenuItem } from '@hydrateless/react';\n\n<Menu orientation="horizontal">\n  <MenuItem\n    submenu={\n      <>\n        <MenuItem>New</MenuItem>\n        <MenuItem>Open</MenuItem>\n      </>\n    }\n  >\n    File\n  </MenuItem>\n  <MenuItem>Edit</MenuItem>\n</Menu>`,
+          `import { Menu, MenuItem, MenuSubmenu } from '@hydrateless/react';\n\n<Menu\n  orientation="horizontal"\n  onValueChange={(value) => console.log('open submenu', value)}\n  onSelect={(value, item, checked) => run(value, checked)}\n>\n  <MenuSubmenu label="File" value="file">\n    <MenuItem value="new">New</MenuItem>\n    <MenuItem value="open">Open</MenuItem>\n  </MenuSubmenu>\n  <MenuItem value="help" href="/help">Help</MenuItem>\n</Menu>`,
         vue: () =>
-          `<script setup>\nimport { Menu, MenuItem } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Menu orientation="horizontal">\n    <MenuItem>\n      File\n      <template #submenu>\n        <MenuItem>New</MenuItem>\n        <MenuItem>Open</MenuItem>\n      </template>\n    </MenuItem>\n    <MenuItem>Edit</MenuItem>\n  </Menu>\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport { Menu, MenuItem, MenuSubmenu } from '@hydrateless/vue';\nconst openSubmenu = ref(null);\n</script>\n\n<template>\n  <Menu v-model="openSubmenu" orientation="horizontal" @select="(value, item, checked) => run(value, checked)">\n    <MenuSubmenu label="File" value="file">\n      <MenuItem value="new">New</MenuItem>\n      <MenuItem value="open">Open</MenuItem>\n    </MenuSubmenu>\n    <MenuItem value="help" href="/help">Help</MenuItem>\n  </Menu>\n</template>`,
         svelte: () =>
-          `<script>\n  import { Menu, MenuItem } from '@hydrateless/svelte';\n</script>\n\n<Menu orientation="horizontal">\n  <MenuItem>\n    File\n    {#snippet submenu()}\n      <MenuItem>New</MenuItem>\n      <MenuItem>Open</MenuItem>\n    {/snippet}\n  </MenuItem>\n  <MenuItem>Edit</MenuItem>\n</Menu>`,
+          `<script>\n  import { Menu, MenuItem, MenuSubmenu } from '@hydrateless/svelte';\n  let openSubmenu = $state(null);\n</script>\n\n<Menu bind:value={openSubmenu} orientation="horizontal" onSelect={(value, item, checked) => run(value, checked)}>\n  <MenuSubmenu label="File" value="file">\n    <MenuItem value="new">New</MenuItem>\n    <MenuItem value="open">Open</MenuItem>\n  </MenuSubmenu>\n  <MenuItem value="help" href="/help">Help</MenuItem>\n</Menu>`,
       },
     },
   ],
   props: [
     {
-      name: 'orientation',
-      type: `'horizontal' | 'vertical'`,
-      default: `'horizontal'`,
-      description: 'Direction of the top-level items.',
+      name: 'value',
+      type: 'string | null',
+      description:
+        'Controlled open submenu (`null` when all are closed); pair with `onValueChange` (Vue: `v-model`, Svelte: `bind:value`).',
     },
     {
-      name: 'open',
+      name: 'defaultValue',
       type: 'string | null',
-      description: 'Controlled open submenu value; pair with `onOpenChange`.',
+      default: 'null',
+      description: 'Submenu to open on mount, uncontrolled.',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | null) => void',
+      description: 'Called with the open submenu value (or `null`) after every change.',
     },
     {
       name: 'onSelect',
-      type: '(value: string) => void',
-      description: 'Called with the item value when a leaf menu item is activated.',
+      type: '(value: string, item: HTMLElement, checked?: boolean) => void',
+      description:
+        'Called with the item value when a leaf item is activated. For checkable items, `checked` is the new state.',
+    },
+    {
+      name: 'orientation',
+      type: `'horizontal' | 'vertical'`,
+      default: `'horizontal'`,
+      description: 'Direction of the top-level items. Vertical menus open submenus to the side.',
+    },
+    {
+      name: 'MenuSubmenu.label',
+      type: 'string',
+      description:
+        'Text of the top-level trigger that opens the submenu. Vue and Svelte also accept a `trigger` slot/snippet for rich content; React accepts any node.',
+    },
+    {
+      name: 'MenuSubmenu.value',
+      type: 'string',
+      description:
+        'Value reported by `onValueChange` while the submenu is open. Defaults to the top-level index.',
+    },
+    {
+      name: 'MenuItem.value',
+      type: 'string',
+      description:
+        'Value reported by `onSelect` when the leaf item is activated. Defaults to the item text.',
+    },
+    {
+      name: 'MenuItem.href',
+      type: 'string',
+      description: 'Render the item as a link instead of a button.',
+    },
+    {
+      name: 'MenuItem.role',
+      type: `'menuitem' | 'menuitemcheckbox' | 'menuitemradio'`,
+      default: `'menuitem'`,
+      description:
+        'Plain action, toggle, or single-select item. Pair checkable roles with `checked`.',
+    },
+    {
+      name: 'MenuItem.disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Skipped by arrow navigation and typeahead; cannot be activated.',
     },
   ],
   events: [
     {
-      name: 'hl:open-change',
-      detail: '{ open: boolean, value: string | null }',
-      description: 'Fires when a submenu opens or closes, with the open submenu value.',
+      name: 'hl:change',
+      detail: '{ value: string | null }',
+      description:
+        'Fires when a submenu opens or closes, with the open submenu value (also `onValueChange`).',
     },
     {
       name: 'hl:select',
-      detail: '{ value: string, item: HTMLElement }',
+      detail: '{ value: string, item: HTMLElement, checked?: boolean }',
       description: 'Fires when a leaf item is activated. Cancelable.',
     },
   ],
   tokens: [
     { name: '--hl-surface', description: 'Submenu background.' },
     { name: '--hl-border', description: 'Submenu border.' },
-    { name: '--hl-shadow-md', description: 'Submenu elevation.' },
+    { name: '--hl-overlay-shadow', description: 'Submenu elevation.' },
   ],
   a11y: [
     'A roving tabindex keeps the menubar a single tab stop.',
-    'Submenu triggers expose `aria-haspopup`, `aria-expanded`, and `aria-controls`.',
+    'Submenu triggers expose `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.',
+    'Before the enhancer runs, submenus open on hover and `:focus-within`, so the navigation is usable with no JavaScript.',
+    'Disabled items are skipped; `menuitemcheckbox` and `menuitemradio` keep `aria-checked` in sync.',
   ],
   related: ['dropdown', 'breadcrumb'],
 };

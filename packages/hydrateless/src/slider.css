@@ -1,6 +1,7 @@
 /**
  * Slider: native `<input type="range" class="hl-slider">`. Restyled track and
- * thumb across WebKit/Blink and Firefox while keeping native keyboard support.
+ * thumb across WebKit/Blink and Firefox while keeping native keyboard support
+ * and RTL direction. Pure CSS; there is no enhancer.
  */
 @layer components {
   .hl-slider {
@@ -42,7 +43,7 @@
     border-radius: var(--hl-radius-full);
     background: var(--hl-primary);
     box-shadow: var(--hl-shadow-sm);
-    transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
+    transition: scale var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
   .hl-slider::-moz-range-thumb {
@@ -55,7 +56,7 @@
   }
 
   .hl-slider:active::-webkit-slider-thumb {
-    transform: scale(1.1);
+    scale: 1.1;
   }
 
   .hl-slider:focus-visible {
@@ -63,15 +64,23 @@
   }
 
   .hl-slider:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--hl-ring) 35%, transparent);
+    box-shadow: var(--hl-focus-shadow);
   }
 
   .hl-slider:focus-visible::-moz-range-thumb {
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--hl-ring) 35%, transparent);
+    box-shadow: var(--hl-focus-shadow);
   }
 
   .hl-slider:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: var(--hl-disabled-opacity);
+  }
+
+  /* Shadows vanish in forced colors, so focus falls back to an outline. */
+  @media (forced-colors: active) {
+    .hl-slider:focus-visible {
+      outline: var(--hl-focus-ring);
+      outline-offset: var(--hl-focus-offset);
+    }
   }
 }

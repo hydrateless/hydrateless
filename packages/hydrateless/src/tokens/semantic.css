@@ -1,134 +1,152 @@
 /**
  * Semantic tokens map the raw palette to roles (surface, text, border, intent
- * colors). Components reference only these, so theming and dark mode are a
- * matter of remapping a couple dozen variables, never touching component CSS.
+ * colors, elevation). Components reference only these, so theming and dark
+ * mode are a matter of remapping a couple dozen variables, never touching
+ * component CSS.
  *
- * Light is the default in `:root`. Dark applies automatically via
- * `prefers-color-scheme` (unless `[data-theme="light"]` opts out) and always
- * via `[data-theme="dark"]`.
+ * Every color is a `light-dark()` pair resolved by `color-scheme`. The root
+ * follows the system preference; `[data-theme="light"]` and
+ * `[data-theme="dark"]` pin a scheme on any subtree. This is the single place
+ * `color-scheme` is declared, so `theme.css` and components must not repeat it.
  */
 @layer tokens {
   :root {
-    --hl-bg: var(--hl-gray-50);
-    --hl-surface: hsl(0deg 0% 100%);
-    --hl-surface-2: var(--hl-gray-100);
-    --hl-surface-3: var(--hl-gray-200);
-    --hl-fg: var(--hl-gray-900);
-    --hl-fg-muted: var(--hl-gray-600);
+    color-scheme: light dark;
+
+    /* Page and surfaces */
+
+    /* Document background. */
+    --hl-bg: light-dark(var(--hl-gray-50), var(--hl-gray-950));
+
+    /* Default component surface (cards, inputs, dialogs). */
+    --hl-surface: light-dark(hsl(0deg 0% 100%), var(--hl-gray-900));
+
+    /* One step raised or inset surface (hover, secondary buttons, striped rows). */
+    --hl-surface-2: light-dark(var(--hl-gray-100), var(--hl-gray-800));
+
+    /* Two steps raised or inset surface (tracks, skeletons, active states). */
+    --hl-surface-3: light-dark(var(--hl-gray-200), var(--hl-gray-700));
+
+    /* Text */
+
+    /* Primary text color. */
+    --hl-fg: light-dark(var(--hl-gray-900), var(--hl-gray-50));
+
+    /* Secondary text (descriptions, captions). */
+    --hl-fg-muted: light-dark(var(--hl-gray-600), var(--hl-gray-400));
+
+    /* Tertiary text (placeholders, separators, disabled hints). */
     --hl-fg-subtle: var(--hl-gray-500);
-    --hl-border: var(--hl-gray-200);
-    --hl-border-strong: var(--hl-gray-300);
-    --hl-ring: var(--hl-brand-500);
+
+    /* Borders and focus */
+
+    /* Default hairline border. */
+    --hl-border: light-dark(var(--hl-gray-200), var(--hl-gray-800));
+
+    /* Border for form controls and emphasized dividers. */
+    --hl-border-strong: light-dark(var(--hl-gray-300), var(--hl-gray-700));
+
+    /* Focus ring color. */
+    --hl-ring: light-dark(var(--hl-brand-500), var(--hl-brand-400));
+
+    /* Complete outline value for `:focus-visible`. */
     --hl-focus-ring: var(--hl-border-width-2) solid var(--hl-ring);
-    --hl-primary: var(--hl-brand-600);
-    --hl-primary-hover: var(--hl-brand-700);
-    --hl-primary-active: var(--hl-brand-800);
-    --hl-primary-fg: hsl(0deg 0% 100%);
-    --hl-primary-subtle: var(--hl-brand-50);
-    --hl-primary-subtle-fg: var(--hl-brand-700);
+
+    /* Soft halo used instead of an outline on borderless-focus controls (inputs, sliders). */
+    --hl-focus-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent);
+
+    /* Intent: primary */
+    --hl-primary: light-dark(var(--hl-brand-600), var(--hl-brand-500));
+    --hl-primary-hover: light-dark(var(--hl-brand-700), var(--hl-brand-400));
+    --hl-primary-active: light-dark(var(--hl-brand-800), var(--hl-brand-300));
+    --hl-primary-fg: light-dark(hsl(0deg 0% 100%), var(--hl-gray-950));
+    --hl-primary-subtle: light-dark(var(--hl-brand-50), hsl(226deg 57% 21% / 0.5));
+    --hl-primary-subtle-fg: light-dark(var(--hl-brand-700), var(--hl-brand-200));
+
+    /* Intent: danger */
     --hl-danger: var(--hl-red-600);
     --hl-danger-hover: var(--hl-red-700);
     --hl-danger-fg: hsl(0deg 0% 100%);
-    --hl-danger-subtle: var(--hl-red-50);
-    --hl-danger-subtle-fg: var(--hl-red-700);
+    --hl-danger-subtle: light-dark(var(--hl-red-50), hsl(0deg 63% 31% / 0.35));
+    --hl-danger-subtle-fg: light-dark(var(--hl-red-700), var(--hl-red-200));
+
+    /* Intent: success */
     --hl-success: var(--hl-green-600);
     --hl-success-hover: var(--hl-green-700);
     --hl-success-fg: hsl(0deg 0% 100%);
-    --hl-success-subtle: var(--hl-green-50);
-    --hl-success-subtle-fg: var(--hl-green-700);
+    --hl-success-subtle: light-dark(var(--hl-green-50), hsl(144deg 61% 20% / 0.35));
+    --hl-success-subtle-fg: light-dark(var(--hl-green-700), var(--hl-green-200));
+
+    /* Intent: warning */
     --hl-warning: var(--hl-amber-500);
     --hl-warning-hover: var(--hl-amber-600);
     --hl-warning-fg: var(--hl-gray-950);
-    --hl-warning-subtle: var(--hl-amber-50);
-    --hl-warning-subtle-fg: var(--hl-amber-800);
+    --hl-warning-subtle: light-dark(var(--hl-amber-50), hsl(22deg 78% 26% / 0.35));
+    --hl-warning-subtle-fg: light-dark(var(--hl-amber-800), var(--hl-amber-200));
+
+    /* Intent: info */
     --hl-info: var(--hl-sky-600);
     --hl-info-hover: var(--hl-sky-700);
     --hl-info-fg: hsl(0deg 0% 100%);
-    --hl-info-subtle: var(--hl-sky-50);
-    --hl-info-subtle-fg: var(--hl-sky-700);
-    --hl-scrim: hsl(222deg 47% 11% / 0.5);
+    --hl-info-subtle: light-dark(var(--hl-sky-50), hsl(202deg 80% 24% / 0.35));
+    --hl-info-subtle-fg: light-dark(var(--hl-sky-700), var(--hl-sky-200));
+
+    /* Overlays */
+
+    /* Backdrop behind modal dialogs and drawers. */
+    --hl-scrim: light-dark(hsl(222deg 47% 11% / 0.5), hsl(0deg 0% 0% / 0.65));
+
+    /* Surface of floating layers (menus, popovers, listboxes). */
     --hl-overlay: var(--hl-surface);
+
+    /* Shadow of floating layers. */
     --hl-overlay-shadow: var(--hl-shadow-lg);
+
+    /* Elevation. `light-dark()` only takes colors, so the scheme-dependent part
+       is the shadow color; dark surfaces need denser shadows to read as raised. */
+
+    /* Shadow color for the faintest elevation step. */
+    --hl-shadow-color-faint: light-dark(hsl(222deg 47% 11% / 0.05), hsl(0deg 0% 0% / 0.3));
+
+    /* Shadow color for every other elevation step. */
+    --hl-shadow-color: light-dark(hsl(222deg 47% 11% / 0.1), hsl(0deg 0% 0% / 0.45));
+    --hl-shadow-xs: 0 1px 2px 0 var(--hl-shadow-color-faint);
+    --hl-shadow-sm: 0 1px 3px 0 var(--hl-shadow-color), 0 1px 2px -1px var(--hl-shadow-color);
+    --hl-shadow-md: 0 4px 6px -1px var(--hl-shadow-color), 0 2px 4px -2px var(--hl-shadow-color);
+    --hl-shadow-lg: 0 10px 15px -3px var(--hl-shadow-color), 0 4px 6px -4px var(--hl-shadow-color);
+    --hl-shadow-xl: 0 20px 25px -5px var(--hl-shadow-color), 0 8px 10px -6px var(--hl-shadow-color);
   }
 
-  /* Dark theme values, shared by auto + manual dark. */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) {
-      --hl-bg: var(--hl-gray-950);
-      --hl-surface: var(--hl-gray-900);
-      --hl-surface-2: var(--hl-gray-800);
-      --hl-surface-3: var(--hl-gray-700);
-      --hl-fg: var(--hl-gray-50);
-      --hl-fg-muted: var(--hl-gray-400);
-      --hl-fg-subtle: var(--hl-gray-500);
-      --hl-border: var(--hl-gray-800);
-      --hl-border-strong: var(--hl-gray-700);
-      --hl-ring: var(--hl-brand-400);
-      --hl-primary: var(--hl-brand-500);
-      --hl-primary-hover: var(--hl-brand-400);
-      --hl-primary-active: var(--hl-brand-300);
-      --hl-primary-fg: var(--hl-gray-950);
-      --hl-primary-subtle: hsl(226deg 57% 21% / 0.5);
-      --hl-primary-subtle-fg: var(--hl-brand-200);
-      --hl-danger-subtle: hsl(0deg 63% 31% / 0.35);
-      --hl-danger-subtle-fg: var(--hl-red-200);
-      --hl-success-subtle: hsl(144deg 61% 20% / 0.35);
-      --hl-success-subtle-fg: var(--hl-green-200);
-      --hl-warning-subtle: hsl(22deg 78% 26% / 0.35);
-      --hl-warning-subtle-fg: var(--hl-amber-200);
-      --hl-info-subtle: hsl(202deg 80% 24% / 0.35);
-      --hl-info-subtle-fg: var(--hl-sky-200);
-      --hl-scrim: hsl(0deg 0% 0% / 0.65);
-      --hl-shadow-xs: 0 1px 2px 0 hsl(0deg 0% 0% / 0.3);
-      --hl-shadow-sm: 0 1px 3px 0 hsl(0deg 0% 0% / 0.4), 0 1px 2px -1px hsl(0deg 0% 0% / 0.4);
-      --hl-shadow-md: 0 4px 6px -1px hsl(0deg 0% 0% / 0.45), 0 2px 4px -2px hsl(0deg 0% 0% / 0.45);
-      --hl-shadow-lg: 0 10px 15px -3px hsl(0deg 0% 0% / 0.5), 0 4px 6px -4px hsl(0deg 0% 0% / 0.5);
-      --hl-shadow-xl:
-        0 20px 25px -5px hsl(0deg 0% 0% / 0.55), 0 8px 10px -6px hsl(0deg 0% 0% / 0.55);
-    }
+  /* Pin a scheme for a subtree; `light-dark()` picks the matching side. */
+  [data-theme='light'] {
+    color-scheme: light;
   }
 
   [data-theme='dark'] {
-    --hl-bg: var(--hl-gray-950);
-    --hl-surface: var(--hl-gray-900);
-    --hl-surface-2: var(--hl-gray-800);
-    --hl-surface-3: var(--hl-gray-700);
-    --hl-fg: var(--hl-gray-50);
-    --hl-fg-muted: var(--hl-gray-400);
-    --hl-fg-subtle: var(--hl-gray-500);
-    --hl-border: var(--hl-gray-800);
-    --hl-border-strong: var(--hl-gray-700);
-    --hl-ring: var(--hl-brand-400);
-    --hl-primary: var(--hl-brand-500);
-    --hl-primary-hover: var(--hl-brand-400);
-    --hl-primary-active: var(--hl-brand-300);
-    --hl-primary-fg: var(--hl-gray-950);
-    --hl-primary-subtle: hsl(226deg 57% 21% / 0.5);
-    --hl-primary-subtle-fg: var(--hl-brand-200);
-    --hl-danger-subtle: hsl(0deg 63% 31% / 0.35);
-    --hl-danger-subtle-fg: var(--hl-red-200);
-    --hl-success-subtle: hsl(144deg 61% 20% / 0.35);
-    --hl-success-subtle-fg: var(--hl-green-200);
-    --hl-warning-subtle: hsl(22deg 78% 26% / 0.35);
-    --hl-warning-subtle-fg: var(--hl-amber-200);
-    --hl-info-subtle: hsl(202deg 80% 24% / 0.35);
-    --hl-info-subtle-fg: var(--hl-sky-200);
-    --hl-scrim: hsl(0deg 0% 0% / 0.65);
-    --hl-shadow-xs: 0 1px 2px 0 hsl(0deg 0% 0% / 0.3);
-    --hl-shadow-sm: 0 1px 3px 0 hsl(0deg 0% 0% / 0.4), 0 1px 2px -1px hsl(0deg 0% 0% / 0.4);
-    --hl-shadow-md: 0 4px 6px -1px hsl(0deg 0% 0% / 0.45), 0 2px 4px -2px hsl(0deg 0% 0% / 0.45);
-    --hl-shadow-lg: 0 10px 15px -3px hsl(0deg 0% 0% / 0.5), 0 4px 6px -4px hsl(0deg 0% 0% / 0.5);
-    --hl-shadow-xl: 0 20px 25px -5px hsl(0deg 0% 0% / 0.55), 0 8px 10px -6px hsl(0deg 0% 0% / 0.55);
+    color-scheme: dark;
   }
 
-  /* Windows High Contrast / forced-colors: defer to system colors. */
+  /* Windows High Contrast / forced-colors: defer to system colors so every
+     role stays legible against the user's palette. Components add borders
+     where they normally rely on fills alone. */
   @media (forced-colors: active) {
     :root {
+      --hl-bg: Canvas;
+      --hl-surface: Canvas;
+      --hl-surface-2: Canvas;
+      --hl-surface-3: Canvas;
+      --hl-fg: CanvasText;
+      --hl-fg-muted: CanvasText;
+      --hl-fg-subtle: GrayText;
       --hl-border: CanvasText;
       --hl-border-strong: CanvasText;
       --hl-ring: Highlight;
+      --hl-focus-shadow: 0 0 0 3px Highlight;
       --hl-primary: Highlight;
-      --hl-primary-fg: Canvas;
+      --hl-primary-fg: HighlightText;
+      --hl-primary-subtle: Highlight;
+      --hl-primary-subtle-fg: HighlightText;
+      --hl-scrim: Canvas;
     }
   }
 }

@@ -392,6 +392,10 @@
   color: #d97706;
 }
 .hl-chip.is-css {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+.hl-chip.is-js {
   border-color: var(--vp-c-brand-1);
   color: var(--vp-c-brand-1);
 }

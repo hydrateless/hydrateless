@@ -49,22 +49,24 @@
       <BreadcrumbItem href="#">Examples</BreadcrumbItem>
       <BreadcrumbItem current>Svelte</BreadcrumbItem>
     </Breadcrumb>
-    <h1>Hydrateless for Svelte <Badge intent="primary">v0.5</Badge></h1>
+    <h1>Hydrateless for Svelte <Badge intent="primary">Example</Badge></h1>
   </header>
 
   <div class="row">
-    <Dropdown>
-      <DropdownTrigger>
-        <Button>Actions</Button>
-      </DropdownTrigger>
+    <Dropdown
+      onSelect={(value) =>
+        toast.show(`${value} selected`, { intent: value === 'delete' ? 'danger' : 'info' })}
+    >
+      <DropdownTrigger class="hl-button">Actions</DropdownTrigger>
       <DropdownMenu>
-        <DropdownItem onSelect={() => toast.show('Edited')}>Edit</DropdownItem>
-        <DropdownItem onSelect={() => toast.show('Duplicated')}>Duplicate</DropdownItem>
+        <DropdownItem value="edit">Edit</DropdownItem>
+        <DropdownItem value="duplicate">Duplicate</DropdownItem>
         <DropdownSeparator />
-        <DropdownItem onSelect={() => toast.show('Deleted')}>Delete</DropdownItem>
+        <DropdownItem value="delete">Delete</DropdownItem>
       </DropdownMenu>
     </Dropdown>
-    <Button intent="primary" onclick={() => toast.show('Saved!')}>Save</Button>
+    <Button intent="primary" onclick={() => toast.show('Saved', { intent: 'success' })}>Save</Button
+    >
   </div>
 
   <Alert intent="info" title="First-class components">

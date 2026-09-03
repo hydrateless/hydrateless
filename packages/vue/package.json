@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/vue",
   "version": "0.8.0",
-  "description": "Vue 3 bindings for Hydrateless: first-class components, directives, composables, and a plugin.",
+  "description": "Vue 3 bindings for Hydrateless: first-class components plus the useEnhancer, useField, and useToast composables.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm --clean --external vue",
+    "build": "tsup",
     "dev": "npm run build -- --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
@@ -31,7 +31,7 @@
     "@hydrateless/enhancers": "^0.8.0"
   },
   "peerDependencies": {
-    "vue": ">=3.3"
+    "vue": ">=3.5"
   },
   "devDependencies": {
     "@vue/compiler-dom": "^3.5.35",

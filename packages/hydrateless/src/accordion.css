@@ -1,18 +1,30 @@
+/**
+ * Accordion: `<div data-hl-accordion>` of native `<details>` items, each with a
+ * `<summary>` header and an `.hl-accordion-panel` body.
+ *
+ * No-JS baseline: `<details>` opens and closes on its own; exclusive groups
+ * need only a shared `name` attribute. The enhancer adds arrow-key movement
+ * between headers and the value API, and reads nothing else from the markup.
+ *   data-hl-accordion: root (opts into the enhancer)
+ */
 @layer components {
   [data-hl-accordion] {
-    border: 1px solid var(--hl-border);
+    border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
   }
 
   [data-hl-accordion] > details {
-    border-top: 1px solid var(--hl-border);
+    border-block-start: var(--hl-border-width) solid var(--hl-border);
   }
 
   [data-hl-accordion] > details:first-child {
-    border-top: 0;
+    border-block-start: 0;
   }
 
   [data-hl-accordion] > details > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--hl-space-2);
     list-style: none;
     cursor: pointer;
     padding: var(--hl-space-3) var(--hl-space-4);
@@ -24,18 +36,18 @@
 
   [data-hl-accordion] > details > summary:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
+  /* The chevron sits at the inline end so it lands on the left under RTL. */
   [data-hl-accordion] > details > summary::after {
     content: '\25BE';
-    float: right;
-    transform: rotate(0deg);
-    transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
+    margin-inline-start: auto;
+    transition: rotate var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
   [data-hl-accordion] > details[open] > summary::after {
-    transform: rotate(180deg);
+    rotate: 180deg;
   }
 
   [data-hl-accordion] > details > .hl-accordion-panel {

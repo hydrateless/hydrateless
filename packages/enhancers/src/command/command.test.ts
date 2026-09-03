@@ -56,6 +56,25 @@ describe('enhanceCommand', () => {
     expect(input.getAttribute('aria-activedescendant')).toBe(options[1].id);
   });
 
+  it('jumps by a page with PageDown and PageUp', () => {
+    const { input, options } = setup();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true }));
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[2].id);
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageUp', bubbles: true }));
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[0].id);
+  });
+
+  it('clears the query on Escape before closing anything', () => {
+    const { input, options, root } = setup();
+    expect(root.hasAttribute('data-hl-ready')).toBe(true);
+    input.value = 'sa';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(options[0].hidden).toBe(true);
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(input.value).toBe('');
+    expect(options[0].hidden).toBe(false);
+  });
+
   it('runs the active command on Enter (emits hl:command)', () => {
     const { input, root } = setup();
     let detail: { value: string } | null = null;

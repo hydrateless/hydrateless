@@ -1,15 +1,17 @@
 /**
- * Button: `<button class="hl-button">` (works on `<a>`/`<input>` too).
+ * Button: `<button class="hl-button">` (works on `<a>`/`<input>` too). Pure
+ * CSS; there is no enhancer.
  *
  * Color is driven by a small set of local custom properties so the
- * intent × variant matrix stays DRY: `data-hl-intent` swaps the accent set,
+ * intent by variant matrix stays DRY: `data-hl-intent` swaps the accent set,
  * `data-hl-variant` decides how those values are applied.
  *
  *   data-hl-variant: solid (default) | soft | outline | ghost | link
  *   data-hl-intent:  neutral (default) | primary | danger | success | warning | info
  *   data-hl-size:    sm | md (default) | lg
- *   data-hl-block:   stretch to container width
+ *   data-hl-block:   stretch to the container's inline size
  *   data-hl-icon:    square, icon-only
+ *   data-hl-loading: shows a spinner and blocks interaction
  */
 @layer components {
   .hl-button {
@@ -60,14 +62,14 @@
 
   .hl-button:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   .hl-button:disabled,
   .hl-button[aria-disabled='true'],
   .hl-button[data-hl-loading] {
     cursor: not-allowed;
-    opacity: 0.55;
+    opacity: var(--hl-disabled-opacity);
   }
 
   .hl-button[data-hl-loading] {
@@ -211,9 +213,10 @@
     animation: hl-button-spin 0.6s linear infinite;
   }
 
+  /* A static arc still reads as "busy" without continuous motion. */
   @media (prefers-reduced-motion: reduce) {
     .hl-button[data-hl-loading]::before {
-      animation-duration: 1.4s;
+      animation: none;
     }
   }
 
@@ -248,5 +251,24 @@
   .hl-button-group > .hl-button:hover,
   .hl-button-group > .hl-button:focus-visible {
     z-index: 1;
+  }
+
+  /* Forced colors flatten every fill to Canvas, so the border alone tells a
+     button apart from text; the link variant keeps reading as a link. */
+  @media (forced-colors: active) {
+    .hl-button {
+      border-color: ButtonBorder;
+    }
+
+    .hl-button[data-hl-variant='link'] {
+      border-color: transparent;
+      color: LinkText;
+    }
+
+    .hl-button:disabled,
+    .hl-button[aria-disabled='true'] {
+      color: GrayText;
+      border-color: GrayText;
+    }
   }
 }

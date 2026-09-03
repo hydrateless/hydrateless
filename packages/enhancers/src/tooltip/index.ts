@@ -3,9 +3,12 @@ import {
   ensureId,
   setAttrs,
   resolveRef,
-  supportsAnchorPositioning,
-  positionFallback,
+  supportsPopover,
+  keepPositioned,
+  noop,
   Events,
+  Keys,
+  type Disposer,
   type Placement,
 } from '../core/index.js';
 
@@ -36,11 +39,14 @@ export type TooltipApi = {
  * alone. The baseline needs no JavaScript: the stylesheet reveals the tip on
  * the trigger's `:hover`/`:focus-visible` and places it with CSS anchor
  * positioning. When this enhancer runs, it wires `role="tooltip"` and
- * `aria-describedby`, then takes over visibility (marking the trigger
- * `data-hl-tooltip-managed`) so it can add show/hide delays, a grace period for
- * crossing onto the tip, Escape-to-dismiss, and a JS positioning fallback on
- * engines without anchor positioning. Visibility is observable through
- * `onOpenChange`/`hl:open-change` and controllable through the returned API.
+ * `aria-describedby`, promotes the tip to a `popover="manual"` so it renders
+ * in the top layer above any clipping ancestor (falling back to `hidden` on
+ * engines without the Popover API), then takes over visibility (marking the
+ * trigger `data-hl-tooltip-managed`) so it can add show/hide delays, a grace
+ * period for crossing onto the tip, Escape-to-dismiss from anywhere while the
+ * tip is shown, and a JS positioning fallback kept in sync on scroll and
+ * resize. Visibility is observable through `onOpenChange`/`hl:open-change`
+ * and controllable through the returned API.
  */
 export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>({
   name: 'tooltip',
@@ -51,19 +57,37 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     const tip = resolveRef(root.ownerDocument, ref);
     if (!tip) return;
 
-    const win = root.ownerDocument.defaultView;
+    const doc = root.ownerDocument;
+    const win = doc.defaultView;
+    const usePopover = supportsPopover();
+
     setAttrs(tip, { role: 'tooltip' });
     setAttrs(root, {
       'aria-describedby': ensureId(tip, 'hl-tooltip'),
       'data-hl-tooltip-managed': '',
     });
     add(() => root.removeAttribute('data-hl-tooltip-managed'));
-    // The enhancer owns visibility now, so start closed (the no-JS CSS hover
-    // baseline only applies when this code isn't running).
-    tip.setAttribute('hidden', '');
 
-    // Link the tip to its trigger for CSS anchor positioning; `position: fixed`
-    // in the stylesheet then escapes any clipping ancestor without the top layer.
+    // The enhancer owns visibility now, so start closed (the no-JS CSS hover
+    // baseline only applies when this code isn't running). A manual popover
+    // never light-dismisses, which is right for a tooltip: pointer and focus
+    // decide when it goes away.
+    if (usePopover) {
+      if (!tip.hasAttribute('popover')) tip.setAttribute('popover', 'manual');
+      // The popover's own UA styling now hides it; a leftover `hidden` would
+      // keep it invisible even while shown.
+      const wasHidden = tip.hasAttribute('hidden');
+      tip.removeAttribute('hidden');
+      add(() => {
+        tip.removeAttribute('popover');
+        if (wasHidden) tip.setAttribute('hidden', '');
+      });
+    } else {
+      tip.setAttribute('hidden', '');
+      add(() => tip.removeAttribute('hidden'));
+    }
+
+    // Link the tip to its trigger for CSS anchor positioning.
     const anchorName = `--${ensureId(root, 'hl-tooltip-anchor')}`;
     root.style.setProperty('anchor-name', anchorName);
     tip.style.setProperty('position-anchor', anchorName);
@@ -72,37 +96,40 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
 
     let showTimer: number | undefined;
     let hideTimer: number | undefined;
+    let stopPositioning: Disposer = noop;
     const clearTimers = () => {
       if (showTimer !== undefined) win?.clearTimeout(showTimer);
       if (hideTimer !== undefined) win?.clearTimeout(hideTimer);
       showTimer = hideTimer = undefined;
     };
     add(clearTimers);
+    add(() => stopPositioning());
 
-    const isOpen = () => !tip.hasAttribute('hidden');
+    const isOpen = () => (usePopover ? tip.matches(':popover-open') : !tip.hasAttribute('hidden'));
     const notify = (open: boolean) => {
       options.onOpenChange?.(open);
       emit(Events.openChange, { open });
     };
 
-    // `data-hl-tooltip-open` is the CSS-first hook (transitionable); `hidden` is
-    // toggled alongside it as a hard fallback for engines/styles that haven't
-    // adopted the open-state selector yet. Both always move together.
+    // `data-hl-tooltip-open` is the CSS-first hook (transitionable) and always
+    // moves together with the popover/hidden state.
     const show = () => {
       clearTimers();
       if (isOpen()) return;
-      tip.removeAttribute('hidden');
+      if (usePopover) tip.showPopover();
+      else tip.removeAttribute('hidden');
       tip.setAttribute('data-hl-tooltip-open', '');
-      if (options.position && !supportsAnchorPositioning()) {
-        positionFallback(root, tip, { placement });
-      }
+      if (options.position) stopPositioning = keepPositioned(root, tip, { placement });
       notify(true);
     };
     const hide = () => {
       clearTimers();
       if (!isOpen()) return;
+      stopPositioning();
+      stopPositioning = noop;
       tip.removeAttribute('data-hl-tooltip-open');
-      tip.setAttribute('hidden', '');
+      if (usePopover) tip.hidePopover();
+      else tip.setAttribute('hidden', '');
       notify(false);
     };
     const scheduleShow = () => {
@@ -122,8 +149,9 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     on(root, 'blur', hide);
     on(tip, 'mouseenter', clearTimers);
     on(tip, 'mouseleave', scheduleHide);
-    on<KeyboardEvent>(root, 'keydown', (e) => {
-      if (e.key === 'Escape') hide();
+    // Escape dismisses a visible tooltip wherever focus is (WCAG 1.4.13).
+    on<KeyboardEvent>(doc, 'keydown', (e) => {
+      if (e.key === Keys.Escape && isOpen()) hide();
     });
 
     return {

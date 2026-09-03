@@ -1,6 +1,6 @@
-import { defineComponent, h, type PropType } from 'vue';
-import { enhanceToc, type TocApi } from '@hydrateless/enhancers';
-import { cx } from '../internal.js';
+import { defineComponent, h, ref, type ExtractPublicPropTypes, type PropType } from 'vue';
+import { enhanceToc, type EnhanceTocOptions } from '@hydrateless/enhancers';
+import { cx } from '../internal/index.js';
 import { useEnhancer } from '../useEnhancer.js';
 
 const ELLIPSIS = 'ellipsis';
@@ -26,18 +26,26 @@ function paginationRange(
   return [1, ELLIPSIS, ...range(leftSibling, rightSibling), ELLIPSIS, count];
 }
 
+const paginationProps = {
+  /** Current page (1-based); use `v-model:page`. */
+  page: { type: Number, required: true },
+  /** Total number of pages. */
+  count: { type: Number, required: true },
+  /** Pages shown on each side of the current one. */
+  siblingCount: { type: Number, default: 1 },
+  showControls: { type: Boolean, default: true },
+  prevLabel: { type: String, default: '\u2039' },
+  nextLabel: { type: String, default: '\u203a' },
+} as const;
+
+/** Props for {@link Pagination}. */
+export type PaginationProps = ExtractPublicPropTypes<typeof paginationProps>;
+
 /** Pagination primitive: `hl-pagination` with smart ellipsis truncation. Emits `update:page`. */
 export const Pagination = defineComponent({
   name: 'HlPagination',
   inheritAttrs: false,
-  props: {
-    page: { type: Number, required: true },
-    count: { type: Number, required: true },
-    siblingCount: { type: Number, default: 1 },
-    showControls: { type: Boolean, default: true },
-    prevLabel: { type: String, default: '\u2039' },
-    nextLabel: { type: String, default: '\u203a' },
-  },
+  props: paginationProps,
   emits: ['update:page'],
   setup(props, { attrs, emit }) {
     const go = (target: number) => {
@@ -108,39 +116,53 @@ export const Pagination = defineComponent({
       }
       return h(
         'nav',
-        {
-          ...attrs,
-          class: cx('hl-pagination', attrs.class as string),
-          'aria-label': (attrs['aria-label'] as string) ?? 'Pagination',
-        },
+        { 'aria-label': 'Pagination', ...attrs, class: cx('hl-pagination', attrs.class as string) },
         [h('ul', lis)],
       );
     };
   },
 });
 
+const tocProps = {
+  /** Selector for the region whose headings populate the list. */
+  contentSelector: { type: String, default: undefined },
+  /** Selector for which headings to include. */
+  headings: { type: String, default: undefined },
+  scrollSpy: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+} as const;
+
+/** Props for {@link Toc}. */
+export type TocProps = ExtractPublicPropTypes<typeof tocProps>;
+
 /** Auto-generated table of contents with optional scroll-spy. */
 export const Toc = defineComponent({
   name: 'HlToc',
   inheritAttrs: false,
-  props: {
-    contentSelector: { type: String, default: undefined },
-    headings: { type: String, default: undefined },
-    scrollSpy: { type: Boolean as PropType<boolean | undefined>, default: undefined },
-  },
-  setup(props, { attrs }) {
-    const { host } = useEnhancer<TocApi>(
-      (el) =>
-        enhanceToc(el.ownerDocument, {
-          contentSelector: props.contentSelector,
-          headings: props.headings,
-          scrollSpy: props.scrollSpy,
-        }),
+  props: tocProps,
+  setup(props, { slots, attrs }) {
+    const host = ref<HTMLElement | null>(null);
+    useEnhancer(
+      host,
+      // Enhance from the document so `contentSelector` resolves page-wide.
+      (el: HTMLElement, options?: EnhanceTocOptions) => enhanceToc(el.ownerDocument, options),
+      () => ({
+        contentSelector: props.contentSelector,
+        headings: props.headings,
+        scrollSpy: props.scrollSpy,
+      }),
       () => [props.contentSelector, props.headings, props.scrollSpy],
     );
-    return () => h('nav', { ...attrs, 'data-hl-toc': '', ref: host });
+    return () =>
+      h(
+        'nav',
+        { 'aria-label': 'Table of contents', ...attrs, 'data-hl-toc': '', ref: host },
+        slots.default?.(),
+      );
   },
 });
+
+/** Props for {@link SkipLink}. */
+export type SkipLinkProps = Record<never, never>;
 
 /** Accessibility skip-navigation link, visually hidden until focused. */
 export const SkipLink = defineComponent({

@@ -1,7 +1,13 @@
-import { useEffect, type HTMLAttributes, type ReactNode } from 'react';
-import { enhancePopover, type PopoverApi } from '@hydrateless/enhancers';
+import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  enhancePopover,
+  type EnhancePopoverOptions,
+  type PopoverApi,
+} from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
-import { useLatest } from './util.js';
+import { useControlled } from './internal/useControlled.js';
+import { useSyncApi } from './internal/useSyncApi.js';
+import { useForwardedRef } from './internal/useForwardedRef.js';
 
 /** Props for {@link Popover}. */
 export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
@@ -9,9 +15,12 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
   open?: boolean;
   /** Show the popover initially for uncontrolled usage. */
   defaultOpen?: boolean;
-  /** Called when the browser's light-dismiss (Escape or outside click) closes it. */
+  /** Called after the popover shows or hides (including the browser's light-dismiss). */
   onOpenChange?: (open: boolean) => void;
-  children?: ReactNode;
+  /** Placement used by the JS positioning fallback. Defaults to `bottom`. */
+  placement?: EnhancePopoverOptions['placement'];
+  /** Open on pointer hover and focus instead of click. */
+  hover?: boolean;
 }
 
 /**
@@ -21,26 +30,28 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
  * controlled (`open` + `onOpenChange`). Position it with the
  * `hydrateless/popover.css` styles.
  */
-export function Popover({ open, defaultOpen, onOpenChange, children, ...rest }: PopoverProps) {
-  const onOpenChangeRef = useLatest(onOpenChange);
-  const initialOpenRef = useLatest(open ?? defaultOpen);
-
-  const { ref, api } = useEnhancer<HTMLDivElement, PopoverApi>(
-    (el) =>
-      enhancePopover(el, {
-        defaultOpen: initialOpenRef.current,
-        onOpenChange: (next) => onOpenChangeRef.current?.(next),
-      }),
-    [],
+export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
+  { open: openProp, defaultOpen, onOpenChange, placement, hover, children, ...rest },
+  forwardedRef,
+) {
+  const ref = useForwardedRef(forwardedRef);
+  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const api = useEnhancer<EnhancePopoverOptions, PopoverApi>(
+    ref,
+    enhancePopover,
+    {
+      placement,
+      triggerEvent: hover ? 'hover' : 'click',
+      defaultOpen: open,
+      onOpenChange: setOpen,
+    },
+    [placement, hover],
   );
-
-  useEffect(() => {
-    if (open != null) api.current?.setOpen(open);
-  }, [open, api]);
+  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
 
   return (
     <div {...rest} ref={ref} data-hl-popover popover="auto" role="dialog">
       {children}
     </div>
   );
-}
+});

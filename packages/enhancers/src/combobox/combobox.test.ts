@@ -25,12 +25,55 @@ describe('enhanceCombobox', () => {
   beforeEach(() => setup());
 
   it('wires combobox ARIA on init', () => {
+    const root = document.querySelector<HTMLElement>('[data-hl-combobox]')!;
     const input = document.querySelector('input')!;
     const listbox = document.querySelector('[role="listbox"]')!;
     expect(input.getAttribute('role')).toBe('combobox');
     expect(input.getAttribute('aria-expanded')).toBe('false');
+    expect(input.getAttribute('aria-haspopup')).toBe('listbox');
     expect(input.getAttribute('aria-controls')).toBe(listbox.id);
     expect((listbox as HTMLElement).hidden).toBe(true);
+    expect(root.hasAttribute('data-hl-ready')).toBe(true);
+  });
+
+  it('leaves Home and End to the text caret', () => {
+    const { input, options } = setup();
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[0].id);
+    const end = new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true });
+    input.dispatchEvent(end);
+    expect(end.defaultPrevented).toBe(false);
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[0].id);
+  });
+
+  it('expands on Alt+ArrowDown without moving the highlight', () => {
+    const { input, listbox } = setup();
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, bubbles: true }),
+    );
+    expect(listbox.hidden).toBe(false);
+    expect(input.hasAttribute('aria-activedescendant')).toBe(false);
+  });
+
+  it('skips disabled options and refuses to select them', () => {
+    document.body.innerHTML = `
+      <div data-hl-combobox>
+        <input />
+        <ul role="listbox">
+          <li role="option" data-hl-value="apple" aria-disabled="true">Apple</li>
+          <li role="option" data-hl-value="banana">Banana</li>
+        </ul>
+      </div>
+    `;
+    enhanceCombobox(document);
+    const input = document.querySelector<HTMLInputElement>('input')!;
+    const options = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]'));
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[1].id);
+    options[0].click();
+    expect(input.value).toBe('');
   });
 
   it('opens on input and filters options', () => {

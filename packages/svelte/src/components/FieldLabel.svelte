@@ -4,18 +4,19 @@
   import { getFieldContext } from '../context.js';
 
   interface Props extends HTMLLabelAttributes {
+    /** Label text. */
     children?: Snippet;
   }
 
   let { for: htmlFor, class: klass, children, ...rest }: Props = $props();
-  const ctx = getFieldContext();
+  const field = getFieldContext();
 </script>
 
 <label
   {...rest}
-  for={htmlFor ?? ctx?.id}
+  for={htmlFor ?? field?.id}
   class={['hl-label', klass]}
-  data-hl-required={ctx?.required || undefined}
+  data-hl-required={field?.required || undefined}
 >
   {@render children?.()}
 </label>

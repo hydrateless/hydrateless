@@ -48,7 +48,8 @@ export const modal: ComponentDoc = {
     {
       name: 'open',
       type: 'boolean',
-      description: 'Controlled visibility; pair with `onOpenChange`.',
+      description:
+        'Controlled visibility; pair with `onOpenChange` (Vue: `v-model:open`, Svelte: `bind:open`).',
     },
     {
       name: 'defaultOpen',
@@ -57,10 +58,16 @@ export const modal: ComponentDoc = {
       description: 'Uncontrolled initial visibility.',
     },
     {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description:
+        'Called after the dialog opens or closes, including native `Esc` and backdrop dismissal.',
+    },
+    {
       name: 'closeOnBackdrop',
       type: 'boolean',
       default: 'true',
-      description: 'Dismiss when the backdrop is clicked.',
+      description: 'Sets `closedby="any"` so clicking the backdrop dismisses the dialog.',
     },
   ],
   events: [
@@ -72,9 +79,10 @@ export const modal: ComponentDoc = {
   ],
   tokens: [
     { name: '--hl-surface', description: 'Dialog background.' },
-    { name: '--hl-overlay', description: 'Backdrop color.' },
+    { name: '--hl-scrim', description: 'Backdrop color.' },
+    { name: '--hl-modal-inline-size', description: 'Dialog width.' },
     { name: '--hl-radius-lg', description: 'Dialog corner radius.' },
-    { name: '--hl-shadow-lg', description: 'Dialog elevation.' },
+    { name: '--hl-overlay-shadow', description: 'Dialog elevation.' },
   ],
   a11y: [
     '`showModal()` renders in the top layer, traps focus, and makes the rest of the page `inert`.',

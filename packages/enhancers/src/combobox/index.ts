@@ -3,9 +3,12 @@ import {
   ensureId,
   setAttrs,
   nextIndex,
-  supportsAnchorPositioning,
-  positionFallback,
+  keepPositioned,
+  noop,
   Events,
+  Keys,
+  type Disposer,
+  type MoveDirection,
 } from '../core/index.js';
 
 /** Options for {@link enhanceCombobox}. */
@@ -37,20 +40,25 @@ export type ComboboxApi = {
 /** Number of options PageUp/PageDown jumps over. */
 const PAGE = 10;
 
+const isDisabled = (option: HTMLElement) => option.getAttribute('aria-disabled') === 'true';
+
 /**
  * Editable combobox (text input + `role="listbox"` popup) implementing the APG
- * pattern: `aria-expanded`, `aria-activedescendant`, arrow/Home/End/PageUp/
- * PageDown navigation, type-to-filter, Enter to commit, Escape/outside-click
- * to dismiss. Selection emits a cancelable `hl:select` followed by
- * `hl:change`, expanding or collapsing the listbox emits `hl:open-change`,
- * and both the committed value and the open state are controllable through
- * the returned API.
+ * pattern: `aria-expanded`, `aria-activedescendant`, Up/Down/PageUp/PageDown
+ * navigation that skips disabled options (Home and End stay with the text
+ * caret, as the pattern requires), Alt+Down to expand without moving, type-
+ * to-filter, Enter to commit, Escape/outside-click to dismiss. Selection emits
+ * a cancelable `hl:select` followed by `hl:change`, expanding or collapsing
+ * the listbox emits `hl:open-change`, and both the committed value and the
+ * open state are controllable through the returned API. Before this runs, the
+ * stylesheet reveals the listbox on `:focus-within` so the options are at
+ * least reachable; the root is marked `data-hl-ready` once JS owns visibility.
  */
 export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxApi>({
   name: 'combobox',
   selector: '[data-hl-combobox]',
   defaults: { filter: true, autoHighlight: true },
-  setup({ root, options, on, emit }) {
+  setup({ root, options, on, add, emit }) {
     const input = root.querySelector<HTMLInputElement>('input, [role="combobox"]');
     const listbox = root.querySelector<HTMLElement>('[role="listbox"], [data-hl-combobox-list]');
     if (!input || !listbox) return;
@@ -61,10 +69,16 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       role: 'combobox',
       'aria-expanded': 'false',
       'aria-controls': listId,
+      'aria-haspopup': 'listbox',
       'aria-autocomplete': 'list',
       autocomplete: 'off',
     });
     listbox.hidden = true;
+    root.setAttribute('data-hl-ready', '');
+    add(() => {
+      root.removeAttribute('data-hl-ready');
+      listbox.hidden = false;
+    });
 
     // Link the listbox to the input for CSS anchor positioning. `position: fixed`
     // in the stylesheet then escapes any clipping ancestor without the top layer.
@@ -76,6 +90,8 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     for (const option of allOptions()) ensureId(option, 'hl-option');
 
     let active = -1;
+    let stopPositioning: Disposer = noop;
+    add(() => stopPositioning());
     const visible = () => allOptions().filter((o) => !o.hidden);
 
     const paint = () => {
@@ -88,6 +104,18 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       current?.scrollIntoView?.({ block: 'nearest' });
     };
 
+    /** Move `active` through the visible options, skipping disabled ones. */
+    const step = (direction: MoveDirection, list = visible()) => {
+      if (list.length === 0) return;
+      let next = nextIndex(active, list.length, direction);
+      const dir: MoveDirection =
+        direction === 'first' ? 'next' : direction === 'last' ? 'prev' : direction;
+      for (let i = 0; i < list.length && isDisabled(list[next]); i += 1) {
+        next = nextIndex(next, list.length, dir);
+      }
+      active = isDisabled(list[next]) ? -1 : next;
+    };
+
     const isOpen = () => !listbox.hidden;
     const notifyOpen = (open: boolean) => {
       options.onOpenChange?.(open);
@@ -97,13 +125,13 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       if (isOpen()) return;
       listbox.hidden = false;
       setAttrs(input, { 'aria-expanded': 'true' });
-      if (!supportsAnchorPositioning()) {
-        positionFallback(input, listbox, { placement: 'bottom-start' });
-      }
+      stopPositioning = keepPositioned(input, listbox, { placement: 'bottom-start' });
       notifyOpen(true);
     };
     const close = () => {
       if (!isOpen()) return;
+      stopPositioning();
+      stopPositioning = noop;
       listbox.hidden = true;
       active = -1;
       setAttrs(input, { 'aria-expanded': 'false', 'aria-activedescendant': null });
@@ -126,6 +154,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     };
 
     const select = (option: HTMLElement) => {
+      if (isDisabled(option)) return;
       const value = option.dataset.hlValue ?? option.textContent?.trim() ?? '';
       const proceed = emit(Events.select, { value, option }, { cancelable: true });
       if (proceed) commit(value);
@@ -139,7 +168,8 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       open();
       filter(input.value);
       const list = visible();
-      active = options.autoHighlight && list.length > 0 ? 0 : -1;
+      active = -1;
+      if (options.autoHighlight && list.length > 0) step('first', list);
       paint();
     });
 
@@ -150,59 +180,48 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     on<KeyboardEvent>(input, 'keydown', (e) => {
       const list = visible();
       switch (e.key) {
-        case 'ArrowDown':
+        case Keys.ArrowDown:
           e.preventDefault();
           if (!isOpen()) open();
-          active = nextIndex(active, list.length, 'next');
+          // Alt+Down expands without moving the highlight (APG).
+          if (!e.altKey) step('next', list);
           paint();
           break;
-        case 'ArrowUp':
+        case Keys.ArrowUp:
           e.preventDefault();
           if (!isOpen()) open();
-          active = nextIndex(active, list.length, 'prev');
+          if (!e.altKey) step('prev', list);
           paint();
           break;
-        case 'PageDown':
+        case Keys.PageDown:
           if (isOpen() && list.length > 0) {
             e.preventDefault();
             active = Math.min(active === -1 ? PAGE - 1 : active + PAGE, list.length - 1);
+            if (isDisabled(list[active])) step('next', list);
             paint();
           }
           break;
-        case 'PageUp':
+        case Keys.PageUp:
           if (isOpen() && list.length > 0) {
             e.preventDefault();
             active = Math.max(active === -1 ? 0 : active - PAGE, 0);
+            if (isDisabled(list[active])) step('prev', list);
             paint();
           }
           break;
-        case 'Home':
-          if (isOpen()) {
-            e.preventDefault();
-            active = 0;
-            paint();
-          }
-          break;
-        case 'End':
-          if (isOpen()) {
-            e.preventDefault();
-            active = list.length - 1;
-            paint();
-          }
-          break;
-        case 'Enter':
+        case Keys.Enter:
           if (isOpen() && list[active]) {
             e.preventDefault();
             select(list[active]);
           }
           break;
-        case 'Escape':
+        case Keys.Escape:
           if (isOpen()) {
             e.preventDefault();
             close();
           }
           break;
-        case 'Tab':
+        case Keys.Tab:
           close();
           break;
       }
@@ -212,6 +231,10 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       const option = (e.target as HTMLElement).closest<HTMLElement>('[role="option"]');
       if (option) select(option);
     });
+
+    // Keep the input focused when the pointer lands on the listbox, so a click
+    // on an option commits it instead of blurring the combobox first.
+    on(listbox, 'pointerdown', (e) => e.preventDefault());
 
     // Native light-dismiss isn't available for a non-button invoker, so close
     // when focus leaves the combobox entirely (covers Tab and outside clicks).

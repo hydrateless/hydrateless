@@ -10,67 +10,79 @@ Drop two tags into your page:
 
 ```html
 <!-- 1. Styles -->
-<link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/hydrateless.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@latest/dist/hydrateless.min.css" />
 
 <!-- 2. Auto-initializer (self-contained, no import map needed) -->
-<script type="module" src="https://unpkg.com/@hydrateless/auto/dist/hydrateless.js"></script>
+<script type="module" src="https://unpkg.com/@hydrateless/auto@latest/dist/hydrateless.js"></script>
 ```
 
 That's it. Write semantic HTML with `data-hl-*` attributes and the enhancers run
-automatically once the DOM is ready.
+automatically once the DOM is ready:
 
 ```html
-<div data-hl-tabs>
-  <div role="tablist">
-    <button role="tab">One</button>
-    <button role="tab">Two</button>
+<button class="hl-button" command="show-modal" commandfor="confirm">Open</button>
+<dialog id="confirm" class="hl-modal" data-hl-modal>
+  <div class="hl-modal-header">Confirm</div>
+  <div class="hl-modal-body">This dialog opened with no JavaScript.</div>
+  <div class="hl-modal-footer">
+    <button class="hl-button" command="close" commandfor="confirm">Close</button>
   </div>
-  <div role="tabpanel">First panel</div>
-  <div role="tabpanel">Second panel</div>
-</div>
+</dialog>
 ```
+
+## Pinning a version
+
+`@latest` always resolves to the newest release, including breaking ones. For
+anything beyond a prototype, pin to a major so you get fixes but not surprises,
+and bump it deliberately:
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/hydrateless.min.css" />
+<script type="module" src="https://unpkg.com/@hydrateless/auto@1/dist/hydrateless.js"></script>
+```
+
+Before 1.0, minor releases can include breaking changes, so pin the minor
+instead (`hydrateless@0.8`). Pin an exact version (`hydrateless@1.2.3`) when you
+need byte-for-byte reproducibility, for example alongside a Subresource
+Integrity hash.
 
 ## What's in the bundle
 
 The CDN `@hydrateless/auto` bundle (`dist/hydrateless.js`) is **self-contained**:
 all enhancers are inlined, so a single `<script type="module">` works without an
 import map or any bundler. It scans the page for `data-hl-*` attributes on
-`DOMContentLoaded` and enhances only the components it finds.
+`DOMContentLoaded`, enhances only the components it finds, and keeps watching
+for content added later.
 
 ## CSS options
 
-| File                                   | Use case                                             |
-| -------------------------------------- | ---------------------------------------------------- |
-| `hydrateless/dist/hydrateless.min.css` | Minified, all components; recommended for production |
-| `hydrateless/dist/hydrateless.css`     | Unminified, all components                           |
-| `hydrateless/dist/tabs.css` (etc.)     | Individual component styles                          |
+| File                                    | Use case                                             |
+| --------------------------------------- | ---------------------------------------------------- |
+| `hydrateless/dist/hydrateless.min.css`  | Minified, all components; recommended for production |
+| `hydrateless/dist/hydrateless.css`      | Unminified, all components                           |
+| `hydrateless/dist/tabs.css` (and so on) | Individual component styles                          |
 
 ```html
 <!-- Just the pieces you need -->
-<link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/reset.css" />
-<link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/tokens.css" />
-<link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/theme.css" />
-<link rel="stylesheet" href="https://unpkg.com/hydrateless/dist/tabs.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/reset.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/tokens.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/theme.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/tabs.css" />
 ```
 
-## Pinning a version
+Component file names match the subpath exports: `segmented-control.css`,
+`radio-group.css`, `command-palette.css`, and so on. Always include `tokens.css`
+and `theme.css` when loading components individually.
 
-Unpinned URLs always resolve to the latest release. For production, pin an exact
-version so upgrades are deliberate:
+## jsDelivr
 
-```html
-<link rel="stylesheet" href="https://unpkg.com/hydrateless@0.3.0/dist/hydrateless.min.css" />
-<script type="module" src="https://unpkg.com/@hydrateless/auto@0.3.0/dist/hydrateless.js"></script>
-```
-
-The same paths work on jsDelivr; swap the host for
-`https://cdn.jsdelivr.net/npm/`:
+The same paths work on jsDelivr; swap the host for `https://cdn.jsdelivr.net/npm/`:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hydrateless/dist/hydrateless.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hydrateless@1/dist/hydrateless.min.css" />
 <script
   type="module"
-  src="https://cdn.jsdelivr.net/npm/@hydrateless/auto/dist/hydrateless.js"
+  src="https://cdn.jsdelivr.net/npm/@hydrateless/auto@1/dist/hydrateless.js"
 ></script>
 ```
 
@@ -81,7 +93,7 @@ bundle instead of relying on the side-effecting auto-run:
 
 ```html
 <script type="module">
-  import { autoSync } from 'https://unpkg.com/@hydrateless/auto/dist/hydrateless.js';
+  import { autoSync } from 'https://unpkg.com/@hydrateless/auto@1/dist/hydrateless.js';
 
   // Enhance only a specific subtree, and keep the disposer for later cleanup.
   const dispose = autoSync(document.querySelector('#widget'));

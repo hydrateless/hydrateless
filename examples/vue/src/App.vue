@@ -40,6 +40,10 @@ const open = ref(false);
 const page = ref(3);
 const fruit = ref('');
 const email = ref('');
+
+function onAction(value: string) {
+  toast.show(`${value} selected`, { intent: value === 'delete' ? 'danger' : 'info' });
+}
 </script>
 
 <template>
@@ -50,22 +54,20 @@ const email = ref('');
         <BreadcrumbItem href="#">Examples</BreadcrumbItem>
         <BreadcrumbItem current>Vue</BreadcrumbItem>
       </Breadcrumb>
-      <h1>Hydrateless for Vue <Badge intent="primary">v0.5</Badge></h1>
+      <h1>Hydrateless for Vue <Badge intent="primary">Example</Badge></h1>
     </header>
 
     <div class="row">
-      <Dropdown>
-        <DropdownTrigger>
-          <Button>Actions</Button>
-        </DropdownTrigger>
+      <Dropdown @select="onAction">
+        <DropdownTrigger class="hl-button">Actions</DropdownTrigger>
         <DropdownMenu>
-          <DropdownItem @select="toast.show('Edited')">Edit</DropdownItem>
-          <DropdownItem @select="toast.show('Duplicated')">Duplicate</DropdownItem>
+          <DropdownItem value="edit">Edit</DropdownItem>
+          <DropdownItem value="duplicate">Duplicate</DropdownItem>
           <DropdownSeparator />
-          <DropdownItem @select="toast.show('Deleted')">Delete</DropdownItem>
+          <DropdownItem value="delete">Delete</DropdownItem>
         </DropdownMenu>
       </Dropdown>
-      <Button intent="primary" @click="toast.show('Saved!')">Save</Button>
+      <Button intent="primary" @click="toast.show('Saved', { intent: 'success' })">Save</Button>
     </div>
 
     <Alert intent="info" title="First-class components">

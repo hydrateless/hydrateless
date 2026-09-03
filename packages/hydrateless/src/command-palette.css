@@ -1,8 +1,18 @@
 /**
  * Command palette: `<div data-hl-command>` containing a search input
- * (`[data-hl-command-input]`), an empty state (`[data-hl-command-empty]`), and a
- * `[data-hl-command-list] role="listbox"` of grouped `[role="option"]` items.
- * Often placed inside a `<dialog class="hl-modal">`.
+ * (`.hl-command-input` or `[data-hl-command-input]`), an empty state
+ * (`[data-hl-command-empty]`), and a `[data-hl-command-list] role="listbox"` of
+ * grouped `[role="option"]` items. Often placed inside a `<dialog class="hl-modal">`.
+ *
+ * No-JS baseline: every item is listed and the empty state stays hidden,
+ * since nothing can filter yet. The enhancer marks the root `data-hl-ready`
+ * and then toggles `hidden` on items, groups, and the empty state.
+ *   data-hl-command:        root
+ *   data-hl-command-input:  filter field
+ *   data-hl-command-list:   listbox
+ *   data-hl-command-group:  a group wrapper (hidden when all its items are)
+ *   data-hl-command-empty:  "no results" message
+ *   data-hl-ready:          set by the enhancer
  */
 @layer components {
   [data-hl-command] {
@@ -14,7 +24,7 @@
     border-radius: var(--hl-radius-lg);
   }
 
-  [data-hl-command-input] {
+  :is(.hl-command-input, [data-hl-command-input]) {
     flex: none;
     inline-size: 100%;
     block-size: var(--hl-control-height-lg);
@@ -28,11 +38,13 @@
     font-size: var(--hl-text-base);
   }
 
-  [data-hl-command-input]:focus-visible {
-    outline: none;
+  /* The field is flush with the palette edge, so the ring is drawn inward. */
+  :is(.hl-command-input, [data-hl-command-input]):focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: calc(var(--hl-focus-offset) * -1);
   }
 
-  [data-hl-command-input]::placeholder {
+  :is(.hl-command-input, [data-hl-command-input])::placeholder {
     color: var(--hl-fg-subtle);
   }
 
@@ -77,6 +89,11 @@
     color: var(--hl-primary-subtle-fg);
   }
 
+  [data-hl-command] [role='option'][aria-disabled='true'] {
+    opacity: var(--hl-disabled-opacity);
+    pointer-events: none;
+  }
+
   [data-hl-command] [role='option'] svg {
     inline-size: 1.1em;
     block-size: 1.1em;
@@ -91,7 +108,16 @@
     color: var(--hl-fg-muted);
   }
 
-  [data-hl-command-empty][hidden] {
+  /* No-JS baseline: there is no filtering, so there are never "no results". */
+  [data-hl-command-empty][hidden],
+  [data-hl-command]:not([data-hl-ready]) [data-hl-command-empty] {
     display: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-hl-command] [role='option'][aria-selected='true'] {
+      background: Highlight;
+      color: HighlightText;
+    }
   }
 }

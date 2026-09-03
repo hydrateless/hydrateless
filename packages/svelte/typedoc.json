@@ -1,6 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["src/actions.ts", "src/toast.ts", "src/context.ts"],
+  "entryPoints": ["src/useEnhancer.svelte.ts", "src/toast.ts", "src/context.ts"],
   "excludeInternal": true,
   "readme": "none"
 }

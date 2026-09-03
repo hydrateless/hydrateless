@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Drawer title; the enhancer labels the drawer with this section. */
     children?: Snippet;
   }
 

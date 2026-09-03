@@ -4,6 +4,7 @@ import {
   setAttrs,
   nextIndex,
   Events,
+  Keys,
   type MoveDirection,
 } from '../core/index.js';
 
@@ -180,13 +181,13 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
       const current = active ? tabs.indexOf(active) : -1;
       if (current === -1) return;
 
-      const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft';
-      const nextKey = vertical ? 'ArrowDown' : 'ArrowRight';
+      const prevKey = vertical ? Keys.ArrowUp : Keys.ArrowLeft;
+      const nextKey = vertical ? Keys.ArrowDown : Keys.ArrowRight;
       let direction: MoveDirection | null = null;
       if (e.key === nextKey) direction = 'next';
       else if (e.key === prevKey) direction = 'prev';
-      else if (e.key === 'Home') direction = 'first';
-      else if (e.key === 'End') direction = 'last';
+      else if (e.key === Keys.Home) direction = 'first';
+      else if (e.key === Keys.End) direction = 'last';
 
       if (direction) {
         e.preventDefault();
@@ -196,7 +197,7 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
         return;
       }
 
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === Keys.Enter || e.key === Keys.Space) {
         e.preventDefault();
         select(current);
       }

@@ -1,3 +1,17 @@
+/**
+ * Toast: a `[data-hl-toast-region]` live region fixed to the end corner of the
+ * viewport, holding `[data-hl-toast]` notifications with an optional
+ * `[data-hl-toast-close]` button.
+ *
+ * Toasts are inherently script-driven; with no JavaScript the region is simply
+ * empty. The enhancer creates the toasts and reads:
+ *   data-hl-toast-region: the container
+ *   data-hl-toast:        one notification (created by the enhancer)
+ *   data-hl-intent:       info (default) | success | warning | danger, on a toast
+ *   data-hl-toast-close:  dismiss button inside a toast
+ *   data-hl-toast-trigger, data-hl-toast-intent, data-hl-toast-duration:
+ *                         declarative trigger buttons anywhere in the page
+ */
 @layer components {
   [data-hl-toast-region] {
     position: fixed;
@@ -8,7 +22,7 @@
     flex-direction: column-reverse;
     gap: var(--hl-space-2);
     pointer-events: none;
-    max-width: min(90vw, 24rem);
+    max-inline-size: min(90vi, 24rem);
   }
 
   [data-hl-toast] {
@@ -16,27 +30,37 @@
     display: flex;
     align-items: flex-start;
     gap: var(--hl-space-3);
-    border: 1px solid var(--hl-border);
+    border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     padding: var(--hl-space-3) var(--hl-space-4);
     background: var(--hl-surface);
     box-shadow: var(--hl-overlay-shadow);
-    animation: hl-toast-in var(--hl-duration-base) var(--hl-ease-standard);
+    transition:
+      opacity var(--hl-duration-base) var(--hl-ease-standard),
+      translate var(--hl-duration-base) var(--hl-ease-standard);
   }
 
-  [data-hl-toast][data-hl-variant='success'] {
+  /* Toasts are inserted by script, so the entry runs from @starting-style. */
+  @starting-style {
+    [data-hl-toast] {
+      opacity: 0;
+      translate: 0 var(--hl-space-2);
+    }
+  }
+
+  [data-hl-toast][data-hl-intent='success'] {
     border-inline-start: 3px solid var(--hl-success);
   }
 
-  [data-hl-toast][data-hl-variant='warning'] {
+  [data-hl-toast][data-hl-intent='warning'] {
     border-inline-start: 3px solid var(--hl-warning);
   }
 
-  [data-hl-toast][data-hl-variant='danger'] {
+  [data-hl-toast][data-hl-intent='danger'] {
     border-inline-start: 3px solid var(--hl-danger);
   }
 
-  [data-hl-toast][data-hl-variant='info'] {
+  [data-hl-toast][data-hl-intent='info'] {
     border-inline-start: 3px solid var(--hl-info);
   }
 
@@ -58,25 +82,7 @@
 
   [data-hl-toast-close]:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
     border-radius: var(--hl-radius-sm);
-  }
-
-  @keyframes hl-toast-in {
-    from {
-      opacity: 0;
-      transform: translateY(0.5rem);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    [data-hl-toast] {
-      animation: none;
-    }
   }
 }

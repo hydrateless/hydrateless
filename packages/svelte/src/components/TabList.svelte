@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** `<Tab>`s, in the same order as the panels. */
     children?: Snippet;
   }
 

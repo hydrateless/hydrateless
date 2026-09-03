@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Dialog title; the enhancer labels the dialog with this section. */
     children?: Snippet;
   }
 

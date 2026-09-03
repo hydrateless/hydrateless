@@ -1,11 +1,23 @@
 /**
- * Table: `<table class="hl-table">`. Semantic table styling with optional
- * zebra striping and hover.
+ * Table: `<table class="hl-table">`, optionally inside
+ * `<div class="hl-table-wrapper">` so wide tables scroll instead of breaking
+ * the layout. Pure CSS; there is no enhancer.
  *   data-hl-striped: zebra rows
  *   data-hl-hover:   highlight row on hover
+ *   data-hl-align:   start (default) | center | end, on the table or a cell
+ *   data-hl-size:    sm | md (default) | lg, cell padding density
  */
 @layer components {
+  .hl-table-wrapper {
+    inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
   .hl-table {
+    --_pad-y: var(--hl-space-2);
+    --_pad-x: var(--hl-space-3);
+
     inline-size: 100%;
     border-collapse: collapse;
     font-size: var(--hl-text-sm);
@@ -21,7 +33,7 @@
 
   .hl-table th,
   .hl-table td {
-    padding: var(--hl-space-2) var(--hl-space-3);
+    padding: var(--_pad-y) var(--_pad-x);
     text-align: start;
     vertical-align: middle;
     border-block-end: var(--hl-border-width) solid var(--hl-border);
@@ -49,13 +61,39 @@
     background: color-mix(in oklab, var(--hl-primary) 8%, transparent);
   }
 
-  .hl-table td[data-hl-align='end'],
-  .hl-table th[data-hl-align='end'] {
+  .hl-table[data-hl-size='sm'] {
+    --_pad-y: var(--hl-space-1);
+    --_pad-x: var(--hl-space-2);
+
+    font-size: var(--hl-text-xs);
+  }
+
+  .hl-table[data-hl-size='lg'] {
+    --_pad-y: var(--hl-space-3);
+    --_pad-x: var(--hl-space-4);
+
+    font-size: var(--hl-text-base);
+  }
+
+  .hl-table[data-hl-align='start'] :is(th, td),
+  .hl-table :is(th, td)[data-hl-align='start'] {
+    text-align: start;
+  }
+
+  .hl-table[data-hl-align='center'] :is(th, td),
+  .hl-table :is(th, td)[data-hl-align='center'] {
+    text-align: center;
+  }
+
+  .hl-table[data-hl-align='end'] :is(th, td),
+  .hl-table :is(th, td)[data-hl-align='end'] {
     text-align: end;
   }
 
-  .hl-table td[data-hl-align='center'],
-  .hl-table th[data-hl-align='center'] {
-    text-align: center;
+  @media (forced-colors: active) {
+    .hl-table[data-hl-hover] tbody tr:hover {
+      background: Highlight;
+      color: HighlightText;
+    }
   }
 }

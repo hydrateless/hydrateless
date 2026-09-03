@@ -1,10 +1,18 @@
-import { useEffect, type HTMLAttributes, type ReactNode } from 'react';
-import { enhanceDisclosure, type DisclosureApi } from '@hydrateless/enhancers';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  enhanceDisclosure,
+  type DisclosureApi,
+  type EnhanceDisclosureOptions,
+} from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
-import { cx, useLatest } from './util.js';
+import { cx } from './util.js';
+import { useControlled } from './internal/useControlled.js';
+import { useSyncApi } from './internal/useSyncApi.js';
+import { useForwardedRef } from './internal/useForwardedRef.js';
 
 /** Props for {@link Disclosure}. */
 export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'title'> {
+  /** The always-visible header content. */
   summary: ReactNode;
   /** Controlled open state (pair with `onOpenChange`). */
   open?: boolean;
@@ -25,42 +33,29 @@ export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>
  * Open state works uncontrolled (`defaultOpen`) or controlled (`open` +
  * `onOpenChange`).
  */
-export function Disclosure({
-  summary,
-  open,
-  defaultOpen,
-  onOpenChange,
-  name,
-  className,
-  children,
-  ...rest
-}: DisclosureProps) {
-  const onOpenChangeRef = useLatest(onOpenChange);
-  const initialOpenRef = useLatest(open ?? defaultOpen);
-
-  const { ref, api } = useEnhancer<HTMLDetailsElement, DisclosureApi>(
-    (el) =>
-      enhanceDisclosure(el, {
-        defaultOpen: initialOpenRef.current,
-        onOpenChange: (next) => onOpenChangeRef.current?.(next),
-      }),
-    [],
-  );
-
-  useEffect(() => {
-    if (open != null) api.current?.setOpen(open);
-  }, [open, api]);
+export const Disclosure = forwardRef<HTMLDetailsElement, DisclosureProps>(function Disclosure(
+  { summary, open: openProp, defaultOpen, onOpenChange, name, className, children, ...rest },
+  forwardedRef,
+) {
+  const ref = useForwardedRef(forwardedRef);
+  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const api = useEnhancer<EnhanceDisclosureOptions, DisclosureApi>(ref, enhanceDisclosure, {
+    defaultOpen: open,
+    onOpenChange: setOpen,
+  });
+  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
 
   return (
     <details
       {...rest}
+      ref={ref}
       name={name}
+      open={open}
       className={cx('hl-disclosure', className)}
       data-hl-disclosure
-      ref={ref}
     >
       <summary>{summary}</summary>
       <div className="hl-disclosure-panel">{children}</div>
     </details>
   );
-}
+});

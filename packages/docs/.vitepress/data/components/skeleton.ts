@@ -7,7 +7,7 @@ export const skeleton: ComponentDoc = {
   importName: 'Skeleton',
   summary: 'A placeholder shown while content loads.',
   description:
-    'A placeholder shown while content loads. Mark it `aria-hidden="true"` so screen readers skip it. It respects `prefers-reduced-motion`. CSS-only.',
+    'A placeholder shown while content loads. `data-hl-shape` picks a text line, a circle, or a rectangle. Mark it `aria-hidden="true"` so screen readers skip it. The shimmer respects `prefers-reduced-motion`. CSS-only.',
   status: 'stable',
   cssOnly: true,
   cssFile: 'skeleton.css',
@@ -18,43 +18,43 @@ export const skeleton: ComponentDoc = {
       layout: 'center',
       knobs: [
         {
-          id: 'variant',
+          id: 'shape',
           type: 'select',
-          label: 'Variant',
+          label: 'Shape',
           options: ['text', 'rect', 'circle'],
           default: 'text',
         },
       ],
       render: (v) => {
         const dims =
-          v.variant === 'circle'
-            ? 'width:3rem;height:3rem'
-            : v.variant === 'rect'
-              ? 'width:12rem;height:5rem'
-              : 'width:12rem';
-        return `<span class="hl-skeleton" data-hl-variant="${v.variant}" aria-hidden="true" style="${dims}"></span>`;
+          v.shape === 'circle'
+            ? 'inline-size:3rem;block-size:3rem'
+            : v.shape === 'rect'
+              ? 'inline-size:12rem;block-size:5rem'
+              : 'inline-size:12rem';
+        return `<span class="hl-skeleton" data-hl-shape="${v.shape}" aria-hidden="true" style="${dims}"></span>`;
       },
       code: {
         react: (v) =>
-          `import { Skeleton } from '@hydrateless/react';\n\n<Skeleton variant="${v.variant}"${v.variant === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />`,
+          `import { Skeleton } from '@hydrateless/react';\n\n<Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />`,
         vue: (v) =>
-          `<script setup>\nimport { Skeleton } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Skeleton variant="${v.variant}"${v.variant === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />\n</template>`,
+          `<script setup>\nimport { Skeleton } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />\n</template>`,
         svelte: (v) =>
-          `<script>\n  import { Skeleton } from '@hydrateless/svelte';\n</script>\n\n<Skeleton variant="${v.variant}"${v.variant === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />`,
+          `<script>\n  import { Skeleton } from '@hydrateless/svelte';\n</script>\n\n<Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />`,
       },
     },
   ],
   props: [
     {
-      name: 'variant',
-      type: `'rect' | 'text' | 'circle'`,
-      default: `'rect'`,
-      description: 'Shape of the placeholder.',
+      name: 'shape',
+      type: `'text' | 'circle' | 'rect'`,
+      default: `'text'`,
+      description: 'Shape of the placeholder; renders `data-hl-shape`.',
     },
-    { name: 'width', type: 'string', description: 'CSS width.' },
-    { name: 'height', type: 'string', description: 'CSS height.' },
+    { name: 'width', type: 'string', description: 'Maps to the `inline-size` inline style.' },
+    { name: 'height', type: 'string', description: 'Maps to the `block-size` inline style.' },
   ],
-  tokens: [{ name: '--hl-surface', description: 'Base color of the placeholder.' }],
+  tokens: [{ name: '--hl-surface-2', description: 'Base color of the placeholder.' }],
   a11y: [
     'Mark skeletons `aria-hidden="true"` so assistive tech skips placeholder noise.',
     'The shimmer animation is disabled under `prefers-reduced-motion`.',

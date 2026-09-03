@@ -1,7 +1,13 @@
 /**
  * Combobox: `<div data-hl-combobox>` wrapping an `<input>` and a
- * `<ul role="listbox">` of `<li role="option">`. The enhancer toggles the
- * listbox and manages `aria-activedescendant`.
+ * `<ul role="listbox">` of `<li role="option">`.
+ *
+ * No-JS baseline: the listbox is hidden until the root has focus within it,
+ * so the options are at least reachable and readable. The enhancer marks the
+ * root `data-hl-ready` and then owns visibility through `hidden`, filtering,
+ * and `aria-activedescendant`.
+ *   data-hl-combobox: root
+ *   data-hl-ready:    set by the enhancer; the baseline rules stand down
  */
 @layer components {
   [data-hl-combobox] {
@@ -42,6 +48,23 @@
     display: none;
   }
 
+  /* No-JS baseline: reveal the list while the field has focus. */
+  [data-hl-combobox]:not([data-hl-ready]) [role='listbox'] {
+    display: none;
+  }
+
+  [data-hl-combobox]:not([data-hl-ready]):focus-within [role='listbox'] {
+    display: block;
+  }
+
+  /* The input may be a plain `<input>` rather than `.hl-input`; make sure it
+     still shows a focus ring. */
+  [data-hl-combobox] > input:focus-visible {
+    outline: none;
+    border-color: var(--hl-ring);
+    box-shadow: var(--hl-focus-shadow);
+  }
+
   [data-hl-combobox] [role='option'] {
     display: flex;
     align-items: center;
@@ -64,7 +87,18 @@
   }
 
   [data-hl-combobox] [role='option'][aria-disabled='true'] {
-    opacity: 0.5;
+    opacity: var(--hl-disabled-opacity);
     pointer-events: none;
+  }
+
+  @media (forced-colors: active) {
+    [data-hl-combobox] [role='option'][aria-selected='true'] {
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    [data-hl-combobox] [role='option'][aria-disabled='true'] {
+      color: GrayText;
+    }
   }
 }

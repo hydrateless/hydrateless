@@ -3,71 +3,150 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="Hydrateless: Astro Example">
-  <nav data-hl-breadcrumb aria-label="Breadcrumb">
-    <ol>
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Examples</a></li>
-      <li><span aria-current="page">Astro</span></li>
-    </ol>
-  </nav>
-
-  <h1>
-    Hydrateless for Astro
-    <span class="hl-badge" data-hl-intent="primary" data-hl-variant="soft">v0.5</span>
-  </h1>
-  <p>
-    Astro ships static HTML; Hydrateless components <em>are</em> static HTML. The auto-initializer lazy-loads
-    a tiny enhancer only where an interaction needs it.
-  </p>
+  <header>
+    <div>
+      <h1>Hydrateless for Astro</h1>
+      <p>
+        Astro ships static HTML; Hydrateless components <em>are</em> static HTML. The auto-loader adds
+        a tiny enhancer only where an interaction needs it.
+      </p>
+    </div>
+    <label data-hl-switch>
+      <input type="checkbox" role="switch" id="theme-toggle" />
+      Dark
+    </label>
+  </header>
 
   <section>
-    <h2>Tabs</h2>
-    <div data-hl-tabs>
-      <div role="tablist">
-        <button role="tab">Overview</button>
-        <button role="tab">Install</button>
+    <h2>Modal</h2>
+    <button class="hl-button" data-hl-intent="primary" command="show-modal" commandfor="confirm">
+      Open modal
+    </button>
+    <dialog id="confirm" class="hl-modal" data-hl-modal>
+      <div class="hl-modal-header"><strong>Delete project?</strong></div>
+      <div class="hl-modal-body"><p>Focus is trapped while open. Press Escape to close.</p></div>
+      <div class="hl-modal-footer">
+        <button class="hl-button" data-hl-variant="ghost" command="close" commandfor="confirm"
+          >Cancel</button
+        >
+        <button class="hl-button" data-hl-intent="danger" command="close" commandfor="confirm"
+          >Delete</button
+        >
       </div>
-      <div role="tabpanel"><p>Zero runtime by default.</p></div>
-      <div role="tabpanel"><p><code>npm install hydrateless @hydrateless/auto</code></p></div>
-    </div>
+    </dialog>
   </section>
 
   <section>
-    <h2>Accordion</h2>
-    <div data-hl-accordion>
-      <details>
-        <summary>What is Hydrateless?</summary>
-        <div class="hl-accordion-panel">
-          A CSS-first component library with optional JS enhancers.
-        </div>
-      </details>
-      <details>
-        <summary>Do I need JavaScript?</summary>
-        <div class="hl-accordion-panel">Most components work without it.</div>
-      </details>
+    <h2>Popover</h2>
+    <button class="hl-button" data-hl-variant="outline" popovertarget="tip">Toggle popover</button>
+    <div id="tip" class="hl-popover" data-hl-popover popover>
+      <p>Anchored with CSS anchor positioning. Click outside or press Escape to dismiss.</p>
     </div>
   </section>
 
   <section>
     <h2>Dropdown</h2>
     <div data-hl-dropdown>
-      <button data-hl-dropdown-trigger>Actions</button>
-      <ul data-hl-dropdown-menu>
-        <li><button role="menuitem">Edit</button></li>
-        <li><button role="menuitem">Duplicate</button></li>
-        <li role="separator"></li>
-        <li><button role="menuitem">Delete</button></li>
+      <button
+        class="hl-button"
+        data-hl-variant="outline"
+        data-hl-dropdown-trigger
+        popovertarget="actions"
+      >
+        Actions
+      </button>
+      <ul id="actions" data-hl-dropdown-menu popover>
+        <li><button role="menuitem" data-hl-value="edit">Edit</button></li>
+        <li><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
+        <li role="separator" class="hl-dropdown-separator"></li>
+        <li>
+          <button role="menuitem" data-hl-value="delete" data-hl-intent="danger">Delete</button>
+        </li>
       </ul>
     </div>
   </section>
 
   <section>
-    <h2>Modal</h2>
-    <button data-hl-modal-open="demo-modal">Open modal</button>
-    <dialog id="demo-modal" class="hl-modal" data-hl-modal>
-      <div class="hl-modal-header"><strong>Confirm</strong></div>
-      <div class="hl-modal-body"><p>Focus is trapped. Press Escape to close.</p></div>
-      <div class="hl-modal-footer"><button data-hl-modal-close>Close</button></div>
-    </dialog>
+    <h2>Tabs</h2>
+    <div data-hl-tabs>
+      <div role="tablist" aria-label="Project">
+        <button role="tab" aria-selected="true" tabindex="0" data-hl-value="overview"
+          >Overview</button
+        >
+        <button role="tab" aria-selected="false" tabindex="-1" data-hl-value="install"
+          >Install</button
+        >
+      </div>
+      <div role="tabpanel"><p>Zero runtime by default.</p></div>
+      <div role="tabpanel" hidden>
+        <p><code>npm install hydrateless @hydrateless/auto</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Toast</h2>
+    <div class="row">
+      <button
+        class="hl-button"
+        data-hl-toast-trigger="Changes saved."
+        data-hl-toast-intent="success"
+      >
+        Save
+      </button>
+      <button
+        class="hl-button"
+        data-hl-variant="outline"
+        data-hl-toast-trigger="Upload failed."
+        data-hl-toast-intent="danger"
+        data-hl-toast-duration="8000"
+      >
+        Fail
+      </button>
+    </div>
+    <div data-hl-toast-region></div>
+  </section>
+
+  <section>
+    <h2>Form</h2>
+    <form class="stack">
+      <div class="hl-field">
+        <label class="hl-label" for="email" data-hl-required>Email</label>
+        <input
+          class="hl-input"
+          id="email"
+          name="email"
+          type="email"
+          required
+          aria-describedby="email-help"
+          placeholder="you@example.com"
+        />
+        <p class="hl-help" id="email-help">We never share it.</p>
+      </div>
+      <div class="hl-field" data-hl-invalid>
+        <label class="hl-label" for="handle">Handle</label>
+        <input
+          class="hl-input"
+          id="handle"
+          name="handle"
+          value="octo cat"
+          aria-invalid="true"
+          aria-describedby="handle-error"
+        />
+        <p class="hl-error" id="handle-error">Handles can't contain spaces.</p>
+      </div>
+      <div class="row">
+        <button class="hl-button" data-hl-intent="primary" type="submit">Create account</button>
+        <button class="hl-button" data-hl-variant="ghost" type="reset">Reset</button>
+      </div>
+    </form>
   </section>
 </Base>
+
+<script>
+  const toggle = document.getElementById('theme-toggle') as HTMLInputElement;
+  toggle.checked = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  toggle.addEventListener('change', () => {
+    document.documentElement.dataset.theme = toggle.checked ? 'dark' : 'light';
+  });
+</script>

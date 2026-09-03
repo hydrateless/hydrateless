@@ -74,6 +74,43 @@ describe('enhanceToast', () => {
     expect(document.querySelector('[data-hl-toast]')).toBeNull();
   });
 
+  it('sets data-hl-intent and announces danger toasts assertively', () => {
+    const toast = api(document);
+    const info = toast.show('Saved', { duration: 0, intent: 'success' });
+    const danger = toast.show('Failed', { duration: 0, intent: 'danger' });
+    expect(info.getAttribute('data-hl-intent')).toBe('success');
+    expect(info.hasAttribute('role')).toBe(false);
+    expect(danger.getAttribute('data-hl-intent')).toBe('danger');
+    expect(danger.getAttribute('role')).toBe('alert');
+  });
+
+  it('pauses auto-dismiss while hovered or focused', () => {
+    const toast = api(document);
+    const el = toast.show('Wait', { duration: 1000 });
+    el.dispatchEvent(new Event('mouseenter'));
+    vi.advanceTimersByTime(5000);
+    expect(document.querySelector('[data-hl-toast]')).not.toBeNull();
+    el.dispatchEvent(new Event('mouseleave'));
+    el.dispatchEvent(new Event('focusin'));
+    vi.advanceTimersByTime(5000);
+    expect(document.querySelector('[data-hl-toast]')).not.toBeNull();
+    el.dispatchEvent(new Event('focusout'));
+    vi.advanceTimersByTime(1000);
+    expect(document.querySelector('[data-hl-toast]')).toBeNull();
+  });
+
+  it('reads the intent from declarative triggers', () => {
+    document.body.innerHTML = `
+      <div data-hl-toast-region></div>
+      <button data-hl-toast-trigger="Oops" data-hl-toast-intent="danger">Show</button>
+    `;
+    enhanceToast(document);
+    document.querySelector<HTMLElement>('[data-hl-toast-trigger]')!.click();
+    expect(document.querySelector('[data-hl-toast]')!.getAttribute('data-hl-intent')).toBe(
+      'danger',
+    );
+  });
+
   it('creates region if none exists', () => {
     document.body.innerHTML = '';
     enhanceToast(document);

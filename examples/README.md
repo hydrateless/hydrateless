@@ -37,7 +37,7 @@ npm run build    # production build
 | App                   | Stack           | Highlights                                                                 |
 | --------------------- | --------------- | -------------------------------------------------------------------------- |
 | [`react/`](./react)   | React 18 + Vite | Compound components, controlled `Modal`, `useToast`, `Combobox`            |
-| [`vue/`](./vue)       | Vue 3 + Vite    | Same suite with `v-model` and slot-based composition                       |
+| [`vue/`](./vue)       | Vue 3.5 + Vite  | Same suite with `v-model` and slot-based composition                       |
 | [`svelte/`](./svelte) | Svelte 5 + Vite | Runes, `bind:`, snippets, `useToast`                                       |
 | [`astro/`](./astro)   | Astro 5         | Static HTML + `@hydrateless/auto` lazy-loading enhancers only where needed |
 

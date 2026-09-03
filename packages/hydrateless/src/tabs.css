@@ -1,5 +1,5 @@
 /**
- * Tabs. Two markups are supported and styled together:
+ * Tabs: `<div data-hl-tabs>`. Two markups are supported and styled together:
  *
  *   - CSS-only baseline: `.hl-tablist` of `<label class="hl-tab">` wrapping a
  *     radio, then a `.hl-tabpanels` of `.hl-tabpanel`s. `:has(input:checked)`
@@ -7,6 +7,10 @@
  *   - Enhanced: the enhancer adds `role="tab"`/`tabpanel`, roving focus, and
  *     `aria-selected`, toggles `[hidden]` on panels, and marks the root
  *     `data-hl-ready`, at which point the no-JS rules below stand down.
+ *   data-hl-tabs:  root
+ *   data-hl-ready: set by the enhancer
+ *   `aria-orientation="vertical"` on the tablist stacks the tabs at the
+ *   inline start of the panels.
  */
 @layer components {
   [data-hl-tabs] {
@@ -19,7 +23,17 @@
     display: flex;
     gap: var(--hl-space-2);
     padding: var(--hl-space-2);
-    border-bottom: var(--hl-border-width) solid var(--hl-border);
+    border-block-end: var(--hl-border-width) solid var(--hl-border);
+  }
+
+  [data-hl-tabs]:has(> [role='tablist'][aria-orientation='vertical']) {
+    display: flex;
+  }
+
+  [data-hl-tabs] [role='tablist'][aria-orientation='vertical'] {
+    flex-direction: column;
+    border-block-end: 0;
+    border-inline-end: var(--hl-border-width) solid var(--hl-border);
   }
 
   .hl-tab,
@@ -54,13 +68,13 @@
   .hl-tab:has(input:focus-visible),
   [data-hl-tabs] [role='tab']:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   .hl-tab:has(input:disabled),
   [data-hl-tabs] [role='tab'][disabled],
   [data-hl-tabs] [role='tab'][aria-disabled='true'] {
-    opacity: 0.5;
+    opacity: var(--hl-disabled-opacity);
     cursor: not-allowed;
   }
 
@@ -118,5 +132,20 @@
   /* Role-only markup (no radios) before JS: degrade to showing the first panel. */
   [data-hl-tabs]:not([data-hl-ready]) [role='tabpanel'] ~ [role='tabpanel'] {
     display: none;
+  }
+
+  /* Selection is a fill, which forced colors flatten; use the system highlight
+     and give every tab an edge. */
+  @media (forced-colors: active) {
+    .hl-tab,
+    [data-hl-tabs] [role='tab'] {
+      border: var(--hl-border-width) solid ButtonBorder;
+    }
+
+    .hl-tab:has(input:checked),
+    [data-hl-tabs] [role='tab'][aria-selected='true'] {
+      background: Highlight;
+      color: HighlightText;
+    }
   }
 }

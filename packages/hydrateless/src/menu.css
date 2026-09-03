@@ -1,9 +1,17 @@
 /**
- * Menubar / navigation menu: `<ul data-hl-menu role="menubar">` with optional
- * single-level submenus (`<ul role="menu" data-hl-menu-submenu>`). The enhancer
- * handles roving focus, arrow navigation, and open/close, promoting each
- * submenu to a native popover so it renders in the top layer, anchored to its
- * trigger with CSS anchor positioning.
+ * Menubar / navigation menu: `<ul data-hl-menu role="menubar">` of `<li>`
+ * items, each optionally holding a trigger and a single-level submenu
+ * (`<ul role="menu">` or `[data-hl-menu-submenu]`) as siblings inside the `<li>`.
+ *
+ * No-JS baseline: a submenu shows while its `<li>` is hovered or has focus
+ * within it, so every link stays reachable by mouse and keyboard. The enhancer
+ * marks the root `data-hl-ready`, after which it owns visibility (`hidden`
+ * plus a top-layer `popover`) and adds roving focus, arrow keys, typeahead,
+ * and checkable items. It reads:
+ *   data-hl-menu:          root; `aria-orientation="vertical"` stacks it
+ *   data-hl-menu-submenu:  a submenu without `role="menu"`
+ *   data-hl-value:         a top-level trigger's value for `hl:change`
+ *   data-hl-ready:         set by the enhancer
  */
 @layer components {
   [data-hl-menu] {
@@ -25,7 +33,7 @@
     position: relative;
   }
 
-  [data-hl-menu] [role='menuitem'] {
+  [data-hl-menu] [role^='menuitem'] {
     display: flex;
     align-items: center;
     gap: var(--hl-space-2);
@@ -43,31 +51,34 @@
     cursor: pointer;
   }
 
-  [data-hl-menu] [role='menuitem']:hover {
+  [data-hl-menu] [role^='menuitem']:hover,
+  [data-hl-menu] [role^='menuitem'][aria-expanded='true'] {
     background: var(--hl-surface-2);
   }
 
-  [data-hl-menu] [role='menuitem']:focus-visible {
+  [data-hl-menu] [role^='menuitem']:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: -2px;
+    outline-offset: calc(var(--hl-focus-offset) * -1);
   }
 
-  [data-hl-menu] [role='menuitem'][aria-expanded='true'] {
-    background: var(--hl-surface-2);
+  [data-hl-menu] [role^='menuitem']:is(:disabled, [aria-disabled='true']) {
+    opacity: var(--hl-disabled-opacity);
+    cursor: not-allowed;
   }
 
-  [data-hl-menu] [role='menuitem'][aria-haspopup]::after {
+  /* Submenu chevron: a rotated square corner at the inline end. */
+  [data-hl-menu] [role^='menuitem'][aria-haspopup]::after {
     content: '';
     inline-size: 0.4rem;
     block-size: 0.4rem;
     margin-inline-start: auto;
     border-inline-end: 1.5px solid currentcolor;
     border-block-end: 1.5px solid currentcolor;
-    transform: rotate(45deg);
+    rotate: 45deg;
     opacity: 0.6;
   }
 
-  [data-hl-menu] [role='menu'] {
+  [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu]) {
     position: absolute;
     inset-block-start: calc(100% + var(--hl-space-1));
     inset-inline-start: 0;
@@ -80,33 +91,62 @@
     border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     box-shadow: var(--hl-overlay-shadow);
+    transition:
+      opacity var(--hl-duration-fast) var(--hl-ease-standard),
+      translate var(--hl-duration-fast) var(--hl-ease-standard),
+      display var(--hl-duration-fast) allow-discrete,
+      overlay var(--hl-duration-fast) allow-discrete;
   }
 
-  [data-hl-menu][aria-orientation='vertical'] [role='menu'] {
+  [data-hl-menu][aria-orientation='vertical'] :is([role='menu'], [data-hl-menu-submenu]) {
     inset-block-start: 0;
     inset-inline-start: calc(100% + var(--hl-space-1));
   }
 
-  [data-hl-menu] [role='menu'][hidden] {
+  /* Closed states: `hidden` (enhancer without Popover API), a closed popover
+     (enhancer with it), and the no-JS baseline below. Each is also the exit
+     target of the transition. */
+  [data-hl-menu]
+    :is([role='menu'], [data-hl-menu-submenu]):is([hidden], [popover]:not(:popover-open)),
+  [data-hl-menu]:not([data-hl-ready]) :is([role='menu'], [data-hl-menu-submenu]) {
     display: none;
+    opacity: 0;
+    translate: 0 -0.25rem;
+  }
+
+  /* No-JS baseline: reveal on hover or focus within the parent item. */
+  [data-hl-menu]:not([data-hl-ready])
+    li:is(:hover, :focus-within)
+    > :is([role='menu'], [data-hl-menu-submenu]) {
+    display: block;
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  @starting-style {
+    [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu]) {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
   }
 
   /* Enhanced path: the submenu is a native popover in the top layer, anchored
      to its trigger. The absolute-position rules above stay as the fallback for
      engines without the Popover API. */
-  [data-hl-menu] [role='menu'][popover] {
+  [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu])[popover] {
     position: fixed;
     inset: auto;
   }
 
   @supports (position-area: block-end) {
-    [data-hl-menu] [role='menu'][popover] {
+    [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu])[popover] {
       position-area: block-end span-inline-end;
       position-try-fallbacks: flip-block, flip-inline;
       margin-block: var(--hl-space-1);
     }
 
-    [data-hl-menu][aria-orientation='vertical'] [role='menu'][popover] {
+    [data-hl-menu][aria-orientation='vertical']
+      :is([role='menu'], [data-hl-menu-submenu])[popover] {
       position-area: inline-end span-block-end;
       position-try-fallbacks: flip-inline, flip-block;
       margin-block: 0;
@@ -118,5 +158,20 @@
     block-size: var(--hl-border-width);
     margin: var(--hl-space-1) 0;
     background: var(--hl-border);
+  }
+
+  @media (forced-colors: active) {
+    [data-hl-menu] [role^='menuitem'][aria-expanded='true'] {
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    [data-hl-menu] [role^='menuitem']:is(:disabled, [aria-disabled='true']) {
+      color: GrayText;
+    }
+
+    [data-hl-menu] [role='separator'] {
+      background: CanvasText;
+    }
   }
 }

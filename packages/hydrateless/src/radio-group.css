@@ -1,6 +1,9 @@
 /**
- * Radio: `<label class="hl-radio"><input type="radio"><span>…</span></label>`,
- * grouped in `<div class="hl-radio-group" role="radiogroup">`.
+ * Radio group: `<label class="hl-radio"><input type="radio"><span>...</span></label>`
+ * items grouped in `<div class="hl-radio-group" role="radiogroup">`. Native
+ * radios provide selection and arrow-key movement; pure CSS, there is no
+ * enhancer.
+ *   data-hl-orientation: vertical (default) | horizontal (on the group)
  */
 @layer components {
   .hl-radio-group {
@@ -45,8 +48,8 @@
     block-size: 0.6rem;
     border-radius: var(--hl-radius-full);
     background: var(--hl-primary);
-    transform: scale(0);
-    transition: transform var(--hl-duration-fast) var(--hl-ease-emphasized);
+    scale: 0;
+    transition: scale var(--hl-duration-fast) var(--hl-ease-emphasized);
   }
 
   .hl-radio > input[type='radio']:checked {
@@ -54,21 +57,29 @@
   }
 
   .hl-radio > input[type='radio']:checked::after {
-    transform: scale(1);
+    scale: 1;
   }
 
   .hl-radio > input[type='radio']:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   .hl-radio > input[type='radio']:disabled {
     cursor: not-allowed;
-    opacity: 0.55;
+    opacity: var(--hl-disabled-opacity);
   }
 
   .hl-radio:has(> input:disabled) {
     cursor: not-allowed;
     color: var(--hl-fg-subtle);
+  }
+
+  /* The dot is custom-drawn, so it opts out of forced-color flattening. */
+  @media (forced-colors: active) {
+    .hl-radio > input[type='radio']::after {
+      forced-color-adjust: none;
+      background: Highlight;
+    }
   }
 }

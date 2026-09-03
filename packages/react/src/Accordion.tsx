@@ -1,7 +1,16 @@
-import { useEffect, useRef, type HTMLAttributes, type ReactNode } from 'react';
-import { enhanceAccordion, type AccordionApi } from '@hydrateless/enhancers';
+import { createContext, forwardRef, useContext, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  enhanceAccordion,
+  type AccordionApi,
+  type EnhanceAccordionOptions,
+} from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
-import { useLatest } from './util.js';
+import { useControlled } from './internal/useControlled.js';
+import { useSyncApi } from './internal/useSyncApi.js';
+import { useForwardedRef } from './internal/useForwardedRef.js';
+import { IndexContext, indexChildren } from './internal/indexChildren.js';
+
+const AccordionContext = createContext<string[]>([]);
 
 /** Props for {@link Accordion}. */
 export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
@@ -17,68 +26,57 @@ export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * Accordion of native `<details>` items. Item values come from each
- * `<AccordionItem value>`, defaulting to the index. Open state works
- * uncontrolled (`defaultValue`, or `defaultOpen` on items) or controlled
+ * `<AccordionItem value>`, defaulting to the index, and each item's `open`
+ * attribute is rendered from the value so server output already shows the
+ * right panels. Open state works uncontrolled (`defaultValue`) or controlled
  * (`value` + `onValueChange`).
  */
-export function Accordion({
-  allowMultiple = false,
-  value,
-  defaultValue,
-  onValueChange,
-  children,
-  ...rest
-}: AccordionProps) {
-  const onValueChangeRef = useLatest(onValueChange);
-  const initialValueRef = useLatest(value ?? defaultValue);
-
-  const { ref, api } = useEnhancer<HTMLDivElement, AccordionApi>(
-    (el) =>
-      enhanceAccordion(el, {
-        allowMultiple,
-        defaultValue: initialValueRef.current,
-        onValueChange: (next) => onValueChangeRef.current?.(next),
-      }),
+export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Accordion(
+  { allowMultiple = false, value: valueProp, defaultValue, onValueChange, children, ...rest },
+  forwardedRef,
+) {
+  const ref = useForwardedRef(forwardedRef);
+  const [value = [], setValue] = useControlled(valueProp, defaultValue, onValueChange);
+  const api = useEnhancer<EnhanceAccordionOptions, AccordionApi>(
+    ref,
+    enhanceAccordion,
+    { allowMultiple, defaultValue: value, onValueChange: setValue },
     [allowMultiple],
   );
-
-  useEffect(() => {
-    if (value != null) api.current?.setValue(value);
-  }, [value, api]);
+  useSyncApi(api, valueProp, (api, value) => api.setValue(value));
 
   return (
-    <div {...rest} data-hl-accordion ref={ref}>
-      {children}
-    </div>
+    <AccordionContext.Provider value={value}>
+      <div {...rest} ref={ref} data-hl-accordion>
+        {indexChildren(children, AccordionItem)}
+      </div>
+    </AccordionContext.Provider>
   );
-}
+});
 
 /** Props for {@link AccordionItem}. */
 export interface AccordionItemProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'title'> {
+  /** The always-visible header content. */
   summary: ReactNode;
   /** Stable value identifying this item; defaults to its index. */
   value?: string;
-  defaultOpen?: boolean;
 }
 
 /** A single collapsible item within an {@link Accordion}, rendered as a native `<details>`. */
-export function AccordionItem({
-  summary,
-  value,
-  defaultOpen = false,
-  children,
-  ...rest
-}: AccordionItemProps) {
-  const ref = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    if (ref.current && defaultOpen) ref.current.open = true;
-  }, [defaultOpen]);
-
-  return (
-    <details {...rest} data-hl-value={value} ref={ref}>
-      <summary>{summary}</summary>
-      <div className="hl-accordion-panel">{children}</div>
-    </details>
-  );
-}
+export const AccordionItem = forwardRef<HTMLDetailsElement, AccordionItemProps>(
+  function AccordionItem({ summary, value, children, ...rest }, ref) {
+    const open = useContext(AccordionContext);
+    const index = useContext(IndexContext);
+    return (
+      <details
+        {...rest}
+        ref={ref}
+        data-hl-value={value}
+        open={open.includes(value ?? String(index))}
+      >
+        <summary>{summary}</summary>
+        <div className="hl-accordion-panel">{children}</div>
+      </details>
+    );
+  },
+);

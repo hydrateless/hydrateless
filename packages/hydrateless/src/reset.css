@@ -1,3 +1,8 @@
+/**
+ * Reset: a minimal, opinion-light baseline (border-box sizing, no default
+ * margins, inherited form typography). Lives in the lowest layer so any
+ * component or author rule wins without specificity games.
+ */
 @layer reset {
   *,
   *::before,
@@ -21,7 +26,7 @@
 
   html,
   body {
-    height: 100%;
+    block-size: 100%;
   }
 
   body {
@@ -35,7 +40,7 @@
   canvas,
   svg {
     display: block;
-    max-width: 100%;
+    max-inline-size: 100%;
   }
 
   input,

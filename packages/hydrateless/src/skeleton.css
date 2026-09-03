@@ -1,7 +1,8 @@
 /**
- * Skeleton: `<span class="hl-skeleton" data-hl-variant="…" aria-hidden="true">`
- * placeholder shown while content loads.
- *   data-hl-variant: rect (default) | text | circle
+ * Skeleton: `<span class="hl-skeleton" data-hl-shape="..." aria-hidden="true">`
+ * placeholder shown while content loads. Pure CSS; there is no enhancer.
+ * Size it with inline `inline-size`/`block-size`.
+ *   data-hl-shape: rect (default) | text | circle
  */
 @layer components {
   .hl-skeleton {
@@ -19,12 +20,12 @@
     animation: hl-skeleton-shimmer 1.4s var(--hl-ease-standard) infinite;
   }
 
-  .hl-skeleton[data-hl-variant='text'] {
+  .hl-skeleton[data-hl-shape='text'] {
     block-size: 0.7em;
     border-radius: var(--hl-radius-sm);
   }
 
-  .hl-skeleton[data-hl-variant='circle'] {
+  .hl-skeleton[data-hl-shape='circle'] {
     inline-size: 2.5rem;
     block-size: 2.5rem;
     border-radius: var(--hl-radius-full);
@@ -44,6 +45,13 @@
     .hl-skeleton {
       animation: none;
       background: var(--hl-surface-3);
+    }
+  }
+
+  /* Fills flatten to Canvas in forced colors; outline the placeholder instead. */
+  @media (forced-colors: active) {
+    .hl-skeleton {
+      border: var(--hl-border-width) solid GrayText;
     }
   }
 }

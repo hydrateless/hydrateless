@@ -4,7 +4,8 @@
 // dependencies: Playwright's webServer launches this before the suite runs.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import process from 'node:process';
+import { fileURLToPath, URL } from 'node:url';
 import { dirname, join, normalize, resolve, extname } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));

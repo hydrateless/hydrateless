@@ -1,30 +1,55 @@
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, ref, type ExtractPublicPropTypes } from 'vue';
 import { enhanceCommand, type CommandApi } from '@hydrateless/enhancers';
-import { cx } from '../internal.js';
+import { cx, useApiSync, useControlled } from '../internal/index.js';
 import { useEnhancer } from '../useEnhancer.js';
+
+const commandProps = {
+  /** Lowercased key that, with Cmd/Ctrl, opens the hosting `<dialog>`. */
+  hotkey: { type: String, default: undefined },
+  /** Controlled filter query (`v-model:query`). */
+  query: { type: String, default: undefined },
+  /** Initial query for uncontrolled usage. */
+  defaultQuery: { type: String, default: undefined },
+} as const;
+
+/** Props for {@link Command}. */
+export type CommandProps = ExtractPublicPropTypes<typeof commandProps>;
 
 /**
  * Command palette. Compose with `<CommandInput>`, `<CommandList>`,
- * `<CommandGroup>`, `<CommandItem>`, `<CommandEmpty>`. Emits `select` with the
- * chosen value and `update:query` as the filter changes. Place inside a
- * `<dialog>` to use `hotkey`.
+ * `<CommandGroup>`, `<CommandItem>`, `<CommandEmpty>`. The filter query works
+ * uncontrolled (`defaultQuery`) or with `v-model:query`; running a command
+ * emits `command` with `(value, item)`. Place inside a `<dialog>` to use
+ * `hotkey`.
  */
 export const Command = defineComponent({
   name: 'HlCommand',
   inheritAttrs: false,
-  props: {
-    hotkey: { type: String, default: undefined },
-  },
-  emits: ['select', 'update:query'],
+  props: commandProps,
+  emits: ['update:query', 'command'],
   setup(props, { slots, attrs, emit }) {
-    const { host } = useEnhancer<CommandApi>(
-      (el) =>
-        enhanceCommand(el, {
-          hotkey: props.hotkey,
-          onValueChange: (value) => emit('update:query', value),
-          onCommand: (value) => emit('select', value),
-        }),
+    const host = ref<HTMLElement | null>(null);
+    const { value: query, set } = useControlled<string | undefined, 'update:query'>(props, emit, {
+      prop: 'query',
+      event: 'update:query',
+      default: props.defaultQuery,
+    });
+    const api = useEnhancer(
+      host,
+      enhanceCommand,
+      () => ({
+        hotkey: props.hotkey,
+        defaultValue: query.value,
+        onValueChange: set,
+        onCommand: (value, item) => emit('command', value, item),
+      }),
       () => props.hotkey,
+    );
+    useApiSync<CommandApi, string | undefined>(
+      api,
+      query,
+      (a) => a.value,
+      (a, v) => a.setValue(v),
     );
     return () =>
       h(
@@ -35,13 +60,18 @@ export const Command = defineComponent({
   },
 });
 
+const commandInputProps = {
+  styled: { type: Boolean, default: true },
+} as const;
+
+/** Props for {@link CommandInput}. */
+export type CommandInputProps = ExtractPublicPropTypes<typeof commandInputProps>;
+
 /** The palette search field. */
 export const CommandInput = defineComponent({
   name: 'HlCommandInput',
   inheritAttrs: false,
-  props: {
-    styled: { type: Boolean, default: true },
-  },
+  props: commandInputProps,
   setup(props, { attrs }) {
     return () =>
       h('input', {
@@ -51,6 +81,9 @@ export const CommandInput = defineComponent({
       });
   },
 });
+
+/** Props for {@link CommandList}. */
+export type CommandListProps = Record<never, never>;
 
 /** The scrollable list of commands (`role="listbox"`). */
 export const CommandList = defineComponent({
@@ -62,32 +95,44 @@ export const CommandList = defineComponent({
   },
 });
 
-/** A labelled group of commands. The optional heading uses the `label` slot. */
+const commandGroupProps = {
+  /** Group heading; the `label` slot takes precedence. */
+  label: { type: String, default: undefined },
+} as const;
+
+/** Props for {@link CommandGroup}. */
+export type CommandGroupProps = ExtractPublicPropTypes<typeof commandGroupProps>;
+
+/** A labelled group of commands. */
 export const CommandGroup = defineComponent({
   name: 'HlCommandGroup',
   inheritAttrs: false,
-  setup(_, { slots, attrs }) {
+  props: commandGroupProps,
+  setup(props, { slots, attrs }) {
     return () => {
-      const children = [];
-      if (slots.label) {
-        children.push(
-          h('div', { class: 'hl-command-group-label', role: 'presentation' }, slots.label()),
-        );
-      }
-      if (slots.default) children.push(...(slots.default() as never[]));
-      return h('div', { ...attrs, 'data-hl-command-group': '' }, children);
+      const label = slots.label?.() ?? props.label;
+      return h('div', { ...attrs, 'data-hl-command-group': '' }, [
+        label ? h('div', { class: 'hl-command-group-label', role: 'presentation' }, label) : null,
+        slots.default?.(),
+      ]);
     };
   },
 });
+
+const commandItemProps = {
+  value: { type: String, required: true },
+  /** Extra search terms matched by the filter. */
+  keywords: { type: String, default: undefined },
+} as const;
+
+/** Props for {@link CommandItem}. */
+export type CommandItemProps = ExtractPublicPropTypes<typeof commandItemProps>;
 
 /** A runnable command (`role="option"`). */
 export const CommandItem = defineComponent({
   name: 'HlCommandItem',
   inheritAttrs: false,
-  props: {
-    value: { type: String, required: true },
-    keywords: { type: String, default: undefined },
-  },
+  props: commandItemProps,
   setup(props, { slots, attrs }) {
     return () =>
       h(
@@ -102,6 +147,9 @@ export const CommandItem = defineComponent({
       );
   },
 });
+
+/** Props for {@link CommandEmpty}. */
+export type CommandEmptyProps = Record<never, never>;
 
 /** Shown when no commands match the query. */
 export const CommandEmpty = defineComponent({

@@ -3,7 +3,9 @@
   import type { HTMLFieldsetAttributes } from 'svelte/elements';
 
   interface Props extends HTMLFieldsetAttributes {
+    /** Group caption rendered as a `<legend>`. */
     legend?: Snippet;
+    /** Grouped fields. */
     children?: Snippet;
   }
 

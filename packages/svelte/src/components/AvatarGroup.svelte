@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Overlapping `<Avatar>`s. */
     children?: Snippet;
   }
 

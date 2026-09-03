@@ -1,5 +1,7 @@
-import { useEffect, useRef, type HTMLAttributes } from 'react';
-import { enhanceToc } from '@hydrateless/enhancers';
+import { forwardRef, type HTMLAttributes } from 'react';
+import { enhanceToc, type EnhanceTocOptions, type TocApi } from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
+import { useForwardedRef } from './internal/useForwardedRef.js';
 
 /** Props for {@link Toc}. */
 export interface TocProps extends HTMLAttributes<HTMLElement> {
@@ -12,13 +14,18 @@ export interface TocProps extends HTMLAttributes<HTMLElement> {
 }
 
 /** Auto-generated table of contents with optional scroll-spy. */
-export function Toc({ contentSelector, headings, scrollSpy, ...rest }: TocProps) {
-  const ref = useRef<HTMLElement>(null);
+export const Toc = forwardRef<HTMLElement, TocProps>(function Toc(
+  { contentSelector, headings, scrollSpy, ...rest },
+  forwardedRef,
+) {
+  const ref = useForwardedRef(forwardedRef);
+  useEnhancer<EnhanceTocOptions, TocApi>(
+    ref,
+    // The content lives outside the nav, so scan from the document.
+    (nav, options) => enhanceToc(nav.ownerDocument, options),
+    { contentSelector, headings, scrollSpy },
+    [contentSelector, headings, scrollSpy],
+  );
 
-  useEffect(() => {
-    if (!ref.current) return;
-    return enhanceToc(ref.current.ownerDocument, { contentSelector, headings, scrollSpy }).destroy;
-  }, [contentSelector, headings, scrollSpy]);
-
-  return <nav {...rest} data-hl-toc ref={ref} />;
-}
+  return <nav {...rest} ref={ref} data-hl-toc />;
+});

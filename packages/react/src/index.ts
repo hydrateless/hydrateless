@@ -1,5 +1,4 @@
 export { useEnhancer } from './useEnhancer.js';
-export * from './hooks.js';
 
 export { Accordion, AccordionItem } from './Accordion.js';
 export type { AccordionProps, AccordionItemProps } from './Accordion.js';
@@ -14,6 +13,7 @@ export {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DropdownGroup,
   DropdownSeparator,
 } from './Dropdown.js';
 export type {
@@ -21,11 +21,12 @@ export type {
   DropdownTriggerProps,
   DropdownMenuProps,
   DropdownItemProps,
+  DropdownGroupProps,
   DropdownSeparatorProps,
 } from './Dropdown.js';
 
-export { Menu, MenuItem } from './Menu.js';
-export type { MenuProps, MenuItemProps } from './Menu.js';
+export { Menu, MenuItem, MenuSubmenu } from './Menu.js';
+export type { MenuProps, MenuItemProps, MenuSubmenuProps } from './Menu.js';
 
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './Modal.js';
 export type { ModalProps, ModalSectionProps } from './Modal.js';
@@ -84,7 +85,14 @@ export type { CheckboxProps } from './Checkbox.js';
 export { Radio, RadioGroup } from './Radio.js';
 export type { RadioProps, RadioGroupProps } from './Radio.js';
 export { Field, FieldLabel, FieldHelp, FieldError, Fieldset, useField } from './Field.js';
-export type { FieldProps, FieldLabelProps, FieldsetProps } from './Field.js';
+export type {
+  FieldProps,
+  FieldLabelProps,
+  FieldHelpProps,
+  FieldErrorProps,
+  FieldsetProps,
+  FieldControl,
+} from './Field.js';
 export { SegmentedControl } from './SegmentedControl.js';
 export type { SegmentedControlProps, SegmentedOption } from './SegmentedControl.js';
 export { Slider } from './Slider.js';
@@ -112,6 +120,8 @@ export { Kbd } from './Kbd.js';
 export type { KbdProps } from './Kbd.js';
 export { Separator } from './Separator.js';
 export type { SeparatorProps } from './Separator.js';
+export { Table } from './Table.js';
+export type { TableProps } from './Table.js';
 
 export { cx } from './util.js';
 
@@ -129,6 +139,8 @@ export type {
   PopoverApi,
   TabsApi,
   ToastApi,
+  ToastIntent,
+  ToastOptions,
   TocApi,
   TooltipApi,
 } from '@hydrateless/enhancers';

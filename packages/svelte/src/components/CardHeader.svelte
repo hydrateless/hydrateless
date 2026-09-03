@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Header content, typically a `<CardTitle>` and `<CardDescription>`. */
     children?: Snippet;
   }
 

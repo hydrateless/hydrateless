@@ -2,7 +2,9 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
+    /** Spinner size. */
     size?: 'sm' | 'md' | 'lg' | 'xl';
+    /** Accessible name announced by screen readers. Defaults to "Loading". */
     label?: string;
   }
 

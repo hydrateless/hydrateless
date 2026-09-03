@@ -39,6 +39,25 @@ describe('enhanceAccordion', () => {
     expect(d2.open).toBe(true);
   });
 
+  it('moves focus between headers with arrows, Home, and End', () => {
+    enhanceAccordion(document);
+    const summaries = document.querySelectorAll<HTMLElement>('summary');
+    const key = (el: HTMLElement, k: string) =>
+      el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+
+    summaries[0].focus();
+    key(summaries[0], 'ArrowDown');
+    expect(document.activeElement).toBe(summaries[1]);
+    key(summaries[1], 'End');
+    expect(document.activeElement).toBe(summaries[2]);
+    key(summaries[2], 'ArrowDown');
+    expect(document.activeElement).toBe(summaries[0]);
+    key(summaries[0], 'ArrowUp');
+    expect(document.activeElement).toBe(summaries[2]);
+    key(summaries[2], 'Home');
+    expect(document.activeElement).toBe(summaries[0]);
+  });
+
   it('handles containers with no accordion groups', () => {
     document.body.innerHTML = '<div>No accordion here</div>';
     expect(() => enhanceAccordion(document)).not.toThrow();

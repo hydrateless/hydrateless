@@ -1,10 +1,25 @@
 import { readFileSync } from 'node:fs';
-import { defineConfig } from 'vitepress';
+import { defineConfig, type DefaultTheme } from 'vitepress';
+import { componentsByCategory } from './data/registry';
 
 // Single source of truth for the version chip: the published library package.
 const { version } = JSON.parse(
   readFileSync(new URL('../../hydrateless/package.json', import.meta.url), 'utf8'),
 ) as { version: string };
+
+// The Components sidebar is derived from the component registry, so adding a
+// component data file is all it takes to list it; there is no second list to
+// keep in sync.
+const componentSidebar: DefaultTheme.SidebarItem[] = [
+  {
+    text: 'Overview',
+    items: [{ text: 'All components', link: '/components/' }],
+  },
+  ...componentsByCategory().map(({ category, items }) => ({
+    text: category,
+    items: items.map((c) => ({ text: c.name, link: `/components/${c.slug}` })),
+  })),
+];
 
 export default defineConfig({
   title: 'Hydrateless',
@@ -43,11 +58,26 @@ export default defineConfig({
           text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
+            { text: 'CDN Usage', link: '/guide/cdn' },
+            { text: 'Server-Side Rendering', link: '/guide/ssr' },
+          ],
+        },
+        {
+          text: 'Styling',
+          items: [
             { text: 'Theming', link: '/guide/theming' },
             { text: 'Dark Mode', link: '/guide/dark-mode' },
             { text: 'CSS Layers', link: '/guide/css-layers' },
-            { text: 'CDN Usage', link: '/guide/cdn' },
-            { text: 'Server-Side Rendering', link: '/guide/ssr' },
+            { text: 'Motion', link: '/guide/motion' },
+            { text: 'Right-to-Left', link: '/guide/rtl' },
+            { text: 'Composing and Extending', link: '/guide/composing' },
+          ],
+        },
+        {
+          text: 'Behavior',
+          items: [
+            { text: 'Accessibility', link: '/guide/accessibility' },
+            { text: 'Forms', link: '/guide/forms' },
           ],
         },
       ],
@@ -68,78 +98,7 @@ export default defineConfig({
           items: [{ text: 'Theme Studio', link: '/playground/theme' }],
         },
       ],
-      '/components/': [
-        {
-          text: 'Overview',
-          items: [{ text: 'All components', link: '/components/' }],
-        },
-        {
-          text: 'Forms',
-          items: [
-            { text: 'Button', link: '/components/button' },
-            { text: 'Input', link: '/components/input' },
-            { text: 'Textarea', link: '/components/textarea' },
-            { text: 'Select', link: '/components/select' },
-            { text: 'Checkbox', link: '/components/checkbox' },
-            { text: 'Radio Group', link: '/components/radio-group' },
-            { text: 'Switch', link: '/components/switch' },
-            { text: 'Slider', link: '/components/slider' },
-            { text: 'Segmented Control', link: '/components/segmented-control' },
-            { text: 'Combobox', link: '/components/combobox' },
-            { text: 'Field', link: '/components/field' },
-          ],
-        },
-        {
-          text: 'Actions & Overlays',
-          items: [
-            { text: 'Dropdown Menu', link: '/components/dropdown' },
-            { text: 'Menu', link: '/components/menu' },
-            { text: 'Modal', link: '/components/modal' },
-            { text: 'Drawer', link: '/components/drawer' },
-            { text: 'Popover', link: '/components/popover' },
-            { text: 'Tooltip', link: '/components/tooltip' },
-            { text: 'Command Palette', link: '/components/command-palette' },
-          ],
-        },
-        {
-          text: 'Disclosure',
-          items: [
-            { text: 'Accordion', link: '/components/accordion' },
-            { text: 'Disclosure', link: '/components/disclosure' },
-            { text: 'Tabs', link: '/components/tabs' },
-          ],
-        },
-        {
-          text: 'Feedback',
-          items: [
-            { text: 'Alert', link: '/components/alert' },
-            { text: 'Badge', link: '/components/badge' },
-            { text: 'Progress', link: '/components/progress' },
-            { text: 'Spinner', link: '/components/spinner' },
-            { text: 'Skeleton', link: '/components/skeleton' },
-            { text: 'Toast', link: '/components/toast' },
-          ],
-        },
-        {
-          text: 'Data Display',
-          items: [
-            { text: 'Card', link: '/components/card' },
-            { text: 'Avatar', link: '/components/avatar' },
-            { text: 'Table', link: '/components/table' },
-            { text: 'Kbd', link: '/components/kbd' },
-          ],
-        },
-        {
-          text: 'Navigation',
-          items: [
-            { text: 'Breadcrumb', link: '/components/breadcrumb' },
-            { text: 'Pagination', link: '/components/pagination' },
-            { text: 'Table of Contents', link: '/components/toc' },
-            { text: 'Skip Link', link: '/components/skip-link' },
-            { text: 'Separator', link: '/components/separator' },
-          ],
-        },
-      ],
+      '/components/': componentSidebar,
       '/reference': [
         {
           text: 'Reference',

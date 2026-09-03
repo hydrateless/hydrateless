@@ -4,15 +4,16 @@
   import { getFieldContext } from '../context.js';
 
   interface Props extends HTMLAttributes<HTMLParagraphElement> {
+    /** Validation message; nothing renders without content. */
     children?: Snippet;
   }
 
-  let { class: klass, children, ...rest }: Props = $props();
-  const ctx = getFieldContext();
+  let { id, class: klass, children, ...rest }: Props = $props();
+  const field = getFieldContext();
 </script>
 
 {#if children}
-  <p {...rest} id={ctx?.errorId} role="alert" class={['hl-error', klass]}>
+  <p {...rest} id={id ?? field?.errorId} role="alert" class={['hl-error', klass]}>
     {@render children()}
   </p>
 {/if}

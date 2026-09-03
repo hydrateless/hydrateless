@@ -1,6 +1,8 @@
 /**
- * Non-color design scales: spacing, radii, typography, elevation, z-index, and
- * motion. These are theme-independent and rarely overridden per component.
+ * Non-color design scales: spacing, radii, typography, control sizing, z-index,
+ * and motion. These are theme-independent and rarely overridden per component.
+ * Elevation (shadows) lives in semantic.css because it changes with the color
+ * scheme.
  */
 @layer tokens {
   :root {
@@ -57,20 +59,29 @@
     --hl-font-semibold: 600;
     --hl-font-bold: 700;
 
-    /* Elevation (shadows), tuned for light surfaces */
-    --hl-shadow-xs: 0 1px 2px 0 hsl(222deg 47% 11% / 0.05);
-    --hl-shadow-sm: 0 1px 3px 0 hsl(222deg 47% 11% / 0.1), 0 1px 2px -1px hsl(222deg 47% 11% / 0.1);
-    --hl-shadow-md:
-      0 4px 6px -1px hsl(222deg 47% 11% / 0.1), 0 2px 4px -2px hsl(222deg 47% 11% / 0.1);
-    --hl-shadow-lg:
-      0 10px 15px -3px hsl(222deg 47% 11% / 0.1), 0 4px 6px -4px hsl(222deg 47% 11% / 0.1);
-    --hl-shadow-xl:
-      0 20px 25px -5px hsl(222deg 47% 11% / 0.1), 0 8px 10px -6px hsl(222deg 47% 11% / 0.1);
-
     /* Control sizing */
+
+    /* Shared block size of a default (md) control: buttons, inputs, selects, pagination items. */
+    --hl-control-block-size: 2.5rem;
     --hl-control-height-sm: 2rem;
-    --hl-control-height-md: 2.5rem;
+    --hl-control-height-md: var(--hl-control-block-size);
     --hl-control-height-lg: 3rem;
+
+    /* Overlay sizing */
+
+    /* Inline size of side surfaces such as the drawer (capped to the viewport in the component). */
+    --hl-overlay-inline-size: 28rem;
+
+    /* Maximum inline size of a centered modal dialog. */
+    --hl-modal-inline-size: 32rem;
+
+    /* Interaction states */
+
+    /* Opacity applied to disabled controls, options, and items. */
+    --hl-disabled-opacity: 0.5;
+
+    /* Gap between a control and its focus-visible outline. */
+    --hl-focus-offset: 2px;
 
     /* Z-index scale */
     --hl-z-base: 0;

@@ -1,4 +1,7 @@
-import { defineEnhancer, ensureId, setAttrs, nextIndex, Events } from '../core/index.js';
+import { defineEnhancer, ensureId, setAttrs, nextIndex, Events, Keys } from '../core/index.js';
+
+/** Number of options PageUp/PageDown jumps over. */
+const PAGE = 10;
 
 /** Options for {@link enhanceCommand}. */
 export type EnhanceCommandOptions = {
@@ -22,12 +25,15 @@ export type CommandApi = {
 
 /**
  * Command palette: a filterable `role="listbox"` of `role="option"` commands
- * with arrow navigation, type-to-filter (matching text + `data-hl-keywords`),
- * automatic empty-state and group hiding, and Enter to run the active command
- * (emits a cancelable `hl:command` CustomEvent). The filter query is
- * observable through `onValueChange`/`hl:change` and controllable through the
- * returned API. When the palette lives inside a `<dialog>`, an optional
- * `data-hl-command-hotkey` opens it with Cmd/Ctrl+key.
+ * with arrow/Home/End/PageUp/PageDown navigation, type-to-filter (matching
+ * text + `data-hl-keywords`), automatic empty-state and group hiding, Escape
+ * to clear the query (or close the hosting `<dialog>` once it's empty), and
+ * Enter to run the active command (emits a cancelable `hl:command`
+ * CustomEvent). The filter query is observable through `onValueChange`/
+ * `hl:change` and controllable through the returned API. When the palette
+ * lives inside a `<dialog>`, an optional `data-hl-command-hotkey` opens it
+ * with Cmd/Ctrl+key. Without JavaScript the full list simply renders; the
+ * root is marked `data-hl-ready` once filtering is live.
  */
 export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>({
   name: 'command',
@@ -45,6 +51,9 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       options.hotkey ||
       ''
     ).toLowerCase();
+
+    root.setAttribute('data-hl-ready', '');
+    add(() => root.removeAttribute('data-hl-ready'));
 
     const listId = ensureId(list, 'hl-command-list');
     setAttrs(list, { role: 'listbox' });
@@ -118,34 +127,45 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
     on<KeyboardEvent>(input, 'keydown', (e) => {
       const items = visible();
       switch (e.key) {
-        case 'ArrowDown':
+        case Keys.ArrowDown:
           e.preventDefault();
           active = nextIndex(active, items.length, 'next');
           paint();
           break;
-        case 'ArrowUp':
+        case Keys.ArrowUp:
           e.preventDefault();
           active = nextIndex(active, items.length, 'prev');
           paint();
           break;
-        case 'Home':
-          e.preventDefault();
-          active = 0;
-          paint();
+        case Keys.PageDown:
+          if (items.length > 0) {
+            e.preventDefault();
+            active = Math.min(active === -1 ? PAGE - 1 : active + PAGE, items.length - 1);
+            paint();
+          }
           break;
-        case 'End':
-          e.preventDefault();
-          active = items.length - 1;
-          paint();
+        case Keys.PageUp:
+          if (items.length > 0) {
+            e.preventDefault();
+            active = Math.max(active === -1 ? 0 : active - PAGE, 0);
+            paint();
+          }
           break;
-        case 'Enter':
+        case Keys.Enter:
           if (items[active]) {
             e.preventDefault();
             run(items[active]);
           }
           break;
-        case 'Escape':
-          if (dialog?.open) {
+        case Keys.Escape:
+          // First Escape clears a query; the next one (or the first, when the
+          // query is already empty) closes the hosting dialog.
+          if (input.value) {
+            e.preventDefault();
+            input.value = '';
+            filter('');
+            notify();
+          } else if (dialog?.open) {
             e.preventDefault();
             dialog.close();
           }

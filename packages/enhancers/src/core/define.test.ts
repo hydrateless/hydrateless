@@ -37,6 +37,12 @@ describe('defineEnhancer', () => {
     expect(handle.instances[1].api.count()).toBe(0);
   });
 
+  it('defaults the container to the document', () => {
+    const handle = enhanceCounter();
+    expect(handle.instances).toHaveLength(2);
+    handle.destroy();
+  });
+
   it('accepts an element root directly', () => {
     const handle = enhanceCounter(document.getElementById('a')!);
     expect(handle.instances).toHaveLength(1);

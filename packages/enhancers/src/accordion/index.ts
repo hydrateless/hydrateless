@@ -1,4 +1,4 @@
-import { defineEnhancer, Events } from '../core/index.js';
+import { defineEnhancer, nextIndex, Events, Keys, type MoveDirection } from '../core/index.js';
 
 /** Options for {@link enhanceAccordion}. */
 export type EnhanceAccordionOptions = {
@@ -25,6 +25,8 @@ export type AccordionApi = {
 /**
  * Accordion behavior layered on a group of native `<details>` elements. With
  * `allowMultiple: false` (the default), opening one panel closes the others.
+ * The APG accordion keyboard interaction is added on top of the native
+ * disclosure: Up/Down arrows and Home/End move focus between the headers.
  * Open state is observable through `onValueChange`/`hl:change` and
  * controllable through the returned API; the browser still handles the
  * disclosure widget itself.
@@ -37,6 +39,7 @@ export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, Accordio
     const items = Array.from(root.querySelectorAll<HTMLDetailsElement>('details'));
     if (items.length === 0) return;
 
+    const summaries = items.map((item) => item.querySelector<HTMLElement>(':scope > summary'));
     const values = items.map((item, i) => item.getAttribute('data-hl-value') ?? String(i));
     const read = (): string[] => values.filter((_, i) => items[i].open);
 
@@ -83,6 +86,21 @@ export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, Accordio
         notify();
       });
     }
+
+    // APG accordion header navigation. Enter/Space stay native (`<summary>`
+    // already toggles); only focus movement between headers is added.
+    on<KeyboardEvent>(root, 'keydown', (e) => {
+      const current = summaries.indexOf(e.target as HTMLElement);
+      if (current === -1) return;
+      let direction: MoveDirection | null = null;
+      if (e.key === Keys.ArrowDown) direction = 'next';
+      else if (e.key === Keys.ArrowUp) direction = 'prev';
+      else if (e.key === Keys.Home) direction = 'first';
+      else if (e.key === Keys.End) direction = 'last';
+      if (!direction) return;
+      e.preventDefault();
+      summaries[nextIndex(current, summaries.length, direction)]?.focus();
+    });
 
     return {
       get value() {

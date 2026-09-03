@@ -1,9 +1,13 @@
-import { type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { cx } from './util.js';
 
 /** Props for {@link Pagination}. */
 export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange'> {
+  /** The current 1-based page. */
   page: number;
+  /** Total number of pages. */
   count: number;
+  /** Called with the requested page. */
   onPageChange?: (page: number) => void;
   /** Pages to show on each side of the current page. Defaults to 1. */
   siblingCount?: number;
@@ -42,17 +46,20 @@ function paginationRange(
 }
 
 /** Pagination primitive: `hl-pagination` with smart ellipsis truncation. */
-export function Pagination({
-  page,
-  count,
-  onPageChange,
-  siblingCount = 1,
-  showControls = true,
-  prevLabel = '‹',
-  nextLabel = '›',
-  className,
-  ...rest
-}: PaginationProps) {
+export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagination(
+  {
+    page,
+    count,
+    onPageChange,
+    siblingCount = 1,
+    showControls = true,
+    prevLabel = '‹',
+    nextLabel = '›',
+    className,
+    ...rest
+  },
+  ref,
+) {
   const items = paginationRange(page, count, siblingCount);
   const go = (target: number) => {
     if (target >= 1 && target <= count && target !== page) onPageChange?.(target);
@@ -61,7 +68,8 @@ export function Pagination({
   return (
     <nav
       {...rest}
-      className={['hl-pagination', className].filter(Boolean).join(' ')}
+      ref={ref}
+      className={cx('hl-pagination', className)}
       aria-label={rest['aria-label'] ?? 'Pagination'}
     >
       <ul>
@@ -113,4 +121,4 @@ export function Pagination({
       </ul>
     </nav>
   );
-}
+});

@@ -1,3 +1,9 @@
+/**
+ * Breadcrumb: `<nav data-hl-breadcrumb aria-label="Breadcrumb">` wrapping an
+ * `<ol>` of links; the current page carries `aria-current="page"`. Pure CSS;
+ * there is no enhancer. Order follows the writing direction, so the trail
+ * reads right to left under RTL.
+ */
 @layer components {
   nav[data-hl-breadcrumb] ol {
     display: flex;
@@ -32,7 +38,7 @@
 
   nav[data-hl-breadcrumb] a:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   nav[data-hl-breadcrumb] [aria-current='page'] {

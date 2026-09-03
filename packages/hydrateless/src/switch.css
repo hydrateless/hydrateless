@@ -1,5 +1,17 @@
+/**
+ * Switch: `<label data-hl-switch><input type="checkbox" role="switch"> Label</label>`.
+ * The native checkbox is restyled as a track and thumb, so state, keyboard,
+ * and form submission stay native. Pure CSS; there is no enhancer.
+ *   data-hl-switch: the label wrapper
+ */
 @layer components {
   [data-hl-switch] {
+    --_track-inline: 2.25rem;
+    --_track-block: 1.25rem;
+    --_gap: 2px;
+    --_thumb: calc(var(--_track-block) - var(--_gap) * 2);
+    --_travel: calc(var(--_track-inline) - var(--_track-block));
+
     display: inline-flex;
     align-items: center;
     gap: var(--hl-space-2);
@@ -7,28 +19,35 @@
 
   [data-hl-switch] input[type='checkbox'] {
     appearance: none;
-    inline-size: 2.25rem;
-    block-size: 1.25rem;
-    border-radius: 1.25rem;
-    background: var(--hl-border-strong);
     position: relative;
-    outline-offset: 2px;
+    inline-size: var(--_track-inline);
+    block-size: var(--_track-block);
+    margin: 0;
+    border-radius: var(--hl-radius-full);
+    background: var(--hl-border-strong);
     transition: background-color var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
+  /* The thumb rests at the inline start and travels toward the inline end,
+     so it is placed logically and slides left under RTL. */
   [data-hl-switch] input[type='checkbox']::after {
     content: '';
     position: absolute;
-    inset: 2px auto auto 2px;
-    inline-size: calc(1.25rem - 4px);
-    block-size: calc(1.25rem - 4px);
-    border-radius: 50%;
+    inset-block-start: var(--_gap);
+    inset-inline-start: var(--_gap);
+    inline-size: var(--_thumb);
+    block-size: var(--_thumb);
+    border-radius: var(--hl-radius-full);
     background: var(--hl-surface);
-    transition: transform var(--hl-duration-fast) var(--hl-ease-standard);
+    transition: translate var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
   [data-hl-switch] input[type='checkbox']:checked::after {
-    transform: translateX(1rem);
+    translate: var(--_travel) 0;
+  }
+
+  [data-hl-switch] input[type='checkbox']:checked:dir(rtl)::after {
+    translate: calc(var(--_travel) * -1) 0;
   }
 
   [data-hl-switch] input[type='checkbox']:checked {
@@ -37,15 +56,38 @@
 
   [data-hl-switch] input[type='checkbox']:focus-visible {
     outline: var(--hl-focus-ring);
+    outline-offset: var(--hl-focus-offset);
   }
 
   [data-hl-switch] input[type='checkbox']:disabled {
-    opacity: 0.5;
+    opacity: var(--hl-disabled-opacity);
     cursor: not-allowed;
   }
 
   [data-hl-switch]:has(input[type='checkbox']:disabled) {
     opacity: 0.7;
     cursor: not-allowed;
+  }
+
+  /* The track needs an edge once its fill is flattened, and the custom-drawn
+     thumb keeps its own colors so it stays visible on both states. */
+  @media (forced-colors: active) {
+    [data-hl-switch] input[type='checkbox'] {
+      border: var(--hl-border-width) solid ButtonBorder;
+    }
+
+    [data-hl-switch] input[type='checkbox']:checked {
+      background: Highlight;
+      border-color: Highlight;
+    }
+
+    [data-hl-switch] input[type='checkbox']::after {
+      forced-color-adjust: none;
+      background: ButtonText;
+    }
+
+    [data-hl-switch] input[type='checkbox']:checked::after {
+      background: HighlightText;
+    }
   }
 }

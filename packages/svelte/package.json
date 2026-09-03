@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/svelte",
   "version": "0.8.0",
-  "description": "Svelte 5 bindings for Hydrateless: first-class components, actions, and a toast store.",
+  "description": "Svelte 5 bindings for Hydrateless: rune-based components, a useEnhancer attachment, field wiring, and toasts.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
     "@hydrateless/enhancers": "^0.8.0"
   },
   "peerDependencies": {
-    "svelte": ">=5"
+    "svelte": ">=5.29"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.3.0",

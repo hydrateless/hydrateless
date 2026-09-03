@@ -37,7 +37,12 @@ export const slider: ComponentDoc = {
   props: [
     { name: 'min', type: 'number', default: '0', description: 'Minimum value.' },
     { name: 'max', type: 'number', default: '100', description: 'Maximum value.' },
-    { name: 'value', type: 'number', description: 'Controlled value; pair with `onValueChange`.' },
+    {
+      name: 'value',
+      type: 'number',
+      description:
+        'Controlled value; pair with the native `onChange` in React (Vue: `v-model`, Svelte: `bind:value`).',
+    },
   ],
   tokens: [
     { name: '--hl-primary', description: 'Filled track and thumb color.' },

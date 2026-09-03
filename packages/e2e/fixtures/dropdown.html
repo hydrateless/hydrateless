@@ -3,17 +3,45 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dropdown — Hydrateless E2E</title>
+    <title>Dropdown | Hydrateless E2E</title>
     <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
   </head>
   <body>
     <main>
       <h1>Dropdown</h1>
+      <!--
+        `popover` on the menu and `popovertarget` on the trigger are part of the
+        markup (not added by JS) so the menu opens with no JavaScript at all.
+        Checkable items carry an explicit `aria-checked` for the same reason.
+      -->
       <div data-hl-dropdown>
-        <button data-hl-dropdown-trigger popovertarget="dd-menu">Actions</button>
-        <ul id="dd-menu" data-hl-dropdown-menu popover="auto" role="menu" aria-label="Actions">
+        <button id="dd-trigger" data-hl-dropdown-trigger popovertarget="dd-menu">Actions</button>
+        <ul id="dd-menu" data-hl-dropdown-menu popover role="menu" aria-label="Actions">
           <li role="none"><button role="menuitem" data-hl-value="edit">Edit</button></li>
           <li role="none"><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
+          <li role="none">
+            <button role="menuitem" data-hl-value="archive" disabled>Archive</button>
+          </li>
+          <li role="none">
+            <button role="menuitemcheckbox" data-hl-value="pin" aria-checked="false">
+              Pin to top
+            </button>
+          </li>
+          <li role="separator" class="hl-dropdown-separator"></li>
+          <li role="none">
+            <ul role="group" aria-label="Sort by">
+              <li role="none">
+                <button role="menuitemradio" data-hl-value="sort-name" aria-checked="true">
+                  Name
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitemradio" data-hl-value="sort-date" aria-checked="false">
+                  Date
+                </button>
+              </li>
+            </ul>
+          </li>
           <li role="none"><button role="menuitem" data-hl-value="delete">Delete</button></li>
         </ul>
       </div>
@@ -22,7 +50,9 @@
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
     <script type="module">
       document.addEventListener('hl:select', (event) => {
-        document.getElementById('result').textContent = `selected:${event.detail.value}`;
+        const { value, checked } = event.detail;
+        document.getElementById('result').textContent =
+          checked === undefined ? `selected:${value}` : `selected:${value}:${checked}`;
       });
     </script>
   </body>

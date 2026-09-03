@@ -18,20 +18,39 @@ const { title } = Astro.props;
     <style is:global>
       body {
         margin: 0;
+        font-family: var(--hl-font-sans);
+        color: var(--hl-fg);
+        background: var(--hl-bg);
       }
       .page {
-        max-width: 42rem;
+        max-inline-size: 42rem;
         margin: 0 auto;
-        padding: 2rem;
-        font-family: system-ui, sans-serif;
+        padding: var(--hl-space-8) var(--hl-space-4);
         display: grid;
-        gap: 1.5rem;
+        gap: var(--hl-space-8);
       }
-      section + section {
-        margin-top: 1rem;
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--hl-space-4);
+      }
+      h1,
+      h2 {
+        margin: 0 0 var(--hl-space-3);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--hl-space-3);
+      }
+      .stack {
+        display: grid;
+        gap: var(--hl-space-4);
       }
     </style>
-    <main class="page">
+    <a class="hl-skip-link" href="#main">Skip to content</a>
+    <main id="main" class="page">
       <slot />
     </main>
 

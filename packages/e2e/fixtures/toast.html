@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Toast — Hydrateless E2E</title>
+    <title>Toast | Hydrateless E2E</title>
     <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
   </head>
   <body>
@@ -13,10 +13,19 @@
         type="button"
         id="show"
         data-hl-toast-trigger="Saved!"
-        data-hl-toast-variant="success"
+        data-hl-toast-intent="success"
         data-hl-toast-duration="60000"
       >
         Show toast
+      </button>
+      <button
+        type="button"
+        id="show-danger"
+        data-hl-toast-trigger="Upload failed"
+        data-hl-toast-intent="danger"
+        data-hl-toast-duration="60000"
+      >
+        Show danger toast
       </button>
     </main>
     <div data-hl-toast-region role="status" aria-live="polite">

@@ -38,6 +38,7 @@ test.describe('enhanced (JS on)', () => {
     await gotoFixture(page, 'drawer');
     const dialog = page.locator('#dr');
     await expect(dialog).toHaveAttribute('aria-labelledby', /.+/);
+    await expect(dialog).toHaveAttribute('data-hl-side', 'end');
 
     if (await supportsInvokers(page)) {
       await page.locator('#open').click();
@@ -74,12 +75,19 @@ test.describe('enhanced (JS on)', () => {
   test('dropdown: menu-button semantics, roving focus, selection', async ({ page }) => {
     await gotoFixture(page, 'dropdown');
     test.skip(!(await supportsPopover(page)), 'Popover API unsupported');
-    const trigger = page.locator('[data-hl-dropdown-trigger]');
+    const trigger = page.locator('#dd-trigger');
     const menu = page.locator('#dd-menu');
     const items = page.locator('[role="menuitem"]');
 
     await expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(trigger).toHaveAttribute('aria-controls', 'dd-menu');
+    // Checkable items get an explicit aria-checked, and every item leaves the tab order.
+    await expect(page.locator('[role="menuitemcheckbox"]')).toHaveAttribute(
+      'aria-checked',
+      'false',
+    );
+    await expect(items.first()).toHaveAttribute('tabindex', '-1');
 
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -135,7 +143,9 @@ test.describe('enhanced (JS on)', () => {
     await gotoFixture(page, 'combobox');
     const input = page.locator('#cb-input');
     await expect(input).toHaveAttribute('role', 'combobox');
+    await expect(input).toHaveAttribute('aria-haspopup', 'listbox');
     await expect(input).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.locator('[data-hl-combobox]')).toHaveAttribute('data-hl-ready', '');
 
     await input.click();
     await expect(input).toHaveAttribute('aria-expanded', 'true');
@@ -183,11 +193,14 @@ test.describe('enhanced (JS on)', () => {
 
   test('menu: menubar semantics, top-layer submenu, keyboard selection', async ({ page }) => {
     await gotoFixture(page, 'menu');
+    const menubar = page.locator('[data-hl-menu]').first();
     const file = page.locator('#file');
-    const submenu = page.locator('[data-hl-menu-submenu]');
+    const submenu = menubar.locator('[data-hl-menu-submenu]');
+    const value = page.locator('#value');
 
-    await expect(page.locator('[data-hl-menu]')).toHaveAttribute('role', 'menubar');
-    await expect(file).toHaveAttribute('aria-haspopup', 'true');
+    await expect(menubar).toHaveAttribute('role', 'menubar');
+    await expect(menubar).toHaveAttribute('data-hl-ready', '');
+    await expect(file).toHaveAttribute('aria-haspopup', 'menu');
     await expect(file).toHaveAttribute('aria-expanded', 'false');
     await expect(submenu).toBeHidden();
 
@@ -195,6 +208,8 @@ test.describe('enhanced (JS on)', () => {
     await expect(submenu).toBeVisible();
     await expect(file).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('[role="menuitem"]', { hasText: 'New' })).toBeFocused();
+    // The open submenu is the menu's value, reported through hl:change.
+    await expect(value).toHaveText('value:file');
     if (await supportsPopover(page)) {
       // The submenu is promoted to a native popover so it renders in the top layer.
       await expect(submenu).toHaveAttribute('popover', 'manual');
@@ -202,10 +217,12 @@ test.describe('enhanced (JS on)', () => {
     }
     await expectNoAxeViolations(page);
 
+    // ArrowDown skips the disabled "Print" item and lands on "Open".
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
     await expect(page.locator('#result')).toHaveText('selected:open');
     await expect(submenu).toBeHidden();
+    await expect(value).toHaveText('value:null');
 
     // Escape closes the submenu and restores focus to its trigger.
     await file.click();
@@ -215,8 +232,8 @@ test.describe('enhanced (JS on)', () => {
     await expect(file).toBeFocused();
   });
 
-  test('command: filters, shows the empty state, and runs on Enter', async ({ page }) => {
-    await gotoFixture(page, 'command');
+  test('command palette: filters, shows the empty state, and runs on Enter', async ({ page }) => {
+    await gotoFixture(page, 'command-palette');
     const input = page.locator('#cmd-input');
     const options = page.locator('[role="option"]:visible');
     const empty = page.locator('[data-hl-command-empty]');
@@ -247,13 +264,23 @@ test.describe('enhanced (JS on)', () => {
     await expect(region).toHaveAttribute('aria-live', 'polite');
 
     await page.locator('#show').click();
-    const toast = page.locator('[data-hl-toast][data-hl-variant="success"]');
+    const toast = page.locator('[data-hl-toast][data-hl-intent="success"]');
     await expect(toast).toBeVisible();
     await expect(toast).toHaveText(/Saved!/);
+    await expect(toast).not.toHaveAttribute('role', 'alert');
     await expectNoAxeViolations(page);
 
     await toast.locator('[data-hl-toast-close]').click();
     await expect(toast).toHaveCount(0);
+
+    // Danger toasts interrupt: they carry role="alert" for assertive announcement.
+    await page.locator('#show-danger').click();
+    const danger = page.locator('[data-hl-toast][data-hl-intent="danger"]');
+    await expect(danger).toBeVisible();
+    await expect(danger).toHaveAttribute('role', 'alert');
+    await expectNoAxeViolations(page);
+    await danger.locator('[data-hl-toast-close]').click();
+    await expect(danger).toHaveCount(0);
 
     // The delegated close handler also covers the server-rendered toast.
     await page.locator('#server-toast [data-hl-toast-close]').click();

@@ -39,18 +39,20 @@ function Toolbar() {
   const toast = useToast();
   return (
     <div className="row">
-      <Dropdown>
-        <DropdownTrigger>
-          <Button>Actions</Button>
-        </DropdownTrigger>
+      <Dropdown
+        onSelect={(value) =>
+          toast.show(`${value} selected`, { intent: value === 'delete' ? 'danger' : 'info' })
+        }
+      >
+        <DropdownTrigger className="hl-button">Actions</DropdownTrigger>
         <DropdownMenu>
-          <DropdownItem onSelect={() => toast.show('Edited')}>Edit</DropdownItem>
-          <DropdownItem onSelect={() => toast.show('Duplicated')}>Duplicate</DropdownItem>
+          <DropdownItem value="edit">Edit</DropdownItem>
+          <DropdownItem value="duplicate">Duplicate</DropdownItem>
           <DropdownSeparator />
-          <DropdownItem onSelect={() => toast.show('Deleted')}>Delete</DropdownItem>
+          <DropdownItem value="delete">Delete</DropdownItem>
         </DropdownMenu>
       </Dropdown>
-      <Button intent="primary" onClick={() => toast.show('Saved!')}>
+      <Button intent="primary" onClick={() => toast.show('Saved', { intent: 'success' })}>
         Save
       </Button>
     </div>
@@ -71,7 +73,7 @@ export function App() {
           <BreadcrumbItem current>React</BreadcrumbItem>
         </Breadcrumb>
         <h1>
-          Hydrateless for React <Badge intent="primary">v0.5</Badge>
+          Hydrateless for React <Badge intent="primary">Example</Badge>
         </h1>
       </header>
 

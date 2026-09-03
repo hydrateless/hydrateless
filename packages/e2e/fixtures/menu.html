@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Menu — Hydrateless E2E</title>
+    <title>Menu | Hydrateless E2E</title>
     <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
   </head>
   <body>
@@ -17,6 +17,9 @@
               <button type="button" role="menuitem" data-hl-value="new">New</button>
             </li>
             <li role="none">
+              <button type="button" role="menuitem" data-hl-value="print" disabled>Print</button>
+            </li>
+            <li role="none">
               <button type="button" role="menuitem" data-hl-value="open">Open</button>
             </li>
           </ul>
@@ -25,12 +28,39 @@
           <button type="button" id="edit" role="menuitem" data-hl-value="edit">Edit</button>
         </li>
       </ul>
+
+      <h2>Vertical</h2>
+      <!-- `aria-orientation` in the markup is how the enhancer learns the layout. -->
+      <ul data-hl-menu role="menubar" aria-orientation="vertical" aria-label="Sidebar">
+        <li role="none">
+          <button type="button" id="v-view" role="menuitem" data-hl-value="view">View</button>
+          <ul role="menu" data-hl-menu-submenu aria-label="View" hidden>
+            <li role="none">
+              <button type="button" id="v-zoom-in" role="menuitem" data-hl-value="zoom-in">
+                Zoom in
+              </button>
+            </li>
+            <li role="none">
+              <button type="button" role="menuitem" data-hl-value="zoom-out">Zoom out</button>
+            </li>
+          </ul>
+        </li>
+        <li role="none">
+          <button type="button" id="v-help" role="menuitem" data-hl-value="help">Help</button>
+        </li>
+      </ul>
+
       <p id="result" aria-live="polite"></p>
+      <p id="value" aria-live="polite"></p>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
     <script type="module">
       document.addEventListener('hl:select', (event) => {
         document.getElementById('result').textContent = `selected:${event.detail.value}`;
+      });
+      // The menu's value is the open submenu (or null), reported through hl:change.
+      document.addEventListener('hl:change', (event) => {
+        document.getElementById('value').textContent = `value:${event.detail.value}`;
       });
     </script>
   </body>

@@ -3,7 +3,9 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Add hover/focus affordances for a clickable card. */
     interactive?: boolean;
+    /** Card sections: `<CardHeader>`, `<CardBody>`, `<CardFooter>`. */
     children?: Snippet;
   }
 

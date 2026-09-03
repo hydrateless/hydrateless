@@ -1,23 +1,9 @@
-// Actions + toast store (low-level layer)
-export {
-  accordion,
-  disclosure,
-  tabs,
-  dropdown,
-  modal,
-  drawer,
-  popover,
-  tooltip,
-  toc,
-  menu,
-  combobox,
-  command,
-} from './actions.js';
+// Low-level layer: the one escape hatch, field wiring, and toasts
+export { useEnhancer } from './useEnhancer.svelte.js';
+export type { UseEnhancer } from './useEnhancer.svelte.js';
+export { useField } from './context.js';
+export type { FieldBindings } from './context.js';
 export { useToast } from './toast.js';
-
-// Field/radio context helpers
-export { fieldBindings } from './context.js';
-export type { FieldContext, RadioGroupContext } from './context.js';
 
 // Disclosure
 export { default as Accordion } from './components/Accordion.svelte';
@@ -35,11 +21,13 @@ export { default as Dropdown } from './components/Dropdown.svelte';
 export { default as DropdownTrigger } from './components/DropdownTrigger.svelte';
 export { default as DropdownMenu } from './components/DropdownMenu.svelte';
 export { default as DropdownItem } from './components/DropdownItem.svelte';
+export { default as DropdownGroup } from './components/DropdownGroup.svelte';
 export { default as DropdownSeparator } from './components/DropdownSeparator.svelte';
 
 // Menu
 export { default as Menu } from './components/Menu.svelte';
 export { default as MenuItem } from './components/MenuItem.svelte';
+export { default as MenuSubmenu } from './components/MenuSubmenu.svelte';
 
 // Overlays
 export { default as Modal } from './components/Modal.svelte';
@@ -109,6 +97,7 @@ export { default as Avatar } from './components/Avatar.svelte';
 export { default as AvatarGroup } from './components/AvatarGroup.svelte';
 export { default as Kbd } from './components/Kbd.svelte';
 export { default as Separator } from './components/Separator.svelte';
+export { default as Table } from './components/Table.svelte';
 
 // Navigation
 export { default as Pagination } from './components/Pagination.svelte';
@@ -129,6 +118,8 @@ export type {
   PopoverApi,
   TabsApi,
   ToastApi,
+  ToastIntent,
+  ToastOptions,
   TocApi,
   TooltipApi,
 } from '@hydrateless/enhancers';

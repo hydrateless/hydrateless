@@ -3,9 +3,13 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
+    /** Semantic tone; sets `data-hl-intent`. */
     intent?: 'neutral' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
+    /** Visual style. */
     variant?: 'soft' | 'solid' | 'outline';
+    /** Badge size. */
     size?: 'sm' | 'md';
+    /** Badge text. */
     children?: Snippet;
   }
 

@@ -32,7 +32,7 @@ export const pagination: ComponentDoc = {
         react: () =>
           `import { useState } from 'react';\nimport { Pagination } from '@hydrateless/react';\n\nfunction Example() {\n  const [page, setPage] = useState(1);\n  return <Pagination page={page} count={9} onPageChange={setPage} />;\n}`,
         vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Pagination } from '@hydrateless/vue';\nconst page = ref(1);\n</script>\n\n<template>\n  <Pagination :page="page" :count="9" @update:page="page = $event" />\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport { Pagination } from '@hydrateless/vue';\nconst page = ref(1);\n</script>\n\n<template>\n  <Pagination v-model:page="page" :count="9" />\n</template>`,
         svelte: () =>
           `<script>\n  import { Pagination } from '@hydrateless/svelte';\n  let page = $state(1);\n</script>\n\n<Pagination {page} count={9} onPageChange={(p) => (page = p)} />`,
       },
@@ -44,7 +44,7 @@ export const pagination: ComponentDoc = {
     {
       name: 'onPageChange',
       type: '(page: number) => void',
-      description: 'Fires when a page link is chosen.',
+      description: 'Fires when a page link is chosen (Vue: `v-model:page` / `update:page`).',
     },
   ],
   tokens: [

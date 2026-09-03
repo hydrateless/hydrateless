@@ -2,7 +2,9 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLHRElement> {
+    /** Direction of the rule. Defaults to `horizontal`. */
     orientation?: 'horizontal' | 'vertical';
+    /** Purely visual: removes the separator from the accessibility tree. */
     decorative?: boolean;
   }
 

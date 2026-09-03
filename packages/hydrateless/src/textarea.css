@@ -1,6 +1,8 @@
 /**
- * Multi-line text input: `<textarea class="hl-textarea">`.
- *   data-hl-invalid: error styling (pair with aria-invalid)
+ * Multi-line text input: `<textarea class="hl-textarea">`. Pure CSS; there is
+ * no enhancer.
+ *   data-hl-invalid:  error styling (pair with aria-invalid)
+ *   data-hl-autosize: grows with its content where `field-sizing` is supported
  */
 @layer components {
   .hl-textarea {
@@ -32,12 +34,12 @@
   .hl-textarea:focus-visible {
     outline: none;
     border-color: var(--hl-ring);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent);
+    box-shadow: var(--hl-focus-shadow);
   }
 
   .hl-textarea:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: var(--hl-disabled-opacity);
     background: var(--hl-surface-2);
   }
 
@@ -50,5 +52,20 @@
   .hl-textarea[aria-invalid='true']:focus-visible {
     border-color: var(--hl-danger);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-danger) 30%, transparent);
+  }
+
+  /* Native autosize; engines without it keep the fixed minimum and a resizer. */
+  @supports (field-sizing: content) {
+    .hl-textarea[data-hl-autosize] {
+      field-sizing: content;
+      max-block-size: 60vb;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hl-textarea:focus-visible {
+      outline: var(--hl-focus-ring);
+      outline-offset: var(--hl-focus-offset);
+    }
   }
 }

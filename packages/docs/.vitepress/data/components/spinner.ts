@@ -48,7 +48,7 @@ export const spinner: ComponentDoc = {
   tokens: [{ name: 'currentColor', description: 'The spinner inherits the parent text color.' }],
   a11y: [
     'Wrap it in `role="status"` with an `aria-label` so the loading state is announced.',
-    'The animation pauses under `prefers-reduced-motion`.',
+    'Under `prefers-reduced-motion: reduce` the spinner stops rotating and renders a static arc.',
   ],
   related: ['progress', 'skeleton'],
 };

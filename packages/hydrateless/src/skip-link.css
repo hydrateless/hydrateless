@@ -1,18 +1,23 @@
+/**
+ * Skip link: `<a class="hl-skip-link" href="#main">Skip to content</a>` placed
+ * first in the body. Visually hidden until it receives keyboard focus, then
+ * pinned to the start corner of the viewport. Pure CSS; there is no enhancer.
+ */
 @layer components {
   .hl-skip-link {
     position: absolute;
     inset-inline-start: -9999px;
     inset-block-start: auto;
-    width: 1px;
-    height: 1px;
+    inline-size: 1px;
+    block-size: 1px;
     overflow: hidden;
   }
 
   .hl-skip-link:focus-visible {
     inset-inline-start: 0;
     inset-block-start: 0;
-    width: auto;
-    height: auto;
+    inline-size: auto;
+    block-size: auto;
     padding: var(--hl-space-2) var(--hl-space-3);
     background: var(--hl-fg);
     color: var(--hl-surface);

@@ -1,42 +1,70 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-  interface Props extends Omit<HTMLButtonAttributes, 'type' | 'value'> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'role'> {
     /** Render as a link instead of a button. */
     href?: string;
     /** Stable value identifying this item; defaults to its label text. */
     value?: string;
-    /** Convenience handler fired on activation. */
+    /** Skip the item in keyboard navigation and ignore activation. */
+    disabled?: boolean;
+    /** `menuitemcheckbox` toggles; `menuitemradio` is exclusive within its menu. */
+    role?: 'menuitem' | 'menuitemcheckbox' | 'menuitemradio';
+    /** Checked state for checkable roles; rendered as `aria-checked`. */
+    checked?: boolean;
+    /** Convenience handler fired on activation; the Menu's `onSelect` also fires. */
     onSelect?: () => void;
-    /** Nested `<MenuItem>`s; renders a single-level submenu. */
-    submenu?: Snippet;
-    /** Extra attributes for the `<a>` when `href` is set. */
-    anchorProps?: HTMLAnchorAttributes;
+    /** Item label. */
     children?: Snippet;
   }
 
-  let { href, value, onSelect, onclick, submenu, anchorProps, children, ...rest }: Props = $props();
+  let {
+    href,
+    value,
+    disabled,
+    role = 'menuitem',
+    checked,
+    onSelect,
+    onclick,
+    children,
+    ...rest
+  }: Props = $props();
+  const checkable = $derived(role !== 'menuitem');
+  const ariaChecked = $derived(checkable ? (checked ?? false) : undefined);
+
+  function handleClick(e: MouseEvent) {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
+    onSelect?.();
+    onclick?.(e as MouseEvent & { currentTarget: EventTarget & HTMLElement });
+  }
 </script>
 
 <li role="none">
-  {#if href && !submenu}
-    <a {...anchorProps} role="menuitem" {href} data-hl-value={value}>{@render children?.()}</a>
+  {#if href}
+    <a
+      {...rest}
+      {href}
+      {role}
+      data-hl-value={value}
+      aria-disabled={disabled || undefined}
+      aria-checked={ariaChecked}
+      onclick={handleClick}>{@render children?.()}</a
+    >
   {:else}
     <button
       {...rest}
       type="button"
-      role="menuitem"
+      {role}
       data-hl-value={value}
-      onclick={(e) => {
-        onSelect?.();
-        onclick?.(e);
-      }}
+      disabled={disabled || undefined}
+      aria-checked={ariaChecked}
+      onclick={handleClick}
     >
       {@render children?.()}
     </button>
-  {/if}
-  {#if submenu}
-    <ul role="menu" data-hl-menu-submenu hidden>{@render submenu()}</ul>
   {/if}
 </li>

@@ -26,8 +26,8 @@ const RENDER_CHECKS: Record<StaticFixture, string> = {
   kbd: '.hl-kbd',
   pagination: '.hl-pagination [aria-current="page"]',
   progress: '.hl-progress',
-  radio: '.hl-radio-group[role="radiogroup"]',
-  segmented: '.hl-segmented[role="radiogroup"]',
+  'radio-group': '.hl-radio-group[role="radiogroup"]',
+  'segmented-control': '.hl-segmented[role="radiogroup"]',
   select: '.hl-select',
   separator: 'hr.hl-separator',
   skeleton: '.hl-skeleton',
@@ -74,8 +74,8 @@ test.describe('static components (native behavior)', () => {
     await expect(terms).toBeChecked();
   });
 
-  test('radio: arrow keys move the selection through the group', async ({ page }) => {
-    await gotoFixture(page, 'radio', 'baseline');
+  test('radio group: arrow keys move the selection through the group', async ({ page }) => {
+    await gotoFixture(page, 'radio-group', 'baseline');
     await page.locator('#free').focus();
     await page.keyboard.press('ArrowDown');
     await expect(page.locator('#pro')).toBeChecked();
@@ -91,7 +91,7 @@ test.describe('static components (native behavior)', () => {
   });
 
   test('segmented control: clicking a segment selects it', async ({ page }) => {
-    await gotoFixture(page, 'segmented', 'baseline');
+    await gotoFixture(page, 'segmented-control', 'baseline');
     await page.locator('.hl-segmented-item', { hasText: 'Grid' }).click();
     await expect(page.locator('input[value="grid"]')).toBeChecked();
     await expect(page.locator('input[value="list"]')).not.toBeChecked();

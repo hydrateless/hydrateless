@@ -2,12 +2,15 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
-    variant?: 'rect' | 'text' | 'circle';
+    /** Placeholder shape. */
+    shape?: 'text' | 'circle' | 'rect';
+    /** Inline size; numbers are pixels. */
     width?: string | number;
+    /** Block size; numbers are pixels. */
     height?: string | number;
   }
 
-  let { variant, width, height, style, class: klass, ...rest }: Props = $props();
+  let { shape, width, height, style, class: klass, ...rest }: Props = $props();
 
   function dim(v: string | number): string {
     return typeof v === 'number' ? `${v}px` : v;
@@ -27,7 +30,7 @@
 <span
   {...rest}
   class={['hl-skeleton', klass]}
-  data-hl-variant={variant}
+  data-hl-shape={shape}
   style={sizeStyle || undefined}
   aria-hidden="true"
 ></span>

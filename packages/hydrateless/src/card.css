@@ -1,6 +1,7 @@
 /**
  * Card: `<div class="hl-card">` with optional `.hl-card-header`,
  * `.hl-card-body`, `.hl-card-footer`, `.hl-card-title`, `.hl-card-description`.
+ * Pure CSS; there is no enhancer.
  *   data-hl-interactive: hover/active elevation for clickable cards
  */
 @layer components {
@@ -54,7 +55,7 @@
     transition:
       border-color var(--hl-duration-fast) var(--hl-ease-standard),
       box-shadow var(--hl-duration-base) var(--hl-ease-standard),
-      transform var(--hl-duration-base) var(--hl-ease-standard);
+      translate var(--hl-duration-base) var(--hl-ease-standard);
   }
 
   .hl-card[data-hl-interactive]:hover {
@@ -64,10 +65,10 @@
 
   .hl-card[data-hl-interactive]:focus-within {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   .hl-card[data-hl-interactive]:active {
-    transform: translateY(1px);
+    translate: 0 1px;
   }
 }
