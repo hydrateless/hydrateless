@@ -1,7 +1,9 @@
 /**
  * Field, accessible form-control layout: `.hl-field` stacks a `.hl-label`,
  * the control, `.hl-help`, and `.hl-error`. `.hl-fieldset` + `.hl-legend`
- * group related fields.
+ * group related fields. Pure CSS; there is no enhancer.
+ *   data-hl-required: on `.hl-label`, appends an asterisk
+ *   data-hl-invalid:  on `.hl-field`, colors the label as an error
  */
 @layer components {
   .hl-field {

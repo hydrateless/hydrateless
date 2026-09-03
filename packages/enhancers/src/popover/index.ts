@@ -2,9 +2,10 @@ import {
   defineEnhancer,
   ensureId,
   setAttrs,
-  supportsAnchorPositioning,
-  positionFallback,
+  keepPositioned,
+  noop,
   Events,
+  type Disposer,
   type Placement,
 } from '../core/index.js';
 
@@ -37,9 +38,9 @@ export type PopoverApi = {
  * with light-dismiss and Escape handled by the browser, and a button with
  * `popovertarget` (or `command="toggle-popover"`) opens it with no JavaScript.
  * CSS anchor positioning places it against the invoker. This enhancer only
- * mirrors `aria-expanded` onto the invokers, runs a JS positioning fallback on
- * engines without anchor positioning, adds optional hover triggering, and
- * exposes an imperative open/close API.
+ * mirrors `aria-expanded` onto the invokers, runs a JS positioning fallback
+ * (kept in sync on scroll and resize) on engines without anchor positioning,
+ * adds optional hover triggering, and exposes an imperative open/close API.
  */
 export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>({
   name: 'popover',
@@ -70,16 +71,17 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
     }
     const anchor = openers[0] ?? popover;
 
-    const reposition = () => {
-      if (options.position && !supportsAnchorPositioning()) {
-        positionFallback(anchor, popover, { placement: options.placement });
-      }
-    };
+    let stopPositioning: Disposer = noop;
+    add(() => stopPositioning());
 
     // The native `toggle` event is the single source of truth for open state.
     on(popover, 'toggle', (e) => {
       const open = (e as ToggleEvent).newState === 'open';
-      if (open) reposition();
+      stopPositioning();
+      stopPositioning =
+        open && options.position
+          ? keepPositioned(anchor, popover, { placement: options.placement })
+          : noop;
       for (const opener of openers) {
         setAttrs(opener, { 'aria-expanded': open ? 'true' : 'false' });
       }

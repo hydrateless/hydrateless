@@ -15,6 +15,11 @@
     "limit": "2 kB"
   },
   {
+    "name": "@hydrateless/enhancers: every entry and shared chunk (brotli)",
+    "path": "packages/enhancers/dist/*.js",
+    "limit": "22 kB"
+  },
+  {
     "name": "@hydrateless/react (brotli)",
     "path": "packages/react/dist/index.js",
     "limit": "8 kB"
@@ -23,5 +28,10 @@
     "name": "@hydrateless/vue (brotli)",
     "path": "packages/vue/dist/index.js",
     "limit": "8.5 kB"
+  },
+  {
+    "name": "@hydrateless/svelte (brotli)",
+    "path": "packages/svelte/dist/index.js",
+    "limit": "3 kB"
   }
 ]

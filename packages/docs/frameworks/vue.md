@@ -1,10 +1,9 @@
 # Vue
 
-`@hydrateless/vue` ships **first-class Vue 3 components** for every Hydrateless
-primitive, plus the low-level directives and composables. Components render the
-same semantic markup as the core library; the interactive behavior (keyboard
-navigation, ARIA wiring, focus traps) comes from the underlying enhancer,
-attached and disposed automatically through the component lifecycle.
+`@hydrateless/vue` ships first-class Vue components for every Hydrateless
+primitive. Components render the same semantic markup as the core CSS, so they
+look right before hydration, and the enhancer that adds keyboard navigation,
+ARIA wiring, and focus management is attached on mount and disposed on unmount.
 
 ## Install
 
@@ -12,7 +11,8 @@ attached and disposed automatically through the component lifecycle.
 npm install hydrateless @hydrateless/vue
 ```
 
-Import the CSS once at your app entry:
+Requires **Vue 3.5 or later** (the package uses `useId()` for SSR-stable ids
+and `useTemplateRef()`). Import the CSS once at your app entry:
 
 ```js
 import 'hydrateless/hydrateless.css';
@@ -21,7 +21,7 @@ import 'hydrateless/hydrateless.css';
 ## Components
 
 Composable primitives use a **compound API**: a parent plus named parts you
-arrange with slots:
+arrange with slots.
 
 ```vue
 <script setup>
@@ -29,10 +29,10 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/vue';
 </script>
 
 <template>
-  <Tabs>
+  <Tabs default-value="overview">
     <TabList>
-      <Tab>Overview</Tab>
-      <Tab>Install</Tab>
+      <Tab value="overview">Overview</Tab>
+      <Tab value="install">Install</Tab>
     </TabList>
     <TabPanel>Zero runtime by default.</TabPanel>
     <TabPanel>npm install hydrateless</TabPanel>
@@ -40,12 +40,20 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/vue';
 </template>
 ```
 
-### `v-model` state
+`Tabs` renders `role="tablist"`, `aria-selected`, `tabindex`, and `hidden` in
+its render function, so server output is already correct and there's no flash
+when the enhancer attaches.
 
-Interactive components support `v-model` on their state: `v-model` (value) on
-`Tabs`, `Accordion`, and `Combobox`; `v-model:open` on `Modal`, `Drawer`,
-`Dropdown`, and `Popover`. Escape, backdrop clicks, and in-component
-interactions all flow back into your bound ref:
+### `v-model` and uncontrolled state
+
+Every stateful component works both ways:
+
+- **Uncontrolled**: pass `default-value` (or `default-open`, `default-query`)
+  and let the component own its state.
+- **Controlled**: bind with `v-model`. The primary value uses plain `v-model`
+  (`modelValue` + `update:modelValue`); named state uses `v-model:open` and
+  `v-model:query`. Dismissals the user triggers (Escape, backdrop click,
+  outside click) flow back into your ref.
 
 ```vue
 <script setup>
@@ -61,13 +69,11 @@ const tab = ref('overview');
       <Tab value="overview">Overview</Tab>
       <Tab value="install">Install</Tab>
     </TabList>
-    <TabPanel>…</TabPanel>
-    <TabPanel>…</TabPanel>
+    <TabPanel>...</TabPanel>
+    <TabPanel>...</TabPanel>
   </Tabs>
 </template>
 ```
-
-Overlays are driven with `v-model:open`:
 
 ```vue
 <script setup>
@@ -78,137 +84,195 @@ const open = ref(false);
 </script>
 
 <template>
-  <Button @click="open = true">Open</Button>
+  <Button @click="open = true">Delete</Button>
 
   <Modal v-model:open="open">
-    <ModalHeader><h2>Confirm</h2></ModalHeader>
-    <ModalBody>Are you sure?</ModalBody>
+    <ModalHeader><h2>Delete project?</h2></ModalHeader>
+    <ModalBody>This can't be undone.</ModalBody>
     <ModalFooter>
-      <Button @click="open = false">Close</Button>
+      <Button variant="ghost" @click="open = false">Cancel</Button>
+      <Button intent="danger">Delete</Button>
     </ModalFooter>
   </Modal>
 </template>
 ```
 
-Form controls support `v-model`, and `<Field>` wires up label, help, and error
-ids automatically:
+Which model and emits each component uses:
+
+| Component          | Model                                                                                    | Other props and emits                                    |
+| ------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `Tabs`             | `v-model` (string), `default-value`                                                      | `orientation`, `activation`                              |
+| `Accordion`        | `v-model` (string[]), `default-value`                                                    | `allow-multiple`                                         |
+| `Disclosure`       | `v-model:open`, `default-open`                                                           | `title` or the `summary` slot                            |
+| `Menu`             | `v-model` (open submenu or `null`), `default-value`                                      | `@select="(value, item, checked) => ..."`, `orientation` |
+| `Dropdown`         | `v-model:open`, `default-open`                                                           | `@select`, `close-on-select`, `placement`                |
+| `Modal`, `Drawer`  | `v-model:open`, `default-open`                                                           | `close-on-backdrop`; Drawer `side="start" \| "end"`      |
+| `Popover`          | `v-model:open`, `default-open`                                                           | `placement`, `hover`                                     |
+| `Tooltip`          | `v-model:open`                                                                           | `content`, `placement`, `show-delay`, `hide-delay`       |
+| `Combobox`         | `v-model` (string), `v-model:open`                                                       | `filter`, `auto-highlight`                               |
+| `Command`          | `v-model:query`, `default-query`                                                         | `@command="(value, item) => ..."`, `hotkey`              |
+| `SegmentedControl` | `v-model` (defaults to the first option)                                                 | `options`, `size`                                        |
+| `Pagination`       | `v-model:page`                                                                           | `count`, `sibling-count`, `show-controls`                |
+| Form controls      | `v-model` on `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup` |                                                          |
+
+### Dropdown with checkable items
+
+`DropdownItem` accepts `role="menuitemcheckbox" | "menuitemradio"` and
+`checked`; `DropdownGroup` wraps a labeled `role="group"`. The trigger renders
+`popovertarget` and the menu renders `popover`, so the menu opens before
+JavaScript loads.
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import { Field, FieldLabel, FieldHelp, Input } from '@hydrateless/vue';
-
-const email = ref('');
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownGroup,
+  DropdownItem,
+  DropdownSeparator,
+} from '@hydrateless/vue';
 </script>
 
 <template>
-  <Field>
-    <FieldLabel>Email</FieldLabel>
-    <Input type="email" v-model="email" />
-    <FieldHelp>We never share it.</FieldHelp>
-  </Field>
+  <Dropdown @select="(value, item, checked) => console.log(value, checked)">
+    <DropdownTrigger>View</DropdownTrigger>
+    <DropdownMenu>
+      <DropdownGroup label="Show">
+        <DropdownItem value="grid" role="menuitemradio" checked>Grid</DropdownItem>
+        <DropdownItem value="list" role="menuitemradio">List</DropdownItem>
+      </DropdownGroup>
+      <DropdownSeparator />
+      <DropdownItem value="hidden" role="menuitemcheckbox">Show hidden files</DropdownItem>
+      <DropdownItem value="reset" disabled>Reset view</DropdownItem>
+    </DropdownMenu>
+  </Dropdown>
 </template>
 ```
 
 ### Available components
 
-| Group        | Components                                                                                                                                                                       |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                 |
-| Overlays     | `Dropdown` (+ `DropdownTrigger`/`DropdownMenu`/`DropdownItem`/`DropdownSeparator`), `Menu`, `MenuItem`, `Modal`, `Drawer` (+ parts), `Popover`, `Tooltip`                        |
-| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button` |
-| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                    |
-| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                          |
-| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                               |
-| Data display | `Card` (+ `CardHeader`/`CardBody`/`CardFooter`/`CardTitle`/`CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`                                                       |
-| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                  |
+| Group        | Components                                                                                                                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                                                |
+| Overlays     | `Dropdown` (+ `DropdownTrigger`, `DropdownMenu`, `DropdownGroup`, `DropdownItem`, `DropdownSeparator`), `Menu`, `MenuItem`, `MenuSubmenu`, `Modal`, `Drawer` (+ `Header`/`Body`/`Footer`), `Popover`, `Tooltip` |
+| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button`                                |
+| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                                                   |
+| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                                                         |
+| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                                                              |
+| Data display | `Card` (+ `CardHeader`, `CardBody`, `CardFooter`, `CardTitle`, `CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`, `Table`                                                                         |
+| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                                                 |
 
-## Low-level: directives
+Every component forwards `class`, `id`, and other attributes to its root
+element, and template refs resolve to the root DOM node.
 
-Prefer to keep writing plain template markup? Install the plugin to register
-every `v-hl-*` directive globally:
+## Forms and `useField`
 
-```js
-import { createApp } from 'vue';
-import { HydratelessPlugin } from '@hydrateless/vue';
-import App from './App.vue';
-
-createApp(App).use(HydratelessPlugin);
-```
-
-Then add a directive to any semantic markup:
-
-```vue
-<template>
-  <div v-hl-tabs data-hl-tabs>
-    <div role="tablist">
-      <button role="tab">Overview</button>
-      <button role="tab">Install</button>
-    </div>
-    <div role="tabpanel">Zero runtime by default.</div>
-    <div role="tabpanel">npm install hydrateless</div>
-  </div>
-</template>
-```
-
-The directive attaches the enhancer on `mounted` and disposes it on
-`unmounted`. Available directives: `v-hl-accordion`, `v-hl-disclosure`,
-`v-hl-tabs`, `v-hl-dropdown`, `v-hl-menu`, `v-hl-modal`, `v-hl-drawer`,
-`v-hl-popover`, `v-hl-tooltip`, `v-hl-combobox`, `v-hl-command`, `v-hl-toc`.
-
-Don't want all of them globally? Import only what you need and register locally:
+`Field` provides a shared id so `FieldLabel`, `FieldHelp`, and `FieldError`
+wire `for` and `aria-describedby` for you. The built-in controls read that
+context automatically, and work without it.
 
 ```vue
 <script setup>
-import { vHlDropdown } from '@hydrateless/vue';
+import { ref } from 'vue';
+import { Field, Input } from '@hydrateless/vue';
+
+const email = ref('');
+const error = ref('');
 </script>
 
 <template>
-  <div v-hl-dropdown data-hl-dropdown>…</div>
+  <Field label="Email" description="We never share it." :error="error" required>
+    <Input type="email" name="email" v-model="email" />
+  </Field>
 </template>
 ```
 
-### The `useEnhancer` composable
-
-For full control, attach any enhancer to your own markup. It returns a `host`
-template ref to bind onto the element plus a shallow ref to the enhancer's
-imperative API. Pass a reactive source as the second argument to re-attach the
-enhancer whenever an option changes:
+For a custom control, `useField()` returns reactive bindings
+(`{ id, describedBy, invalid, required }`) inside a `Field` and `null` outside
+one:
 
 ```vue
 <script setup>
-import { useEnhancer } from '@hydrateless/vue';
-import { enhanceTabs } from '@hydrateless/enhancers';
+import { useField } from '@hydrateless/vue';
 
-const { host, api } = useEnhancer((el) => enhanceTabs(el));
-// api.value?.setValue('install')
+const field = useField();
 </script>
 
 <template>
-  <div ref="host" data-hl-tabs>…</div>
+  <input
+    type="color"
+    :id="field?.id"
+    :aria-describedby="field?.describedBy"
+    :aria-invalid="field?.invalid || undefined"
+    :required="field?.required"
+  />
 </template>
 ```
 
-## Toasts
+See [Forms](/guide/forms) for validation states and native constraint
+validation.
 
-`useToast()` returns the imperative toast API and works from any component,
-no provider required. The first `show()` creates a polite live region at the
-end of `<body>`; render `<ToastRegion />` once to control where toasts appear.
+## Toasts and `useToast`
+
+`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast) }`
+and works from any component with no plugin or provider. The first `show()`
+creates a polite live region at the end of `<body>`; render `<ToastRegion />`
+once if you want to control where toasts appear.
 
 ```vue
 <script setup>
-import { useToast } from '@hydrateless/vue';
+import { ToastRegion, useToast } from '@hydrateless/vue';
 
 const toast = useToast();
 </script>
 
 <template>
-  <button @click="toast.show('Saved!', { variant: 'success' })">Save</button>
+  <button @click="toast.show('Saved', { intent: 'success' })">Save</button>
+  <ToastRegion />
 </template>
 ```
 
+`intent` is one of `info`, `success`, `warning`, or `danger`; `danger` toasts
+are announced assertively.
+
+## `useEnhancer`
+
+The one low-level escape hatch. Attach any enhancer to a template ref and get
+back a shallow ref to its imperative API:
+
+```vue
+<script setup>
+import { useTemplateRef } from 'vue';
+import { useEnhancer } from '@hydrateless/vue';
+import { enhanceTabs } from '@hydrateless/enhancers';
+
+const host = useTemplateRef('host');
+const api = useEnhancer(host, enhanceTabs, { activation: 'automatic' });
+// api.value?.setValue('install')
+</script>
+
+<template>
+  <div ref="host" data-hl-tabs>
+    <!-- your own tablist and tabpanel markup -->
+  </div>
+</template>
+```
+
+Signature: `useEnhancer(elRef, enhancer, options?, deps?)`.
+
+- The enhancer runs on the client only (in `onMounted`), so components stay
+  SSR-safe, and is destroyed in `onBeforeUnmount`.
+- `options` may be a plain object, a ref, or a getter; it's re-read and the
+  enhancer re-attached whenever the `deps` watch source changes.
+
+All shipped components are built on this composable, so custom wrappers behave
+exactly like the built-in ones. See [Composing](/guide/composing#writing-your-own-enhancer)
+for writing an enhancer to attach.
+
 ## TypeScript
 
-Type definitions ship with the package. Component props, the enhancer API
-types (`TabsApi`, `ModalApi`, `ToastApi`, …), and toast option types are all
-exported for reuse.
+Type definitions ship with the package. Every component exports its public
+prop type (`TabsProps`, `DropdownItemProps`, `ModalProps`, `TableProps`, and so
+on), and the enhancer API types (`TabsApi`, `ModalApi`, `ToastApi`,
+`ToastIntent`) are re-exported for reuse.

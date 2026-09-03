@@ -5,6 +5,7 @@
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** Optional heading shown above the grouped items. */
     label?: Snippet;
+    /** `<CommandItem>`s in this group. */
     children?: Snippet;
   }
 

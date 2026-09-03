@@ -1,7 +1,7 @@
 {
   "name": "@hydrateless/react",
   "version": "0.8.0",
-  "description": "React bindings for Hydrateless: hooks and components that wire the framework-agnostic enhancers.",
+  "description": "React bindings for Hydrateless: components (and a useEnhancer escape hatch) that wire the framework-agnostic enhancers.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm --clean --external react",
+    "build": "tsup",
     "dev": "npm run build -- --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",

@@ -2,12 +2,19 @@ import {
   defineEnhancer,
   ensureId,
   setAttrs,
-  nextIndex,
   createTypeahead,
+  isTypeaheadKey,
   supportsPopover,
-  supportsAnchorPositioning,
-  positionFallback,
+  keepPositioned,
+  noop,
+  menuItemsOf,
+  isDisabledItem,
+  nextEnabledIndex,
+  activateMenuItem,
+  prepareMenuItems,
   Events,
+  Keys,
+  type Disposer,
   type MoveDirection,
 } from '../core/index.js';
 
@@ -15,33 +22,43 @@ import {
 export type EnhanceMenuOptions = {
   /** Layout of the top-level menu. Defaults to `horizontal` (menubar). */
   orientation?: 'horizontal' | 'vertical';
+  /**
+   * Value of the submenu to open on enhance. Submenu values come from
+   * `data-hl-value` on each top-level trigger, defaulting to the index.
+   */
+  defaultValue?: string | null;
   /** Called with the open submenu's value (or `null`) after every change. */
-  onOpenChange?: (value: string | null) => void;
-  /** Called with the item's value when a leaf menu item is activated. */
-  onSelect?: (value: string, item: HTMLElement) => void;
+  onValueChange?: (value: string | null) => void;
+  /**
+   * Called with the item's value when a leaf menu item is activated. For
+   * `menuitemcheckbox`/`menuitemradio` items, `checked` is the new state.
+   */
+  onSelect?: (value: string, item: HTMLElement, checked?: boolean) => void;
 };
 
 /** Imperative handle returned by {@link enhanceMenu}. */
 export type MenuApi = {
   /** Value of the currently open submenu, or `null` when all are closed. */
-  readonly open: string | null;
+  readonly value: string | null;
   /** Open the submenu with `value` (closing any other), or pass `null` to close. */
-  setOpen: (value: string | null) => void;
+  setValue: (value: string | null) => void;
 };
 
 /**
- * Menubar / navigation-menu pattern with single-level submenus. Top-level items
- * use a roving tabindex with orientation-aware arrow navigation; submenu
- * triggers expose `aria-haspopup`/`aria-expanded` and open on Enter/Space/arrow
- * or click. Submenus are promoted to native `popover="manual"` surfaces so they
- * render in the top layer, placed against their trigger with CSS anchor
- * positioning (with a JS fallback on engines without it). Submenu items support
- * arrow/Home/End/typeahead, Escape to close, and Left/Right to move between
- * adjacent top-level menus. The open submenu is observable through
- * `onOpenChange`/`hl:open-change`, activating a leaf item emits a cancelable
- * `hl:select`, and the open submenu is controllable through the returned API.
- * Submenu values come from `data-hl-value` on each trigger, defaulting to the
- * index.
+ * Menubar / navigation-menu pattern with single-level submenus. Without
+ * JavaScript the stylesheet reveals submenus on hover and `:focus-within`, so
+ * the navigation stays usable; this enhancer marks the root `data-hl-ready`
+ * and takes over. Top-level items use a roving tabindex with orientation-aware
+ * arrow navigation; submenu triggers expose `aria-haspopup`/`aria-expanded`
+ * and open on Enter/Space/arrow or click. Submenus are promoted to native
+ * `popover="manual"` surfaces so they render in the top layer, placed against
+ * their trigger with CSS anchor positioning (with a JS fallback on engines
+ * without it). Submenu items support arrow/Home/End/typeahead with disabled
+ * items skipped, `menuitemcheckbox`/`menuitemradio` state, Escape to close,
+ * and Left/Right (Left alone when vertical) to move between adjacent top-level
+ * menus. The open submenu is observable through `onValueChange`/`hl:change`,
+ * activating a leaf item emits a cancelable `hl:select`, and the open submenu
+ * is controllable through the returned API.
  */
 export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
   name: 'menu',
@@ -54,11 +71,7 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       'aria-orientation': vertical ? 'vertical' : 'horizontal',
     });
 
-    const topItems = Array.from(
-      root.querySelectorAll<HTMLElement>(
-        ':scope > li > [role="menuitem"], :scope > [role="menuitem"]',
-      ),
-    );
+    const topItems = menuItemsOf(root);
     if (topItems.length === 0) return;
 
     const typeahead = createTypeahead();
@@ -70,18 +83,20 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
         ':scope > [role="menu"], :scope > [data-hl-menu-submenu]',
       );
     };
-    const subItemsOf = (submenu: HTMLElement) =>
-      Array.from(
-        submenu.querySelectorAll<HTMLElement>(
-          ':scope > li > [role="menuitem"], :scope > [role="menuitem"]',
-        ),
-      );
+    const subItemsOf = (submenu: HTMLElement) => menuItemsOf(submenu);
 
     const valueOf = (item: HTMLElement, i: number): string =>
       item.getAttribute('data-hl-value') ?? String(i);
     const values = topItems.map(valueOf);
 
     let openIndex = -1;
+    let stopPositioning: Disposer = noop;
+    add(() => stopPositioning());
+
+    // Signal to CSS that JS owns submenu visibility, so the hover/focus-within
+    // no-JS baseline stands down. Removed on destroy so the baseline returns.
+    root.setAttribute('data-hl-ready', '');
+    add(() => root.removeAttribute('data-hl-ready'));
 
     topItems.forEach((item, i) => {
       item.tabIndex = i === 0 ? 0 : -1;
@@ -89,13 +104,16 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       if (submenu) {
         const submenuId = ensureId(submenu, 'hl-submenu');
         setAttrs(item, {
-          'aria-haspopup': 'true',
+          'aria-haspopup': 'menu',
           'aria-expanded': 'false',
           'aria-controls': submenuId,
         });
         setAttrs(submenu, { role: 'menu' });
         submenu.hidden = true;
-        for (const sub of subItemsOf(submenu)) sub.tabIndex = -1;
+        add(() => {
+          submenu.hidden = false;
+        });
+        prepareMenuItems(subItemsOf(submenu));
 
         if (usePopover) {
           // `manual` keeps the browser from light-dismissing while arrow keys
@@ -113,19 +131,24 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
 
     const notify = () => {
       const value = openIndex === -1 ? null : values[openIndex];
-      options.onOpenChange?.(value);
-      emit(Events.openChange, { open: value !== null, value });
+      options.onValueChange?.(value);
+      emit(Events.change, { value });
     };
 
     const focusTop = (index: number) => {
+      if (index === -1) return;
       topItems.forEach((item, i) => (item.tabIndex = i === index ? 0 : -1));
       topItems[index]?.focus();
     };
+    const moveTop = (from: number, direction: MoveDirection) =>
+      focusTop(nextEnabledIndex(topItems, from, direction));
 
     const closeSubmenu = (index: number, restoreFocus = false, silent = false) => {
       const item = topItems[index];
       const submenu = item ? submenuOf(item) : null;
       if (item && submenu) {
+        stopPositioning();
+        stopPositioning = noop;
         if (usePopover && submenu.matches(':popover-open')) submenu.hidePopover();
         submenu.hidden = true;
         setAttrs(item, { 'aria-expanded': 'false' });
@@ -137,25 +160,26 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       }
     };
 
-    const openSubmenu = (index: number, focusLast = false) => {
+    const openSubmenu = (index: number, focusLast = false, moveFocus = true) => {
       const item = topItems[index];
       const submenu = item ? submenuOf(item) : null;
-      if (!item || !submenu) return false;
+      if (!item || !submenu || isDisabledItem(item)) return false;
       if (openIndex === index) return true;
       if (openIndex !== -1) closeSubmenu(openIndex, false, true);
       submenu.hidden = false;
       if (usePopover) {
         submenu.showPopover();
-        if (!supportsAnchorPositioning()) {
-          positionFallback(item, submenu, {
-            placement: vertical ? 'right-start' : 'bottom-start',
-          });
-        }
+        stopPositioning = keepPositioned(item, submenu, {
+          placement: vertical ? 'right-start' : 'bottom-start',
+        });
       }
       setAttrs(item, { 'aria-expanded': 'true' });
       openIndex = index;
-      const subs = subItemsOf(submenu);
-      (focusLast ? subs[subs.length - 1] : subs[0])?.focus();
+      if (moveFocus) {
+        const subs = subItemsOf(submenu);
+        const target = nextEnabledIndex(subs, -1, focusLast ? 'last' : 'first');
+        if (target !== -1) subs[target].focus();
+      }
       notify();
       return true;
     };
@@ -163,13 +187,21 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
     const indexOfTop = (el: Element | null) => topItems.findIndex((item) => item === el);
 
     const select = (item: HTMLElement, event?: Event) => {
-      const value = item.dataset.hlValue ?? item.textContent?.trim() ?? '';
-      if (!emit(Events.select, { value, item }, { cancelable: true })) {
+      if (isDisabledItem(item)) {
         event?.preventDefault();
         return;
       }
-      options.onSelect?.(value, item);
-      if (openIndex !== -1) closeSubmenu(openIndex);
+      const role = item.getAttribute('role');
+      const checkable = role === 'menuitemcheckbox' || role === 'menuitemradio';
+      const previous = item.getAttribute('aria-checked');
+      const { value, checked } = activateMenuItem(item);
+      if (!emit(Events.select, { value, item, checked }, { cancelable: true })) {
+        if (checkable) setAttrs(item, { 'aria-checked': previous });
+        event?.preventDefault();
+        return;
+      }
+      options.onSelect?.(value, item, checked);
+      if (openIndex !== -1) closeSubmenu(openIndex, true);
     };
 
     on<KeyboardEvent>(root, 'keydown', (e) => {
@@ -177,35 +209,43 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       const topIdx = indexOfTop(target);
 
       if (topIdx !== -1) {
-        const nextKey = vertical ? 'ArrowDown' : 'ArrowRight';
-        const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft';
-        const openKey = vertical ? 'ArrowRight' : 'ArrowDown';
+        const nextKey = vertical ? Keys.ArrowDown : Keys.ArrowRight;
+        const prevKey = vertical ? Keys.ArrowUp : Keys.ArrowLeft;
+        const openKey = vertical ? Keys.ArrowRight : Keys.ArrowDown;
         const hasSubmenu = !!submenuOf(target);
         if (e.key === nextKey) {
           e.preventDefault();
-          focusTop(nextIndex(topIdx, topItems.length, 'next'));
+          moveTop(topIdx, 'next');
         } else if (e.key === prevKey) {
           e.preventDefault();
-          focusTop(nextIndex(topIdx, topItems.length, 'prev'));
-        } else if (e.key === 'Home') {
+          moveTop(topIdx, 'prev');
+        } else if (e.key === Keys.Home) {
           e.preventDefault();
-          focusTop(0);
-        } else if (e.key === 'End') {
+          moveTop(topIdx, 'first');
+        } else if (e.key === Keys.End) {
           e.preventDefault();
-          focusTop(topItems.length - 1);
-        } else if (hasSubmenu && (e.key === openKey || e.key === 'Enter' || e.key === ' ')) {
+          moveTop(topIdx, 'last');
+        } else if (
+          hasSubmenu &&
+          (e.key === openKey || e.key === Keys.Enter || e.key === Keys.Space)
+        ) {
           e.preventDefault();
           openSubmenu(topIdx, false);
-        } else if (hasSubmenu && !vertical && e.key === 'ArrowUp') {
+        } else if (hasSubmenu && !vertical && e.key === Keys.ArrowUp) {
           e.preventDefault();
           openSubmenu(topIdx, true);
-        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        } else if (!hasSubmenu && (e.key === Keys.Enter || e.key === Keys.Space)) {
+          if (target.tagName !== 'BUTTON') {
+            e.preventDefault();
+            target.click();
+          }
+        } else if (isTypeaheadKey(e)) {
           const match = typeahead(
             e.key,
             topItems.map((item) => item.textContent ?? ''),
             topIdx,
           );
-          if (match !== -1) focusTop(match);
+          if (match !== -1 && !isDisabledItem(topItems[match])) focusTop(match);
         }
         return;
       }
@@ -215,53 +255,68 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       if (!submenu) return;
       const subs = subItemsOf(submenu);
       const subIdx = subs.indexOf(target);
-      const parentIdx = indexOfTop(
-        submenu.parentElement?.querySelector('[role="menuitem"]') ?? null,
-      );
+      const parentIdx = topItems.findIndex((item) => submenuOf(item) === submenu);
 
-      const move = (direction: MoveDirection) =>
-        subs[nextIndex(subIdx, subs.length, direction)]?.focus();
+      const move = (direction: MoveDirection) => {
+        const index = nextEnabledIndex(subs, subIdx, direction);
+        if (index !== -1) subs[index].focus();
+      };
 
       switch (e.key) {
-        case 'ArrowDown':
+        case Keys.ArrowDown:
           e.preventDefault();
           move('next');
           break;
-        case 'ArrowUp':
+        case Keys.ArrowUp:
           e.preventDefault();
           move('prev');
           break;
-        case 'Home':
+        case Keys.Home:
           e.preventDefault();
           move('first');
           break;
-        case 'End':
+        case Keys.End:
           e.preventDefault();
           move('last');
           break;
-        case 'Escape':
+        case Keys.Escape:
           e.preventDefault();
           closeSubmenu(parentIdx, true);
           break;
-        case 'ArrowRight':
-        case 'ArrowLeft': {
-          if (vertical) break;
+        case Keys.Enter:
+        case Keys.Space:
+          if (target.tagName !== 'BUTTON') {
+            e.preventDefault();
+            target.click();
+          }
+          break;
+        case Keys.ArrowRight:
+        case Keys.ArrowLeft: {
+          if (vertical) {
+            // In a vertical menubar the submenu opens to the side, so Left
+            // walks back to its trigger; Right has nowhere further to go.
+            if (e.key === Keys.ArrowLeft) {
+              e.preventDefault();
+              closeSubmenu(parentIdx, true);
+            }
+            break;
+          }
           e.preventDefault();
           closeSubmenu(parentIdx);
-          const dir = e.key === 'ArrowRight' ? 'next' : 'prev';
-          const targetIdx = nextIndex(parentIdx, topItems.length, dir);
+          const dir = e.key === Keys.ArrowRight ? 'next' : 'prev';
+          const targetIdx = nextEnabledIndex(topItems, parentIdx, dir);
           focusTop(targetIdx);
-          if (submenuOf(topItems[targetIdx])) openSubmenu(targetIdx);
+          if (targetIdx !== -1 && submenuOf(topItems[targetIdx])) openSubmenu(targetIdx);
           break;
         }
         default:
-          if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+          if (isTypeaheadKey(e)) {
             const match = typeahead(
               e.key,
               subs.map((s) => s.textContent ?? ''),
               subIdx,
             );
-            if (match !== -1) subs[match]?.focus();
+            if (match !== -1 && !isDisabledItem(subs[match])) subs[match]?.focus();
           }
       }
     });
@@ -279,7 +334,7 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
     });
 
     on(root, 'click', (e) => {
-      const item = (e.target as HTMLElement).closest<HTMLElement>('[role="menuitem"]');
+      const item = (e.target as HTMLElement).closest<HTMLElement>('[role^="menuitem"]');
       if (!item || topItems.includes(item)) return;
       // A leaf item inside a submenu.
       select(item, e);
@@ -300,17 +355,22 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       true,
     );
 
+    if (options.defaultValue != null) {
+      const index = values.indexOf(options.defaultValue);
+      if (index !== -1) openSubmenu(index, false, false);
+    }
+
     return {
-      get open() {
+      get value() {
         return openIndex === -1 ? null : values[openIndex];
       },
-      setOpen(value) {
+      setValue(value) {
         if (value === null) {
           if (openIndex !== -1) closeSubmenu(openIndex);
           return;
         }
         const index = values.indexOf(value);
-        if (index !== -1) openSubmenu(index);
+        if (index !== -1) openSubmenu(index, false, false);
       },
     };
   },

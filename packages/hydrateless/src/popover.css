@@ -1,21 +1,29 @@
 /**
  * Popover: a `[popover] [data-hl-popover]` surface opened by a
- * `<button popovertarget="…">` (or `command="toggle-popover"`). The browser
- * owns the top layer, light-dismiss, and Escape with no JavaScript; the
- * enhancer only mirrors `aria-expanded`, adds optional hover, and runs the JS
- * positioning fallback on engines without CSS anchor positioning.
+ * `<button popovertarget="...">` (or `command="toggle-popover"`).
+ *
+ * No-JS baseline: the browser owns the top layer, light dismiss, and Escape,
+ * so the popover is fully usable with `popover` and `popovertarget` in the
+ * markup. The enhancer only mirrors `aria-expanded`, adds optional hover, and
+ * runs the JS positioning fallback on engines without CSS anchor positioning.
+ *   data-hl-popover: the surface (opts into the enhancer)
  */
 @layer components {
   [data-hl-popover] {
     margin: 0;
     inline-size: max-content;
-    max-inline-size: min(92vw, 22rem);
+    max-inline-size: min(92vi, 22rem);
     border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     padding: var(--hl-space-3);
     background: var(--hl-surface);
     color: var(--hl-fg);
     box-shadow: var(--hl-overlay-shadow);
+    transition:
+      opacity var(--hl-duration-fast) var(--hl-ease-standard),
+      translate var(--hl-duration-fast) var(--hl-ease-standard),
+      display var(--hl-duration-fast) allow-discrete,
+      overlay var(--hl-duration-fast) allow-discrete;
   }
 
   /* Until the `popover` attribute is present (author omitted it and JS hasn't
@@ -24,10 +32,21 @@
     display: none;
   }
 
-  /* Engines without the Popover API can't promote it to the top layer, so the
-     JS fallback positions it; give it a stacking context to land above content. */
+  /* Closed state and exit target. Engines without the Popover API can't
+     promote it to the top layer, so the JS fallback positions it; the z-index
+     lands it above content. Those engines drop this rule, so nothing is
+     hidden by accident. */
   [data-hl-popover]:not(:popover-open) {
     z-index: var(--hl-z-popover);
+    opacity: 0;
+    translate: 0 -0.25rem;
+  }
+
+  @starting-style {
+    [data-hl-popover]:popover-open {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
   }
 
   /* Modern placement: anchor to the invoking control (the popover's implicit
@@ -40,5 +59,11 @@
       position-try-fallbacks: flip-block, flip-inline;
       margin-block: var(--hl-space-1);
     }
+  }
+
+  /* Interactive children inside the surface get the standard ring. */
+  [data-hl-popover] :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: var(--hl-focus-offset);
   }
 }

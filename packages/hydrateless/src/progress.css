@@ -1,6 +1,6 @@
 /**
  * Progress: native `<progress class="hl-progress" value max>`. Omit `value`
- * for an indeterminate bar.
+ * for an indeterminate bar. Pure CSS; there is no enhancer.
  *   data-hl-intent: primary (default) | success | warning | danger | info
  *   data-hl-size:   sm | md (default) | lg
  */
@@ -80,9 +80,25 @@
     }
   }
 
+  /* A static partial bar still signals "in progress" without motion. */
   @media (prefers-reduced-motion: reduce) {
     .hl-progress:indeterminate {
-      animation-duration: 3s;
+      animation: none;
+      background-position: 30% 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hl-progress {
+      border: var(--hl-border-width) solid CanvasText;
+    }
+
+    .hl-progress::-webkit-progress-value {
+      background: Highlight;
+    }
+
+    .hl-progress::-moz-progress-bar {
+      background: Highlight;
     }
   }
 }

@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLParagraphElement> {
+    /** Supporting text under the title. */
     children?: Snippet;
   }
 

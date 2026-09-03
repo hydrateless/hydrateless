@@ -1,28 +1,35 @@
 import { enhanceToast, type EnhanceToastOptions, type ToastApi } from '@hydrateless/enhancers';
 
-let shared: ToastApi | null = null;
-
 /**
- * Imperative toast API backed by a lazily-created document-level region (or a
- * `[data-hl-toast-region]` you render yourself, e.g. via `<ToastRegion>`).
- * Safe to call from anywhere, no setup required:
+ * Imperative toast API. Toasts render into the page's `[data-hl-toast-region]`
+ * (mount a `<ToastRegion>` to control where it lives); when none exists, one
+ * is appended to `<body>` on the first `show`. Safe to call during component
+ * initialization and on the server, since nothing touches the DOM until
+ * `show`/`dismiss` run.
  *
- * ```ts
- * import { useToast } from '@hydrateless/svelte';
+ * ```svelte
+ * <script lang="ts">
+ *   import { useToast } from '@hydrateless/svelte';
  *
- * const toast = useToast();
- * toast.show('Saved', { variant: 'success' });
+ *   const toast = useToast();
+ * </script>
+ *
+ * <button onclick={() => toast.show('Saved', { intent: 'success' })}>Save</button>
  * ```
  */
 export function useToast(options?: EnhanceToastOptions): ToastApi {
+  // Resolved per call rather than cached: `enhanceToast` hands back the live
+  // API of an already-enhanced region, so this follows a `<ToastRegion>` that
+  // mounts or unmounts after `useToast()` was called.
+  const resolve = (): ToastApi | null => enhanceToast(undefined, options).api;
   return {
     show(message, opts) {
-      // The toast enhancer always creates a region, so `api` is never null.
-      const api = (shared ??= enhanceToast(document, options).api!);
+      const api = resolve();
+      if (!api) throw new Error('useToast().show() needs a document to render into');
       return api.show(message, opts);
     },
     dismiss(toast) {
-      shared?.dismiss(toast);
+      resolve()?.dismiss(toast);
     },
   };
 }

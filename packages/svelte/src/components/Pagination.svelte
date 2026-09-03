@@ -2,14 +2,19 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends Omit<HTMLAttributes<HTMLElement>, 'onchange'> {
+    /** Current page (1-based). */
     page: number;
+    /** Total number of pages. */
     count: number;
+    /** Called with the requested page when the user navigates. */
     onPageChange?: (page: number) => void;
     /** Pages to show on each side of the current page. Defaults to 1. */
     siblingCount?: number;
     /** Render Previous/Next controls. Defaults to true. */
     showControls?: boolean;
+    /** Visible label of the Previous control. */
     prevLabel?: string;
+    /** Visible label of the Next control. */
     nextLabel?: string;
   }
 

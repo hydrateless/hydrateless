@@ -49,10 +49,7 @@ const start = createAuto((name) => runners[name]);
  * works with no import map and no build step. Like `auto()`, it watches the
  * container and enhances markup added later.
  */
-export function autoSync(
-  container: Document | HTMLElement = document,
-  options: AutoOptions = {},
-): Disposer {
+export function autoSync(container?: Document | HTMLElement, options: AutoOptions = {}): Disposer {
   return start(container, options).dispose;
 }
 

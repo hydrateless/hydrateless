@@ -1,71 +1,120 @@
-import { defineComponent, h, onMounted, ref, watch, type PropType } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  inject,
+  provide,
+  ref,
+  type ComputedRef,
+  type ExtractPublicPropTypes,
+  type InjectionKey,
+  type PropType,
+} from 'vue';
 import {
   enhanceAccordion,
   enhanceDisclosure,
   type AccordionApi,
   type DisclosureApi,
 } from '@hydrateless/enhancers';
-import { cx } from '../internal.js';
+import { cx, useApiSync, useControlled } from '../internal/index.js';
 import { useEnhancer } from '../useEnhancer.js';
+
+interface AccordionContext {
+  value: ComputedRef<string[] | undefined>;
+  /** Claim the next item index; the enhancer falls back to it too. */
+  register: () => number;
+}
+const AccordionKey: InjectionKey<AccordionContext> = Symbol('hl-accordion');
+
+const accordionProps = {
+  allowMultiple: { type: Boolean, default: false },
+  /** Controlled list of open item values (`v-model`). */
+  modelValue: { type: Array as PropType<string[]>, default: undefined },
+  /** Initially open item values for uncontrolled usage. */
+  defaultValue: { type: Array as PropType<string[]>, default: undefined },
+} as const;
+
+/** Props for {@link Accordion}. */
+export type AccordionProps = ExtractPublicPropTypes<typeof accordionProps>;
 
 /**
  * Accordion root of native `<details>` items. Compose with `<AccordionItem>`.
  * Item values come from each `<AccordionItem value>`, defaulting to the index;
- * open state works uncontrolled (`defaultValue` or `defaultOpen` on items) or
- * with `v-model`.
+ * open state works uncontrolled (`defaultValue`) or with `v-model`.
  */
 export const Accordion = defineComponent({
   name: 'HlAccordion',
   inheritAttrs: false,
-  props: {
-    allowMultiple: { type: Boolean, default: false },
-    /** Controlled list of open item values (`v-model`). */
-    modelValue: { type: Array as PropType<string[]>, default: undefined },
-    /** Initially open item values for uncontrolled usage. */
-    defaultValue: { type: Array as PropType<string[]>, default: undefined },
-  },
+  props: accordionProps,
   emits: ['update:modelValue'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useEnhancer<AccordionApi>(
-      (el) =>
-        enhanceAccordion(el, {
-          allowMultiple: props.allowMultiple,
-          defaultValue: props.modelValue ?? props.defaultValue,
-          onValueChange: (value) => emit('update:modelValue', value),
-        }),
+    const host = ref<HTMLElement | null>(null);
+    const { value, set } = useControlled<string[] | undefined, 'update:modelValue'>(props, emit, {
+      prop: 'modelValue',
+      event: 'update:modelValue',
+      default: props.defaultValue,
+    });
+    const api = useEnhancer(
+      host,
+      enhanceAccordion,
+      () => ({
+        allowMultiple: props.allowMultiple,
+        defaultValue: value.value,
+        onValueChange: set,
+      }),
       () => props.allowMultiple,
     );
-    watch(
-      () => props.modelValue,
-      (value) => {
-        if (value != null) api.value?.setValue(value);
-      },
+    useApiSync<AccordionApi, string[] | undefined>(
+      api,
+      value,
+      (a) => a.value,
+      (a, v) => a.setValue(v),
     );
+    let count = 0;
+    provide(AccordionKey, { value, register: () => count++ });
     return () => h('div', { ...attrs, 'data-hl-accordion': '', ref: host }, slots.default?.());
   },
 });
 
-/** A `<details>`-based accordion section. Use the `summary` slot for the trigger. */
+const accordionItemProps = {
+  /** Stable value identifying this item; defaults to its index. */
+  value: { type: String, default: undefined },
+  /** Header text; the `summary` slot takes precedence. */
+  title: { type: String, default: undefined },
+} as const;
+
+/** Props for {@link AccordionItem}. */
+export type AccordionItemProps = ExtractPublicPropTypes<typeof accordionItemProps>;
+
+/** A `<details>`-based accordion section. Use `title` or the `summary` slot for the header. */
 export const AccordionItem = defineComponent({
   name: 'HlAccordionItem',
   inheritAttrs: false,
-  props: {
-    /** Stable value identifying this item; defaults to its index. */
-    value: { type: String, default: undefined },
-    defaultOpen: { type: Boolean, default: false },
-  },
+  props: accordionItemProps,
   setup(props, { slots, attrs }) {
-    const el = ref<HTMLDetailsElement | null>(null);
-    onMounted(() => {
-      if (el.value && props.defaultOpen) el.value.open = true;
-    });
+    const ctx = inject(AccordionKey, null);
+    const index = ctx?.register();
+    // Rendered open state keeps server output right before the enhancer runs.
+    const open = computed(() => ctx?.value.value?.includes(props.value ?? String(index)));
     return () =>
-      h('details', { ...attrs, 'data-hl-value': props.value, ref: el }, [
-        h('summary', slots.summary?.()),
+      h('details', { ...attrs, 'data-hl-value': props.value, open: open.value || undefined }, [
+        h('summary', slots.summary?.() ?? props.title),
         h('div', { class: 'hl-accordion-panel' }, slots.default?.()),
       ]);
   },
 });
+
+const disclosureProps = {
+  /** Controlled open state (`v-model:open`). */
+  open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
+  /** Open the disclosure initially for uncontrolled usage. */
+  defaultOpen: { type: Boolean, default: false },
+  /** Header text; the `summary` slot takes precedence. */
+  title: { type: String, default: undefined },
+} as const;
+
+/** Props for {@link Disclosure}. */
+export type DisclosureProps = ExtractPublicPropTypes<typeof disclosureProps>;
 
 /**
  * A single expandable section built on native `<details>`, which handles
@@ -75,25 +124,24 @@ export const AccordionItem = defineComponent({
 export const Disclosure = defineComponent({
   name: 'HlDisclosure',
   inheritAttrs: false,
-  props: {
-    /** Controlled open state (`v-model:open`). */
-    open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
-    /** Open the disclosure initially for uncontrolled usage. */
-    defaultOpen: { type: Boolean, default: false },
-  },
+  props: disclosureProps,
   emits: ['update:open'],
   setup(props, { slots, attrs, emit }) {
-    const { host, api } = useEnhancer<DisclosureApi>((el) =>
-      enhanceDisclosure(el, {
-        defaultOpen: props.open ?? props.defaultOpen,
-        onOpenChange: (open) => emit('update:open', open),
-      }),
-    );
-    watch(
-      () => props.open,
-      (open) => {
-        if (open != null) api.value?.setOpen(open);
-      },
+    const host = ref<HTMLElement | null>(null);
+    const { value: open, set } = useControlled<boolean | undefined, 'update:open'>(props, emit, {
+      prop: 'open',
+      event: 'update:open',
+      default: props.defaultOpen,
+    });
+    const api = useEnhancer(host, enhanceDisclosure, () => ({
+      defaultOpen: open.value,
+      onOpenChange: set,
+    }));
+    useApiSync<DisclosureApi, boolean | undefined>(
+      api,
+      open,
+      (a) => a.open,
+      (a, v) => a.setOpen(v),
     );
     return () =>
       h(
@@ -102,10 +150,11 @@ export const Disclosure = defineComponent({
           ...attrs,
           class: cx('hl-disclosure', attrs.class as string),
           'data-hl-disclosure': '',
+          open: open.value || undefined,
           ref: host,
         },
         [
-          h('summary', slots.summary?.()),
+          h('summary', slots.summary?.() ?? props.title),
           h('div', { class: 'hl-disclosure-panel' }, slots.default?.()),
         ],
       );

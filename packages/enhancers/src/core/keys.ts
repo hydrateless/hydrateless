@@ -14,6 +14,14 @@ export const Keys = {
   PageDown: 'PageDown',
 } as const;
 
+/**
+ * Whether a keydown should feed a typeahead buffer: a single printable
+ * character with no Ctrl/Meta/Alt modifier.
+ */
+export function isTypeaheadKey(e: KeyboardEvent): boolean {
+  return e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
+}
+
 /** Clamp/wrap an index into `[0, length)`. */
 export function wrapIndex(index: number, length: number): number {
   if (length <= 0) return -1;

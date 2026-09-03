@@ -34,10 +34,11 @@ const start = createAuto((name) => loaders[name]?.());
  * enhancers in parallel. By default it keeps watching the container, so
  * markup added later (SPA navigations, fetched fragments) is enhanced
  * automatically and instances are disposed when their roots are removed.
- * Returns a disposer that stops watching and tears everything down.
+ * Returns a disposer that stops watching and tears everything down. Outside a
+ * browser this resolves immediately with a no-op disposer.
  */
 export async function auto(
-  container: Document | HTMLElement = document,
+  container?: Document | HTMLElement,
   options: AutoOptions = {},
 ): Promise<Disposer> {
   const controller = start(container, options);

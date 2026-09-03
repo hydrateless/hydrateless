@@ -1,16 +1,9 @@
+/**
+ * Theme: document-level defaults built on the semantic tokens. `color-scheme`
+ * and the `[data-theme]` switches live in tokens/semantic.css so this file
+ * only has to apply the resolved colors and type to the page.
+ */
 @layer theme {
-  :root {
-    color-scheme: light dark;
-  }
-
-  [data-theme='light'] {
-    color-scheme: light;
-  }
-
-  [data-theme='dark'] {
-    color-scheme: dark;
-  }
-
   body {
     background-color: var(--hl-bg);
     color: var(--hl-fg);

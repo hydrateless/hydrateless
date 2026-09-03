@@ -4,7 +4,9 @@
   import { getRadioGroupContext } from '../context.js';
 
   interface Props extends Omit<HTMLInputAttributes, 'type' | 'value'> {
+    /** Value reported to the enclosing `<RadioGroup>` when selected. */
     value: string;
+    /** Label text rendered next to the radio. */
     children?: Snippet;
   }
 

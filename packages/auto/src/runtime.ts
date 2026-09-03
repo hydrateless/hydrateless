@@ -37,9 +37,14 @@ export interface AutoController {
  */
 export function createAuto(load: Loader) {
   return function start(
-    container: Document | HTMLElement = document,
+    containerArg?: Document | HTMLElement,
     options: AutoOptions = {},
   ): AutoController {
+    // Outside a browser (SSR, workers) there is no DOM to scan; resolve
+    // immediately so isomorphic code can call `auto()` unconditionally.
+    const container = containerArg ?? (typeof document !== 'undefined' ? document : null);
+    if (!container) return { ready: Promise.resolve(), dispose: () => {} };
+
     const { watch = true } = options;
     /** Per-root teardowns, so removed roots can be disposed individually. */
     const tracked = new Map<HTMLElement, Disposer>();

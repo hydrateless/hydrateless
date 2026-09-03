@@ -1,21 +1,24 @@
 import {
   defineEnhancer,
-  isBrowser,
+  resolveContainer,
   noop,
   toHandle,
   Events,
   type EnhancerHandle,
 } from '../core/index.js';
 
-/** Visual style of a toast. */
-export type ToastVariant = 'info' | 'success' | 'warning' | 'danger';
+/**
+ * Semantic intent of a toast, matching the `data-hl-intent` vocabulary shared
+ * by alerts, badges, and buttons. `danger` toasts are announced assertively.
+ */
+export type ToastIntent = 'info' | 'success' | 'warning' | 'danger';
 
 /** Options for an individual toast shown through {@link ToastApi}. */
 export type ToastOptions = {
   /** Auto-dismiss delay in ms. `0` keeps the toast until it's dismissed. */
   duration?: number;
-  /** Visual style of the toast. */
-  variant?: ToastVariant;
+  /** Semantic intent of the toast; sets `data-hl-intent` and, for `danger`, `role="alert"`. */
+  intent?: ToastIntent;
 };
 
 /** Options for {@link enhanceToast}. */
@@ -70,11 +73,14 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
     };
 
     const show = (message: string, toastOptions: ToastOptions = {}): HTMLElement => {
-      const { duration = options.duration!, variant } = toastOptions;
+      const { duration = options.duration!, intent } = toastOptions;
 
       const toast = doc.createElement('div');
       toast.setAttribute('data-hl-toast', '');
-      if (variant) toast.setAttribute('data-hl-variant', variant);
+      if (intent) toast.setAttribute('data-hl-intent', intent);
+      // Errors interrupt (assertive); everything else waits its turn in the
+      // polite region.
+      if (intent === 'danger') toast.setAttribute('role', 'alert');
 
       const text = doc.createElement('span');
       text.className = 'hl-toast-message';
@@ -105,8 +111,12 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
           timers.delete(timer);
         };
         start();
-        toast.addEventListener('mouseenter', stop);
-        toast.addEventListener('mouseleave', start);
+        // Pause while the pointer or keyboard focus is on the toast (WCAG
+        // 2.2.1), so the close button can be reached before it disappears.
+        on(toast, 'mouseenter', stop);
+        on(toast, 'mouseleave', start);
+        on(toast, 'focusin', stop);
+        on(toast, 'focusout', start);
       }
 
       return toast;
@@ -134,9 +144,8 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
         if (!trigger) return;
         const message = trigger.getAttribute('data-hl-toast-trigger') || '';
         const duration = Number(trigger.getAttribute('data-hl-toast-duration')) || undefined;
-        const variant =
-          (trigger.getAttribute('data-hl-toast-variant') as ToastVariant) || undefined;
-        show(message, { duration, variant });
+        const intent = (trigger.getAttribute('data-hl-toast-intent') as ToastIntent) || undefined;
+        show(message, { duration, intent });
       });
     }
 
@@ -151,25 +160,27 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
  * Adopt (or create) a polite live region and expose an imperative API for
  * showing and dismissing toasts. Declarative `[data-hl-toast-trigger]` buttons
  * are handled through event delegation, so triggers added later need no
- * re-enhancement. Hovering a toast pauses its auto-dismiss timer, and every
- * show/dismiss is observable through `onOpenChange`/`hl:open-change`.
+ * re-enhancement. Hovering or focusing a toast pauses its auto-dismiss timer,
+ * `danger` toasts are announced assertively, and every show/dismiss is
+ * observable through `onOpenChange`/`hl:open-change`. Outside a browser this
+ * is a safe no-op that returns an empty handle.
  */
 export function enhanceToast(
-  container: Document | HTMLElement = document,
+  containerArg?: Document | HTMLElement,
   options: EnhanceToastOptions = {},
 ): EnhancerHandle<ToastApi> {
+  const container = resolveContainer(containerArg);
+  if (!container) return toHandle([]);
+
   // The region is the component root; create one if the page has none so the
   // imperative API always has somewhere to render.
-  if (isBrowser) {
-    const exists =
-      (container instanceof Element && container.matches(REGION)) ||
-      container.querySelector(REGION);
-    if (!exists) {
-      const host = container instanceof Document ? container.body : container;
-      const region = host.ownerDocument.createElement('div');
-      region.setAttribute('data-hl-toast-region', '');
-      host.appendChild(region);
-    }
+  const exists =
+    (container instanceof Element && container.matches(REGION)) || container.querySelector(REGION);
+  if (!exists) {
+    const host = container instanceof Document ? container.body : container;
+    const region = host.ownerDocument.createElement('div');
+    region.setAttribute('data-hl-toast-region', '');
+    host.appendChild(region);
   }
 
   const handle = base(container, options);

@@ -20,7 +20,7 @@ const groups = componentsByCategory();
           <span class="hl-gallery-name">
             {{ c.name }}
             <span v-if="c.cssOnly" class="hl-dot is-css" title="Works with no JavaScript" />
-            <span v-else class="hl-dot is-js" title="Uses an optional JS enhancer" />
+            <span v-if="c.enhancer" class="hl-dot is-js" title="Ships an optional JS enhancer" />
           </span>
           <span class="hl-gallery-summary">{{ c.summary }}</span>
         </a>

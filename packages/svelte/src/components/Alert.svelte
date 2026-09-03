@@ -5,9 +5,13 @@
   type Intent = 'neutral' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Semantic tone; sets `data-hl-intent`. */
     intent?: Intent;
+    /** Bold heading shown above the message. */
     title?: string;
+    /** Leading icon. */
     icon?: Snippet;
+    /** Message body. */
     children?: Snippet;
   }
 

@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { enhanceAccordion, type AccordionApi } from '@hydrateless/enhancers';
+  import { enhanceAccordion } from '@hydrateless/enhancers';
   import { untrack } from 'svelte';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { setAccordionContext } from '../context.js';
+  import { useEnhancer } from '../useEnhancer.svelte.js';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     /** Allow more than one panel to stay open at a time. */
@@ -11,6 +13,9 @@
     value?: string[];
     /** Initially open item values for uncontrolled usage. */
     defaultValue?: string[];
+    /** Called with the open item values after every change. */
+    onValueChange?: (value: string[]) => void;
+    /** One or more `<AccordionItem>`s. */
     children?: Snippet;
   }
 
@@ -18,31 +23,37 @@
     allowMultiple = false,
     value = $bindable(),
     defaultValue,
+    onValueChange,
     children,
     ...rest
   }: Props = $props();
-  let host = $state<HTMLDivElement>();
-  let api = $state<AccordionApi | null>(null);
+  // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
+  if (value === undefined) value = defaultValue ?? [];
 
-  $effect(() => {
-    if (!host) return;
-    const handle = enhanceAccordion(host, {
-      allowMultiple,
-      defaultValue: untrack(() => value ?? defaultValue),
-      onValueChange: (next) => (value = next),
-    });
-    api = handle.api;
-    return () => {
-      handle.destroy();
-      api = null;
-    };
+  // Items register in document order so each `<details>` can render `open`
+  // on the server from the shared value.
+  let itemCount = 0;
+  setAccordionContext({
+    get value() {
+      return value ?? [];
+    },
+    registerItem: () => itemCount++,
   });
 
+  const accordion = useEnhancer(enhanceAccordion, () => ({
+    allowMultiple,
+    defaultValue: untrack(() => value),
+    onValueChange: (next) => {
+      value = next;
+      onValueChange?.(next);
+    },
+  }));
+
   $effect(() => {
-    if (value != null) api?.setValue(value);
+    if (value != null) accordion.api?.setValue(value);
   });
 </script>
 
-<div {...rest} data-hl-accordion bind:this={host}>
+<div {...rest} data-hl-accordion {@attach accordion.attach}>
   {@render children?.()}
 </div>

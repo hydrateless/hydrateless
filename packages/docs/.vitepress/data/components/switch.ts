@@ -42,7 +42,8 @@ export const switchToggle: ComponentDoc = {
     {
       name: 'checked',
       type: 'boolean',
-      description: 'Controlled state; pair with `onCheckedChange`.',
+      description:
+        'Controlled state; pair with the native `onChange` in React (Vue: `v-model`, Svelte: `bind:checked`).',
     },
     { name: 'defaultChecked', type: 'boolean', description: 'Initial state (uncontrolled).' },
   ],

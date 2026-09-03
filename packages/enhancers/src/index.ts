@@ -32,7 +32,7 @@ export {
   type EnhanceToastOptions,
   type ToastApi,
   type ToastOptions,
-  type ToastVariant,
+  type ToastIntent,
 } from './toast/index.js';
 
 // Manifest (single source of truth for the auto-loader)
@@ -47,6 +47,7 @@ export {
   selectRoots,
   uid,
   defineEnhancer,
+  resolveContainer,
   toHandle,
   type Enhancer,
   type EnhancerContext,
@@ -66,6 +67,7 @@ export {
   prefersReducedMotion,
   afterTransition,
   Keys,
+  isTypeaheadKey,
   wrapIndex,
   nextIndex,
   createTypeahead,
@@ -74,10 +76,19 @@ export {
   supportsInvokers,
   supportsAnchorPositioning,
   positionFallback,
+  keepPositioned,
   type Placement,
   type Side,
   type Align,
   type PositionOptions,
   type PositionResult,
+  MENU_ITEM_SELECTOR,
+  menuItemsOf,
+  isDisabledItem,
+  nextEnabledIndex,
+  menuItemValue,
+  activateMenuItem,
+  prepareMenuItems,
+  type MenuItemActivation,
 } from './core/index.js';
 export { type DialogOptions, type DialogApi } from './core/dialog.js';

@@ -1,6 +1,7 @@
 /**
  * Keyboard key: `<kbd class="hl-kbd">⌘</kbd>`. Combine inline, e.g.
- * `<kbd class="hl-kbd">⌘</kbd><kbd class="hl-kbd">K</kbd>`.
+ * `<kbd class="hl-kbd">⌘</kbd><kbd class="hl-kbd">K</kbd>`. Pure CSS; there
+ * is no enhancer.
  */
 @layer components {
   .hl-kbd {

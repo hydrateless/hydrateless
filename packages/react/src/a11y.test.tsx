@@ -8,13 +8,17 @@ import { Progress } from './Progress.js';
 import { Pagination } from './Pagination.js';
 import { SegmentedControl } from './SegmentedControl.js';
 import { Avatar } from './Avatar.js';
-import { Field, FieldLabel, FieldHelp, useField } from './Field.js';
+import { Field, FieldLabel, FieldHelp } from './Field.js';
 import { Input } from './Input.js';
 import { Card, CardHeader, CardTitle, CardBody } from './Card.js';
-
-function FieldControl() {
-  return <Input {...useField()} />;
-}
+import { Table } from './Table.js';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  DropdownGroup,
+} from './Dropdown.js';
 
 async function violationIds(ui: React.ReactElement): Promise<string[]> {
   const { container } = render(ui);
@@ -82,9 +86,46 @@ describe('a11y (axe) smoke tests', () => {
       await violationIds(
         <Field>
           <FieldLabel>Email</FieldLabel>
-          <FieldControl />
+          <Input />
           <FieldHelp>We never share it.</FieldHelp>
         </Field>,
+      ),
+    ).toEqual([]);
+  });
+
+  it('Table has no violations', async () => {
+    expect(
+      await violationIds(
+        <Table striped>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ada</td>
+            </tr>
+          </tbody>
+        </Table>,
+      ),
+    ).toEqual([]);
+  });
+
+  it('Dropdown with a checkable group has no violations', async () => {
+    expect(
+      await violationIds(
+        <Dropdown defaultOpen>
+          <DropdownTrigger>View</DropdownTrigger>
+          <DropdownMenu>
+            <DropdownItem value="reload">Reload</DropdownItem>
+            <DropdownGroup label="Panels">
+              <DropdownItem role="menuitemcheckbox" value="sidebar" checked>
+                Sidebar
+              </DropdownItem>
+            </DropdownGroup>
+          </DropdownMenu>
+        </Dropdown>,
       ),
     ).toEqual([]);
   });

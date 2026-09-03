@@ -33,15 +33,17 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 - **Built on the web platform:** Overlays use the Popover API, Invoker Commands, the native `<dialog>`, and CSS anchor positioning instead of reinventing them in script, so light-dismiss, the top layer, focus trapping, and positioning come from the browser. Targets the modern Baseline.
 - **Tested in real browsers:** Beyond unit tests, a Playwright and axe end-to-end suite exercises every component, with JavaScript both off and on, across Chromium, Firefox, and WebKit, so the no-JS baseline and the enhanced experience are both verified for accessibility.
 - **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, table, kbd), and navigation (breadcrumb, pagination, table of contents, separator).
-- **Optional JS enhancers:** Add keyboard navigation, focus traps, and ARIA management only where needed. Every enhancer returns an imperative API (`setValue`, `setOpen`, …) and emits `hl:*` DOM events.
+- **Optional JS enhancers:** Add keyboard navigation, focus return, and ARIA management only where needed. Every enhancer follows the same contract: `enhanceX(container?, options?)` returns an imperative API (`value`/`setValue`, `open`/`setOpen`) and emits `hl:change`, `hl:open-change`, `hl:select`, or `hl:command` DOM events. Enhancers are safe no-ops on the server.
+- **APG keyboard behavior:** Menus, dropdowns, tabs, accordions, comboboxes, and the command palette follow the WAI-ARIA Authoring Practices: roving focus, arrow, Home/End, PageUp/PageDown, typeahead, disabled-item skipping, `menuitemcheckbox`/`menuitemradio` state, Escape-to-dismiss, and focus returned to the trigger when an overlay closes.
 - **Controlled or uncontrolled:** Framework components support both modes: `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
 - **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes, lazy-loads the right enhancers, and keeps watching the DOM so dynamic content is enhanced automatically.
-- **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, and typography.
-- **Dark mode:** Automatic support via `prefers-color-scheme`, with manual overrides using `data-theme`.
+- **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, typography, motion, focus rings, and overlay sizes.
+- **Dark mode:** Colors are defined once with `light-dark()`; the system preference applies automatically, and `data-theme="light|dark"` overrides it for the page or any subtree.
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
-- **Accessible by default:** ARIA roles, keyboard support, focus management, and skip links are built in.
+- **Accessible by default:** ARIA roles, keyboard support, focus management, forced-colors support, reduced-motion handling, and skip links are built in.
+- **RTL ready:** Every stylesheet uses logical properties, so drawers, switches, breadcrumbs, and menus mirror correctly under `dir="rtl"`.
 - **Modular imports:** Import the full bundle or individual component stylesheets as needed.
-- **Framework parity:** First-class, fully typed component suites for [React](https://hydrateless.com/frameworks/react), [Vue](https://hydrateless.com/frameworks/vue), and [Svelte](https://hydrateless.com/frameworks/svelte) (the same components and API surface in every framework), plus low-level hooks/directives/actions and an [Astro](https://hydrateless.com/frameworks/astro) guide.
+- **Framework parity:** First-class, fully typed component suites for [React](https://hydrateless.com/frameworks/react), [Vue](https://hydrateless.com/frameworks/vue), and [Svelte](https://hydrateless.com/frameworks/svelte) with identical component lists and prop contracts, a single `useEnhancer` escape hatch per framework, and an [Astro](https://hydrateless.com/frameworks/astro) guide.
 - **CDN ready:** Drop in minified CSS and a self-contained auto-initializer from unpkg or jsDelivr. No build step required.
 
 ## Quick Start

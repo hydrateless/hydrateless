@@ -1,7 +1,10 @@
-import { useEffect, type HTMLAttributes } from 'react';
-import { enhanceModal, type ModalApi } from '@hydrateless/enhancers';
+import { forwardRef, type HTMLAttributes } from 'react';
+import { enhanceModal, type EnhanceModalOptions, type ModalApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
-import { cx, useLatest } from './util.js';
+import { cx } from './util.js';
+import { useControlled } from './internal/useControlled.js';
+import { useSyncApi } from './internal/useSyncApi.js';
+import { useForwardedRef } from './internal/useForwardedRef.js';
 
 /** Props for {@link Modal}. */
 export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
@@ -11,6 +14,7 @@ export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'tit
   defaultOpen?: boolean;
   /** Called after the dialog opens or closes (Escape, backdrop, close buttons). */
   onOpenChange?: (open: boolean) => void;
+  /** Let Escape and backdrop clicks close the dialog. Defaults to `true`. */
   closeOnBackdrop?: boolean;
 }
 
@@ -30,53 +34,58 @@ export interface ModalProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'tit
  * </Modal>
  * ```
  */
-export function Modal({
-  open,
-  defaultOpen,
-  onOpenChange,
-  closeOnBackdrop = true,
-  className,
-  children,
-  ...rest
-}: ModalProps) {
-  const onOpenChangeRef = useLatest(onOpenChange);
-  const initialOpenRef = useLatest(open ?? defaultOpen);
-
-  const { ref, api } = useEnhancer<HTMLDialogElement, ModalApi>(
-    (el) =>
-      enhanceModal(el, {
-        closeOnBackdrop,
-        defaultOpen: initialOpenRef.current,
-        onOpenChange: (next) => onOpenChangeRef.current?.(next),
-      }),
+export const Modal = forwardRef<HTMLDialogElement, ModalProps>(function Modal(
+  {
+    open: openProp,
+    defaultOpen,
+    onOpenChange,
+    closeOnBackdrop = true,
+    className,
+    children,
+    ...rest
+  },
+  forwardedRef,
+) {
+  const ref = useForwardedRef(forwardedRef);
+  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const api = useEnhancer<EnhanceModalOptions, ModalApi>(
+    ref,
+    enhanceModal,
+    { closeOnBackdrop, defaultOpen: open, onOpenChange: setOpen },
     [closeOnBackdrop],
   );
-
-  useEffect(() => {
-    if (open != null) api.current?.setOpen(open);
-  }, [open, api]);
+  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
 
   return (
     <dialog {...rest} ref={ref} data-hl-modal className={cx('hl-modal', className)}>
       {children}
     </dialog>
   );
-}
+});
 
 /** Props shared by the {@link Modal} section components. */
 export type ModalSectionProps = HTMLAttributes<HTMLDivElement>;
 
 /** Modal heading region; its content labels the dialog for assistive tech. */
-export function ModalHeader({ className, ...rest }: ModalSectionProps) {
-  return <div {...rest} className={cx('hl-modal-header', className)} />;
-}
+export const ModalHeader = forwardRef<HTMLDivElement, ModalSectionProps>(function ModalHeader(
+  { className, ...rest },
+  ref,
+) {
+  return <div {...rest} ref={ref} className={cx('hl-modal-header', className)} />;
+});
 
 /** Modal main content region. */
-export function ModalBody({ className, ...rest }: ModalSectionProps) {
-  return <div {...rest} className={cx('hl-modal-body', className)} />;
-}
+export const ModalBody = forwardRef<HTMLDivElement, ModalSectionProps>(function ModalBody(
+  { className, ...rest },
+  ref,
+) {
+  return <div {...rest} ref={ref} className={cx('hl-modal-body', className)} />;
+});
 
 /** Modal actions region. */
-export function ModalFooter({ className, ...rest }: ModalSectionProps) {
-  return <div {...rest} className={cx('hl-modal-footer', className)} />;
-}
+export const ModalFooter = forwardRef<HTMLDivElement, ModalSectionProps>(function ModalFooter(
+  { className, ...rest },
+  ref,
+) {
+  return <div {...rest} ref={ref} className={cx('hl-modal-footer', className)} />;
+});

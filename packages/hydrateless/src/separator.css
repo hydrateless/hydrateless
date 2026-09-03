@@ -1,6 +1,8 @@
 /**
  * Separator: `<hr class="hl-separator">` or
  * `<div class="hl-separator" role="separator" aria-orientation="vertical">`.
+ * Pure CSS; there is no enhancer.
+ *   data-hl-orientation: vertical (alternative to aria-orientation)
  */
 @layer components {
   .hl-separator {

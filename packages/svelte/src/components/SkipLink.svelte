@@ -3,6 +3,7 @@
   import type { HTMLAnchorAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAnchorAttributes {
+    /** Link text. Defaults to "Skip to content". */
     children?: Snippet;
   }
 

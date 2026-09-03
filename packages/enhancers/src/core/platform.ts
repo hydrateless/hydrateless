@@ -1,4 +1,5 @@
 import { getWindow, isBrowser } from './dom.js';
+import { combine, noop, on, type Disposer } from './lifecycle.js';
 
 /** Edge of the anchor a floating element is placed against. */
 export type Side = 'top' | 'bottom' | 'left' | 'right';
@@ -152,4 +153,40 @@ export function positionFallback(
   floating.dataset.hlAlign = align;
 
   return { side, align };
+}
+
+/**
+ * Keep `floating` placed against `anchor` while it is shown, on engines
+ * without CSS anchor positioning. Positions immediately, then again on every
+ * scroll (anywhere in the document) and window resize, so a surface opened
+ * from a scrolling container follows its anchor instead of drifting. Returns
+ * a disposer that stops listening; on engines with anchor positioning this is
+ * a no-op that returns `noop`, so callers can invoke it unconditionally.
+ */
+export function keepPositioned(
+  anchor: HTMLElement,
+  floating: HTMLElement,
+  options: PositionOptions = {},
+): Disposer {
+  if (supportsAnchorPositioning()) return noop;
+  const win = getWindow(anchor);
+  const doc = anchor.ownerDocument;
+  let frame: number | null = null;
+  const update = () => positionFallback(anchor, floating, options);
+  const schedule = () => {
+    if (frame !== null) return;
+    frame = win.requestAnimationFrame(() => {
+      frame = null;
+      update();
+    });
+  };
+  update();
+  return combine([
+    on(doc, 'scroll', schedule, { capture: true, passive: true }),
+    on(win, 'resize', schedule, { passive: true }),
+    () => {
+      if (frame !== null) win.cancelAnimationFrame(frame);
+      frame = null;
+    },
+  ]);
 }

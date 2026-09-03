@@ -12,7 +12,7 @@ export const radioGroup: ComponentDoc = {
   status: 'stable',
   cssOnly: true,
   native: '<input type="radio">',
-  cssFile: 'radio.css',
+  cssFile: 'radio-group.css',
   demos: [
     {
       id: 'playground',
@@ -44,13 +44,22 @@ export const radioGroup: ComponentDoc = {
     },
   ],
   props: [
-    { name: 'value', type: 'string', description: 'Selected value; pair with `onValueChange`.' },
-    { name: 'defaultValue', type: 'string', description: 'Initial value (uncontrolled).' },
+    {
+      name: 'value',
+      type: 'string',
+      description:
+        'Selected value; pair with `onValueChange` (Vue: `v-model`, Svelte: `bind:value`).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Initial value (uncontrolled).',
+    },
     {
       name: 'orientation',
       type: `'vertical' | 'horizontal'`,
       default: `'vertical'`,
-      description: 'Layout direction.',
+      description: 'Layout direction, rendered as `data-hl-orientation` and `aria-orientation`.',
     },
   ],
   tokens: [

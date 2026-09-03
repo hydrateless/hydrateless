@@ -19,7 +19,15 @@ npm run build
 
 # lint and typecheck
 npm run lint
+npm run lint:css
 npm run typecheck
+
+# unit tests and size budgets
+npm test
+npm run size
+
+# end-to-end tests (Playwright; run npx playwright install once)
+npm -w packages/e2e run test:e2e
 
 # format code
 npm run format
@@ -29,12 +37,19 @@ npm run format
 
 - `packages/`
   - `hydrateless/`: all CSS (reset, tokens, theme, and component styles) with subpath exports
-  - `enhancers/`: optional JS enhancers with internal utilities (focus trap, tabbable)
+  - `enhancers/`: optional JS enhancers built on the shared `defineEnhancer` contract, plus the core helpers they share (lifecycle, keyboard, menu items, positioning, platform detection)
   - `auto/`: drop-in auto-loader that detects `data-hl-*` attributes and lazy-loads enhancers
-  - `react/`: React components and hooks wrapping the enhancers
-  - `vue/`: Vue directives, plugin, and composables
-  - `svelte/`: Svelte actions
+  - `react/`, `vue/`, `svelte/`: framework component suites wrapping the enhancers. The three export the same component list and prop contracts; each ships one low-level escape hatch, `useEnhancer`, plus `useField` and `useToast`
+  - `e2e/`: Playwright and axe suite that exercises every component with JavaScript off and on
   - `docs/`: the VitePress documentation site (private; deployed to GitHub Pages)
+
+### Naming conventions
+
+- Component roots carry a `data-hl-<component>` attribute; the enhancer for that component is `enhance<Component>` and lives at `@hydrateless/enhancers/<component>`.
+- State and variant attributes are always prefixed: `data-hl-intent`, `data-hl-size`, `data-hl-variant` (visual style), `data-hl-side`, `data-hl-shape`, `data-hl-orientation`, `data-hl-ready` (set by an enhancer once JS owns behavior).
+- Stylesheet file names match the docs slugs (`segmented-control.css`, `radio-group.css`, `command-palette.css`).
+- Directional values are logical (`start`/`end`), never `left`/`right`, and CSS uses logical properties throughout.
+- Enhancer options follow one pattern: `defaultX` for initial state, `onXChange(value)` for notifications, and an imperative `x`/`setX` pair on the returned API. Cancelable actions emit `hl:select` or `hl:command`.
 
 ## Coding guidelines
 
@@ -213,7 +228,7 @@ fix/accordion-overflow
 
 ## CI
 
-- **CI** (`ci.yml`): runs lint, format check, typecheck, build, and test on Node 20 and 22 for every push and PR.
+- **CI** (`ci.yml`): runs lint, format check, typecheck, build, test, and size budgets on Node 20 and 22 for every push and PR, then runs the Playwright end-to-end suite (JavaScript off and on, with axe checks) against the built packages.
 - **PR Lint** (`pr-lint.yml`): validates the PR title against Conventional Commits format (protects squash merges) and checks individual commit messages via commitlint (protects rebase merges). Recommended: add the **PR title** job as a required status check in branch-protection settings.
 - **Release** (`release.yml`): runs on merge to `main`; computes version, generates changelog, tags, creates GitHub Release, and publishes all workspace packages to npm.
 

@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** `<CommandItem>`s, optionally wrapped in `<CommandGroup>`s. */
     children?: Snippet;
   }
 

@@ -27,15 +27,23 @@ test.describe('baseline (no JS)', () => {
     await expect(pop).toBeHidden();
   });
 
-  test('dropdown: native popover menu opens', async ({ page }) => {
+  test('dropdown: native popover menu opens from the markup alone', async ({ page }) => {
     await gotoFixture(page, 'dropdown', 'baseline');
     test.skip(!(await supportsPopover(page)), 'Popover API unsupported');
     const menu = page.locator('#dd-menu');
 
+    // Both halves of the invoker pair are authored, not added by JS.
+    await expect(menu).toHaveAttribute('popover', '');
+    await expect(page.locator('#dd-trigger')).toHaveAttribute('popovertarget', 'dd-menu');
+
     await expect(menu).toBeHidden();
-    await page.locator('[data-hl-dropdown-trigger]').click();
+    await page.locator('#dd-trigger').click();
     await expect(menu).toBeVisible();
+    await expect(page.locator('[role="menuitemradio"][aria-checked="true"]')).toHaveText(/Name/);
     await expectNoAxeViolations(page);
+
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
   });
 
   test('tabs: :has() switches panels with checked radios', async ({ page }) => {
@@ -75,16 +83,21 @@ test.describe('baseline (no JS)', () => {
     await expectNoAxeViolations(page);
   });
 
-  test('menu: top-level items render, submenu stays hidden', async ({ page }) => {
+  test('menu: top-level items render, submenus stay hidden', async ({ page }) => {
     await gotoFixture(page, 'menu', 'baseline');
     await expect(page.locator('#file')).toBeVisible();
     await expect(page.locator('#edit')).toBeVisible();
-    await expect(page.locator('[data-hl-menu-submenu]')).toBeHidden();
+    await expect(page.locator('#v-view')).toBeVisible();
+    for (const submenu of await page.locator('[data-hl-menu-submenu]').all()) {
+      await expect(submenu).toBeHidden();
+    }
+    // Nothing has claimed the menu, so the CSS hover/focus-within baseline applies.
+    await expect(page.locator('[data-hl-menu][data-hl-ready]')).toHaveCount(0);
     await expectNoAxeViolations(page);
   });
 
-  test('command: labelled input and full command list render', async ({ page }) => {
-    await gotoFixture(page, 'command', 'baseline');
+  test('command palette: labelled input and full command list render', async ({ page }) => {
+    await gotoFixture(page, 'command-palette', 'baseline');
     await expect(page.locator('#cmd-input')).toBeVisible();
     await expect(page.locator('[role="option"]')).toHaveCount(3);
 

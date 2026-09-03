@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Message shown when no command matches the query. */
     children?: Snippet;
   }
 

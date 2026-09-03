@@ -40,13 +40,15 @@ export const disclosure: ComponentDoc = {
   props: [
     {
       name: 'summary',
-      type: 'string',
-      description: 'The visible toggle label (or use the `summary` slot).',
+      type: 'ReactNode',
+      description:
+        'The visible toggle label. In Vue and Svelte, pass a plain-text `title` prop or the `summary` slot/snippet instead.',
     },
     {
       name: 'open',
       type: 'boolean',
-      description: 'Controlled open state; pair with `onOpenChange`.',
+      description:
+        'Controlled open state; pair with `onOpenChange` (Vue: `v-model:open`, Svelte: `bind:open`).',
     },
     {
       name: 'defaultOpen',

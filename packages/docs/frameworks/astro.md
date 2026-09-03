@@ -43,7 +43,10 @@ import 'hydrateless/hydrateless.css';
 </html>
 ```
 
-Now any page using the layout can drop in semantic Hydrateless markup:
+Now any page using the layout can drop in semantic Hydrateless markup. Render
+the state the browser needs (`aria-selected`, `hidden`, `popover`,
+`popovertarget`, `command`/`commandfor`) so the page works before, and without,
+the enhancers:
 
 ```astro
 ---
@@ -53,12 +56,18 @@ import Base from '../layouts/Base.astro';
 <Base>
   <div data-hl-tabs>
     <div role="tablist">
-      <button role="tab">Overview</button>
-      <button role="tab">Install</button>
+      <button role="tab" aria-selected="true" tabindex="0">Overview</button>
+      <button role="tab" aria-selected="false" tabindex="-1">Install</button>
     </div>
     <div role="tabpanel">Zero runtime by default.</div>
-    <div role="tabpanel">npm install hydrateless</div>
+    <div role="tabpanel" hidden>npm install hydrateless</div>
   </div>
+
+  <button class="hl-button" command="show-modal" commandfor="confirm">Open</button>
+  <dialog id="confirm" class="hl-modal" data-hl-modal>
+    <p>Native dialog, no script needed to open it.</p>
+    <button class="hl-button" command="close" commandfor="confirm">Close</button>
+  </dialog>
 </Base>
 ```
 
@@ -102,7 +111,7 @@ import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
 ```
 
 See the [React](./react), [Vue](./vue), and [Svelte](./svelte) guides for the
-component and directive APIs.
+component APIs.
 
 ## CDN alternative
 

@@ -15,7 +15,7 @@
 @import url('./dropdown.css');
 @import url('./menu.css');
 @import url('./toast.css');
-@import url('./command.css');
+@import url('./command-palette.css');
 
 /* Forms */
 @import url('./button.css');
@@ -23,11 +23,11 @@
 @import url('./textarea.css');
 @import url('./select.css');
 @import url('./checkbox.css');
-@import url('./radio.css');
+@import url('./radio-group.css');
 @import url('./switch.css');
 @import url('./field.css');
 @import url('./combobox.css');
-@import url('./segmented.css');
+@import url('./segmented-control.css');
 @import url('./slider.css');
 
 /* Feedback & data display */

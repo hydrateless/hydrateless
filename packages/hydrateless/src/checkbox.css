@@ -1,7 +1,7 @@
 /**
- * Checkbox: `<label class="hl-checkbox"><input type="checkbox"><span>…</span></label>`.
- * The native input is restyled (appearance:none) with a CSS checkmark, keeping
- * full keyboard + form semantics.
+ * Checkbox: `<label class="hl-checkbox"><input type="checkbox"><span>...</span></label>`.
+ * The native input is restyled (appearance: none) with a CSS checkmark, keeping
+ * full keyboard and form semantics. Pure CSS; there is no enhancer.
  */
 @layer components {
   .hl-checkbox {
@@ -30,6 +30,7 @@
       border-color var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
+  /* The mark is a rotated L drawn with two borders; direction-neutral. */
   .hl-checkbox > input[type='checkbox']::after {
     content: '';
     inline-size: 0.34rem;
@@ -37,8 +38,9 @@
     border: solid var(--hl-primary-fg);
     border-width: 0 2px 2px 0;
     margin-block-start: -2px;
-    transform: rotate(45deg) scale(0);
-    transition: transform var(--hl-duration-fast) var(--hl-ease-emphasized);
+    rotate: 45deg;
+    scale: 0;
+    transition: scale var(--hl-duration-fast) var(--hl-ease-emphasized);
   }
 
   .hl-checkbox > input[type='checkbox']:checked,
@@ -48,7 +50,7 @@
   }
 
   .hl-checkbox > input[type='checkbox']:checked::after {
-    transform: rotate(45deg) scale(1);
+    scale: 1;
   }
 
   .hl-checkbox > input[type='checkbox']:indeterminate::after {
@@ -56,21 +58,31 @@
     block-size: 0;
     margin: 0;
     border-width: 0 0 2px;
-    transform: none;
+    rotate: none;
+    scale: 1;
   }
 
   .hl-checkbox > input[type='checkbox']:focus-visible {
     outline: var(--hl-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--hl-focus-offset);
   }
 
   .hl-checkbox > input[type='checkbox']:disabled {
     cursor: not-allowed;
-    opacity: 0.55;
+    opacity: var(--hl-disabled-opacity);
   }
 
   .hl-checkbox:has(> input:disabled) {
     cursor: not-allowed;
     color: var(--hl-fg-subtle);
+  }
+
+  /* The custom-drawn mark must keep its own colors to stay visible on the
+     Highlight fill; everything else follows the system palette. */
+  @media (forced-colors: active) {
+    .hl-checkbox > input[type='checkbox']::after {
+      forced-color-adjust: none;
+      border-color: HighlightText;
+    }
   }
 }

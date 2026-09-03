@@ -8,10 +8,12 @@ export interface EmitOptions {
  * Event names every stateful enhancer emits, so frameworks and vanilla code
  * observe state changes through one vocabulary:
  *
- * - `hl:change`: a value changed; `detail: { value }`.
- * - `hl:open-change`: something opened or closed; `detail: { open }`, plus
- *   component-specific context (the menu adds `value`, the toast adds `toast`).
+ * - `hl:change`: a value changed; `detail: { value }`. The menu's value is the
+ *   open submenu (or `null`), the accordion's is the array of open items.
+ * - `hl:open-change`: something opened or closed; `detail: { open: boolean }`,
+ *   plus component-specific context (the toast adds `toast`).
  * - `hl:select`: an item was committed; `detail: { value, item }` (cancelable).
+ *   Checkable menu items add `checked`.
  * - `hl:command`: a command ran; `detail: { value, item }` (cancelable).
  */
 export const Events = {

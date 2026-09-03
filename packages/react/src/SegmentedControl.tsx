@@ -1,4 +1,7 @@
-import { useId, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { cx } from './util.js';
+import { useControlled } from './internal/useControlled.js';
+import { useHlId } from './internal/useHlId.js';
 
 /** A single option in a {@link SegmentedControl}. */
 export interface SegmentedOption {
@@ -10,58 +13,56 @@ export interface SegmentedOption {
 /** Props for {@link SegmentedControl}. */
 export interface SegmentedControlProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   options: SegmentedOption[];
+  /** Controlled selected value (pair with `onValueChange`). */
   value?: string;
+  /** Initially selected value for uncontrolled usage; defaults to the first option. */
   defaultValue?: string;
+  /** Called with the newly selected value. */
   onValueChange?: (value: string) => void;
+  /** Shared `name` for the underlying radios; generated when omitted. */
   name?: string;
   size?: 'sm' | 'md' | 'lg';
 }
 
 /**
- * Segmented control: `hl-segmented` radiogroup. Controlled via `value` or
- * uncontrolled via `defaultValue`. Built on native radios for free keyboard
- * navigation.
+ * Segmented control: an `hl-segmented` radiogroup built on native radios, so
+ * keyboard navigation comes for free. Uncontrolled (`defaultValue`, falling
+ * back to the first option) or controlled (`value` + `onValueChange`).
  */
-export function SegmentedControl({
-  options,
-  value,
-  defaultValue,
-  onValueChange,
-  name,
-  size,
-  className,
-  ...rest
-}: SegmentedControlProps) {
-  const generatedName = useId();
-  const groupName = name ?? generatedName;
-  const [internal, setInternal] = useState(defaultValue ?? options[0]?.value);
-  const current = value ?? internal;
+export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps>(
+  function SegmentedControl(
+    { options, value: valueProp, defaultValue, onValueChange, name, size, className, ...rest },
+    ref,
+  ) {
+    const [value, setValue] = useControlled(
+      valueProp,
+      defaultValue ?? options[0]?.value,
+      onValueChange,
+    );
+    const groupName = useHlId('segmented', name);
 
-  const select = (next: string) => {
-    if (value === undefined) setInternal(next);
-    onValueChange?.(next);
-  };
-
-  return (
-    <div
-      {...rest}
-      role="radiogroup"
-      className={['hl-segmented', className].filter(Boolean).join(' ')}
-      data-hl-size={size}
-    >
-      {options.map((option) => (
-        <label className="hl-segmented-item" key={option.value}>
-          <input
-            type="radio"
-            name={groupName}
-            value={option.value}
-            checked={current === option.value}
-            disabled={option.disabled}
-            onChange={() => select(option.value)}
-          />
-          <span>{option.label}</span>
-        </label>
-      ))}
-    </div>
-  );
-}
+    return (
+      <div
+        {...rest}
+        ref={ref}
+        role="radiogroup"
+        className={cx('hl-segmented', className)}
+        data-hl-size={size}
+      >
+        {options.map((option) => (
+          <label className="hl-segmented-item" key={option.value}>
+            <input
+              type="radio"
+              name={groupName}
+              value={option.value}
+              checked={value === option.value}
+              disabled={option.disabled}
+              onChange={() => setValue(option.value)}
+            />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    );
+  },
+);

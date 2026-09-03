@@ -1,5 +1,6 @@
 import { combine, on as onEvent, selectRoots, uid as makeUid, type Disposer } from './lifecycle.js';
 import { emit, type EmitOptions } from './events.js';
+import { isBrowser } from './dom.js';
 
 /**
  * The toolkit handed to an enhancer's `setup`. Everything registered through
@@ -80,11 +81,24 @@ export function toHandle<Api>(instances: EnhancerInstance<Api>[]): EnhancerHandl
 }
 
 /**
+ * Resolve the container an enhancer was called with. Outside a browser (SSR,
+ * tests without a DOM) there is nothing to enhance, so callers get `null` and
+ * an empty handle instead of a `document is not defined` crash.
+ */
+export function resolveContainer(
+  container: Document | HTMLElement | undefined,
+): Document | HTMLElement | null {
+  if (container) return container;
+  return isBrowser ? document : null;
+}
+
+/**
  * Turn a per-root `setup` into a full enhancer with the shared lifecycle every
  * Hydrateless component needs: root discovery (including the container itself),
  * idempotent de-duplication, automatic listener teardown, re-enhancement after
  * destroy, and a uniform handle exposing each instance's imperative API. This
- * is the single contract all enhancers are built on.
+ * is the single contract all enhancers are built on. Calling an enhancer with
+ * no container outside a browser is a safe no-op that returns an empty handle.
  */
 export function defineEnhancer<Options extends object = Record<string, never>, Api = null>(
   def: EnhancerDefinition<Options, Api>,
@@ -92,9 +106,11 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
   const enhanced = new WeakSet<Element>();
 
   return (
-    container: Document | HTMLElement = document,
+    containerArg?: Document | HTMLElement,
     options?: Partial<Options>,
   ): EnhancerHandle<Api> => {
+    const container = resolveContainer(containerArg);
+    if (!container) return toHandle([]);
     const roots = selectRoots(container, def.selector);
     const instances: EnhancerInstance<Api>[] = [];
 

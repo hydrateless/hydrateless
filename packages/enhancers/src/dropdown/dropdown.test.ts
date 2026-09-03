@@ -154,6 +154,130 @@ describe('enhanceDropdown', () => {
     expect(menu.matches(':popover-open')).toBe(false);
   });
 
+  it('returns focus to the trigger on Escape and on item activation', () => {
+    enhanceDropdown(document);
+    const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
+    const items = document.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
+
+    trigger.click();
+    menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(document.activeElement).toBe(trigger);
+
+    trigger.click();
+    items[1].click();
+    expect(menu.matches(':popover-open')).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('activates non-button items with Enter and Space', () => {
+    document.body.innerHTML = `
+      <div data-hl-dropdown>
+        <button data-hl-dropdown-trigger>Menu</button>
+        <ul data-hl-dropdown-menu>
+          <li role="menuitem" data-hl-value="one">One</li>
+          <li role="menuitem" data-hl-value="two">Two</li>
+        </ul>
+      </div>
+    `;
+    const selected: string[] = [];
+    enhanceDropdown(document, { onSelect: (value) => selected.push(value) });
+    const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
+    const items = document.querySelectorAll<HTMLElement>('[role="menuitem"]');
+
+    trigger.click();
+    items[1].focus();
+    items[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(selected).toEqual(['two']);
+    trigger.click();
+    items[0].focus();
+    items[0].dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+    expect(selected).toEqual(['two', 'one']);
+  });
+
+  describe('disabled and checkable items', () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <div data-hl-dropdown>
+          <button data-hl-dropdown-trigger>View</button>
+          <ul data-hl-dropdown-menu>
+            <li><button role="menuitem" aria-disabled="true">Locked</button></li>
+            <li><button role="menuitemcheckbox" data-hl-value="grid">Grid</button></li>
+            <li>
+              <ul role="group" aria-label="Size">
+                <li><button role="menuitemradio" data-hl-value="small">Small</button></li>
+                <li><button role="menuitemradio" data-hl-value="large" aria-checked="true">Large</button></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      `;
+    });
+
+    it('skips disabled items when focusing and navigating', () => {
+      enhanceDropdown(document);
+      const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
+      const items = document.querySelectorAll<HTMLElement>('[role^="menuitem"]');
+      const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
+
+      trigger.click();
+      expect(document.activeElement).toBe(items[1]);
+      menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+      expect(document.activeElement).toBe(items[3]);
+      menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+      expect(document.activeElement).toBe(items[1]);
+    });
+
+    it('ignores activation of disabled items', () => {
+      const selected: string[] = [];
+      enhanceDropdown(document, { onSelect: (value) => selected.push(value) });
+      document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!.click();
+      document.querySelector<HTMLElement>('[aria-disabled="true"]')!.click();
+      expect(selected).toEqual([]);
+    });
+
+    it('toggles menuitemcheckbox and keeps the menu open with closeOnSelect: false', () => {
+      const seen: Array<[string, boolean | undefined]> = [];
+      enhanceDropdown(document, {
+        closeOnSelect: false,
+        onSelect: (value, _item, checked) => seen.push([value, checked]),
+      });
+      const trigger = document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!;
+      const grid = document.querySelector<HTMLElement>('[role="menuitemcheckbox"]')!;
+      const menu = document.querySelector<HTMLElement>('[data-hl-dropdown-menu]')!;
+
+      expect(grid.getAttribute('aria-checked')).toBe('false');
+      trigger.click();
+      grid.click();
+      expect(grid.getAttribute('aria-checked')).toBe('true');
+      expect(menu.matches(':popover-open')).toBe(true);
+      grid.click();
+      expect(grid.getAttribute('aria-checked')).toBe('false');
+      expect(seen).toEqual([
+        ['grid', true],
+        ['grid', false],
+      ]);
+    });
+
+    it('checks one menuitemradio in a group at a time', () => {
+      enhanceDropdown(document, { closeOnSelect: false });
+      const [small, large] = document.querySelectorAll<HTMLElement>('[role="menuitemradio"]');
+      document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!.click();
+      small.click();
+      expect(small.getAttribute('aria-checked')).toBe('true');
+      expect(large.getAttribute('aria-checked')).toBe('false');
+    });
+
+    it('reverts checkable state when hl:select is prevented', () => {
+      enhanceDropdown(document, { closeOnSelect: false });
+      const grid = document.querySelector<HTMLElement>('[role="menuitemcheckbox"]')!;
+      document.addEventListener('hl:select', (e) => e.preventDefault(), { once: true });
+      document.querySelector<HTMLElement>('[data-hl-dropdown-trigger]')!.click();
+      grid.click();
+      expect(grid.getAttribute('aria-checked')).toBe('false');
+    });
+  });
+
   it('handles no matching elements', () => {
     document.body.innerHTML = '<div>Nothing</div>';
     expect(() => enhanceDropdown(document)).not.toThrow();

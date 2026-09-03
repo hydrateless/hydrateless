@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { enhanceTooltip } from './index.js';
 
+/** Shown state under the jsdom Popover shim (the tip is a `popover="manual"`). */
+const isShown = (tip: HTMLElement) => tip.matches(':popover-open');
+
 describe('enhanceTooltip', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -14,15 +17,28 @@ describe('enhanceTooltip', () => {
     vi.useRealTimers();
   });
 
+  it('promotes the tip to a manual popover and drops the markup hidden', () => {
+    const handle = enhanceTooltip(document);
+    const tooltip = document.getElementById('tip1')!;
+    expect(tooltip.getAttribute('popover')).toBe('manual');
+    expect(tooltip.hasAttribute('hidden')).toBe(false);
+    expect(isShown(tooltip)).toBe(false);
+
+    handle.destroy();
+    expect(tooltip.hasAttribute('popover')).toBe(false);
+    expect(tooltip.hasAttribute('hidden')).toBe(true);
+  });
+
   it('shows tooltip after the hover delay', () => {
     enhanceTooltip(document);
     const trigger = document.querySelector<HTMLElement>('[data-hl-tooltip]')!;
     const tooltip = document.getElementById('tip1')!;
 
     trigger.dispatchEvent(new Event('mouseenter'));
-    expect(tooltip.hidden).toBe(true); // not yet, delay pending
+    expect(isShown(tooltip)).toBe(false); // not yet, delay pending
     vi.advanceTimersByTime(150);
-    expect(tooltip.hidden).toBe(false);
+    expect(isShown(tooltip)).toBe(true);
+    expect(tooltip.hasAttribute('data-hl-tooltip-open')).toBe(true);
   });
 
   it('shows immediately when showDelay is 0', () => {
@@ -31,7 +47,7 @@ describe('enhanceTooltip', () => {
     const tooltip = document.getElementById('tip1')!;
 
     trigger.dispatchEvent(new Event('mouseenter'));
-    expect(tooltip.hidden).toBe(false);
+    expect(isShown(tooltip)).toBe(true);
   });
 
   it('hides tooltip after the leave grace period', () => {
@@ -41,9 +57,10 @@ describe('enhanceTooltip', () => {
 
     trigger.dispatchEvent(new Event('mouseenter'));
     trigger.dispatchEvent(new Event('mouseleave'));
-    expect(tooltip.hidden).toBe(false); // grace period pending
+    expect(isShown(tooltip)).toBe(true); // grace period pending
     vi.advanceTimersByTime(100);
-    expect(tooltip.hasAttribute('hidden')).toBe(true);
+    expect(isShown(tooltip)).toBe(false);
+    expect(tooltip.hasAttribute('data-hl-tooltip-open')).toBe(false);
   });
 
   it('keeps the tooltip open while the pointer rests on it', () => {
@@ -55,7 +72,7 @@ describe('enhanceTooltip', () => {
     trigger.dispatchEvent(new Event('mouseleave'));
     tooltip.dispatchEvent(new Event('mouseenter')); // cancels the pending hide
     vi.advanceTimersByTime(500);
-    expect(tooltip.hidden).toBe(false);
+    expect(isShown(tooltip)).toBe(true);
   });
 
   it('shows tooltip on focus without delay', () => {
@@ -64,17 +81,18 @@ describe('enhanceTooltip', () => {
     const tooltip = document.getElementById('tip1')!;
 
     trigger.dispatchEvent(new Event('focus'));
-    expect(tooltip.hidden).toBe(false);
+    expect(isShown(tooltip)).toBe(true);
   });
 
-  it('hides tooltip on Escape key', () => {
+  it('hides tooltip on Escape pressed anywhere in the document', () => {
     enhanceTooltip(document);
     const trigger = document.querySelector<HTMLElement>('[data-hl-tooltip]')!;
     const tooltip = document.getElementById('tip1')!;
 
     trigger.dispatchEvent(new Event('focus'));
-    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    expect(tooltip.hasAttribute('hidden')).toBe(true);
+    expect(isShown(tooltip)).toBe(true);
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(isShown(tooltip)).toBe(false);
   });
 
   it('wires role and aria-describedby from data-hl-tooltip alone', () => {
@@ -95,10 +113,10 @@ describe('enhanceTooltip', () => {
 
     expect(handle.api!.open).toBe(false);
     handle.api!.setOpen(true);
-    expect(tooltip.hidden).toBe(false);
+    expect(isShown(tooltip)).toBe(true);
     expect(handle.api!.open).toBe(true);
     handle.api!.setOpen(false);
-    expect(tooltip.hidden).toBe(true);
+    expect(isShown(tooltip)).toBe(false);
     expect(handle.api!.open).toBe(false);
   });
 

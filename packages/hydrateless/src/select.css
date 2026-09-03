@@ -1,7 +1,7 @@
 /**
  * Native select: `<span class="hl-select-wrapper"><select class="hl-select">`.
  * The wrapper draws a custom caret while the native control keeps full
- * keyboard/mobile behavior.
+ * keyboard and mobile behavior. Pure CSS; there is no enhancer.
  *   data-hl-size:    sm | md (default) | lg
  *   data-hl-invalid: error styling (pair with aria-invalid)
  */
@@ -12,6 +12,8 @@
     inline-size: 100%;
   }
 
+  /* The caret is a rotated square corner; it sits at the inline end so it
+     moves to the left under RTL along with the select's end padding. */
   .hl-select-wrapper::after {
     content: '';
     position: absolute;
@@ -21,7 +23,8 @@
     block-size: 0.5rem;
     border-inline-end: 2px solid var(--hl-fg-muted);
     border-block-end: 2px solid var(--hl-fg-muted);
-    transform: translateY(-65%) rotate(45deg);
+    translate: 0 -65%;
+    rotate: 45deg;
     pointer-events: none;
   }
 
@@ -53,12 +56,12 @@
   .hl-select:focus-visible {
     outline: none;
     border-color: var(--hl-ring);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent);
+    box-shadow: var(--hl-focus-shadow);
   }
 
   .hl-select:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: var(--hl-disabled-opacity);
     background: var(--hl-surface-2);
   }
 
@@ -77,5 +80,12 @@
   .hl-select[data-hl-size='lg'] {
     --_height: var(--hl-control-height-lg);
     --_font: var(--hl-text-base);
+  }
+
+  @media (forced-colors: active) {
+    .hl-select:focus-visible {
+      outline: var(--hl-focus-ring);
+      outline-offset: var(--hl-focus-offset);
+    }
   }
 }

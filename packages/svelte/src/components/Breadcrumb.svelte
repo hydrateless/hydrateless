@@ -3,6 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLElement> {
+    /** `<BreadcrumbItem>`s, first to current. */
     children?: Snippet;
   }
 

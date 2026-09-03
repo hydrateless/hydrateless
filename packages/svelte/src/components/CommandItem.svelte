@@ -3,11 +3,13 @@
   import type { HTMLAttributes } from 'svelte/elements';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
+    /** Value passed to the Command's `onCommand` when this item runs. */
     value: string;
     /** Extra search terms for filtering. */
     keywords?: string;
     /** Leading icon snippet. */
     icon?: Snippet;
+    /** Item label. */
     children?: Snippet;
   }
 

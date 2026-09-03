@@ -58,7 +58,7 @@ export const progress: ComponentDoc = {
   ],
   a11y: [
     'A native `<progress>` exposes its value, so screen readers announce completion automatically.',
-    'Omitting `value` yields an indeterminate bar for unknown-length work.',
+    'Omitting `value` yields an indeterminate bar for unknown-length work; its sweep becomes a static bar under `prefers-reduced-motion`.',
   ],
   related: ['spinner', 'slider', 'skeleton'],
 };

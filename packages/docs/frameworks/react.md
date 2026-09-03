@@ -1,10 +1,10 @@
 # React
 
-`@hydrateless/react` wraps the Hydrateless enhancers in idiomatic React
-components and hooks. Components render the same semantic markup as the core
-library, and the enhancers are attached and disposed automatically across the
-component lifecycle (including React 18 Strict Mode's double-invoke in
-development).
+`@hydrateless/react` wraps every Hydrateless component in an idiomatic React
+component. Components render the same semantic markup as the core CSS, so they
+look right before hydration, and the enhancer that adds keyboard navigation,
+ARIA wiring, and focus management is attached and disposed with the component
+lifecycle (Strict Mode's double-invoke included).
 
 ## Install
 
@@ -12,7 +12,7 @@ development).
 npm install hydrateless @hydrateless/react
 ```
 
-Import the CSS once at your app entry:
+Requires React 18 or later. Import the CSS once at your app entry:
 
 ```js
 import 'hydrateless/hydrateless.css';
@@ -21,8 +21,7 @@ import 'hydrateless/hydrateless.css';
 ## Components
 
 Composable primitives use a **compound API**: a parent plus named parts you
-arrange yourself. Behavior (keyboard navigation, ARIA wiring, focus traps) comes
-from the underlying enhancer.
+arrange yourself.
 
 ```tsx
 import { Tabs, TabList, Tab, TabPanel } from '@hydrateless/react';
@@ -34,25 +33,27 @@ export function Example() {
         <Tab value="overview">Overview</Tab>
         <Tab value="install">Install</Tab>
       </TabList>
-      <TabPanel>
-        <p>Zero runtime by default.</p>
-      </TabPanel>
-      <TabPanel>
-        <p>npm install hydrateless</p>
-      </TabPanel>
+      <TabPanel>Zero runtime by default.</TabPanel>
+      <TabPanel>npm install hydrateless</TabPanel>
     </Tabs>
   );
 }
 ```
 
-### Controlled and uncontrolled state
+`Tabs` renders `role="tablist"`, `aria-selected`, `tabindex`, and `hidden`
+during render, so server output is already correct and there's no flash when
+the enhancer attaches.
 
-Every interactive component supports both modes, mirroring native inputs:
+### Controlled and uncontrolled
 
-- **Uncontrolled**: pass `defaultValue` (or `defaultOpen`) and let the
-  enhancer manage state internally.
-- **Controlled**: pass `value` + `onValueChange` (or `open` + `onOpenChange`)
-  and own the state yourself.
+Every stateful component follows the native-input convention:
+
+- **Uncontrolled**: pass `defaultValue` (or `defaultOpen`, `defaultQuery`) and
+  let the component own its state.
+- **Controlled**: pass `value` + `onValueChange` (or `open` + `onOpenChange`,
+  `query` + `onQueryChange`) and own the state yourself. The change callback
+  also fires for dismissals the user triggers (Escape, backdrop click, outside
+  click), so your state never drifts from the DOM.
 
 ```tsx
 import { useState } from 'react';
@@ -66,34 +67,32 @@ export function Controlled() {
         <Tab value="overview">Overview</Tab>
         <Tab value="install">Install</Tab>
       </TabList>
-      <TabPanel>…</TabPanel>
-      <TabPanel>…</TabPanel>
+      <TabPanel>...</TabPanel>
+      <TabPanel>...</TabPanel>
     </Tabs>
   );
 }
 ```
 
-Overlays are controlled through `open` + `onOpenChange`, which also reports
-Escape and backdrop dismissals:
-
 ```tsx
 import { useState } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from '@hydrateless/react';
 
-export function Example() {
+export function Confirm() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Open</Button>
+      <Button onClick={() => setOpen(true)}>Delete</Button>
       <Modal open={open} onOpenChange={setOpen}>
         <ModalHeader>
-          <h2>Confirm</h2>
+          <h2>Delete project?</h2>
         </ModalHeader>
-        <ModalBody>
-          <p>Are you sure?</p>
-        </ModalBody>
+        <ModalBody>This can't be undone.</ModalBody>
         <ModalFooter>
-          <Button onClick={() => setOpen(false)}>Close</Button>
+          <Button variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button intent="danger">Delete</Button>
         </ModalFooter>
       </Modal>
     </>
@@ -101,94 +100,191 @@ export function Example() {
 }
 ```
 
-### Available components
+Which prop is "the value" per component:
 
-| Group      | Components                                                                                                                                                |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Disclosure | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                          |
-| Overlays   | `Dropdown` (+ `DropdownTrigger`/`DropdownMenu`/`DropdownItem`/`DropdownSeparator`), `Menu`, `MenuItem`, `Modal`, `Drawer` (+ parts), `Popover`, `Tooltip` |
-| Combobox   | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                             |
-| Command    | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                   |
-| Navigation | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                           |
+| Component                     | State props                                                                                                    | Extra callbacks                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `Tabs`                        | `value` / `defaultValue` / `onValueChange` (string)                                                            |                                   |
+| `Accordion`                   | `value` / `defaultValue` / `onValueChange` (string[]), `allowMultiple`                                         |                                   |
+| `Menu`                        | `value` / `defaultValue` / `onValueChange` (open submenu or null)                                              | `onSelect(value, item, checked?)` |
+| `Dropdown`                    | `open` / `defaultOpen` / `onOpenChange`, `closeOnSelect`, `placement`                                          | `onSelect(value, item, checked?)` |
+| `Modal`, `Drawer`             | `open` / `defaultOpen` / `onOpenChange`, `closeOnBackdrop`; Drawer `side="start" \| "end"`                     |                                   |
+| `Popover`                     | `open` / `defaultOpen` / `onOpenChange`, `placement`, `hover`                                                  |                                   |
+| `Tooltip`                     | `content`, `open` / `onOpenChange`, `placement`, `showDelay`, `hideDelay`                                      |                                   |
+| `Combobox`                    | `value` / `defaultValue` / `onValueChange`, `open` / `defaultOpen` / `onOpenChange`, `filter`, `autoHighlight` |                                   |
+| `Command`                     | `query` / `defaultQuery` / `onQueryChange`, `hotkey`                                                           | `onCommand(value, item)`          |
+| `SegmentedControl`            | `options`, `value` / `defaultValue` / `onValueChange` (defaults to the first option)                           |                                   |
+| `Switch`, `Checkbox`, `Input` | Native: `checked` / `defaultChecked` / `onChange`, `value` / `defaultValue` / `onChange`                       |                                   |
 
-Compose menus and lists from their parts; for example a dropdown:
+### Dropdown with checkable items
+
+`DropdownItem` accepts `role="menuitemcheckbox" | "menuitemradio"` and
+`checked`; `DropdownGroup` wraps a labeled `role="group"`. The trigger renders
+`popovertarget` and the menu renders `popover`, so the menu opens before
+JavaScript loads.
 
 ```tsx
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@hydrateless/react';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownGroup,
+  DropdownItem,
+  DropdownSeparator,
+} from '@hydrateless/react';
 
-<Dropdown>
-  <DropdownTrigger>Actions</DropdownTrigger>
+<Dropdown onSelect={(value, item, checked) => console.log(value, checked)}>
+  <DropdownTrigger>View</DropdownTrigger>
   <DropdownMenu>
-    <DropdownItem onSelect={edit}>Edit</DropdownItem>
-    <DropdownItem onSelect={remove}>Delete</DropdownItem>
+    <DropdownGroup label="Show">
+      <DropdownItem value="grid" role="menuitemradio" checked>
+        Grid
+      </DropdownItem>
+      <DropdownItem value="list" role="menuitemradio">
+        List
+      </DropdownItem>
+    </DropdownGroup>
+    <DropdownSeparator />
+    <DropdownItem value="hidden" role="menuitemcheckbox">
+      Show hidden files
+    </DropdownItem>
+    <DropdownItem value="reset" disabled>
+      Reset view
+    </DropdownItem>
   </DropdownMenu>
 </Dropdown>;
 ```
 
-The package also ships styled **form controls** (`Button`, `Input`, `Textarea`,
-`Select`, `Checkbox`, `Radio` / `RadioGroup`, `Field` with `FieldLabel` /
-`FieldHelp` / `FieldError` and `useField()`, `Fieldset`, `Switch`, `Slider`,
-`SegmentedControl`) and **presentational primitives** (`Alert`, `Badge`, `Card`
-and parts, `Avatar` / `AvatarGroup`, `Progress`, `Spinner`, `Skeleton`, `Kbd`,
-`Separator`). These render the same markup as the core CSS and need no enhancer.
+### Available components
 
-## Toasts
+| Group        | Components                                                                                                                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                                                |
+| Overlays     | `Dropdown` (+ `DropdownTrigger`, `DropdownMenu`, `DropdownGroup`, `DropdownItem`, `DropdownSeparator`), `Menu`, `MenuItem`, `MenuSubmenu`, `Modal`, `Drawer` (+ `Header`/`Body`/`Footer`), `Popover`, `Tooltip` |
+| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button`                                |
+| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                                                   |
+| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                                                         |
+| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                                                              |
+| Data display | `Card` (+ `CardHeader`, `CardBody`, `CardFooter`, `CardTitle`, `CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`, `Table`                                                                         |
+| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                                                 |
 
-`useToast()` works from any component, no provider required. The first
-`show()` call creates a polite live region at the end of `<body>`; render
-`<ToastRegion />` once if you want to control where toasts appear:
+Every component forwards `className`, `id`, `ref`, and rest props to its root
+element.
+
+## Forms and `useField`
+
+`Field` provides a shared id so `FieldLabel`, `FieldHelp`, and `FieldError`
+wire `htmlFor` and `aria-describedby` for you. The built-in controls read that
+context automatically, and work without it.
+
+```tsx
+import { Field, Input } from '@hydrateless/react';
+
+<Field label="Email" description="We never share it." error={errors.email} required>
+  <Input type="email" name="email" />
+</Field>;
+```
+
+For a custom control, `useField()` returns `{ id, describedBy, invalid, required }`
+inside a `Field` and `null` outside one:
+
+```tsx
+import { useField } from '@hydrateless/react';
+
+function ColorPicker(props) {
+  const field = useField();
+  return (
+    <input
+      type="color"
+      id={field?.id}
+      aria-describedby={field?.describedBy}
+      aria-invalid={field?.invalid || undefined}
+      required={field?.required}
+      {...props}
+    />
+  );
+}
+```
+
+See [Forms](/guide/forms) for validation states and native constraint
+validation.
+
+## Toasts and `useToast`
+
+`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast) }`
+and works from any component with no provider. The first `show()` creates a
+polite live region at the end of `<body>`; render `<ToastRegion />` once if you
+want to control where toasts appear.
 
 ```tsx
 import { ToastRegion, useToast } from '@hydrateless/react';
 
 function SaveButton() {
   const toast = useToast();
-  return <button onClick={() => toast.show('Saved!', { variant: 'success' })}>Save</button>;
+  return <button onClick={() => toast.show('Saved', { intent: 'success' })}>Save</button>;
 }
 
 export function App() {
   return (
     <>
       <SaveButton />
-      <ToastRegion /> {/* optional */}
+      <ToastRegion />
     </>
   );
 }
 ```
 
-## Hooks
+`intent` is one of `info`, `success`, `warning`, or `danger`; `danger` toasts
+are announced assertively.
 
-Prefer to render your own markup? Use a hook to attach an enhancer to a ref.
-You get `{ ref, api }` back (`api` is a ref to the enhancer's imperative API),
-and the instance is destroyed automatically on unmount.
+## `useEnhancer`
+
+The one low-level escape hatch. Attach any enhancer to your own markup and get
+back a ref to its imperative API:
 
 ```tsx
-import { useTabs } from '@hydrateless/react';
+import { useRef } from 'react';
+import { useEnhancer } from '@hydrateless/react';
+import { enhanceTabs } from '@hydrateless/enhancers';
 
 export function MyTabs() {
-  const { ref, api } = useTabs<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement>(null);
+  const api = useEnhancer(ref, enhanceTabs, {
+    activation: 'automatic',
+    onValueChange: console.log,
+  });
   // api.current?.setValue('install')
   return (
-    <div data-hl-tabs ref={ref}>
-      {/* your own tablist / tabpanel markup */}
+    <div ref={ref} data-hl-tabs>
+      {/* your own tablist and tabpanel markup */}
     </div>
   );
 }
 ```
 
-Built-in hooks: `useTabs`, `useDropdown`, `useTooltip`, `useAccordion`,
-`useModalGroup`, `useTocEnhancer`.
+Signature: `useEnhancer(ref, enhancer, options?, deps?)`.
 
-For any enhancer not covered by a dedicated hook, use the generic `useEnhancer`:
+- The instance is destroyed on unmount, and destroyed and re-created when
+  `deps` change.
+- Function-valued options (`onValueChange`, `onOpenChange`, and so on) always
+  call the handler from the latest render, so they never need to be in `deps`.
+- Other options are read once; list the ones that should trigger
+  re-enhancement in `deps`.
 
-```tsx
-import { useEnhancer } from '@hydrateless/react';
-import { enhancePopover, type PopoverApi } from '@hydrateless/enhancers';
+All shipped components are built on this hook, so custom wrappers behave
+exactly like the built-in ones. See [Composing](/guide/composing#writing-your-own-enhancer)
+for writing an enhancer to attach.
 
-const { ref, api } = useEnhancer<HTMLDivElement, PopoverApi>((el) => enhancePopover(el));
-```
+## Server components
+
+Every module in `@hydrateless/react` carries a `'use client'` directive, so you
+can import components directly into React Server Components (Next.js App
+Router, for example) without writing wrapper files. The components render
+their full markup on the server; only the enhancer waits for the client.
 
 ## TypeScript
 
-The package ships full type definitions. Every component's props (`TabsProps`,
-`DropdownItemProps`, `ModalProps`, `ComboboxProps`, etc.) are exported for reuse.
+Full type definitions ship with the package. Every component's props
+(`TabsProps`, `DropdownItemProps`, `ModalProps`, `TableProps`, and so on) and
+the enhancer API types (`TabsApi`, `ModalApi`, `ToastApi`, `ToastIntent`) are
+exported for reuse.

@@ -3,8 +3,11 @@
   import type { HTMLLiAttributes } from 'svelte/elements';
 
   interface Props extends HTMLLiAttributes {
+    /** Link target; omitted for the current page. */
     href?: string;
+    /** Mark this item as the current page (`aria-current="page"`). */
     current?: boolean;
+    /** Item label. */
     children?: Snippet;
   }
 

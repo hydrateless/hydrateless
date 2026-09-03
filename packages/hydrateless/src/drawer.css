@@ -1,74 +1,108 @@
+/**
+ * Drawer: a native `<dialog class="hl-drawer">` (or `<dialog data-hl-drawer>`)
+ * pinned to one inline edge of the viewport, with optional `.hl-drawer-header`,
+ * `.hl-drawer-body`, and `.hl-drawer-footer`.
+ *
+ * No-JS baseline: `<button command="show-modal" commandfor="id">` opens it and
+ * `command="close"` closes it; Escape is native. The enhancer only adds focus
+ * return, backdrop dismiss, and the open API.
+ *   data-hl-side: start | end (default). Logical edges, so they flip under RTL.
+ */
 @layer components {
-  dialog.hl-drawer {
-    border: none;
-    padding: 0;
-    width: min(90vw, 360px);
-    max-height: 100dvh;
+  :is(.hl-drawer, dialog[data-hl-drawer]) {
+    --_slide: 100%;
+
+    inset-block: 0;
+    inset-inline: auto 0;
+    inline-size: min(90vi, var(--hl-overlay-inline-size));
+    block-size: 100dvb;
+    max-block-size: 100dvb;
+    max-inline-size: none;
     margin: 0;
+    padding: 0;
+    border: none;
     background: var(--hl-surface);
     color: var(--hl-fg);
     box-shadow: var(--hl-overlay-shadow);
+    transition:
+      translate var(--hl-duration-slow) var(--hl-ease-emphasized),
+      display var(--hl-duration-slow) allow-discrete,
+      overlay var(--hl-duration-slow) allow-discrete;
   }
 
-  dialog.hl-drawer::backdrop {
+  :is(.hl-drawer, dialog[data-hl-drawer])[data-hl-side='start'] {
+    --_slide: -100%;
+
+    inset-inline: 0 auto;
+  }
+
+  /* `translate` is physical, so the slide direction mirrors under RTL. */
+  :is(.hl-drawer, dialog[data-hl-drawer]):dir(rtl) {
+    --_slide: -100%;
+  }
+
+  :is(.hl-drawer, dialog[data-hl-drawer])[data-hl-side='start']:dir(rtl) {
+    --_slide: 100%;
+  }
+
+  /* Closed state doubles as the exit target of the slide. */
+  :is(.hl-drawer, dialog[data-hl-drawer]):not([open]) {
+    translate: var(--_slide) 0;
+  }
+
+  /* A column so the body scrolls between a fixed header and footer. */
+  :is(.hl-drawer, dialog[data-hl-drawer])[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @starting-style {
+    :is(.hl-drawer, dialog[data-hl-drawer])[open] {
+      translate: var(--_slide) 0;
+    }
+  }
+
+  :is(.hl-drawer, dialog[data-hl-drawer])::backdrop {
     background: var(--hl-scrim);
+    opacity: 0;
+    transition:
+      opacity var(--hl-duration-slow) var(--hl-ease-standard),
+      display var(--hl-duration-slow) allow-discrete,
+      overlay var(--hl-duration-slow) allow-discrete;
   }
 
-  .hl-drawer[open] {
-    animation: hl-drawer-in-right var(--hl-duration-base) var(--hl-ease-standard);
+  :is(.hl-drawer, dialog[data-hl-drawer])[open]::backdrop {
+    opacity: 1;
   }
 
-  @keyframes hl-drawer-in-right {
-    from {
-      transform: translateX(100%);
-    }
-
-    to {
-      transform: translateX(0%);
-    }
-  }
-
-  @keyframes hl-drawer-in-left {
-    from {
-      transform: translateX(-100%);
-    }
-
-    to {
-      transform: translateX(0%);
+  @starting-style {
+    :is(.hl-drawer, dialog[data-hl-drawer])[open]::backdrop {
+      opacity: 0;
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .hl-drawer[open] {
-      animation: none;
-    }
-  }
-
-  .hl-drawer[data-side='left'] {
-    inline-size: auto;
-    inset: 0 auto 0 0;
-  }
-
-  .hl-drawer[data-side='left'][open] {
-    animation-name: hl-drawer-in-left;
-  }
-
-  .hl-drawer[data-side='right'] {
-    inline-size: auto;
-    inset: 0 0 0 auto;
-  }
-
-  .hl-drawer .hl-drawer-header,
-  .hl-drawer .hl-drawer-body,
-  .hl-drawer .hl-drawer-footer {
+  :is(.hl-drawer, dialog[data-hl-drawer])
+    :is(.hl-drawer-header, .hl-drawer-body, .hl-drawer-footer) {
     padding: var(--hl-space-4);
   }
 
-  .hl-drawer .hl-drawer-header {
-    border-bottom: 1px solid var(--hl-border);
+  :is(.hl-drawer, dialog[data-hl-drawer]) .hl-drawer-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
   }
 
-  .hl-drawer .hl-drawer-footer {
-    border-top: 1px solid var(--hl-border);
+  :is(.hl-drawer, dialog[data-hl-drawer]) .hl-drawer-header {
+    border-block-end: var(--hl-border-width) solid var(--hl-border);
+  }
+
+  :is(.hl-drawer, dialog[data-hl-drawer]) .hl-drawer-footer {
+    border-block-start: var(--hl-border-width) solid var(--hl-border);
+  }
+
+  /* Interactive children inside the drawer get the standard ring. */
+  :is(.hl-drawer, dialog[data-hl-drawer])
+    :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: var(--hl-focus-offset);
   }
 }

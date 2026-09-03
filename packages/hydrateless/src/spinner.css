@@ -1,6 +1,7 @@
 /**
  * Spinner: `<span class="hl-spinner" role="status" aria-label="Loading">`.
- * Inherits `currentColor`, so set `color` to theme it.
+ * Inherits `currentColor`, so set `color` to theme it. Pure CSS; there is no
+ * enhancer.
  *   data-hl-size: sm | md (default) | lg | xl
  */
 @layer components {
@@ -38,9 +39,19 @@
     }
   }
 
+  /* A static arc still reads as "loading" without continuous motion. */
   @media (prefers-reduced-motion: reduce) {
     .hl-spinner {
-      animation-duration: 1.4s;
+      animation: none;
+    }
+  }
+
+  /* The faded ring is color-mixed, which forced colors flatten; keep the arc
+     visible by drawing the rest of the ring in GrayText. */
+  @media (forced-colors: active) {
+    .hl-spinner {
+      border-color: GrayText;
+      border-block-start-color: CanvasText;
     }
   }
 }

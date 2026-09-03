@@ -1,6 +1,7 @@
 /**
- * Alert: `<div class="hl-alert" role="alert" data-hl-intent="…">` with an
- * optional icon, `.hl-alert-title`, and body content.
+ * Alert: `<div class="hl-alert" role="alert" data-hl-intent="...">` with an
+ * optional icon, `.hl-alert-title`, and body content. Pure CSS; there is no
+ * enhancer.
  *   data-hl-intent: info (default) | success | warning | danger | neutral
  */
 @layer components {
@@ -68,5 +69,12 @@
 
   .hl-alert p {
     margin: 0;
+  }
+
+  /* Fills are flattened in forced colors, so the outline carries the shape. */
+  @media (forced-colors: active) {
+    .hl-alert {
+      border-color: CanvasText;
+    }
   }
 }

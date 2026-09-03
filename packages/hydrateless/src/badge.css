@@ -1,5 +1,6 @@
 /**
- * Badge: `<span class="hl-badge" data-hl-intent="…" data-hl-variant="…">`.
+ * Badge: `<span class="hl-badge" data-hl-intent="..." data-hl-variant="...">`.
+ * Pure CSS; there is no enhancer.
  *   data-hl-intent:  neutral (default) | primary | danger | success | warning | info
  *   data-hl-variant: soft (default) | solid | outline
  *   data-hl-size:    sm | md (default)
@@ -80,5 +81,12 @@
   .hl-badge[data-hl-size='sm'] {
     padding: 0 var(--hl-space-1-5);
     font-size: 0.6875rem;
+  }
+
+  /* Soft and solid fills disappear in forced colors; keep the pill outline. */
+  @media (forced-colors: active) {
+    .hl-badge {
+      border-color: CanvasText;
+    }
   }
 }

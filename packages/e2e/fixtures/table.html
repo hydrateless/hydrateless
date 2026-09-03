@@ -3,33 +3,35 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Table — Hydrateless E2E</title>
+    <title>Table | Hydrateless E2E</title>
     <link rel="stylesheet" href="/packages/hydrateless/dist/hydrateless.css" />
   </head>
   <body>
     <main>
       <h1>Table</h1>
-      <table class="hl-table" data-hl-striped>
-        <caption>
-          Team members
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Ada Lovelace</td>
-            <td>Engineer</td>
-          </tr>
-          <tr>
-            <td>Grace Hopper</td>
-            <td>Admiral</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="hl-table-wrapper">
+        <table class="hl-table" data-hl-striped data-hl-hover data-hl-align="start">
+          <caption>
+            Team members
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ada Lovelace</td>
+              <td>Engineer</td>
+            </tr>
+            <tr>
+              <td>Grace Hopper</td>
+              <td>Admiral</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
   </body>

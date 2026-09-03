@@ -1,6 +1,7 @@
 /**
  * Avatar: `<span class="hl-avatar">` containing an `<img>` or fallback
- * initials/icon. Stack with `<div class="hl-avatar-group">`.
+ * initials/icon. Stack with `<div class="hl-avatar-group">`. Pure CSS; there
+ * is no enhancer.
  *   data-hl-size:  xs | sm | md (default) | lg | xl
  *   data-hl-shape: square
  */
