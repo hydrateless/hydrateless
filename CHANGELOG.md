@@ -1,3 +1,13 @@
+## [0.10.0](https://github.com/hydrateless/hydrateless/compare/v0.9.0...v0.10.0) (2026-09-04)
+
+### ⚠ BREAKING CHANGES
+
+- make enhancers live and declaratively configurable (#14)
+
+### Features
+
+- make enhancers live and declaratively configurable ([#14](https://github.com/hydrateless/hydrateless/issues/14)) ([ba2f238](https://github.com/hydrateless/hydrateless/commit/ba2f2386bad80fdda5e4eaaaabf0c793ea059ea5))
+
 ## [0.9.0](https://github.com/hydrateless/hydrateless/compare/v0.8.0...v0.9.0) (2026-09-03)
 
 ### ⚠ BREAKING CHANGES
