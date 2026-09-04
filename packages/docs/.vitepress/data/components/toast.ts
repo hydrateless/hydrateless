@@ -57,6 +57,12 @@ export const toast: ComponentDoc = {
       type: '(open: boolean, toast: HTMLElement) => void',
       description: 'Called after a toast appears or is dismissed.',
     },
+    {
+      name: 'dismissAll',
+      type: '() => void',
+      description:
+        'On the returned API (and `useToast`): dismiss every toast in the region at once.',
+    },
   ],
   events: [
     {

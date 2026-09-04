@@ -6,7 +6,7 @@ function setup(options?: Parameters<typeof enhanceMenu>[1]) {
     <ul data-hl-menu role="menubar">
       <li>
         <button role="menuitem" data-hl-value="file">File</button>
-        <ul role="menu" data-hl-menu-submenu>
+        <ul role="menu" data-hl-submenu>
           <li><button role="menuitem">New</button></li>
           <li><button role="menuitem" aria-disabled="true">Recent</button></li>
           <li><button role="menuitem">Open</button></li>
@@ -25,9 +25,9 @@ function setup(options?: Parameters<typeof enhanceMenu>[1]) {
     root: document.querySelector<HTMLElement>('[data-hl-menu]')!,
     file: tops[0],
     edit: tops[1],
-    submenu: document.querySelector<HTMLElement>('[data-hl-menu-submenu]')!,
+    submenu: document.querySelector<HTMLElement>('[data-hl-submenu]')!,
     subItems: Array.from(
-      document.querySelectorAll<HTMLElement>('[data-hl-menu-submenu] [role^="menuitem"]'),
+      document.querySelectorAll<HTMLElement>('[data-hl-submenu] [role^="menuitem"]'),
     ),
   };
 }

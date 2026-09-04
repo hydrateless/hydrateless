@@ -1,13 +1,8 @@
-import {
-  defineEnhancer,
-  ensureId,
-  setAttrs,
-  keepPositioned,
-  noop,
-  Events,
-  type Disposer,
-  type Placement,
-} from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
+import { ensureId, setAttrs } from '../core/dom.js';
+import { keepPositioned, parsePlacement, type Placement } from '../core/platform.js';
+import { noop, type Disposer } from '../core/lifecycle.js';
+import { Events } from '../core/events.js';
 
 /** Options for {@link enhancePopover}. */
 export type EnhancePopoverOptions = {
@@ -41,6 +36,8 @@ export type PopoverApi = {
  * mirrors `aria-expanded` onto the invokers, runs a JS positioning fallback
  * (kept in sync on scroll and resize) on engines without anchor positioning,
  * adds optional hover triggering, and exposes an imperative open/close API.
+ * Markup can set `data-hl-trigger-event`, `data-hl-placement`,
+ * `data-hl-hover-close-delay`, and `data-hl-default-open` on the popover.
  */
 export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>({
   name: 'popover',
@@ -54,6 +51,13 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
     position: true,
     hoverCloseDelay: 100,
     defaultOpen: false,
+  },
+  attributes: {
+    triggerEvent: ['click', 'hover'],
+    placement: parsePlacement,
+    position: 'boolean',
+    hoverCloseDelay: 'number',
+    defaultOpen: 'boolean',
   },
   setup({ root, options, on, add, emit }) {
     const popover = root;

@@ -32,11 +32,13 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 - **CSS-first components:** Accordions, tabs, modals, drawers, tooltips, and more work out of the box with no JavaScript.
 - **Built on the web platform:** Overlays use the Popover API, Invoker Commands, the native `<dialog>`, and CSS anchor positioning instead of reinventing them in script, so light-dismiss, the top layer, focus trapping, and positioning come from the browser. Targets the modern Baseline.
 - **Tested in real browsers:** Beyond unit tests, a Playwright and axe end-to-end suite exercises every component, with JavaScript both off and on, across Chromium, Firefox, and WebKit, so the no-JS baseline and the enhanced experience are both verified for accessibility.
-- **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, table, kbd), and navigation (breadcrumb, pagination, table of contents, separator).
+- **A full component set:** Forms (button, input, textarea, select, checkbox, radio group, switch, slider, segmented control, combobox, field), actions & overlays (dropdown, menu, modal, drawer, popover, tooltip, command palette), feedback (alert, badge, progress, spinner, skeleton, toast), data display (card, avatar, sortable table, kbd), and navigation (breadcrumb, pagination, table of contents, separator). Every interactive component has an enhancer, including dismissible alerts, checkbox groups with select-all, sliders with a live readout, sortable tables, pagination, and button-based segmented controls.
 - **Optional JS enhancers:** Add keyboard navigation, focus return, and ARIA management only where needed. Every enhancer follows the same contract: `enhanceX(container?, options?)` returns an imperative API (`value`/`setValue`, `open`/`setOpen`) and emits `hl:change`, `hl:open-change`, `hl:select`, or `hl:command` DOM events. Enhancers are safe no-ops on the server.
-- **APG keyboard behavior:** Menus, dropdowns, tabs, accordions, comboboxes, and the command palette follow the WAI-ARIA Authoring Practices: roving focus, arrow, Home/End, PageUp/PageDown, typeahead, disabled-item skipping, `menuitemcheckbox`/`menuitemradio` state, Escape-to-dismiss, and focus returned to the trigger when an overlay closes.
+- **Configured from markup:** Every non-function option has a `data-hl-*` attribute (`data-hl-activation="automatic"`, `data-hl-allow-multiple`, `data-hl-placement="end"`), so a server-rendered page or a CDN `<script>` tag gets the full range of behavior with no configuration code. Each enhancer exposes its `definition` (selector, defaults, attribute schema) for tooling.
+- **Live by default:** Enhancers watch their root, so tabs, menu items, combobox options, table rows, and pagination controls added or removed after enhancement take part without re-running anything.
+- **APG keyboard behavior:** Menus, dropdowns, tabs, accordions, comboboxes, and the command palette follow the WAI-ARIA Authoring Practices: roving focus, arrow, Home/End, PageUp/PageDown, typeahead, disabled-item skipping, `menuitemcheckbox`/`menuitemradio` state, nested submenus to any depth, Escape-to-dismiss, and focus returned to the trigger when an overlay closes. Placement and arrow keys are logical, so everything mirrors under `dir="rtl"`.
 - **Controlled or uncontrolled:** Framework components support both modes: `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
-- **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes, lazy-loads the right enhancers, and keeps watching the DOM so dynamic content is enhanced automatically.
+- **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes, lazy-loads the right enhancers, keeps watching the DOM so dynamic content is enhanced automatically, and isolates failures so one broken component never takes down the rest. Opt out with `<html data-hl-manual>` to call it yourself.
 - **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, typography, motion, focus rings, and overlay sizes.
 - **Dark mode:** Colors are defined once with `light-dark()`; the system preference applies automatically, and `data-theme="light|dark"` overrides it for the page or any subtree.
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
@@ -60,7 +62,8 @@ npm install hydrateless @hydrateless/auto
 <link rel="stylesheet" href="node_modules/hydrateless/dist/hydrateless.css" />
 <script type="module" src="node_modules/@hydrateless/auto/dist/index.js"></script>
 
-<div data-hl-accordion>
+<!-- Options live in the markup: data-hl-allow-multiple lets both panels stay open. -->
+<div data-hl-accordion data-hl-allow-multiple>
   <details>
     <summary>Section one</summary>
     <div class="hl-accordion-panel">First panel content.</div>
@@ -129,7 +132,11 @@ No build step? Pull the minified CSS and the self-contained auto-initializer str
 
 ## Browser support
 
-Hydrateless targets the modern Baseline. Components build on the Popover API, the native `<dialog>` element, HTML Invoker Commands (`command`/`commandfor`), and CSS anchor positioning, which are interoperable across current Chrome, Edge, Firefox, and Safari. Where an engine hasn't shipped CSS anchor positioning yet, the enhancers fall back to a tiny JavaScript positioner so floating surfaces still land against their anchor. Behavior is verified continuously against Chromium, Firefox, and WebKit (see `packages/e2e`).
+Hydrateless targets the modern Baseline. Components build on the Popover API, the native `<dialog>` element, HTML Invoker Commands (`command`/`commandfor`), and CSS anchor positioning, which are interoperable across current Chrome, Edge, Firefox, and Safari. Where an engine hasn't shipped CSS anchor positioning yet, the enhancers fall back to a tiny JavaScript positioner so floating surfaces still land against their anchor. Behavior is verified continuously against Chromium, Firefox, and WebKit (see `packages/e2e`). The full feature-by-feature matrix is in the [browser support guide](https://hydrateless.com/guide/browser-support).
+
+## Security
+
+To report a vulnerability, follow the process in [SECURITY.md](SECURITY.md). Please don't open a public issue for security reports.
 
 ## Documentation
 
@@ -137,7 +144,7 @@ Full documentation (guides, framework integrations, per-component live demos, an
 
 ## Contributing
 
-Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, coding standards, and guidelines for submitting pull requests.
+Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, coding standards, and guidelines for submitting pull requests. [ROADMAP.md](ROADMAP.md) lists what 1.0 means and what's planned on the way there.
 
 ## License
 

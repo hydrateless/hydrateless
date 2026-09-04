@@ -15,9 +15,11 @@ npm run build
 
 ## Vanilla (no build step)
 
-[`index.html`](./index.html) loads the CSS and the `@hydrateless/auto`
-initializer straight from the local build via an import map. Open it directly,
-or serve the repo root with any static server:
+[`index.html`](./index.html) loads the CSS and the self-contained
+`@hydrateless/auto` bundle (the file the CDN serves) straight from the local
+build. There's no import map or bundler; every component option is a
+`data-hl-*` attribute in the markup. Serve the repo root with any static
+server:
 
 ```bash
 npx serve .

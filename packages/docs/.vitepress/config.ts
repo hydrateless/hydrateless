@@ -59,7 +59,10 @@ export default defineConfig({
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'CDN Usage', link: '/guide/cdn' },
+            { text: 'Configuring with Data Attributes', link: '/guide/data-attributes' },
             { text: 'Server-Side Rendering', link: '/guide/ssr' },
+            { text: 'Browser Support', link: '/guide/browser-support' },
+            { text: 'Migrating to 0.10', link: '/guide/migration' },
           ],
         },
         {

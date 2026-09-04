@@ -1,4 +1,6 @@
-import { defineEnhancer, nextIndex, Events, Keys, type MoveDirection } from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
+import { Events } from '../core/events.js';
+import { nextIndex, Keys, type MoveDirection } from '../core/keys.js';
 
 /** Options for {@link enhanceAccordion}. */
 export type EnhanceAccordionOptions = {
@@ -22,31 +24,38 @@ export type AccordionApi = {
   setValue: (value: string[]) => void;
 };
 
+/** `data-hl-default-value="a b"` or `"a,b"` lists the initially open items. */
+const parseList = (raw: string) => raw.split(/[\s,]+/).filter(Boolean);
+
 /**
  * Accordion behavior layered on a group of native `<details>` elements. With
  * `allowMultiple: false` (the default), opening one panel closes the others.
  * The APG accordion keyboard interaction is added on top of the native
  * disclosure: Up/Down arrows and Home/End move focus between the headers.
- * Open state is observable through `onValueChange`/`hl:change` and
- * controllable through the returned API; the browser still handles the
- * disclosure widget itself.
+ * Items are read live, so `<details>` added or removed after enhancement take
+ * part without re-enhancing. Open state is observable through
+ * `onValueChange`/`hl:change` and controllable through the returned API; the
+ * browser still handles the disclosure widget itself. Markup can set
+ * `data-hl-allow-multiple` and `data-hl-default-value` on the root.
  */
 export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, AccordionApi>({
   name: 'accordion',
   selector: '[data-hl-accordion]',
   defaults: { allowMultiple: false },
+  attributes: { allowMultiple: 'boolean', defaultValue: parseList },
   setup({ root, options, on, emit }) {
-    const items = Array.from(root.querySelectorAll<HTMLDetailsElement>('details'));
-    if (items.length === 0) return;
-
-    const summaries = items.map((item) => item.querySelector<HTMLElement>(':scope > summary'));
-    const values = items.map((item, i) => item.getAttribute('data-hl-value') ?? String(i));
-    const read = (): string[] => values.filter((_, i) => items[i].open);
+    const items = () => Array.from(root.querySelectorAll<HTMLDetailsElement>('details'));
+    const valueOf = (item: HTMLDetailsElement, i: number) =>
+      item.getAttribute('data-hl-value') ?? String(i);
+    const read = (): string[] =>
+      items()
+        .map((item, i) => (item.open ? valueOf(item, i) : null))
+        .filter((value): value is string => value !== null);
 
     const apply = (next: string[]) => {
       let opened = false;
-      items.forEach((item, i) => {
-        let open = next.includes(values[i]);
+      items().forEach((item, i) => {
+        let open = next.includes(valueOf(item, i));
         if (open && !options.allowMultiple) {
           if (opened) open = false;
           else opened = true;
@@ -76,20 +85,30 @@ export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, Accordio
       });
     };
 
-    for (const item of items) {
-      on(item, 'toggle', () => {
+    // `toggle` doesn't bubble, but it does pass through the capture phase, so
+    // one listener on the root covers every current and future `<details>`.
+    on(
+      root,
+      'toggle',
+      (e) => {
+        const item = e.target as HTMLDetailsElement;
+        if (item.tagName !== 'DETAILS' || !root.contains(item)) return;
         if (item.open && !options.allowMultiple) {
-          for (const other of items) {
+          for (const other of items()) {
             if (other !== item && other.open) other.open = false;
           }
         }
         notify();
-      });
-    }
+      },
+      true,
+    );
 
     // APG accordion header navigation. Enter/Space stay native (`<summary>`
     // already toggles); only focus movement between headers is added.
     on<KeyboardEvent>(root, 'keydown', (e) => {
+      const summaries = items()
+        .map((item) => item.querySelector<HTMLElement>(':scope > summary'))
+        .filter((summary): summary is HTMLElement => summary !== null);
       const current = summaries.indexOf(e.target as HTMLElement);
       if (current === -1) return;
       let direction: MoveDirection | null = null;

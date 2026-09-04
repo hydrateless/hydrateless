@@ -195,7 +195,7 @@ test.describe('enhanced (JS on)', () => {
     await gotoFixture(page, 'menu');
     const menubar = page.locator('[data-hl-menu]').first();
     const file = page.locator('#file');
-    const submenu = menubar.locator('[data-hl-menu-submenu]');
+    const submenu = menubar.locator('[data-hl-submenu]');
     const value = page.locator('#value');
 
     await expect(menubar).toHaveAttribute('role', 'menubar');
@@ -308,5 +308,160 @@ test.describe('enhanced (JS on)', () => {
       await expect(page.locator(href)).toBeVisible();
     }
     await expectNoAxeViolations(page);
+  });
+
+  test('table: sortable headers reorder rows and expose aria-sort', async ({ page }) => {
+    await gotoFixture(page, 'table');
+    const name = page.locator('th[data-hl-sort="name"]');
+    const joined = page.locator('th[data-hl-sort="joined"]');
+    const firstCells = page.locator('tbody tr td:first-child');
+    const result = page.locator('#result');
+
+    await expect(name).toHaveAttribute('aria-sort', 'none');
+    await expect(name).toHaveAttribute('tabindex', '0');
+    await expect(page.locator('th', { hasText: 'Role' })).not.toHaveAttribute('aria-sort', /.+/);
+    await expect(firstCells).toHaveText(['Grace Hopper', 'Ada Lovelace', 'Margaret Hamilton']);
+
+    await name.click();
+    await expect(name).toHaveAttribute('aria-sort', 'ascending');
+    await expect(firstCells).toHaveText(['Ada Lovelace', 'Grace Hopper', 'Margaret Hamilton']);
+    await expect(result).toHaveText('sort:name:ascending');
+    await expectNoAxeViolations(page);
+
+    await name.click();
+    await expect(name).toHaveAttribute('aria-sort', 'descending');
+    await expect(firstCells).toHaveText(['Margaret Hamilton', 'Grace Hopper', 'Ada Lovelace']);
+
+    // Keyboard: Enter on another header sorts it numerically and clears the first.
+    await joined.focus();
+    await page.keyboard.press('Enter');
+    await expect(joined).toHaveAttribute('aria-sort', 'ascending');
+    await expect(name).toHaveAttribute('aria-sort', 'none');
+    await expect(firstCells).toHaveText(['Ada Lovelace', 'Grace Hopper', 'Margaret Hamilton']);
+    await expect(result).toHaveText('sort:joined:ascending');
+  });
+
+  test('pagination: in-page controls, arrow keys, and rendered ranges', async ({ page }) => {
+    await gotoFixture(page, 'pagination');
+    const authored = page.locator('#authored');
+    const rendered = page.locator('#rendered');
+    const result = page.locator('#result');
+
+    // Authored links: the current page and end controls are marked up.
+    await expect(authored.locator('[aria-current="page"]')).toHaveText('2');
+    await expect(authored.locator('[data-hl-page="prev"]')).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    await authored.locator('[data-hl-page="3"]').click();
+    await expect(authored.locator('[aria-current="page"]')).toHaveText('3');
+    await expect(result).toHaveText('authored:3');
+    // Hash links are in-page controls, so the URL is left alone.
+    expect(new URL(page.url()).hash).toBe('');
+
+    await authored.locator('[data-hl-page="1"]').click();
+    await expect(authored.locator('[data-hl-page="prev"]')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    await page.keyboard.press('ArrowRight');
+    await expect(authored.locator('[data-hl-page="2"]')).toBeFocused();
+    await page.keyboard.press('End');
+    await expect(authored.locator('[data-hl-page="9"]')).toBeFocused();
+
+    // Rendered controls: page 10 of 20 with one sibling and one boundary each side.
+    const pages = rendered.locator('[data-hl-page]');
+    await expect(pages).toHaveText(['‹', '1', '9', '10', '11', '20', '›']);
+    await expect(rendered.locator('.hl-pagination-ellipsis')).toHaveCount(2);
+    await expect(rendered.locator('[aria-current="page"]')).toHaveText('10');
+    await expectNoAxeViolations(page);
+
+    await rendered.locator('[data-hl-page="next"]').click();
+    await expect(rendered.locator('[aria-current="page"]')).toHaveText('11');
+    await expect(result).toHaveText('rendered:11');
+    await rendered.locator('[data-hl-page="20"]').click();
+    await expect(rendered.locator('[data-hl-page="next"]')).toBeDisabled();
+  });
+
+  test('slider: output, aria-valuetext, and the progress variable track the value', async ({
+    page,
+  }) => {
+    await gotoFixture(page, 'slider');
+    const slider = page.locator('#volume');
+    const output = page.locator('output');
+
+    await expect(output).toHaveText('40%');
+    await expect(slider).toHaveAttribute('aria-valuetext', '40%');
+    await slider.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(slider).toHaveValue('41');
+    await expect(output).toHaveText('41%');
+    await expect(slider).toHaveAttribute('aria-valuetext', '41%');
+    await expect(slider).toHaveCSS('--hl-slider-progress', '41%');
+    await expectNoAxeViolations(page);
+  });
+
+  test('checkbox group: master box mirrors and drives the group', async ({ page }) => {
+    await gotoFixture(page, 'checkbox');
+    const all = page.locator('#all');
+    const cheese = page.locator('#cheese');
+    const olives = page.locator('#olives');
+    const result = page.locator('#result');
+
+    // One of two checked: the master shows the mixed state.
+    await expect(all).toHaveJSProperty('indeterminate', true);
+    await expect(all).not.toBeChecked();
+
+    await olives.check();
+    await expect(all).toBeChecked();
+    await expect(all).toHaveJSProperty('indeterminate', false);
+    await expect(result).toHaveText('value:cheese,olives');
+    await expectNoAxeViolations(page);
+
+    await all.uncheck();
+    await expect(cheese).not.toBeChecked();
+    await expect(olives).not.toBeChecked();
+    await expect(result).toHaveText('value:');
+  });
+
+  test('alert: dismiss button hides the alert after its exit transition', async ({ page }) => {
+    await gotoFixture(page, 'alert');
+    const alert = page.locator('#dismissible');
+    const result = page.locator('#result');
+
+    await expect(alert).toBeVisible();
+    await page.locator('#dismiss').click();
+    await expect(alert).toBeHidden();
+    await expect(alert).not.toHaveAttribute('data-hl-alert-closing', /.*/);
+    await expect(result).toHaveText('open:false');
+    await expectNoAxeViolations(page);
+  });
+
+  test('segmented control: radios report, buttons gain radio-group semantics', async ({ page }) => {
+    await gotoFixture(page, 'segmented-control');
+    const result = page.locator('#result');
+    const buttons = page.locator('#buttons .hl-segmented-item');
+
+    await page.locator('#radios .hl-segmented-item', { hasText: 'Grid' }).click();
+    await expect(page.locator('input[value="grid"]')).toBeChecked();
+    await expect(result).toHaveText('radios:grid');
+
+    await expect(page.locator('#buttons')).toHaveAttribute('role', 'radiogroup');
+    await expect(buttons.nth(0)).toHaveAttribute('role', 'radio');
+    await expect(buttons.nth(0)).toHaveAttribute('aria-checked', 'true');
+    await expect(buttons.nth(0)).not.toHaveAttribute('aria-pressed', /.*/);
+    await expect(buttons.nth(1)).toHaveAttribute('tabindex', '-1');
+    await expectNoAxeViolations(page);
+
+    await buttons.nth(0).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(buttons.nth(1)).toBeFocused();
+    await expect(buttons.nth(1)).toHaveAttribute('aria-checked', 'true');
+    await expect(buttons.nth(0)).toHaveAttribute('aria-checked', 'false');
+    await expect(result).toHaveText('buttons:week');
+
+    await buttons.nth(2).click();
+    await expect(buttons.nth(2)).toHaveAttribute('aria-checked', 'true');
+    await expect(result).toHaveText('buttons:month');
   });
 });

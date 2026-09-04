@@ -1,0 +1,64 @@
+version: 2
+updates:
+  # Workspace packages share one lockfile at the root.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    commit-message:
+      # Conventional Commits, no scope, matching pr-lint.yml.
+      prefix: build
+    groups:
+      dev-tooling:
+        dependency-type: development
+        patterns:
+          - '*'
+        exclude-patterns:
+          - '@playwright/*'
+          - 'playwright'
+      playwright:
+        patterns:
+          - '@playwright/*'
+          - 'playwright'
+      frameworks:
+        dependency-type: production
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - 'vue'
+          - 'svelte'
+    ignore:
+      # Peer ranges are deliberately broad; bump majors by hand with a migration note.
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vue'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'svelte'
+        update-types: ['version-update:semver-major']
+
+  # Example apps have their own lockfiles.
+  - package-ecosystem: npm
+    directories:
+      - /examples/react
+      - /examples/vue
+      - /examples/svelte
+      - /examples/astro
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: build
+    groups:
+      examples:
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci

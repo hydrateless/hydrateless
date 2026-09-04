@@ -6,7 +6,9 @@
   import DropdownGroup from '../../src/components/DropdownGroup.svelte';
   import DropdownSeparator from '../../src/components/DropdownSeparator.svelte';
 
-  let open = $state(false);
+  let { defaultOpen = false }: { defaultOpen?: boolean } = $props();
+  // svelte-ignore state_referenced_locally -- seeds the binding once
+  let open = $state(defaultOpen);
   let selected = $state('');
   let checked = $state<string>('');
 </script>

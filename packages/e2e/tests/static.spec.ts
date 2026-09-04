@@ -7,9 +7,11 @@ import {
 } from './helpers.js';
 
 /**
- * CSS-only components have no enhancer, so the same assertions must hold with
- * JavaScript on and off: the component renders and the page passes axe. A few
- * controls also get native-interaction checks (which likewise need no JS).
+ * These components work from HTML and CSS alone, so the same assertions must
+ * hold with JavaScript on and off: the component renders and the page passes
+ * axe. A few controls also get native-interaction checks (which likewise need
+ * no JS). Where a fixture also opts into an enhancer, `enhanced.spec.ts`
+ * covers what the enhancer adds.
  */
 
 /** The element each fixture must render; checked visible unless noted. */

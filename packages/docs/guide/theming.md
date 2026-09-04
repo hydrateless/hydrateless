@@ -54,17 +54,17 @@ all of them at once.
 
 ## Scale tokens
 
-| Group      | Tokens                                                                                                                                    |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Spacing    | `--hl-space-0` through `--hl-space-24` (including `--hl-space-px`, `--hl-space-0-5`, `--hl-space-1-5`)                                    |
-| Radii      | `--hl-radius-xs`, `-sm`, `-md`, `-lg`, `-xl`, `-2xl`, `-full`                                                                             |
-| Borders    | `--hl-border-width`, `--hl-border-width-2`                                                                                                |
-| Typography | `--hl-font-sans`, `--hl-font-mono`, `--hl-text-xs` through `--hl-text-4xl`, `--hl-leading-*`, `--hl-font-normal` through `--hl-font-bold` |
-| Shadows    | `--hl-shadow-xs`, `-sm`, `-md`, `-lg`, `-xl`                                                                                              |
-| Controls   | `--hl-control-block-size` (shared height of inputs, buttons, and selects), `--hl-control-height-sm`, `-md`, `-lg`                         |
-| Overlays   | `--hl-modal-inline-size`, `--hl-overlay-inline-size` (drawer width)                                                                       |
-| Z-index    | `--hl-z-dropdown`, `--hl-z-drawer`, `--hl-z-modal`, `--hl-z-popover`, `--hl-z-toast`, `--hl-z-tooltip`                                    |
-| Motion     | `--hl-duration-fast`, `-base`, `-slow`, `--hl-ease-standard`, `--hl-ease-emphasized` (see [Motion](./motion))                             |
+| Group      | Tokens                                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Spacing    | `--hl-space-0` through `--hl-space-24` (including `--hl-space-px`, `--hl-space-0-5`, `--hl-space-1-5`)                                     |
+| Radii      | `--hl-radius-xs`, `-sm`, `-md`, `-lg`, `-xl`, `-2xl`, `-full`                                                                              |
+| Borders    | `--hl-border-width`, `--hl-border-width-2`                                                                                                 |
+| Typography | `--hl-font-sans`, `--hl-font-mono`, `--hl-text-xs` through `--hl-text-4xl`, `--hl-leading-*`, `--hl-font-normal` through `--hl-font-bold`  |
+| Shadows    | `--hl-shadow-xs`, `-sm`, `-md`, `-lg`, `-xl`                                                                                               |
+| Controls   | `--hl-control-block-size` (shared height of inputs, buttons, and selects), `--hl-control-height-sm`, `-md`, `-lg`                          |
+| Overlays   | `--hl-modal-inline-size`, `--hl-overlay-inline-size` (drawer width)                                                                        |
+| Z-index    | `--hl-z-dropdown`, `--hl-z-popover`, `--hl-z-toast`, `--hl-z-tooltip` (only for the JS positioning fallback; top-layer surfaces need none) |
+| Motion     | `--hl-duration-fast`, `-base`, `-slow`, `--hl-ease-standard`, `--hl-ease-emphasized` (see [Motion](./motion))                              |
 
 ## Customizing
 

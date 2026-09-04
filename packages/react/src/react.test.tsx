@@ -89,6 +89,32 @@ describe('Tabs', () => {
     fireEvent.click(tabs[0]);
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
   });
+
+  it('keeps a forwarded ref current across mount and unmount', () => {
+    const seen: (HTMLElement | null)[] = [];
+    const objectRef = { current: null as HTMLDivElement | null };
+    const { unmount } = render(
+      <>
+        <Tabs ref={(node) => void seen.push(node)}>
+          <TabList>
+            <Tab value="a">A</Tab>
+          </TabList>
+          <TabPanel>Panel</TabPanel>
+        </Tabs>
+        <Tabs ref={objectRef}>
+          <TabList>
+            <Tab value="b">B</Tab>
+          </TabList>
+          <TabPanel>Panel</TabPanel>
+        </Tabs>
+      </>,
+    );
+    expect(seen[0]?.hasAttribute('data-hl-tabs')).toBe(true);
+    expect(objectRef.current?.hasAttribute('data-hl-tabs')).toBe(true);
+    unmount();
+    expect(seen.at(-1)).toBeNull();
+    expect(objectRef.current).toBeNull();
+  });
 });
 
 describe('Accordion', () => {
@@ -346,6 +372,25 @@ describe('Combobox', () => {
     rerender(combobox({ value: 'banana', onValueChange: () => {} }));
     expect(input.value).toBe('banana');
   });
+
+  it('treats defaultOpen as a seed, not a controlled value', () => {
+    const { rerender } = render(combobox({ defaultOpen: true }));
+    const input = screen.getByPlaceholderText('Fruit') as HTMLInputElement;
+    expect(input.getAttribute('aria-expanded')).toBe('true');
+    // The user closes it; a parent re-render must not force it open again.
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+    rerender(combobox({ defaultOpen: true, filter: false }));
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('follows a controlled open prop', () => {
+    const { rerender } = render(combobox({ open: false, onOpenChange: () => {} }));
+    const input = screen.getByPlaceholderText('Fruit') as HTMLInputElement;
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+    rerender(combobox({ open: true, onOpenChange: () => {} }));
+    expect(input.getAttribute('aria-expanded')).toBe('true');
+  });
 });
 
 describe('Command', () => {
@@ -472,6 +517,18 @@ describe('Field', () => {
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(input.required).toBe(true);
     expect(screen.getByRole('alert').textContent).toBe('Required');
+  });
+
+  it('gives the control the Field id, like Vue and Svelte', () => {
+    render(
+      <Field id="email" label="Email" description="Work address">
+        <Input />
+      </Field>,
+    );
+    const input = screen.getByLabelText('Email') as HTMLInputElement;
+    expect(input.id).toBe('email');
+    expect(input.getAttribute('aria-describedby')).toBe('email-help');
+    expect(document.querySelector('.hl-field')?.hasAttribute('id')).toBe(false);
   });
 
   it('leaves controls alone outside a Field', () => {

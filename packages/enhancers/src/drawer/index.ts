@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
 import { setupDialog, type DialogApi, type DialogOptions } from '../core/dialog.js';
 
 /** Options for {@link enhanceDrawer}; an alias of {@link DialogOptions}. */
@@ -17,5 +17,6 @@ export const enhanceDrawer = defineEnhancer<EnhanceDrawerOptions, DrawerApi>({
   name: 'drawer',
   selector: 'dialog[data-hl-drawer]',
   defaults: { closeOnBackdrop: true },
+  attributes: { closeOnBackdrop: 'boolean', defaultOpen: 'boolean' },
   setup: (ctx) => setupDialog('drawer', ctx),
 });

@@ -1,7 +1,12 @@
 /**
  * Checkbox: `<label class="hl-checkbox"><input type="checkbox"><span>...</span></label>`.
  * The native input is restyled (appearance: none) with a CSS checkmark, keeping
- * full keyboard and form semantics. Pure CSS; there is no enhancer.
+ * full keyboard and form semantics. A single checkbox needs no JavaScript; the
+ * `data-hl-checkbox-group` enhancer adds a `data-hl-checkbox-all` master box
+ * (checked/indeterminate follows the group) and `data-hl-indeterminate` for an
+ * initial mixed state, both styled here through `:indeterminate`.
+ *   data-hl-checkbox-group: wrapper around related boxes for the enhancer
+ *   data-hl-checkbox-all:   the master "select all" box inside the group
  */
 @layer components {
   .hl-checkbox {

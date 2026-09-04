@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/hydrateless/hydrateless/security/advisories/new
+    about: Report privately through GitHub's advisory form, not a public issue.
+  - name: Documentation
+    url: https://hydrateless.com/
+    about: Guides, component demos, and the generated API reference.

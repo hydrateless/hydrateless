@@ -1,16 +1,26 @@
-import { defineEnhancer, ensureId, setAttrs, nextIndex, Events, Keys } from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
+import { ensureId, setAttrs } from '../core/dom.js';
+import { isDisabledItem, nextEnabledIndex } from '../core/menu-items.js';
+import { Events } from '../core/events.js';
+import { Keys } from '../core/keys.js';
 
 /** Number of options PageUp/PageDown jumps over. */
 const PAGE = 10;
 
 /** Options for {@link enhanceCommand}. */
 export type EnhanceCommandOptions = {
-  /** Lowercased key that, with Cmd/Ctrl, opens the palette's dialog. */
+  /** Lowercased key that, with Cmd/Ctrl, opens the palette's hosting `<dialog>`. */
   hotkey?: string;
+  /** Close the hosting `<dialog>` after a command runs. Defaults to `true`. */
+  closeOnCommand?: boolean;
   /** Initial filter query; pre-fills the input. */
   defaultValue?: string;
+  /** Open the hosting `<dialog>` immediately on enhance. Defaults to `false`. */
+  defaultOpen?: boolean;
   /** Called with the filter query after every change. */
   onValueChange?: (value: string) => void;
+  /** Called after the hosting `<dialog>` opens or closes. */
+  onOpenChange?: (open: boolean) => void;
   /** Called with the command's value when a command runs. */
   onCommand?: (value: string, item: HTMLElement) => void;
 };
@@ -21,36 +31,48 @@ export type CommandApi = {
   readonly value: string;
   /** Set the filter query: updates the input and re-filters the list. */
   setValue: (value: string) => void;
+  /** Whether the hosting `<dialog>` is open. Always `true` for an inline palette. */
+  readonly open: boolean;
+  /** Open (clearing the query and focusing the input) or close the hosting `<dialog>`. */
+  setOpen: (open: boolean) => void;
 };
 
 /**
  * Command palette: a filterable `role="listbox"` of `role="option"` commands
- * with arrow/Home/End/PageUp/PageDown navigation, type-to-filter (matching
- * text + `data-hl-keywords`), automatic empty-state and group hiding, Escape
- * to clear the query (or close the hosting `<dialog>` once it's empty), and
- * Enter to run the active command (emits a cancelable `hl:command`
- * CustomEvent). The filter query is observable through `onValueChange`/
- * `hl:change` and controllable through the returned API. When the palette
- * lives inside a `<dialog>`, an optional `data-hl-command-hotkey` opens it
- * with Cmd/Ctrl+key. Without JavaScript the full list simply renders; the
- * root is marked `data-hl-ready` once filtering is live.
+ * with arrow/Home/End/PageUp/PageDown navigation that skips disabled options,
+ * type-to-filter (matching text + `data-hl-keywords`), automatic empty-state
+ * and group hiding, Escape to clear the query (or close the hosting `<dialog>`
+ * once it's empty), and Enter to run the active command (emits a cancelable
+ * `hl:command` CustomEvent). Options are read live, so commands rendered
+ * later are filterable too. The filter query is observable through
+ * `onValueChange`/`hl:change` and controllable through the returned API. When
+ * the palette lives inside a `<dialog>`, the dialog's open state is exposed
+ * as `open`/`setOpen` and `onOpenChange`/`hl:open-change`, a command closes it
+ * by default, and an optional hotkey opens it with Cmd/Ctrl+key. Without
+ * JavaScript the full list simply renders; the root is marked `data-hl-ready`
+ * once filtering is live. Markup can set `data-hl-hotkey`,
+ * `data-hl-close-on-command`, `data-hl-default-value`, and
+ * `data-hl-default-open` on the root.
  */
 export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>({
   name: 'command',
   selector: '[data-hl-command]',
-  setup({ root, options, on, add, emit }) {
+  defaults: { closeOnCommand: true },
+  attributes: {
+    hotkey: 'string',
+    closeOnCommand: 'boolean',
+    defaultValue: 'string',
+    defaultOpen: 'boolean',
+  },
+  setup({ root, options, on, observe, add, emit }) {
     const input = root.querySelector<HTMLInputElement>('[data-hl-command-input], input');
     const list = root.querySelector<HTMLElement>('[data-hl-command-list], [role="listbox"]');
     if (!input || !list) return;
 
     const empty = root.querySelector<HTMLElement>('[data-hl-command-empty]');
-    const groups = Array.from(root.querySelectorAll<HTMLElement>('[data-hl-command-group]'));
+    const groups = () => Array.from(root.querySelectorAll<HTMLElement>('[data-hl-command-group]'));
     const dialog = root.closest<HTMLDialogElement>('dialog');
-    const hotkey = (
-      root.getAttribute('data-hl-command-hotkey') ||
-      options.hotkey ||
-      ''
-    ).toLowerCase();
+    const hotkey = (options.hotkey ?? '').toLowerCase();
 
     root.setAttribute('data-hl-ready', '');
     add(() => root.removeAttribute('data-hl-ready'));
@@ -67,10 +89,13 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
 
     const allItems = () =>
       Array.from(root.querySelectorAll<HTMLElement>('[role="option"], [data-hl-command-item]'));
-    for (const item of allItems()) {
-      ensureId(item, 'hl-command-item');
-      setAttrs(item, { role: 'option' });
-    }
+    const prepare = () => {
+      for (const item of allItems()) {
+        ensureId(item, 'hl-command-item');
+        setAttrs(item, { role: 'option' });
+      }
+    };
+    prepare();
 
     let active = -1;
     const visible = () => allItems().filter((item) => !item.hidden);
@@ -91,17 +116,18 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
         const haystack = `${item.textContent ?? ''} ${item.dataset.hlKeywords ?? ''}`.toLowerCase();
         item.hidden = q.length > 0 && !haystack.includes(q);
       }
-      for (const group of groups) {
+      for (const group of groups()) {
         const hasVisible = group.querySelector<HTMLElement>('[role="option"]:not([hidden])');
         group.hidden = !hasVisible;
       }
-      const count = visible().length;
-      if (empty) empty.hidden = count > 0;
-      active = count > 0 ? 0 : -1;
+      const items = visible();
+      if (empty) empty.hidden = items.length > 0;
+      active = nextEnabledIndex(items, -1, 'first');
       paint();
     };
 
     const run = (item: HTMLElement) => {
+      if (isDisabledItem(item)) return;
       const value = item.dataset.hlValue ?? item.textContent?.trim() ?? '';
       if (!emit(Events.command, { value, item }, { cancelable: true })) return;
       options.onCommand?.(value, item);
@@ -109,6 +135,7 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
         ? item
         : item.querySelector<HTMLAnchorElement>('a[href]');
       if (link) link.click();
+      if (options.closeOnCommand && dialog?.open) dialog.close();
     };
 
     let lastValue = input.value;
@@ -118,6 +145,19 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       options.onValueChange?.(input.value);
       emit(Events.change, { value: input.value });
     };
+
+    const reset = () => {
+      input.value = '';
+      filter('');
+      notify();
+    };
+
+    // Commands rendered after enhancement (lazy groups, search results) are
+    // wired and filtered against the current query.
+    observe(list, () => {
+      prepare();
+      filter(input.value);
+    });
 
     on(input, 'input', () => {
       filter(input.value);
@@ -129,18 +169,29 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       switch (e.key) {
         case Keys.ArrowDown:
           e.preventDefault();
-          active = nextIndex(active, items.length, 'next');
+          active = nextEnabledIndex(items, active, 'next');
           paint();
           break;
         case Keys.ArrowUp:
           e.preventDefault();
-          active = nextIndex(active, items.length, 'prev');
+          active = nextEnabledIndex(items, active, 'prev');
+          paint();
+          break;
+        case Keys.Home:
+          e.preventDefault();
+          active = nextEnabledIndex(items, -1, 'first');
+          paint();
+          break;
+        case Keys.End:
+          e.preventDefault();
+          active = nextEnabledIndex(items, -1, 'last');
           paint();
           break;
         case Keys.PageDown:
           if (items.length > 0) {
             e.preventDefault();
             active = Math.min(active === -1 ? PAGE - 1 : active + PAGE, items.length - 1);
+            if (isDisabledItem(items[active])) active = nextEnabledIndex(items, active, 'next');
             paint();
           }
           break;
@@ -148,6 +199,7 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
           if (items.length > 0) {
             e.preventDefault();
             active = Math.max(active === -1 ? 0 : active - PAGE, 0);
+            if (isDisabledItem(items[active])) active = nextEnabledIndex(items, active, 'prev');
             paint();
           }
           break;
@@ -162,9 +214,7 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
           // query is already empty) closes the hosting dialog.
           if (input.value) {
             e.preventDefault();
-            input.value = '';
-            filter('');
-            notify();
+            reset();
           } else if (dialog?.open) {
             e.preventDefault();
             dialog.close();
@@ -178,17 +228,32 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       if (item) run(item);
     });
 
-    if (hotkey && dialog) {
-      on<KeyboardEvent>(dialog.ownerDocument, 'keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === hotkey) {
-          e.preventDefault();
-          if (!dialog.open) dialog.showModal();
-          input.focus();
-          input.value = '';
-          filter('');
-          notify();
-        }
-      });
+    const openDialog = () => {
+      if (!dialog) return;
+      if (!dialog.open) dialog.showModal();
+      reset();
+      input.focus();
+    };
+
+    if (dialog) {
+      let wasOpen = dialog.open;
+      const sync = (open: boolean) => {
+        if (open === wasOpen) return;
+        wasOpen = open;
+        options.onOpenChange?.(open);
+        emit(Events.openChange, { open });
+      };
+      on(dialog, 'toggle', (e) => sync((e as ToggleEvent).newState === 'open'));
+      on(dialog, 'close', () => sync(false));
+
+      if (hotkey) {
+        on<KeyboardEvent>(dialog.ownerDocument, 'keydown', (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === hotkey) {
+            e.preventDefault();
+            openDialog();
+          }
+        });
+      }
     }
 
     // Initialize the input, active option, and empty state.
@@ -196,6 +261,7 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
     lastValue = input.value;
     filter(input.value);
     add(() => setAttrs(input, { 'aria-activedescendant': null }));
+    if (options.defaultOpen && dialog && !dialog.open) dialog.showModal();
 
     return {
       get value() {
@@ -206,6 +272,14 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
         input.value = value;
         filter(value);
         notify();
+      },
+      get open() {
+        return dialog ? dialog.open : true;
+      },
+      setOpen(next) {
+        if (!dialog) return;
+        if (next) openDialog();
+        else if (dialog.open) dialog.close();
       },
     };
   },

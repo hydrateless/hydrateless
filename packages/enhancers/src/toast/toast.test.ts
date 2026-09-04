@@ -21,6 +21,34 @@ describe('enhanceToast', () => {
     expect(typeof toast.dismiss).toBe('function');
   });
 
+  it('dismissAll clears every toast and reports each one', () => {
+    const seen: boolean[] = [];
+    const toast = api(document, { onOpenChange: (open) => seen.push(open) });
+    toast.show('One');
+    toast.show('Two');
+    toast.dismissAll();
+    expect(document.querySelectorAll('[data-hl-toast]')).toHaveLength(0);
+    expect(seen).toEqual([true, true, false, false]);
+  });
+
+  it('reads the default duration from data-hl-duration on the region', () => {
+    document.body.innerHTML = '<div data-hl-toast-region data-hl-duration="1000"></div>';
+    api(document).show('Quick');
+    vi.advanceTimersByTime(999);
+    expect(document.querySelectorAll('[data-hl-toast]')).toHaveLength(1);
+    vi.advanceTimersByTime(1);
+    expect(document.querySelectorAll('[data-hl-toast]')).toHaveLength(0);
+  });
+
+  it('stops a dismissed toast from firing its timer later', () => {
+    const seen: boolean[] = [];
+    const toast = api(document, { onOpenChange: (open) => seen.push(open) });
+    const el = toast.show('Bye', { duration: 500 });
+    toast.dismiss(el);
+    vi.advanceTimersByTime(1000);
+    expect(seen).toEqual([true, false]);
+  });
+
   it('sets ARIA attributes on region', () => {
     enhanceToast(document);
     const region = document.querySelector('[data-hl-toast-region]')!;

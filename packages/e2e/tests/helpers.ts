@@ -4,6 +4,8 @@ import { expect, type Page } from '@playwright/test';
 /** Fixture pages with a JavaScript enhancer, served from the repo root by `server.mjs`. */
 export type EnhancedFixture =
   | 'accordion'
+  | 'alert'
+  | 'checkbox'
   | 'combobox'
   | 'command-palette'
   | 'disclosure'
@@ -11,13 +13,22 @@ export type EnhancedFixture =
   | 'dropdown'
   | 'menu'
   | 'modal'
+  | 'pagination'
   | 'popover'
+  | 'segmented-control'
+  | 'slider'
+  | 'table'
   | 'tabs'
   | 'toast'
   | 'toc'
   | 'tooltip';
 
-/** CSS-only fixture pages that render identically with and without JavaScript. */
+/**
+ * Fixture pages that must render and pass axe identically with and without
+ * JavaScript. Most are CSS-only; the ones that also appear in
+ * {@link EnhancedFixture} carry an optional enhancer whose extra behavior is
+ * covered in `enhanced.spec.ts`.
+ */
 export const STATIC_FIXTURES = [
   'alert',
   'avatar',

@@ -1,5 +1,7 @@
 import {
   enhanceAccordion,
+  enhanceAlert,
+  enhanceCheckbox,
   enhanceCombobox,
   enhanceCommand,
   enhanceDisclosure,
@@ -7,7 +9,11 @@ import {
   enhanceDropdown,
   enhanceMenu,
   enhanceModal,
+  enhancePagination,
   enhancePopover,
+  enhanceSegmented,
+  enhanceSlider,
+  enhanceTable,
   enhanceTabs,
   enhanceToast,
   enhanceToc,
@@ -39,6 +45,12 @@ const RUNNERS: Record<string, Enhancer<never, unknown>> = {
   command: enhanceCommand as unknown as Enhancer<never, unknown>,
   toc: enhanceToc as unknown as Enhancer<never, unknown>,
   toast: enhanceToast as unknown as Enhancer<never, unknown>,
+  alert: enhanceAlert as unknown as Enhancer<never, unknown>,
+  checkbox: enhanceCheckbox as unknown as Enhancer<never, unknown>,
+  pagination: enhancePagination as unknown as Enhancer<never, unknown>,
+  segmented: enhanceSegmented as unknown as Enhancer<never, unknown>,
+  slider: enhanceSlider as unknown as Enhancer<never, unknown>,
+  table: enhanceTable as unknown as Enhancer<never, unknown>,
 };
 
 /**

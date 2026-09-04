@@ -74,6 +74,90 @@ describe('defineEnhancer', () => {
     expect(handle.api!.count()).toBe(1);
   });
 
+  it('exposes its definition for introspection', () => {
+    expect(enhanceCounter.definition.name).toBe('counter');
+    expect(enhanceCounter.definition.selector).toBe('[data-counter]');
+    expect(enhanceCounter.definition.defaults).toEqual({ step: 1 });
+  });
+
+  it('ignores undefined caller options so they never shadow defaults', () => {
+    const handle = enhanceCounter(document.getElementById('a')!, { step: undefined });
+    document.getElementById('a')!.click();
+    expect(handle.api!.count()).toBe(1);
+  });
+
+  describe('data-hl-* attribute options', () => {
+    type Opts = {
+      flag?: boolean;
+      count?: number;
+      label?: string;
+      mode?: 'a' | 'b';
+      list?: string[];
+    };
+    const enhanceAttrs = defineEnhancer<Opts, Opts>({
+      name: 'attrs',
+      selector: '[data-attrs]',
+      defaults: { flag: false, count: 1, label: 'x', mode: 'a', list: [] },
+      attributes: {
+        flag: 'boolean',
+        count: 'number',
+        label: 'string',
+        mode: ['a', 'b'],
+        list: (raw) => raw.split(','),
+      },
+      setup: ({ options }) => options,
+    });
+
+    it('reads typed options from kebab-cased data attributes', () => {
+      document.body.innerHTML = `
+        <div data-attrs data-hl-flag data-hl-count="3" data-hl-label="hi" data-hl-mode="b" data-hl-list="p,q"></div>
+      `;
+      expect(enhanceAttrs(document).api).toEqual({
+        flag: true,
+        count: 3,
+        label: 'hi',
+        mode: 'b',
+        list: ['p', 'q'],
+      });
+    });
+
+    it('parses boolean "false" and ignores values that fail to parse', () => {
+      document.body.innerHTML = `
+        <div data-attrs data-hl-flag="false" data-hl-count="abc" data-hl-mode="zzz"></div>
+      `;
+      const api = enhanceAttrs(document).api!;
+      expect(api.flag).toBe(false);
+      expect(api.count).toBe(1);
+      expect(api.mode).toBe('a');
+    });
+
+    it('lets caller options win over attributes', () => {
+      document.body.innerHTML = `<div data-attrs data-hl-count="3"></div>`;
+      expect(enhanceAttrs(document, { count: 9 }).api!.count).toBe(9);
+    });
+  });
+
+  it('observe() watches a subtree until destroy', async () => {
+    const seen: number[] = [];
+    const enhanceWatcher = defineEnhancer({
+      name: 'watcher',
+      selector: '[data-counter]',
+      setup({ root, observe }) {
+        observe(root, (records) => seen.push(records.length));
+      },
+    });
+    const a = document.getElementById('a')!;
+    const handle = enhanceWatcher(a);
+    a.appendChild(document.createElement('span'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(seen).toHaveLength(1);
+
+    handle.destroy();
+    a.appendChild(document.createElement('span'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(seen).toHaveLength(1);
+  });
+
   it('emit dispatches bubbling hl:* custom events', () => {
     const spy = vi.fn();
     document.addEventListener(Events.change, spy);

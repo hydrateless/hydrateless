@@ -9,6 +9,7 @@
     "directory": "packages/enhancers"
   },
   "type": "module",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
@@ -25,21 +26,17 @@
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js"
     },
-    "./disclosure": {
-      "types": "./dist/disclosure/index.d.ts",
-      "import": "./dist/disclosure/index.js"
-    },
-    "./tabs": {
-      "types": "./dist/tabs/index.d.ts",
-      "import": "./dist/tabs/index.js"
-    },
     "./accordion": {
       "types": "./dist/accordion/index.d.ts",
       "import": "./dist/accordion/index.js"
     },
-    "./menu": {
-      "types": "./dist/menu/index.d.ts",
-      "import": "./dist/menu/index.js"
+    "./alert": {
+      "types": "./dist/alert/index.d.ts",
+      "import": "./dist/alert/index.js"
+    },
+    "./checkbox": {
+      "types": "./dist/checkbox/index.d.ts",
+      "import": "./dist/checkbox/index.js"
     },
     "./combobox": {
       "types": "./dist/combobox/index.d.ts",
@@ -49,39 +46,67 @@
       "types": "./dist/command/index.d.ts",
       "import": "./dist/command/index.js"
     },
-    "./modal": {
-      "types": "./dist/modal/index.d.ts",
-      "import": "./dist/modal/index.js"
-    },
-    "./toc": {
-      "types": "./dist/toc/index.d.ts",
-      "import": "./dist/toc/index.js"
+    "./disclosure": {
+      "types": "./dist/disclosure/index.d.ts",
+      "import": "./dist/disclosure/index.js"
     },
     "./drawer": {
       "types": "./dist/drawer/index.d.ts",
       "import": "./dist/drawer/index.js"
     },
-    "./popover": {
-      "types": "./dist/popover/index.d.ts",
-      "import": "./dist/popover/index.js"
-    },
-    "./tooltip": {
-      "types": "./dist/tooltip/index.d.ts",
-      "import": "./dist/tooltip/index.js"
-    },
     "./dropdown": {
       "types": "./dist/dropdown/index.d.ts",
       "import": "./dist/dropdown/index.js"
     },
+    "./menu": {
+      "types": "./dist/menu/index.d.ts",
+      "import": "./dist/menu/index.js"
+    },
+    "./modal": {
+      "types": "./dist/modal/index.d.ts",
+      "import": "./dist/modal/index.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination/index.d.ts",
+      "import": "./dist/pagination/index.js"
+    },
+    "./popover": {
+      "types": "./dist/popover/index.d.ts",
+      "import": "./dist/popover/index.js"
+    },
+    "./segmented": {
+      "types": "./dist/segmented/index.d.ts",
+      "import": "./dist/segmented/index.js"
+    },
+    "./slider": {
+      "types": "./dist/slider/index.d.ts",
+      "import": "./dist/slider/index.js"
+    },
+    "./table": {
+      "types": "./dist/table/index.d.ts",
+      "import": "./dist/table/index.js"
+    },
+    "./tabs": {
+      "types": "./dist/tabs/index.d.ts",
+      "import": "./dist/tabs/index.js"
+    },
     "./toast": {
       "types": "./dist/toast/index.d.ts",
       "import": "./dist/toast/index.js"
+    },
+    "./toc": {
+      "types": "./dist/toc/index.d.ts",
+      "import": "./dist/toc/index.js"
+    },
+    "./tooltip": {
+      "types": "./dist/tooltip/index.d.ts",
+      "import": "./dist/tooltip/index.js"
     }
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts src/manifest.ts src/core/index.ts src/disclosure/index.ts src/tabs/index.ts src/accordion/index.ts src/menu/index.ts src/combobox/index.ts src/command/index.ts src/modal/index.ts src/toc/index.ts src/drawer/index.ts src/popover/index.ts src/tooltip/index.ts src/dropdown/index.ts src/toast/index.ts --dts --format esm --clean",
-    "dev": "npm run build -- --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "test": "vitest run"

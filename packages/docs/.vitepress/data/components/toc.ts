@@ -7,7 +7,7 @@ export const toc: ComponentDoc = {
   importName: 'Toc',
   summary: 'Auto-generated navigation built from page headings.',
   description:
-    'Auto-generated navigation built from the headings on the page, with optional scroll-spy highlighting of the current section. Add an empty `<nav data-hl-toc>` and the enhancer fills it in; call `refresh()` on the returned API after the content changes.',
+    "Auto-generated navigation built from the headings on the page, with optional scroll-spy highlighting of the current section. Add an empty `<nav data-hl-toc>` and the enhancer fills it in and keeps it current: headings added, removed, or renamed later rebuild the list automatically, and the heading in view is the component's value.",
   status: 'stable',
   cssOnly: false,
   native: '<nav>',
@@ -15,7 +15,8 @@ export const toc: ComponentDoc = {
   enhancer: {
     fn: 'enhanceToc',
     subpath: '@hydrateless/enhancers/toc',
-    signature: 'enhanceToc(document, { headings, scrollSpy, contentSelector })',
+    signature:
+      'enhanceToc(document, { headings, scrollSpy, contentSelector, watch, onValueChange })',
   },
   demos: [
     {
@@ -26,7 +27,7 @@ export const toc: ComponentDoc = {
       layout: 'fill',
       render: () =>
         `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:1rem;width:100%;align-items:start">
-  <nav data-hl-toc data-hl-toc-content="#toc-demo-content" aria-label="On this page"></nav>
+  <nav data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="On this page"></nav>
   <main id="toc-demo-content">
     <h2>Introduction</h2>
     <p style="margin:0 0 .75rem">A short overview of the project.</p>
@@ -63,8 +64,16 @@ export const toc: ComponentDoc = {
     {
       name: 'contentSelector',
       type: 'string',
-      default: `'main'`,
-      description: 'Root element to scan for headings.',
+      default: `'main, article'`,
+      description: 'Root element to scan for headings; rendered as `data-hl-content-selector`.',
+    },
+  ],
+  events: [
+    {
+      name: 'hl:change',
+      detail: '{ value: string | null }',
+      description:
+        'Fires as the reader scrolls, with the id of the heading in view (also the `onValueChange` enhancer callback).',
     },
   ],
   tokens: [

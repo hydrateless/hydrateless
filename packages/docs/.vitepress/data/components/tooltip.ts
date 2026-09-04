@@ -15,7 +15,8 @@ export const tooltip: ComponentDoc = {
   enhancer: {
     fn: 'enhanceTooltip',
     subpath: '@hydrateless/enhancers/tooltip',
-    signature: 'enhanceTooltip(container, { placement, showDelay, hideDelay, onOpenChange })',
+    signature:
+      'enhanceTooltip(container, { placement, showDelay, hideDelay, defaultOpen, onOpenChange })',
   },
   demos: [
     {

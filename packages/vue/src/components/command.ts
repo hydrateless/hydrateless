@@ -54,7 +54,7 @@ export const Command = defineComponent({
     return () =>
       h(
         'div',
-        { ...attrs, 'data-hl-command': '', 'data-hl-command-hotkey': props.hotkey, ref: host },
+        { ...attrs, 'data-hl-command': '', 'data-hl-hotkey': props.hotkey, ref: host },
         slots.default?.(),
       );
   },

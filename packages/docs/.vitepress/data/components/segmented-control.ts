@@ -8,11 +8,16 @@ export const segmentedControl: ComponentDoc = {
   importName: 'SegmentedControl',
   summary: 'A compact single-select built on native radios.',
   description:
-    'A compact single-select control built on native radios under `role="radiogroup"`. The radios give you keyboard navigation and form semantics for free. No JavaScript.',
+    'A compact single-select control built on native radios under `role="radiogroup"`. The radios give you keyboard navigation and form semantics for free. No JavaScript. Add `data-hl-segmented` and the optional enhancer reports the selection; with `<button>` segments instead of radios it also applies the radio-group pattern (`role="radio"`, `aria-checked`, a roving tab stop, and arrow keys).',
   status: 'stable',
   cssOnly: true,
   native: '<input type="radio">',
   cssFile: 'segmented-control.css',
+  enhancer: {
+    fn: 'enhanceSegmented',
+    subpath: '@hydrateless/enhancers/segmented',
+    signature: 'enhanceSegmented(container, { defaultValue, onValueChange })',
+  },
   demos: [
     {
       id: 'playground',
@@ -35,6 +40,19 @@ export const segmentedControl: ComponentDoc = {
         svelte: () =>
           `<script>\n  import { SegmentedControl } from '@hydrateless/svelte';\n  let value = $state('list');\n  const options = [\n    { label: 'List', value: 'list' },\n    { label: 'Board', value: 'board' },\n  ];\n</script>\n\n<SegmentedControl bind:value {options} />`,
       },
+    },
+    {
+      id: 'buttons',
+      title: 'Button segments',
+      description:
+        'When the control drives a view rather than a form value, plain buttons avoid a stray form field. The enhancer turns them into an APG radio group: one tab stop, arrow keys move the selection, and `aria-checked` marks the active segment. `data-hl-value` supplies the value.',
+      layout: 'center',
+      render: () =>
+        `<div class="hl-segmented" data-hl-segmented aria-label="Density">
+  <button type="button" class="hl-segmented-item" data-hl-value="compact">Compact</button>
+  <button type="button" class="hl-segmented-item" data-hl-value="cozy" aria-pressed="true">Cozy</button>
+  <button type="button" class="hl-segmented-item" data-hl-value="comfortable">Comfortable</button>
+</div>`,
     },
   ],
   props: [
@@ -61,6 +79,14 @@ export const segmentedControl: ComponentDoc = {
       description: 'Control height and font size.',
     },
   ],
+  events: [
+    {
+      name: 'hl:change',
+      detail: '{ value: string }',
+      description:
+        'Fires from an enhanced control with the selected value after every change (also the `onValueChange` callback).',
+    },
+  ],
   tokens: [
     { name: '--hl-surface', description: 'Track background.' },
     { name: '--hl-bg', description: 'Selected segment background.' },
@@ -69,6 +95,7 @@ export const segmentedControl: ComponentDoc = {
   a11y: [
     'Native radios share a `name`, so only one segment can be selected at a time.',
     'Arrow keys move the selection, matching the radio group pattern.',
+    'Button segments get the same pattern from the enhancer: `role="radio"`, `aria-checked`, and a single roving tab stop.',
   ],
   related: ['radio-group', 'tabs'],
 };

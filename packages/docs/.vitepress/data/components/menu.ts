@@ -5,9 +5,9 @@ export const menu: ComponentDoc = {
   name: 'Menu',
   category: 'Actions & Overlays',
   importName: 'Menu',
-  summary: 'A menubar with single-level submenus.',
+  summary: 'A menubar with nested submenus.',
   description:
-    "A menubar or navigation menu with single-level submenus, following the WAI-ARIA menubar pattern. Without JavaScript the stylesheet reveals submenus on hover and `:focus-within`. The enhancer marks the root `data-hl-ready`, takes over visibility, and wires a roving tabindex, orientation-aware arrow navigation, typeahead, checkable items, and disabled skipping. Submenus are promoted to native popovers so they render in the top layer, positioned against their trigger with CSS anchor positioning (with a JS fallback). The open submenu is the menu's value.",
+    "A menubar or navigation menu with nested submenus, following the WAI-ARIA menubar pattern. Without JavaScript the stylesheet reveals submenus on hover and `:focus-within`. The enhancer marks the root `data-hl-ready`, takes over visibility, and wires a roving tabindex, orientation-aware arrow navigation, typeahead, checkable items, and disabled skipping. Submenus are promoted to native popovers so they render in the top layer, positioned against their trigger with CSS anchor positioning (with a JS fallback). Submenus nest to any depth: an item followed by a sibling `data-hl-submenu` opens it with `Right` (`Left` in RTL), and `Left` or `Esc` steps back out. The open top-level submenu is the menu's value.",
   status: 'stable',
   cssOnly: false,
   native: '<ul role="menubar">',
@@ -28,15 +28,22 @@ export const menu: ComponentDoc = {
         `<ul data-hl-menu role="menubar" aria-label="Editor">
   <li>
     <button role="menuitem" data-hl-value="file">File</button>
-    <ul role="menu" data-hl-menu-submenu>
+    <ul role="menu" data-hl-submenu>
       <li><button role="menuitem" data-hl-value="new">New</button></li>
       <li><button role="menuitem" data-hl-value="open">Open</button></li>
+      <li>
+        <button role="menuitem" data-hl-value="export">Export</button>
+        <ul role="menu" data-hl-submenu>
+          <li><button role="menuitem" data-hl-value="export-pdf">PDF</button></li>
+          <li><button role="menuitem" data-hl-value="export-png">PNG</button></li>
+        </ul>
+      </li>
       <li><button role="menuitem" data-hl-value="save-as" disabled>Save As</button></li>
     </ul>
   </li>
   <li>
     <button role="menuitem" data-hl-value="view">View</button>
-    <ul role="menu" data-hl-menu-submenu>
+    <ul role="menu" data-hl-submenu>
       <li><button role="menuitemcheckbox" aria-checked="true" data-hl-value="sidebar">Sidebar</button></li>
       <li><button role="menuitemcheckbox" aria-checked="false" data-hl-value="minimap">Minimap</button></li>
     </ul>
@@ -45,11 +52,11 @@ export const menu: ComponentDoc = {
 </ul>`,
       code: {
         react: () =>
-          `import { Menu, MenuItem, MenuSubmenu } from '@hydrateless/react';\n\n<Menu\n  orientation="horizontal"\n  onValueChange={(value) => console.log('open submenu', value)}\n  onSelect={(value, item, checked) => run(value, checked)}\n>\n  <MenuSubmenu label="File" value="file">\n    <MenuItem value="new">New</MenuItem>\n    <MenuItem value="open">Open</MenuItem>\n  </MenuSubmenu>\n  <MenuItem value="help" href="/help">Help</MenuItem>\n</Menu>`,
+          `import { Menu, MenuItem, MenuSubmenu } from '@hydrateless/react';\n\n<Menu\n  orientation="horizontal"\n  onValueChange={(value) => console.log('open submenu', value)}\n  onSelect={(value, item, checked) => run(value, checked)}\n>\n  <MenuSubmenu label="File" value="file">\n    <MenuItem value="new">New</MenuItem>\n    <MenuSubmenu label="Export">\n      <MenuItem value="export-pdf">PDF</MenuItem>\n      <MenuItem value="export-png">PNG</MenuItem>\n    </MenuSubmenu>\n  </MenuSubmenu>\n  <MenuItem value="help" href="/help">Help</MenuItem>\n</Menu>`,
         vue: () =>
           `<script setup>\nimport { ref } from 'vue';\nimport { Menu, MenuItem, MenuSubmenu } from '@hydrateless/vue';\nconst openSubmenu = ref(null);\n</script>\n\n<template>\n  <Menu v-model="openSubmenu" orientation="horizontal" @select="(value, item, checked) => run(value, checked)">\n    <MenuSubmenu label="File" value="file">\n      <MenuItem value="new">New</MenuItem>\n      <MenuItem value="open">Open</MenuItem>\n    </MenuSubmenu>\n    <MenuItem value="help" href="/help">Help</MenuItem>\n  </Menu>\n</template>`,
         svelte: () =>
-          `<script>\n  import { Menu, MenuItem, MenuSubmenu } from '@hydrateless/svelte';\n  let openSubmenu = $state(null);\n</script>\n\n<Menu bind:value={openSubmenu} orientation="horizontal" onSelect={(value, item, checked) => run(value, checked)}>\n  <MenuSubmenu label="File" value="file">\n    <MenuItem value="new">New</MenuItem>\n    <MenuItem value="open">Open</MenuItem>\n  </MenuSubmenu>\n  <MenuItem value="help" href="/help">Help</MenuItem>\n</Menu>`,
+          `<script>\n  import { Menu, MenuItem, MenuSubmenu } from '@hydrateless/svelte';\n  let openSubmenu = $state(null);\n</script>\n\n<Menu bind:value={openSubmenu} orientation="horizontal" onSelect={(value, item, checked) => run(value, checked)}>\n  <MenuSubmenu label="File" value="file">\n    <MenuItem value="new">New</MenuItem>\n    <MenuSubmenu label="Export">\n      <MenuItem value="export-pdf">PDF</MenuItem>\n      <MenuItem value="export-png">PNG</MenuItem>\n    </MenuSubmenu>\n  </MenuSubmenu>\n  <MenuItem value="help" href="/help">Help</MenuItem>\n</Menu>`,
       },
     },
   ],
@@ -140,7 +147,7 @@ export const menu: ComponentDoc = {
   ],
   a11y: [
     'A roving tabindex keeps the menubar a single tab stop.',
-    'Submenu triggers expose `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.',
+    'Submenu triggers expose `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`, at every level of nesting.',
     'Before the enhancer runs, submenus open on hover and `:focus-within`, so the navigation is usable with no JavaScript.',
     'Disabled items are skipped; `menuitemcheckbox` and `menuitemradio` keep `aria-checked` in sync.',
   ],

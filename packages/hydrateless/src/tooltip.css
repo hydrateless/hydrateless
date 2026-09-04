@@ -9,7 +9,8 @@
  * `hidden`), and drives visibility through `data-hl-tooltip-open` with show
  * and hide delays, a grace period, and Escape to dismiss.
  *   data-hl-tooltip:         the trigger
- *   data-hl-placement:       top (default) | bottom | left | right, on the trigger
+ *   data-hl-placement:       top (default) | bottom | start | end, on the trigger
+ *   data-hl-side:            the resolved side, set on the tip by the enhancer
  *   data-hl-tooltip-managed: set on the trigger by the enhancer
  *   data-hl-tooltip-open:    set on the tip while shown
  */
@@ -58,8 +59,10 @@
     }
   }
 
-  /* Modern placement: pin above the trigger via the anchor-name the enhancer
-     sets, flipping below when there's no room. */
+  /* Modern placement: pin to the requested side of the trigger via the
+     anchor-name the enhancer sets, flipping when there's no room. The side
+     comes from `data-hl-side` on the tip (enhanced) or `data-hl-placement` on
+     the preceding trigger (no-JS baseline). */
   @supports (anchor-name: --x) {
     [role='tooltip'] {
       position: fixed;
@@ -67,6 +70,30 @@
       position-area: block-start;
       position-try-fallbacks: flip-block;
       margin-block: var(--hl-space-1);
+    }
+
+    [role='tooltip'][data-hl-side='bottom'],
+    [data-hl-tooltip][data-hl-placement^='bottom'] + [role='tooltip'] {
+      position-area: block-end;
+    }
+
+    [role='tooltip']:is([data-hl-side='start'], [data-hl-side='end']),
+    [data-hl-tooltip]:is([data-hl-placement^='start'], [data-hl-placement^='end'])
+      + [role='tooltip'] {
+      position-try-fallbacks: flip-inline;
+      margin-block: 0;
+      margin-inline: var(--hl-space-1);
+      translate: 0 0;
+    }
+
+    [role='tooltip'][data-hl-side='start'],
+    [data-hl-tooltip][data-hl-placement^='start'] + [role='tooltip'] {
+      position-area: inline-start;
+    }
+
+    [role='tooltip'][data-hl-side='end'],
+    [data-hl-tooltip][data-hl-placement^='end'] + [role='tooltip'] {
+      position-area: inline-end;
     }
   }
 

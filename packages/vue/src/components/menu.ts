@@ -176,7 +176,7 @@ export const MenuSubmenu = defineComponent({
           },
           slots.trigger ? slots.trigger() : props.label,
         ),
-        h('ul', { ...attrs, role: 'menu', 'data-hl-menu-submenu': '' }, slots.default?.()),
+        h('ul', { ...attrs, role: 'menu', 'data-hl-submenu': '' }, slots.default?.()),
       ]);
   },
 });

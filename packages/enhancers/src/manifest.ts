@@ -17,11 +17,17 @@ export interface ManifestEntry {
  */
 export const MANIFEST = [
   { name: 'accordion', selector: '[data-hl-accordion]' },
+  { name: 'alert', selector: '[data-hl-alert]' },
+  { name: 'checkbox', selector: '[data-hl-checkbox-group]' },
   { name: 'tabs', selector: '[data-hl-tabs]' },
   { name: 'disclosure', selector: 'details[data-hl-disclosure]' },
   { name: 'modal', selector: 'dialog[data-hl-modal]' },
   { name: 'drawer', selector: 'dialog[data-hl-drawer]' },
+  { name: 'pagination', selector: '[data-hl-pagination]' },
   { name: 'popover', selector: '[data-hl-popover]' },
+  { name: 'segmented', selector: '[data-hl-segmented]' },
+  { name: 'slider', selector: '[data-hl-slider]' },
+  { name: 'table', selector: 'table[data-hl-table]' },
   { name: 'tooltip', selector: '[data-hl-tooltip]' },
   { name: 'dropdown', selector: '[data-hl-dropdown]' },
   { name: 'menu', selector: '[data-hl-menu]' },

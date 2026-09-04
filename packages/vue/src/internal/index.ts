@@ -2,9 +2,13 @@ import {
   computed,
   defineComponent,
   h,
+  onBeforeUnmount,
+  onMounted,
+  ref,
   shallowRef,
   watch,
   type ComputedRef,
+  type Ref,
   type ShallowRef,
 } from 'vue';
 
@@ -64,6 +68,85 @@ export function useControlled<T, E extends string>(
     emit(event, next);
   };
   return { value, set };
+}
+
+/** A live position in a parent's item list plus its disposer. */
+export interface Registration {
+  /** Current index in document order; shifts as siblings mount or unmount. */
+  readonly index: number;
+  /**
+   * Report the rendered element (from `onMounted`) so items inserted out of
+   * registration order, such as a prepend, sort into their real position.
+   */
+  attach(node: Element | null): void;
+  /** Free the slot (call from `onBeforeUnmount`). */
+  unregister(): void;
+}
+
+/** A parent-side list of registered children. */
+export interface Registry<T = void> {
+  /** Register a child; `value` is any per-child getter the parent needs. */
+  register(value: T): Registration;
+  /** Registered children's values in document order. */
+  readonly entries: ComputedRef<T[]>;
+}
+
+interface Entry<T> {
+  value: T;
+  node: Element | null;
+}
+
+const DOCUMENT_POSITION_FOLLOWING = 4;
+
+/** Orders mounted entries by document position; unmounted ones keep their place. */
+function byDocumentOrder<T>(a: Entry<T>, b: Entry<T>): number {
+  if (!a.node || !b.node || a.node === b.node) return 0;
+  return a.node.compareDocumentPosition(b.node) & DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+}
+
+/**
+ * Tracks children so their indexes stay dense and in document order while a
+ * `v-for` inserts or removes them after mount. Registration happens in
+ * `setup` so server output is right. Shared by the accordion and tabs, whose
+ * enhancers fall back to the same positional indexes.
+ */
+export function createRegistry<T = void>(): Registry<T> {
+  const items = shallowRef<Entry<T>[]>([]);
+  return {
+    entries: computed(() => items.value.map((item) => item.value)),
+    register(value) {
+      const entry: Entry<T> = { value, node: null };
+      items.value = [...items.value, entry];
+      return {
+        get index() {
+          return items.value.indexOf(entry);
+        },
+        attach(node) {
+          if (entry.node === node) return;
+          entry.node = node;
+          items.value = [...items.value].sort(byDocumentOrder);
+        },
+        unregister() {
+          items.value = items.value.filter((item) => item !== entry);
+        },
+      };
+    },
+  };
+}
+
+/**
+ * Register with a parent's registry for this component's lifetime: attach
+ * the rendered element on mount and free the slot before unmount. Returns
+ * the element ref to put on the root vnode plus the live index.
+ */
+export function useRegistration(registration: Registration | undefined): {
+  node: Ref<Element | null>;
+  index: ComputedRef<number>;
+} {
+  const node = ref<Element | null>(null);
+  onMounted(() => registration?.attach(node.value));
+  onBeforeUnmount(() => registration?.unregister());
+  return { node, index: computed(() => registration?.index ?? 0) };
 }
 
 function same(a: unknown, b: unknown): boolean {

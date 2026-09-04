@@ -15,6 +15,25 @@ export interface AutoOptions {
    * Defaults to `true`.
    */
   watch?: boolean;
+  /**
+   * Called when an enhancer fails to load or throws while running. One broken
+   * component must not stop the others, so failures are reported here instead
+   * of rejecting `ready`. Defaults to `console.error`.
+   */
+  onError?: (error: unknown, component: ComponentName) => void;
+}
+
+/**
+ * Whether importing the auto entry should start scanning right away. Pages
+ * that want to call `auto()` themselves (to pass options, or to scope it to a
+ * container) opt out with `<html data-hl-manual>`.
+ */
+export function shouldAutoStart(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined' &&
+    !document.documentElement.hasAttribute('data-hl-manual')
+  );
 }
 
 /**
@@ -45,7 +64,12 @@ export function createAuto(load: Loader) {
     const container = containerArg ?? (typeof document !== 'undefined' ? document : null);
     if (!container) return { ready: Promise.resolve(), dispose: () => {} };
 
-    const { watch = true } = options;
+    const {
+      watch = true,
+      onError = (error: unknown, component: ComponentName) =>
+        // eslint-disable-next-line no-console -- the default reporter is the console
+        console.error(`[hydrateless] failed to enhance "${component}"`, error),
+    } = options;
     /** Per-root teardowns, so removed roots can be disposed individually. */
     const tracked = new Map<HTMLElement, Disposer>();
     let disposed = false;
@@ -75,12 +99,20 @@ export function createAuto(load: Loader) {
       const pending: Promise<void>[] = [];
       for (const { name, selector } of MANIFEST) {
         if (!container.querySelector(selector)) continue;
-        const loaded = load(name);
-        if (!loaded) continue;
-        if (loaded instanceof Promise) {
-          pending.push(loaded.then((run) => adopt(run(container))));
-        } else {
-          adopt(loaded(container));
+        try {
+          const loaded = load(name);
+          if (!loaded) continue;
+          if (loaded instanceof Promise) {
+            pending.push(
+              loaded
+                .then((run) => adopt(run(container)))
+                .catch((error: unknown) => onError(error, name)),
+            );
+          } else {
+            adopt(loaded(container));
+          }
+        } catch (error) {
+          onError(error, name);
         }
       }
       return Promise.all(pending).then(() => undefined);

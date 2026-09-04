@@ -110,6 +110,24 @@ Which binding and callbacks each component uses:
 | `SegmentedControl` | `bind:value` (defaults to the first option)                                                                   | `onValueChange`, `options`, `size`                                              |
 | Form controls      | `bind:value` on `Input`, `Textarea`, `Select`, `Slider`, `RadioGroup`; `bind:checked` on `Checkbox`, `Switch` |                                                                                 |
 
+### Tooltip triggers and SSR
+
+`Tooltip` hands its `children` snippet the trigger attributes
+(`data-hl-tooltip` and `aria-describedby`). Spread them onto the trigger so the
+server-rendered markup links trigger and tip before any script runs:
+
+```svelte
+<Tooltip content="Save your changes">
+  {#snippet children(trigger)}
+    <Button {...trigger}>Save</Button>
+  {/snippet}
+</Tooltip>
+```
+
+If you render a plain child without the spread, the first element is linked on
+the client instead, which works but leaves the description missing until
+JavaScript runs.
+
 ### Dropdown with checkable items
 
 `DropdownItem` accepts `role="menuitemcheckbox" | "menuitemradio"` and
@@ -206,7 +224,7 @@ validation.
 
 ## Toasts and `useToast`
 
-`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast) }`
+`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast), dismissAll() }`
 and works anywhere with no setup. The first `show()` creates a polite live
 region at the end of `<body>`; render `<ToastRegion />` once if you want to
 control where toasts appear.

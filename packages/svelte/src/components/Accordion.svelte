@@ -4,6 +4,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setAccordionContext } from '../context.js';
+  import { createRegistry } from '../registry.svelte.js';
   import { useEnhancer } from '../useEnhancer.svelte.js';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -31,13 +32,13 @@
   if (value === undefined) value = defaultValue ?? [];
 
   // Items register in document order so each `<details>` can render `open`
-  // on the server from the shared value.
-  let itemCount = 0;
+  // on the server from the shared value; indexes stay live for `{#each}`.
+  const items = createRegistry();
   setAccordionContext({
     get value() {
       return value ?? [];
     },
-    registerItem: () => itemCount++,
+    registerItem: () => items.register(),
   });
 
   const accordion = useEnhancer(enhanceAccordion, () => ({

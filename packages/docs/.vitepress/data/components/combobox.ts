@@ -16,7 +16,7 @@ export const combobox: ComponentDoc = {
     fn: 'enhanceCombobox',
     subpath: '@hydrateless/enhancers/combobox',
     signature:
-      'enhanceCombobox(container, { filter, autoHighlight, defaultValue, onValueChange, onOpenChange })',
+      'enhanceCombobox(container, { filter, autoHighlight, position, defaultValue, defaultOpen, onValueChange, onOpenChange })',
   },
   demos: [
     {

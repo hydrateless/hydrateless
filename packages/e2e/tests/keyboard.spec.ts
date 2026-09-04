@@ -158,7 +158,7 @@ test.describe('keyboard: menu', () => {
     page,
   }) => {
     const file = page.locator('#file');
-    const submenu = page.locator('[data-hl-menu-submenu]').first();
+    const submenu = page.locator('[data-hl-submenu]').first();
 
     await file.focus();
     await page.keyboard.press('ArrowDown');
@@ -191,7 +191,7 @@ test.describe('keyboard: menu', () => {
   }) => {
     await page.locator('#file').focus();
     await page.keyboard.press('ArrowUp');
-    await expect(page.locator('[data-hl-menu-submenu]').first()).toBeVisible();
+    await expect(page.locator('[data-hl-submenu]').first()).toBeVisible();
     await expect.poll(() => focusedText(page)).toBe('Open');
   });
 
@@ -199,7 +199,7 @@ test.describe('keyboard: menu', () => {
     page,
   }) => {
     const file = page.locator('#file');
-    const submenu = page.locator('[data-hl-menu-submenu]').first();
+    const submenu = page.locator('[data-hl-submenu]').first();
 
     await file.focus();
     await page.keyboard.press('Enter');
@@ -220,7 +220,7 @@ test.describe('keyboard: menu', () => {
     await page.keyboard.press('ArrowRight');
     // "Edit" has no submenu, so focus lands on it and nothing opens.
     await expect(page.locator('#edit')).toBeFocused();
-    await expect(page.locator('[data-hl-menu-submenu]').first()).toBeHidden();
+    await expect(page.locator('[data-hl-submenu]').first()).toBeHidden();
   });
 
   test('horizontal: a disabled leaf item does not fire hl:select', async ({ page }) => {

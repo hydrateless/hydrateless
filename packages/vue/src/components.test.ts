@@ -15,7 +15,7 @@ import { Menu, MenuItem, MenuSubmenu } from './components/menu.js';
 import { Breadcrumb, BreadcrumbItem } from './components/breadcrumb.js';
 import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from './components/combobox.js';
 import { Command, CommandInput, CommandList, CommandItem } from './components/command.js';
-import { Accordion, AccordionItem } from './components/disclosure.js';
+import { Accordion, AccordionItem, Disclosure } from './components/disclosure.js';
 import { Modal, ModalBody, Drawer } from './components/overlay.js';
 import { SegmentedControl } from './components/forms.js';
 import { Button } from './components/button.js';
@@ -86,6 +86,29 @@ describe('Tabs', () => {
     await items[1].trigger('click');
     expect(items[1].attributes('aria-selected')).toBe('true');
     expect(seen).toEqual(['two']);
+    wrapper.unmount();
+  });
+
+  it('renumbers index-valued tabs and panels when a v-for changes', async () => {
+    const { wrapper, state } = mountWith({ tabs: ['One', 'Two', 'Three'] }, (s) =>
+      h(Tabs, { defaultValue: '1' }, () => [
+        h(TabList, null, () => s.tabs.map((label) => h(Tab, { key: label }, () => label))),
+        ...s.tabs.map((label) => h(TabPanel, { key: label }, () => `${label} panel`)),
+      ]),
+    );
+    const tabs = () => wrapper.findAll('[role="tab"]');
+    const panels = () => wrapper.findAll('[role="tabpanel"]');
+    expect(tabs()[1].attributes('aria-selected')).toBe('true');
+    state.tabs = ['Two', 'Three'];
+    await nextTick();
+    await nextTick();
+    // Positional values: the tab now at index 1 ("Three") holds value "1".
+    expect(tabs()).toHaveLength(2);
+    expect(tabs()[1].text()).toBe('Three');
+    expect(tabs()[1].attributes('aria-selected')).toBe('true');
+    expect(tabs()[1].attributes('aria-controls')).toBe(panels()[1].attributes('id'));
+    expect(panels()[0].attributes('hidden')).toBeDefined();
+    expect(panels()[1].attributes('hidden')).toBeUndefined();
     wrapper.unmount();
   });
 
@@ -227,10 +250,11 @@ describe('Dropdown', () => {
     await item.trigger('click');
     expect(item.attributes('aria-checked')).toBe('true');
     expect(clicks).toHaveLength(1);
-    expect(selects).toEqual([['bold', true]]);
+    // Same (value, item, checked) shape as the root Dropdown's `select`.
+    expect(selects).toEqual([['bold', item.element, true]]);
     await item.trigger('click');
     expect(item.attributes('aria-checked')).toBe('false');
-    expect(selects[1]).toEqual(['bold', false]);
+    expect(selects[1]).toEqual(['bold', item.element, false]);
 
     const group = wrapper.get('[role="group"]');
     expect(group.attributes('aria-label')).toBe('Size');
@@ -283,7 +307,7 @@ describe('Menu', () => {
       }),
     );
     const file = wrapper.findAll('[role="menubar"] > li > [role="menuitem"]')[1];
-    const submenu = wrapper.get('[data-hl-menu-submenu]');
+    const submenu = wrapper.get('[data-hl-submenu]');
     expect(submenu.attributes('hidden')).toBeDefined();
     state.open = 'file';
     await nextTick();
@@ -441,6 +465,31 @@ describe('Accordion', () => {
     await nextTick();
     expect(b.open).toBe(true);
     expect(a.open).toBe(false);
+    wrapper.unmount();
+  });
+
+  it('renumbers index-valued items when a v-for changes', async () => {
+    const { wrapper, state } = mountWith({ items: ['A', 'B'] }, (s) =>
+      h(Accordion, { defaultValue: ['1'] }, () =>
+        s.items.map((label) => h(AccordionItem, { key: label, title: label }, () => label)),
+      ),
+    );
+    const details = () => wrapper.findAll('details').map((d) => d.element as HTMLDetailsElement);
+    expect(details()[1].open).toBe(true);
+    state.items = ['Z', 'A', 'B'];
+    await nextTick();
+    await nextTick();
+    // Values are positional, so index 1 is now "A" and both Vue and the
+    // enhancer agree it's the open one.
+    expect(details()).toHaveLength(3);
+    expect(details()[1].open).toBe(true);
+    expect(details()[2].open).toBe(false);
+    wrapper.unmount();
+  });
+
+  it('Disclosure forwards name for native exclusive groups', () => {
+    const wrapper = mount(Disclosure, { props: { name: 'faq', title: 'Q' } });
+    expect(wrapper.get('details').attributes('name')).toBe('faq');
     wrapper.unmount();
   });
 });

@@ -1,4 +1,5 @@
-import { defineEnhancer, Events } from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
+import { Events } from '../core/events.js';
 
 /** Options for {@link enhanceDisclosure}. */
 export type EnhanceDisclosureOptions = {
@@ -27,6 +28,7 @@ export type DisclosureApi = {
 export const enhanceDisclosure = defineEnhancer<EnhanceDisclosureOptions, DisclosureApi>({
   name: 'disclosure',
   selector: 'details[data-hl-disclosure]',
+  attributes: { defaultOpen: 'boolean' },
   setup({ root, options, on, emit }) {
     const details = root as HTMLDetailsElement;
 

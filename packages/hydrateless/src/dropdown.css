@@ -11,7 +11,9 @@
  *   data-hl-dropdown-menu:    the `<ul>` (or any list) of items
  *   data-hl-value:            an item's value for `hl:select`
  * Items are `role="menuitem"`, `menuitemcheckbox`, or `menuitemradio`, either
- * directly in the list, inside `<li>`, or inside `<li><ul role="group">`.
+ * directly in the list, inside `<li>`, or inside `<li><ul role="group">`. An
+ * item followed by a sibling `<ul role="menu">` (or `[data-hl-submenu]`) opens
+ * it as a nested submenu to the inline-end side.
  */
 @layer components {
   [data-hl-dropdown] {
@@ -63,6 +65,60 @@
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* Nested submenus share the panel styling and sit beside their trigger. */
+  [data-hl-dropdown-menu] li {
+    position: relative;
+  }
+
+  [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu]) {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: calc(100% + var(--hl-space-1));
+    z-index: var(--hl-z-dropdown);
+    min-inline-size: 10rem;
+    margin: 0;
+    padding: var(--hl-space-1);
+    list-style: none;
+    border: var(--hl-border-width) solid var(--hl-border);
+    border-radius: var(--hl-radius-lg);
+    background: var(--hl-surface);
+    box-shadow: var(--hl-overlay-shadow);
+  }
+
+  [data-hl-dropdown-menu]
+    :is([role='menu'], [data-hl-submenu]):is([hidden], [popover]:not(:popover-open)) {
+    display: none;
+  }
+
+  [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu])[popover] {
+    position: fixed;
+    inset: auto;
+  }
+
+  @supports (position-area: block-end) {
+    [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu])[popover] {
+      position-area: inline-end span-block-end;
+      position-try-fallbacks: flip-inline, flip-block;
+      margin-inline: var(--hl-space-1);
+    }
+  }
+
+  /* Submenu chevron: a rotated square corner at the inline end. */
+  [data-hl-dropdown-menu] [role^='menuitem'][aria-haspopup='menu']::after {
+    content: '';
+    inline-size: 0.4rem;
+    block-size: 0.4rem;
+    margin-inline-start: auto;
+    border-inline-end: 1.5px solid currentcolor;
+    border-block-end: 1.5px solid currentcolor;
+    rotate: -45deg;
+    opacity: 0.6;
+  }
+
+  [data-hl-dropdown-menu] [role^='menuitem'][aria-expanded='true'] {
+    background: var(--hl-surface-2);
   }
 
   [data-hl-dropdown-menu] [role^='menuitem'] {

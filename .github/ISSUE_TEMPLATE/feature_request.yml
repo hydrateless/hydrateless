@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose a component, option, or behavior
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hydrateless is CSS-first and builds on the web platform. Proposals that start from a native element or a Baseline feature and add the smallest possible enhancer fit best. See the [roadmap](https://github.com/hydrateless/hydrateless/blob/main/ROADMAP.md) for what's already planned.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't you build today, or what takes too much work?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Sketch the markup, the `data-hl-*` attributes, and the enhancer API (`value`/`setValue`, `open`/`setOpen`, events) you'd expect.
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: no-js
+    attributes:
+      label: Without JavaScript
+      description: What should the component do before the enhancer runs? Which native element or CSS feature carries it?
+  - type: textarea
+    id: a11y
+    attributes:
+      label: Accessibility
+      description: Which WAI-ARIA Authoring Practices pattern applies, and what keyboard behavior is expected?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

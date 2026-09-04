@@ -45,6 +45,9 @@
   setDropdownContext({
     menuId: `hl-dropdown-menu-${generatedId}`,
     triggerId: `hl-dropdown-trigger-${generatedId}`,
+    get open() {
+      return open ?? false;
+    },
   });
 
   const dropdown = useEnhancer(enhanceDropdown, () => ({

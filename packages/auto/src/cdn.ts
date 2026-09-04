@@ -1,10 +1,16 @@
 import {
   enhanceAccordion,
+  enhanceAlert,
+  enhanceCheckbox,
   enhanceTabs,
   enhanceDisclosure,
   enhanceModal,
   enhanceDrawer,
+  enhancePagination,
   enhancePopover,
+  enhanceSegmented,
+  enhanceSlider,
+  enhanceTable,
   enhanceTooltip,
   enhanceDropdown,
   enhanceMenu,
@@ -15,7 +21,7 @@ import {
   type Disposer,
 } from '@hydrateless/enhancers';
 import type { ComponentName } from '@hydrateless/enhancers/manifest';
-import { createAuto, type AutoOptions, type Run } from './runtime.js';
+import { createAuto, shouldAutoStart, type AutoOptions, type Run } from './runtime.js';
 
 export type { AutoOptions };
 
@@ -27,11 +33,17 @@ export type { AutoOptions };
  */
 const runners: Record<ComponentName, Run> = {
   accordion: enhanceAccordion,
+  alert: enhanceAlert,
+  checkbox: enhanceCheckbox,
   tabs: enhanceTabs,
   disclosure: enhanceDisclosure,
   modal: enhanceModal,
   drawer: enhanceDrawer,
+  pagination: enhancePagination,
   popover: enhancePopover,
+  segmented: enhanceSegmented,
+  slider: enhanceSlider,
+  table: enhanceTable,
   tooltip: enhanceTooltip,
   dropdown: enhanceDropdown,
   menu: enhanceMenu,
@@ -53,7 +65,9 @@ export function autoSync(container?: Document | HTMLElement, options: AutoOption
   return start(container, options).dispose;
 }
 
-if (typeof window !== 'undefined') {
+// Importing the module starts it, unless the page opts out with
+// `<html data-hl-manual>` to call `autoSync()` itself.
+if (shouldAutoStart()) {
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', () => autoSync());
   } else {

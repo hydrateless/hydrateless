@@ -15,7 +15,8 @@ export const commandPalette: ComponentDoc = {
   enhancer: {
     fn: 'enhanceCommand',
     subpath: '@hydrateless/enhancers/command',
-    signature: 'enhanceCommand(container, { hotkey, defaultValue, onValueChange, onCommand })',
+    signature:
+      'enhanceCommand(container, { hotkey, closeOnCommand, defaultValue, defaultOpen, onValueChange, onOpenChange, onCommand })',
   },
   demos: [
     {
@@ -77,7 +78,8 @@ export const commandPalette: ComponentDoc = {
     {
       name: 'hotkey',
       type: 'string',
-      description: 'Key that, with Cmd/Ctrl, opens the hosting `<dialog>`, e.g. `"k"`.',
+      description:
+        'Key that, with Cmd/Ctrl, opens the hosting `<dialog>`, e.g. `"k"`; rendered as `data-hl-hotkey`.',
     },
     {
       name: 'CommandItem.value',
@@ -109,6 +111,12 @@ export const commandPalette: ComponentDoc = {
       detail: '{ value: string }',
       description:
         'Fires when the filter query changes (also the `onValueChange` enhancer callback).',
+    },
+    {
+      name: 'hl:open-change',
+      detail: '{ open: boolean }',
+      description:
+        'Fires when the hosting `<dialog>` opens or closes (also the `onOpenChange` enhancer callback). The enhancer API exposes `open`/`setOpen` for it.',
     },
   ],
   tokens: [

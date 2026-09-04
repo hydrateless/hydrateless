@@ -1,12 +1,7 @@
-import {
-  defineEnhancer,
-  ensureId,
-  setAttrs,
-  nextIndex,
-  Events,
-  Keys,
-  type MoveDirection,
-} from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
+import { ensureId, setAttrs, isRtl } from '../core/dom.js';
+import { Events } from '../core/events.js';
+import { nextIndex, Keys, type MoveDirection } from '../core/keys.js';
 
 /** Options for {@link enhanceTabs}. */
 export type EnhanceTabsOptions = {
@@ -34,6 +29,14 @@ export type TabsApi = {
   setValue: (value: string, options?: { focus?: boolean }) => void;
 };
 
+type Tab = {
+  el: HTMLElement;
+  radio: HTMLInputElement | null;
+  panel: HTMLElement | null;
+  value: string;
+  disabled: boolean;
+};
+
 /**
  * Upgrade a CSS-only tab group to the full APG tabs pattern. The baseline works
  * with no JavaScript: each tab is a `<label>` wrapping a hidden radio, and the
@@ -43,82 +46,97 @@ export type TabsApi = {
  * can't express on its own: `role="tablist"`/`tab`/`tabpanel`, `aria-selected`,
  * `aria-controls`, roving tabindex, arrow/Home/End navigation with disabled-tab
  * skipping, and manual or automatic activation. The radios stay the single
- * source of truth, so CSS keeps owning panel visibility. Selection is
- * observable through `onValueChange`/`hl:change` and controllable through the
- * returned API.
+ * source of truth, so CSS keeps owning panel visibility. Tabs and panels are
+ * read live, so ones added or removed later are wired up automatically.
+ * Selection is observable through `onValueChange`/`hl:change` and
+ * controllable through the returned API. Markup can set
+ * `data-hl-activation`, `data-hl-orientation`, and `data-hl-default-value`
+ * on the root.
  */
 export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
   name: 'tabs',
   selector: '[data-hl-tabs]',
   defaults: { activation: 'manual', orientation: 'horizontal' },
-  setup({ root, options, on, add, emit }) {
+  attributes: {
+    activation: ['manual', 'automatic'],
+    orientation: ['horizontal', 'vertical'],
+    defaultValue: 'string',
+  },
+  setup({ root, options, on, observe, add, emit }) {
     const tablist = root.querySelector<HTMLElement>('[role="tablist"], .hl-tablist');
     if (!tablist) return;
     const panelHost = root.querySelector<HTMLElement>('.hl-tabpanels') ?? root;
-    const tabs = Array.from(
-      tablist.querySelectorAll<HTMLElement>(':scope > .hl-tab, :scope > [role="tab"]'),
-    );
-    const panels = Array.from(
-      panelHost.querySelectorAll<HTMLElement>(':scope > .hl-tabpanel, :scope > [role="tabpanel"]'),
-    );
-    if (tabs.length === 0 || panels.length === 0) return;
 
-    const radios = tabs.map((tab) => tab.querySelector<HTMLInputElement>('input[type="radio"]'));
-    const disabled = tabs.map(
-      (tab, i) =>
-        tab.hasAttribute('disabled') ||
-        tab.getAttribute('aria-disabled') === 'true' ||
-        Boolean(radios[i]?.disabled),
-    );
+    const collect = (): Tab[] => {
+      const tabs = Array.from(
+        tablist.querySelectorAll<HTMLElement>(':scope > .hl-tab, :scope > [role="tab"]'),
+      );
+      const panels = Array.from(
+        panelHost.querySelectorAll<HTMLElement>(
+          ':scope > .hl-tabpanel, :scope > [role="tabpanel"]',
+        ),
+      );
+      return tabs.map((el, i) => {
+        const radio = el.querySelector<HTMLInputElement>('input[type="radio"]');
+        return {
+          el,
+          radio,
+          panel: panels[i] ?? null,
+          value: radio?.value || el.getAttribute('data-hl-value') || String(i),
+          disabled:
+            el.hasAttribute('disabled') ||
+            el.getAttribute('aria-disabled') === 'true' ||
+            Boolean(radio?.disabled),
+        };
+      });
+    };
+
+    let tabs = collect();
+    if (tabs.length === 0 || !tabs.some((tab) => tab.panel)) return;
 
     const vertical = options.orientation === 'vertical';
     setAttrs(tablist, { role: 'tablist', 'aria-orientation': options.orientation ?? 'horizontal' });
 
-    const valueOf = (tab: HTMLElement, i: number): string =>
-      radios[i]?.value || tab.getAttribute('data-hl-value') || String(i);
-    const values = tabs.map(valueOf);
-    const indexOfValue = (value: string) => values.indexOf(value);
-
-    const firstEnabled = disabled.findIndex((d) => !d);
     // Server-rendered selection: a pre-checked radio (CSS-only baseline) or a
     // pre-set `aria-selected` (button markup) both seed the initial tab.
-    const preselected = (() => {
-      const byRadio = radios.findIndex((radio) => radio?.checked);
-      if (byRadio !== -1) return byRadio;
-      return tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
-    })();
-    let selected =
-      options.defaultValue != null && indexOfValue(options.defaultValue) !== -1
-        ? indexOfValue(options.defaultValue)
-        : preselected !== -1
-          ? preselected
-          : Math.max(firstEnabled, 0);
+    const preselected =
+      tabs.find((tab) => tab.radio?.checked) ??
+      tabs.find((tab) => tab.el.getAttribute('aria-selected') === 'true');
+    const firstEnabled = tabs.find((tab) => !tab.disabled) ?? tabs[0];
+    let selected: string =
+      options.defaultValue != null && tabs.some((tab) => tab.value === options.defaultValue)
+        ? options.defaultValue
+        : (preselected ?? firstEnabled).value;
 
-    tabs.forEach((tab, i) => {
-      const tabId = ensureId(tab, 'hl-tab');
-      setAttrs(tab, { role: 'tab' });
-      // The radio is the no-JS state holder. Once JS owns the tabs, `role="tab"`
-      // sits on the wrapping label, so a still-focusable radio inside it would be
-      // a nested interactive control. `hidden` takes it out of the focus order
-      // and the accessibility tree while it keeps driving the CSS `:checked`
-      // baseline; it's restored on destroy so that baseline returns intact.
-      const radio = radios[i];
-      if (radio) {
-        setAttrs(radio, { tabindex: -1, 'aria-hidden': 'true' });
-        radio.hidden = true;
-        add(() => {
-          radio.hidden = false;
-          radio.removeAttribute('tabindex');
-          radio.removeAttribute('aria-hidden');
-        });
+    const wired = new WeakSet<HTMLElement>();
+    /** Roles, ids, and relationships for every tab and panel; idempotent. */
+    const prepare = () => {
+      for (const tab of tabs) {
+        const tabId = ensureId(tab.el, 'hl-tab');
+        setAttrs(tab.el, { role: 'tab' });
+        // The radio is the no-JS state holder. Once JS owns the tabs, `role="tab"`
+        // sits on the wrapping label, so a still-focusable radio inside it would be
+        // a nested interactive control. `hidden` takes it out of the focus order
+        // and the accessibility tree while it keeps driving the CSS `:checked`
+        // baseline; it's restored on destroy so that baseline returns intact.
+        const radio = tab.radio;
+        if (radio && !wired.has(radio)) {
+          wired.add(radio);
+          setAttrs(radio, { tabindex: -1, 'aria-hidden': 'true' });
+          radio.hidden = true;
+          add(() => {
+            radio.hidden = false;
+            radio.removeAttribute('tabindex');
+            radio.removeAttribute('aria-hidden');
+          });
+        }
+        if (tab.panel) {
+          const panelId = ensureId(tab.panel, 'hl-panel');
+          setAttrs(tab.el, { 'aria-controls': panelId });
+          setAttrs(tab.panel, { role: 'tabpanel', tabindex: 0, 'aria-labelledby': tabId });
+        }
       }
-      const panel = panels[i];
-      if (panel) {
-        const panelId = ensureId(panel, 'hl-panel');
-        setAttrs(tab, { 'aria-controls': panelId });
-        setAttrs(panel, { role: 'tabpanel', tabindex: 0, 'aria-labelledby': tabId });
-      }
-    });
+    };
 
     /**
      * Reflect `selected` into ARIA, roving tabindex, panel visibility, and the
@@ -127,27 +145,29 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
      * keeping the radios in sync lets the no-JS CSS baseline stay correct.
      */
     const paint = (focus: boolean) => {
-      tabs.forEach((tab, i) => {
-        const isSelected = i === selected;
-        setAttrs(tab, { 'aria-selected': isSelected ? 'true' : 'false' });
-        tab.tabIndex = isSelected ? 0 : -1;
-        const radio = radios[i];
-        if (radio) radio.checked = isSelected;
-        const panel = panels[i];
-        if (panel) panel.hidden = !isSelected;
-      });
-      if (focus) tabs[selected]?.focus();
+      if (!tabs.some((tab) => tab.value === selected)) {
+        // The selected tab was removed: fall back to the first enabled one.
+        selected = (tabs.find((tab) => !tab.disabled) ?? tabs[0])?.value ?? selected;
+      }
+      for (const tab of tabs) {
+        const isSelected = tab.value === selected;
+        setAttrs(tab.el, { 'aria-selected': isSelected ? 'true' : 'false' });
+        tab.el.tabIndex = isSelected ? 0 : -1;
+        if (tab.radio) tab.radio.checked = isSelected;
+        if (tab.panel) tab.panel.hidden = !isSelected;
+      }
+      if (focus) tabs.find((tab) => tab.value === selected)?.el.focus();
     };
 
     const select = (index: number, focus = true) => {
-      if (index < 0 || index >= tabs.length || disabled[index]) return;
-      const changed = index !== selected;
-      selected = index;
+      const tab = tabs[index];
+      if (!tab || tab.disabled) return;
+      const changed = tab.value !== selected;
+      selected = tab.value;
       paint(focus);
       if (changed) {
-        const value = values[selected];
-        options.onValueChange?.(value);
-        emit(Events.change, { value });
+        options.onValueChange?.(selected);
+        emit(Events.change, { value: selected });
       }
     };
 
@@ -155,7 +175,7 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
     const move = (from: number, direction: MoveDirection): number => {
       let index = nextIndex(from, tabs.length, direction);
       const step = direction === 'first' ? 'next' : direction === 'last' ? 'prev' : direction;
-      for (let i = 0; i < tabs.length && disabled[index]; i += 1) {
+      for (let i = 0; i < tabs.length && tabs[index].disabled; i += 1) {
         index = nextIndex(index, tabs.length, step);
       }
       return index;
@@ -166,23 +186,34 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
     root.setAttribute('data-hl-ready', '');
     add(() => root.removeAttribute('data-hl-ready'));
 
+    prepare();
     paint(false);
 
+    // Tabs or panels added or removed later: re-collect, wire, and repaint.
+    observe(root, () => {
+      tabs = collect();
+      if (tabs.length === 0) return;
+      prepare();
+      paint(false);
+    });
+
     on(tablist, 'click', (e) => {
-      const tab = (e.target as HTMLElement).closest<HTMLElement>('.hl-tab, [role="tab"]');
-      if (!tab || !tabs.includes(tab) || disabled[tabs.indexOf(tab)]) return;
+      const el = (e.target as HTMLElement).closest<HTMLElement>('.hl-tab, [role="tab"]');
+      const index = el ? tabs.findIndex((tab) => tab.el === el) : -1;
+      if (index === -1 || tabs[index].disabled) return;
       // Own selection ourselves so focus lands on the tab, not its hidden radio.
       e.preventDefault();
-      select(tabs.indexOf(tab));
+      select(index);
     });
 
     on<KeyboardEvent>(tablist, 'keydown', (e) => {
       const active = (root.ownerDocument.activeElement as HTMLElement) ?? null;
-      const current = active ? tabs.indexOf(active) : -1;
+      const current = active ? tabs.findIndex((tab) => tab.el === active) : -1;
       if (current === -1) return;
 
-      const prevKey = vertical ? Keys.ArrowUp : Keys.ArrowLeft;
-      const nextKey = vertical ? Keys.ArrowDown : Keys.ArrowRight;
+      const rtl = isRtl(root);
+      const prevKey = vertical ? Keys.ArrowUp : rtl ? Keys.ArrowRight : Keys.ArrowLeft;
+      const nextKey = vertical ? Keys.ArrowDown : rtl ? Keys.ArrowLeft : Keys.ArrowRight;
       let direction: MoveDirection | null = null;
       if (e.key === nextKey) direction = 'next';
       else if (e.key === prevKey) direction = 'prev';
@@ -193,7 +224,7 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
         e.preventDefault();
         const target = move(current, direction);
         if (options.activation === 'automatic') select(target);
-        else tabs[target]?.focus();
+        else tabs[target]?.el.focus();
         return;
       }
 
@@ -205,10 +236,10 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
 
     return {
       get value() {
-        return values[selected];
+        return selected;
       },
       setValue(value, { focus = false } = {}) {
-        const index = indexOfValue(value);
+        const index = tabs.findIndex((tab) => tab.value === value);
         if (index !== -1) select(index, focus);
       },
     };

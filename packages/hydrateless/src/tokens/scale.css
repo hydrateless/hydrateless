@@ -84,11 +84,7 @@
     --hl-focus-offset: 2px;
 
     /* Z-index scale */
-    --hl-z-base: 0;
     --hl-z-dropdown: 1000;
-    --hl-z-sticky: 1100;
-    --hl-z-drawer: 1200;
-    --hl-z-modal: 1300;
     --hl-z-popover: 1400;
     --hl-z-toast: 1500;
     --hl-z-tooltip: 1600;

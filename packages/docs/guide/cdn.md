@@ -42,8 +42,8 @@ and bump it deliberately:
 ```
 
 Before 1.0, minor releases can include breaking changes, so pin the minor
-instead (`hydrateless@0.8`). Pin an exact version (`hydrateless@1.2.3`) when you
-need byte-for-byte reproducibility, for example alongside a Subresource
+instead (`hydrateless@0.10`). Pin an exact version (`hydrateless@1.2.3`) when
+you need byte-for-byte reproducibility, for example alongside a Subresource
 Integrity hash.
 
 ## What's in the bundle
@@ -52,7 +52,23 @@ The CDN `@hydrateless/auto` bundle (`dist/hydrateless.js`) is **self-contained**
 all enhancers are inlined, so a single `<script type="module">` works without an
 import map or any bundler. It scans the page for `data-hl-*` attributes on
 `DOMContentLoaded`, enhances only the components it finds, and keeps watching
-for content added later.
+for content added later. If one enhancer throws, the others still run; the
+failure is reported to `console.error` (or your own `onError`, see below).
+
+## Configuring without JavaScript
+
+The bundle passes no options, so configuration lives in the markup. Every
+non-function option has a `data-hl-*` attribute:
+
+```html
+<div data-hl-accordion data-hl-allow-multiple>…</div>
+<div data-hl-tabs data-hl-activation="automatic">…</div>
+<nav data-hl-pagination data-hl-total="20" data-hl-default-value="3"><ul></ul></nav>
+<div data-hl-toast-region data-hl-duration="8000"></div>
+```
+
+See [Configuring with Data Attributes](/guide/data-attributes) for naming and
+parsing rules.
 
 ## CSS options
 
@@ -88,14 +104,19 @@ The same paths work on jsDelivr; swap the host for `https://cdn.jsdelivr.net/npm
 
 ## Manual control via the CDN
 
-If you'd rather drive enhancers yourself, import the named exports from the
-bundle instead of relying on the side-effecting auto-run:
+If you'd rather drive enhancers yourself, add `data-hl-manual` to `<html>` so
+importing the bundle doesn't scan the page, then call `autoSync` with the
+container and options you want:
 
 ```html
-<script type="module">
-  import { autoSync } from 'https://unpkg.com/@hydrateless/auto@1/dist/hydrateless.js';
+<html data-hl-manual>
+  <script type="module">
+    import { autoSync } from 'https://unpkg.com/@hydrateless/auto@1/dist/hydrateless.js';
 
-  // Enhance only a specific subtree, and keep the disposer for later cleanup.
-  const dispose = autoSync(document.querySelector('#widget'));
-</script>
+    // Enhance only a specific subtree, and keep the disposer for later cleanup.
+    const dispose = autoSync(document.querySelector('#widget'), {
+      onError: (error, component) => console.warn(component, error),
+    });
+  </script>
+</html>
 ```

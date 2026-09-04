@@ -41,6 +41,18 @@ export function setAttrs(el: Element, attrs: Record<string, AttrValue>): void {
   }
 }
 
+/**
+ * Whether `el` lays out right-to-left, from the nearest `dir` attribute or,
+ * failing that, its computed `direction`. Enhancers use this to map logical
+ * `start`/`end` (placements, arrow keys) onto physical sides.
+ */
+export function isRtl(el: Element): boolean {
+  const dir = el.closest('[dir]')?.getAttribute('dir');
+  if (dir) return dir.toLowerCase() === 'rtl';
+  const view = el.ownerDocument.defaultView;
+  return view?.getComputedStyle(el).direction === 'rtl';
+}
+
 /** The owning document of a node, falling back to the global `document`. */
 export function getDocument(node: Node | null | undefined): Document {
   return node?.ownerDocument ?? document;

@@ -19,7 +19,7 @@
   data-hl-dropdown-trigger
   popovertarget={dropdown?.menuId}
   aria-haspopup="menu"
-  aria-expanded="false"
+  aria-expanded={dropdown?.open ?? false}
   aria-controls={dropdown?.menuId}
 >
   {@render children?.()}

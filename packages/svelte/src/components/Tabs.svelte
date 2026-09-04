@@ -4,6 +4,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setTabsContext } from '../context.js';
+  import { createRegistry } from '../registry.svelte.js';
   import { useEnhancer } from '../useEnhancer.svelte.js';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -35,24 +36,20 @@
 
   // Tabs and panels register in document order so `aria-selected`/`hidden`
   // render on the server and the enhancer finds them already in agreement.
-  const tabValues: string[] = [];
-  let panelCount = 0;
+  // Registries keep indexes live when an `{#each}` adds or removes tabs.
+  const tabs = createRegistry<() => string | undefined>();
+  const panels = createRegistry();
+  const tabValues = $derived(tabs.entries.map((get, index) => get() ?? String(index)));
   setTabsContext({
     get value() {
       return value ?? tabValues[0];
     },
-    registerTab(tabValue) {
-      const index = tabValues.length;
-      tabValues.push(tabValue ?? String(index));
-      return index;
-    },
-    registerPanel() {
-      return panelCount++;
-    },
+    registerTab: (getValue) => tabs.register(getValue),
+    registerPanel: () => panels.register(),
     tabValueAt: (index) => tabValues[index],
   });
 
-  const tabs = useEnhancer(enhanceTabs, () => ({
+  const enhanced = useEnhancer(enhanceTabs, () => ({
     activation,
     orientation,
     defaultValue: untrack(() => value),
@@ -63,10 +60,10 @@
   }));
 
   $effect(() => {
-    if (value != null) tabs.api?.setValue(value);
+    if (value != null) enhanced.api?.setValue(value);
   });
 </script>
 
-<div {...rest} data-hl-tabs data-hl-orientation={orientation} {@attach tabs.attach}>
+<div {...rest} data-hl-tabs data-hl-orientation={orientation} {@attach enhanced.attach}>
   {@render children?.()}
 </div>

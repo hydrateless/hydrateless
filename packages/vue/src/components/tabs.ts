@@ -12,7 +12,13 @@ import {
   type PropType,
 } from 'vue';
 import { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from '@hydrateless/enhancers';
-import { useApiSync, useControlled } from '../internal/index.js';
+import {
+  createRegistry,
+  useApiSync,
+  useControlled,
+  useRegistration,
+  type Registration,
+} from '../internal/index.js';
 import { useEnhancer } from '../useEnhancer.js';
 
 interface TabsContext {
@@ -20,10 +26,14 @@ interface TabsContext {
   /** Selected value; `undefined` selects the first tab. */
   value: ComputedRef<string | undefined>;
   /** Tab values in order, so panels can match by position like the enhancer. */
-  values: string[];
-  /** Claim the next tab (or panel) index; the enhancer falls back to it too. */
-  tab: (value: string | undefined) => number;
-  panel: () => number;
+  values: ComputedRef<string[]>;
+  /**
+   * Register a tab (with its value getter) or panel. Indexes are live, so
+   * tabs added or removed by a `v-for` renumber the rest; call `unregister`
+   * on unmount.
+   */
+  tab: (value: () => string | undefined) => Registration;
+  panel: () => Registration;
 }
 const TabsKey: InjectionKey<TabsContext> = Symbol('hl-tabs');
 
@@ -86,14 +96,17 @@ export const Tabs = defineComponent({
       (a) => a.value,
       (a, v) => a.setValue(v),
     );
-    const values: string[] = [];
-    let panels = 0;
+    // Tabs register a value getter so `values` stays in DOM order even when
+    // a `v-for` inserts or removes tabs after mount.
+    const tabs = createRegistry<() => string | undefined>();
+    const panels = createRegistry();
+    const values = computed(() => tabs.entries.value.map((get, i) => get() ?? String(i)));
     provide(TabsKey, {
       id: useId(),
       value,
       values,
-      tab: (v) => values.push(v ?? String(values.length)) - 1,
-      panel: () => panels++,
+      tab: (getValue) => tabs.register(getValue),
+      panel: () => panels.register(),
     });
     return () => h('div', { ...attrs, 'data-hl-tabs': '', ref: host }, slots.default?.());
   },
@@ -123,7 +136,7 @@ export type TabProps = ExtractPublicPropTypes<typeof tabProps>;
 /** Whether the tab or panel at `index` is the selected one. */
 function isSelected(ctx: TabsContext | null, index: number) {
   const selected = ctx?.value.value;
-  return selected === undefined ? index === 0 : ctx!.values.indexOf(selected) === index;
+  return selected === undefined ? index === 0 : ctx!.values.value.indexOf(selected) === index;
 }
 
 /** A single tab trigger (`role="tab"`). */
@@ -133,19 +146,20 @@ export const Tab = defineComponent({
   props: tabProps,
   setup(props, { slots, attrs }) {
     const ctx = inject(TabsKey, null);
-    const index = ctx?.tab(props.value) ?? 0;
-    const selected = computed(() => isSelected(ctx, index));
+    const { node, index } = useRegistration(ctx?.tab(() => props.value));
+    const selected = computed(() => isSelected(ctx, index.value));
     return () =>
       h(
         'button',
         {
           type: 'button',
           ...attrs,
-          id: ctx && `${ctx.id}-t${index}`,
+          ref: node,
+          id: ctx && `${ctx.id}-t${index.value}`,
           role: 'tab',
           'data-hl-value': props.value,
           'aria-selected': String(selected.value),
-          'aria-controls': ctx && `${ctx.id}-p${index}`,
+          'aria-controls': ctx && `${ctx.id}-p${index.value}`,
           'aria-disabled': props.disabled || undefined,
           tabindex: selected.value ? 0 : -1,
         },
@@ -163,16 +177,17 @@ export const TabPanel = defineComponent({
   inheritAttrs: false,
   setup(_, { slots, attrs }) {
     const ctx = inject(TabsKey, null);
-    const index = ctx?.panel() ?? 0;
-    const selected = computed(() => isSelected(ctx, index));
+    const { node, index } = useRegistration(ctx?.panel());
+    const selected = computed(() => isSelected(ctx, index.value));
     return () =>
       h(
         'div',
         {
           ...attrs,
-          id: ctx && `${ctx.id}-p${index}`,
+          ref: node,
+          id: ctx && `${ctx.id}-p${index.value}`,
           role: 'tabpanel',
-          'aria-labelledby': ctx && `${ctx.id}-t${index}`,
+          'aria-labelledby': ctx && `${ctx.id}-t${index.value}`,
           tabindex: 0,
           hidden: !selected.value,
         },

@@ -88,7 +88,7 @@ test.describe('baseline (no JS)', () => {
     await expect(page.locator('#file')).toBeVisible();
     await expect(page.locator('#edit')).toBeVisible();
     await expect(page.locator('#v-view')).toBeVisible();
-    for (const submenu of await page.locator('[data-hl-menu-submenu]').all()) {
+    for (const submenu of await page.locator('[data-hl-submenu]').all()) {
       await expect(submenu).toBeHidden();
     }
     // Nothing has claimed the menu, so the CSS hover/focus-within baseline applies.
@@ -152,6 +152,36 @@ test.describe('baseline (no JS)', () => {
 
     await page.locator('#cancel').click();
     await expect(dialog).toHaveJSProperty('open', false);
+  });
+
+  test('pagination: authored links navigate natively, empty list stays empty', async ({ page }) => {
+    await gotoFixture(page, 'pagination', 'baseline');
+    const authored = page.locator('#authored');
+    await expect(authored.locator('[aria-current="page"]')).toHaveText('2');
+    await authored.locator('[data-hl-page="3"]').click();
+    expect(new URL(page.url()).hash).toBe('#p3');
+    // Nothing renders the second list without JavaScript; the server would.
+    await expect(page.locator('#rendered li')).toHaveCount(0);
+    await expectNoAxeViolations(page);
+  });
+
+  test('table: rows stay in authored order and headers are plain', async ({ page }) => {
+    await gotoFixture(page, 'table', 'baseline');
+    await expect(page.locator('th[aria-sort]')).toHaveCount(0);
+    await expect(page.locator('tbody tr td:first-child')).toHaveText([
+      'Grace Hopper',
+      'Ada Lovelace',
+      'Margaret Hamilton',
+    ]);
+    await expectNoAxeViolations(page);
+  });
+
+  test('segmented control: button variant keeps its aria-pressed fallback', async ({ page }) => {
+    await gotoFixture(page, 'segmented-control', 'baseline');
+    const day = page.locator('#buttons .hl-segmented-item', { hasText: 'Day' });
+    await expect(day).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#buttons [role="radio"]')).toHaveCount(0);
+    await expectNoAxeViolations(page);
   });
 
   test('drawer: command/commandfor opens and closes declaratively', async ({ page }) => {

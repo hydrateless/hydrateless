@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import { onDestroy, type Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { getTabsContext } from '../context.js';
 
@@ -12,14 +12,17 @@
 
   let { value, type, children, ...rest }: Props = $props();
   const tabs = getTabsContext();
-  // svelte-ignore state_referenced_locally -- the value identifies this tab for its lifetime
-  const index = tabs?.registerTab(value) ?? 0;
-  const ownValue = $derived(value ?? String(index));
+  const registration = tabs?.registerTab(() => value);
+  onDestroy(() => registration?.unregister());
+  let node = $state<HTMLButtonElement | null>(null);
+  $effect(() => registration?.attach(node));
+  const ownValue = $derived(value ?? String(registration?.index ?? 0));
   const selected = $derived(tabs ? tabs.value === ownValue : undefined);
 </script>
 
 <button
   {...rest}
+  bind:this={node}
   type={type ?? 'button'}
   role="tab"
   data-hl-value={value}

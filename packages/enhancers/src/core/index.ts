@@ -3,6 +3,11 @@ export {
   defineEnhancer,
   resolveContainer,
   toHandle,
+  readAttributes,
+  attributeName,
+  omitUndefined,
+  type AttributeType,
+  type AttributeSchema,
   type Enhancer,
   type EnhancerContext,
   type EnhancerDefinition,
@@ -10,7 +15,7 @@ export {
   type EnhancerInstance,
 } from './define.js';
 export { Events, emit, type EmitOptions } from './events.js';
-export { isBrowser, resolveRef, ensureId, setAttrs, getDocument, getWindow } from './dom.js';
+export { isBrowser, isRtl, resolveRef, ensureId, setAttrs, getDocument, getWindow } from './dom.js';
 export { lockScroll } from './scroll-lock.js';
 export { prefersReducedMotion, afterTransition } from './motion.js';
 export {
@@ -23,10 +28,10 @@ export {
 } from './keys.js';
 export {
   supportsPopover,
-  supportsInvokers,
   supportsAnchorPositioning,
   positionFallback,
   keepPositioned,
+  parsePlacement,
   type Placement,
   type Side,
   type Align,
@@ -43,3 +48,13 @@ export {
   prepareMenuItems,
   type MenuItemActivation,
 } from './menu-items.js';
+export {
+  MENU_SURFACE_SELECTOR,
+  submenuOf,
+  menuOf,
+  createSubmenus,
+  type SubmenuLayer,
+  type SubmenuOptions,
+  type SubmenuController,
+} from './submenus.js';
+export { ELLIPSIS, paginationRange, type PaginationEntry } from './pagination.js';
