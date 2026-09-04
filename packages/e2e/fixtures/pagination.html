@@ -9,16 +9,47 @@
   <body>
     <main>
       <h1>Pagination</h1>
-      <nav class="hl-pagination" aria-label="Pagination">
+      <!-- Authored controls: links keep navigating without JavaScript; the
+           enhancer turns hash links into in-page page changes. -->
+      <nav class="hl-pagination" aria-label="Pagination" data-hl-pagination id="authored">
         <ul>
-          <li><a class="hl-pagination-item" href="#p1">1</a></li>
-          <li><a class="hl-pagination-item" href="#p2" aria-current="page">2</a></li>
-          <li><a class="hl-pagination-item" href="#p3">3</a></li>
+          <li>
+            <a class="hl-pagination-item" href="#p1" data-hl-page="prev" aria-label="Previous page"
+              >‹</a
+            >
+          </li>
+          <li><a class="hl-pagination-item" href="#p1" data-hl-page="1">1</a></li>
+          <li>
+            <a class="hl-pagination-item" href="#p2" data-hl-page="2" aria-current="page">2</a>
+          </li>
+          <li><a class="hl-pagination-item" href="#p3" data-hl-page="3">3</a></li>
           <li><span class="hl-pagination-ellipsis" aria-hidden="true">…</span></li>
-          <li><a class="hl-pagination-item" href="#p9">9</a></li>
+          <li><a class="hl-pagination-item" href="#p9" data-hl-page="9">9</a></li>
+          <li>
+            <a class="hl-pagination-item" href="#p3" data-hl-page="next" aria-label="Next page"
+              >›</a
+            >
+          </li>
         </ul>
       </nav>
+      <!-- Rendered controls: an empty list plus a total; the enhancer fills it. -->
+      <nav
+        class="hl-pagination"
+        aria-label="Search results"
+        data-hl-pagination
+        data-hl-total="20"
+        data-hl-default-value="10"
+        id="rendered"
+      >
+        <ul></ul>
+      </nav>
+      <p id="result" aria-live="polite"></p>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+    <script type="module">
+      document.addEventListener('hl:change', (event) => {
+        document.getElementById('result').textContent = `${event.target.id}:${event.detail.value}`;
+      });
+    </script>
   </body>
 </html>

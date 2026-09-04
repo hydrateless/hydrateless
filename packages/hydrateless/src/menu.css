@@ -1,7 +1,9 @@
 /**
  * Menubar / navigation menu: `<ul data-hl-menu role="menubar">` of `<li>`
- * items, each optionally holding a trigger and a single-level submenu
- * (`<ul role="menu">` or `[data-hl-menu-submenu]`) as siblings inside the `<li>`.
+ * items, each optionally holding a trigger and a submenu (`<ul role="menu">`
+ * or `[data-hl-submenu]`) as siblings inside the `<li>`. Submenus nest: an
+ * item inside a submenu may itself be followed by a submenu, which opens to
+ * its inline-end side.
  *
  * No-JS baseline: a submenu shows while its `<li>` is hovered or has focus
  * within it, so every link stays reachable by mouse and keyboard. The enhancer
@@ -9,7 +11,7 @@
  * plus a top-layer `popover`) and adds roving focus, arrow keys, typeahead,
  * and checkable items. It reads:
  *   data-hl-menu:          root; `aria-orientation="vertical"` stacks it
- *   data-hl-menu-submenu:  a submenu without `role="menu"`
+ *   data-hl-submenu:       a submenu without `role="menu"`
  *   data-hl-value:         a top-level trigger's value for `hl:change`
  *   data-hl-ready:         set by the enhancer
  */
@@ -78,7 +80,13 @@
     opacity: 0.6;
   }
 
-  [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu]) {
+  /* Submenus that open to the side point their chevron that way. */
+  [data-hl-menu][aria-orientation='vertical'] [role^='menuitem'][aria-haspopup]::after,
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu]) [role^='menuitem'][aria-haspopup]::after {
+    rotate: -45deg;
+  }
+
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu]) {
     position: absolute;
     inset-block-start: calc(100% + var(--hl-space-1));
     inset-inline-start: 0;
@@ -98,17 +106,22 @@
       overlay var(--hl-duration-fast) allow-discrete;
   }
 
-  [data-hl-menu][aria-orientation='vertical'] :is([role='menu'], [data-hl-menu-submenu]) {
+  /* Vertical menubars and every nested level open to the inline-end side. */
+  [data-hl-menu][aria-orientation='vertical'] :is([role='menu'], [data-hl-submenu]),
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu]) :is([role='menu'], [data-hl-submenu]) {
     inset-block-start: 0;
     inset-inline-start: calc(100% + var(--hl-space-1));
+  }
+
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu]) li {
+    position: relative;
   }
 
   /* Closed states: `hidden` (enhancer without Popover API), a closed popover
      (enhancer with it), and the no-JS baseline below. Each is also the exit
      target of the transition. */
-  [data-hl-menu]
-    :is([role='menu'], [data-hl-menu-submenu]):is([hidden], [popover]:not(:popover-open)),
-  [data-hl-menu]:not([data-hl-ready]) :is([role='menu'], [data-hl-menu-submenu]) {
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu]):is([hidden], [popover]:not(:popover-open)),
+  [data-hl-menu]:not([data-hl-ready]) :is([role='menu'], [data-hl-submenu]) {
     display: none;
     opacity: 0;
     translate: 0 -0.25rem;
@@ -117,14 +130,14 @@
   /* No-JS baseline: reveal on hover or focus within the parent item. */
   [data-hl-menu]:not([data-hl-ready])
     li:is(:hover, :focus-within)
-    > :is([role='menu'], [data-hl-menu-submenu]) {
+    > :is([role='menu'], [data-hl-submenu]) {
     display: block;
     opacity: 1;
     translate: 0 0;
   }
 
   @starting-style {
-    [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu]) {
+    [data-hl-menu] :is([role='menu'], [data-hl-submenu]) {
       opacity: 0;
       translate: 0 -0.25rem;
     }
@@ -133,20 +146,22 @@
   /* Enhanced path: the submenu is a native popover in the top layer, anchored
      to its trigger. The absolute-position rules above stay as the fallback for
      engines without the Popover API. */
-  [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu])[popover] {
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu])[popover] {
     position: fixed;
     inset: auto;
   }
 
   @supports (position-area: block-end) {
-    [data-hl-menu] :is([role='menu'], [data-hl-menu-submenu])[popover] {
+    [data-hl-menu] :is([role='menu'], [data-hl-submenu])[popover] {
       position-area: block-end span-inline-end;
       position-try-fallbacks: flip-block, flip-inline;
       margin-block: var(--hl-space-1);
     }
 
-    [data-hl-menu][aria-orientation='vertical']
-      :is([role='menu'], [data-hl-menu-submenu])[popover] {
+    [data-hl-menu][aria-orientation='vertical'] :is([role='menu'], [data-hl-submenu])[popover],
+    [data-hl-menu]
+      :is([role='menu'], [data-hl-submenu])
+      :is([role='menu'], [data-hl-submenu])[popover] {
       position-area: inline-end span-block-end;
       position-try-fallbacks: flip-inline, flip-block;
       margin-block: 0;

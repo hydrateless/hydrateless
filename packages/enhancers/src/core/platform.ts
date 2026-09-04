@@ -1,12 +1,26 @@
-import { getWindow, isBrowser } from './dom.js';
+import { getWindow, isBrowser, isRtl } from './dom.js';
 import { combine, noop, on, type Disposer } from './lifecycle.js';
 
-/** Edge of the anchor a floating element is placed against. */
-export type Side = 'top' | 'bottom' | 'left' | 'right';
+/**
+ * Edge of the anchor a floating element is placed against. `start` and `end`
+ * are logical inline sides, so a placement mirrors under `dir="rtl"`.
+ */
+export type Side = 'top' | 'bottom' | 'start' | 'end';
 /** Alignment of a floating element along its chosen side. */
 export type Align = 'start' | 'center' | 'end';
 /** A {@link Side}, optionally suffixed with an {@link Align} (e.g. `bottom-start`). */
 export type Placement = Side | `${Side}-${Align}`;
+
+const SIDES: readonly Side[] = ['top', 'bottom', 'start', 'end'];
+const ALIGNS: readonly Align[] = ['start', 'center', 'end'];
+
+/** Parse a `data-hl-placement` attribute; `undefined` when it isn't a valid {@link Placement}. */
+export function parsePlacement(raw: string): Placement | undefined {
+  const [side, align] = raw.trim().split('-') as [Side, Align?];
+  if (!SIDES.includes(side)) return undefined;
+  if (align === undefined) return side;
+  return ALIGNS.includes(align) ? `${side}-${align}` : undefined;
+}
 
 /** Options for {@link positionFallback}. */
 export interface PositionOptions {
@@ -35,23 +49,10 @@ export function supportsPopover(): boolean {
 }
 
 /**
- * Whether the engine understands HTML Invoker Commands (`command`/`commandfor`
- * on `<button>`), which open dialogs and toggle popovers with no JavaScript.
- * Baseline since December 2025.
- */
-export function supportsInvokers(): boolean {
-  return (
-    isBrowser &&
-    typeof HTMLButtonElement !== 'undefined' &&
-    'commandForElement' in HTMLButtonElement.prototype
-  );
-}
-
-/**
  * Whether the engine understands CSS anchor positioning (`anchor-name`,
  * `position-anchor`, `position-area`, `position-try`). Baseline since January
- * 2026. When this is `false`, the auto-loader pulls in the JS positioning
- * fallback so floating surfaces are still placed against their anchor.
+ * 2026. When this is `false`, the enhancers run the JS positioning fallback
+ * so floating surfaces are still placed against their anchor.
  */
 export function supportsAnchorPositioning(): boolean {
   return (
@@ -62,7 +63,9 @@ export function supportsAnchorPositioning(): boolean {
   );
 }
 
-const OPPOSITE: Record<Side, Side> = {
+type Physical = 'top' | 'bottom' | 'left' | 'right';
+
+const OPPOSITE: Record<Physical, Physical> = {
   top: 'bottom',
   bottom: 'top',
   left: 'right',
@@ -74,13 +77,25 @@ function parse(placement: Placement): { side: Side; align: Align } {
   return { side, align: align ?? 'center' };
 }
 
+function toPhysical(side: Side, rtl: boolean): Physical {
+  if (side === 'start') return rtl ? 'right' : 'left';
+  if (side === 'end') return rtl ? 'left' : 'right';
+  return side;
+}
+
+function toLogical(side: Physical, rtl: boolean): Side {
+  if (side === 'left') return rtl ? 'end' : 'start';
+  if (side === 'right') return rtl ? 'start' : 'end';
+  return side;
+}
+
 /**
  * JavaScript positioning fallback for browsers without CSS anchor positioning.
  * Places `floating` relative to `anchor` with flip + shift collision handling,
- * setting inline `position`/`top`/`left` plus `data-hl-side`/`data-hl-align`
- * for CSS to react to (e.g. arrow direction). Modern engines never call this:
- * the stylesheet positions floating surfaces declaratively. No-ops gracefully
- * when the anchor has no layout box (e.g. jsdom).
+ * setting inline `position`/`top`/`left` plus logical `data-hl-side`/
+ * `data-hl-align` for CSS to react to (e.g. arrow direction). Modern engines
+ * never call this: the stylesheet positions floating surfaces declaratively.
+ * No-ops gracefully when the anchor has no layout box (e.g. jsdom).
  */
 export function positionFallback(
   anchor: HTMLElement,
@@ -88,8 +103,9 @@ export function positionFallback(
   options: PositionOptions = {},
 ): PositionResult {
   const { placement = 'bottom', gutter = 6, padding = 8, strategy = 'fixed' } = options;
+  const rtl = isRtl(anchor);
   const parsed = parse(placement);
-  let side = parsed.side;
+  let side = toPhysical(parsed.side, rtl);
   const { align } = parsed;
 
   const win = getWindow(anchor);
@@ -99,12 +115,12 @@ export function positionFallback(
   const vh = win.innerHeight || 0;
 
   if (anchorRect.width === 0 && anchorRect.height === 0 && vw === 0) {
-    floating.dataset.hlSide = side;
+    floating.dataset.hlSide = parsed.side;
     floating.dataset.hlAlign = align;
-    return { side, align };
+    return { side: parsed.side, align };
   }
 
-  const fits = (s: Side): boolean => {
+  const fits = (s: Physical): boolean => {
     switch (s) {
       case 'top':
         return anchorRect.top - gutter - floatRect.height >= padding;
@@ -122,6 +138,8 @@ export function positionFallback(
   let top = 0;
   let left = 0;
   const isVertical = side === 'top' || side === 'bottom';
+  // Alignment is logical too: `start` hugs the anchor's inline-start edge.
+  const alignStart = rtl ? 'end' : 'start';
 
   if (side === 'bottom') top = anchorRect.bottom + gutter;
   else if (side === 'top') top = anchorRect.top - gutter - floatRect.height;
@@ -129,8 +147,8 @@ export function positionFallback(
   else left = anchorRect.left - gutter - floatRect.width;
 
   if (isVertical) {
-    if (align === 'start') left = anchorRect.left;
-    else if (align === 'end') left = anchorRect.right - floatRect.width;
+    if (align === alignStart) left = anchorRect.left;
+    else if (align !== 'center') left = anchorRect.right - floatRect.width;
     else left = anchorRect.left + anchorRect.width / 2 - floatRect.width / 2;
     left = Math.max(padding, Math.min(left, vw - floatRect.width - padding));
   } else {
@@ -149,10 +167,11 @@ export function positionFallback(
   floating.style.top = `${Math.round(top)}px`;
   floating.style.left = `${Math.round(left)}px`;
   floating.style.margin = '0';
-  floating.dataset.hlSide = side;
+  const logical = toLogical(side, rtl);
+  floating.dataset.hlSide = logical;
   floating.dataset.hlAlign = align;
 
-  return { side, align };
+  return { side: logical, align };
 }
 
 /**
@@ -160,15 +179,21 @@ export function positionFallback(
  * without CSS anchor positioning. Positions immediately, then again on every
  * scroll (anywhere in the document) and window resize, so a surface opened
  * from a scrolling container follows its anchor instead of drifting. Returns
- * a disposer that stops listening; on engines with anchor positioning this is
- * a no-op that returns `noop`, so callers can invoke it unconditionally.
+ * a disposer that stops listening. On engines with anchor positioning it only
+ * stamps the requested side onto `data-hl-side` (so the stylesheet can pick a
+ * `position-area`) and returns `noop`, so callers can invoke it unconditionally.
  */
 export function keepPositioned(
   anchor: HTMLElement,
   floating: HTMLElement,
   options: PositionOptions = {},
 ): Disposer {
-  if (supportsAnchorPositioning()) return noop;
+  const { side, align } = parse(options.placement ?? 'bottom');
+  if (supportsAnchorPositioning()) {
+    floating.dataset.hlSide = side;
+    floating.dataset.hlAlign = align;
+    return noop;
+  }
   const win = getWindow(anchor);
   const doc = anchor.ownerDocument;
   let frame: number | null = null;

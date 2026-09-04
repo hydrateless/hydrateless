@@ -47,7 +47,7 @@ export const Command = forwardRef<HTMLDivElement, CommandProps>(function Command
   useSyncApi(api, queryProp, (api, query) => api.setValue(query));
 
   return (
-    <div {...rest} ref={ref} data-hl-command data-hl-command-hotkey={hotkey}>
+    <div {...rest} ref={ref} data-hl-command data-hl-hotkey={hotkey}>
       {children}
     </div>
   );

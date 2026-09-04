@@ -1,6 +1,6 @@
 import type { Disposer } from '@hydrateless/enhancers/core';
 import type { ComponentName } from '@hydrateless/enhancers/manifest';
-import { createAuto, type AutoOptions, type Run } from './runtime.js';
+import { createAuto, shouldAutoStart, type AutoOptions, type Run } from './runtime.js';
 
 export type { AutoOptions };
 
@@ -13,11 +13,17 @@ export type { AutoOptions };
  */
 const loaders: Record<ComponentName, () => Promise<Run>> = {
   accordion: () => import('@hydrateless/enhancers/accordion').then((m) => m.enhanceAccordion),
+  alert: () => import('@hydrateless/enhancers/alert').then((m) => m.enhanceAlert),
+  checkbox: () => import('@hydrateless/enhancers/checkbox').then((m) => m.enhanceCheckbox),
   tabs: () => import('@hydrateless/enhancers/tabs').then((m) => m.enhanceTabs),
   disclosure: () => import('@hydrateless/enhancers/disclosure').then((m) => m.enhanceDisclosure),
   modal: () => import('@hydrateless/enhancers/modal').then((m) => m.enhanceModal),
   drawer: () => import('@hydrateless/enhancers/drawer').then((m) => m.enhanceDrawer),
+  pagination: () => import('@hydrateless/enhancers/pagination').then((m) => m.enhancePagination),
   popover: () => import('@hydrateless/enhancers/popover').then((m) => m.enhancePopover),
+  segmented: () => import('@hydrateless/enhancers/segmented').then((m) => m.enhanceSegmented),
+  slider: () => import('@hydrateless/enhancers/slider').then((m) => m.enhanceSlider),
+  table: () => import('@hydrateless/enhancers/table').then((m) => m.enhanceTable),
   tooltip: () => import('@hydrateless/enhancers/tooltip').then((m) => m.enhanceTooltip),
   dropdown: () => import('@hydrateless/enhancers/dropdown').then((m) => m.enhanceDropdown),
   menu: () => import('@hydrateless/enhancers/menu').then((m) => m.enhanceMenu),
@@ -46,7 +52,9 @@ export async function auto(
   return controller.dispose;
 }
 
-if (typeof window !== 'undefined') {
+// Importing the module starts it, unless the page opts out with
+// `<html data-hl-manual>` to call `auto()` itself (e.g. with options).
+if (shouldAutoStart()) {
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', () => void auto());
   } else {

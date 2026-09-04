@@ -6,6 +6,7 @@ import AccordionHarness from './harness/AccordionHarness.svelte';
 import DropdownHarness from './harness/DropdownHarness.svelte';
 import FieldHarness from './harness/FieldHarness.svelte';
 import TableHarness from './harness/TableHarness.svelte';
+import TooltipHarness from './harness/TooltipHarness.svelte';
 
 // Server output must already carry the state-dependent attributes so nothing
 // flashes before the enhancers hydrate.
@@ -37,6 +38,22 @@ describe('@hydrateless/svelte server rendering', () => {
     expect(body).toContain('role="group"');
     expect(body).toContain('aria-label="View"');
     expect(body).toMatch(/role="menuitemradio"[^>]*aria-checked="true"/);
+    expect(body).toMatch(/data-hl-dropdown-trigger[^>]*aria-expanded="false"/);
+  });
+
+  it('Dropdown renders aria-expanded from defaultOpen', () => {
+    const { body } = render(DropdownHarness, { props: { defaultOpen: true } });
+    expect(body).toMatch(/data-hl-dropdown-trigger[^>]*aria-expanded="true"/);
+  });
+
+  it('Tooltip links a spread trigger to the tip without a browser', () => {
+    const { body } = render(TooltipHarness);
+    const tipId = body.match(/data-hl-tooltip="([^"]+)"/)?.[1];
+    expect(tipId).toBeTruthy();
+    expect(body).toMatch(new RegExp(`<button[^>]*aria-describedby="${tipId}"`));
+    expect(body).toMatch(new RegExp(`<span[^>]*id="${tipId}"[^>]*role="tooltip"[^>]*hidden`));
+    // The fallback child is only linked on the client.
+    expect(body.match(/data-hl-tooltip=/g)).toHaveLength(1);
   });
 
   it('Field wires ids and required into controls without a browser', () => {

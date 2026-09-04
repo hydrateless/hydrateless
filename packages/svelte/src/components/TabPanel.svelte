@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import { onDestroy, type Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getTabsContext } from '../context.js';
 
@@ -10,12 +10,15 @@
 
   let { children, ...rest }: Props = $props();
   const tabs = getTabsContext();
-  const index = tabs?.registerPanel() ?? 0;
+  const registration = tabs?.registerPanel();
+  onDestroy(() => registration?.unregister());
+  let node = $state<HTMLDivElement | null>(null);
+  $effect(() => registration?.attach(node));
   // Rendered on the server too, so the unselected panels never flash before
   // the enhancer takes over `hidden`.
-  const hidden = $derived(tabs ? tabs.value !== tabs.tabValueAt(index) : false);
+  const hidden = $derived(tabs ? tabs.value !== tabs.tabValueAt(registration?.index ?? 0) : false);
 </script>
 
-<div {...rest} role="tabpanel" {hidden} tabindex={tabs ? 0 : undefined}>
+<div {...rest} bind:this={node} role="tabpanel" {hidden} tabindex={tabs ? 0 : undefined}>
   {@render children?.()}
 </div>

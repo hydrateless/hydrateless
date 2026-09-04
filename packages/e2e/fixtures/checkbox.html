@@ -17,7 +17,29 @@
         <input type="checkbox" id="news" checked />
         <span>Subscribe to newsletter</span>
       </label>
+
+      <fieldset class="hl-fieldset" data-hl-checkbox-group id="toppings">
+        <legend>Toppings</legend>
+        <label class="hl-checkbox">
+          <input type="checkbox" id="all" data-hl-checkbox-all />
+          <span>All toppings</span>
+        </label>
+        <label class="hl-checkbox">
+          <input type="checkbox" id="cheese" value="cheese" checked />
+          <span>Cheese</span>
+        </label>
+        <label class="hl-checkbox">
+          <input type="checkbox" id="olives" value="olives" />
+          <span>Olives</span>
+        </label>
+      </fieldset>
+      <p id="result" aria-live="polite"></p>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+    <script type="module">
+      document.addEventListener('hl:change', (event) => {
+        document.getElementById('result').textContent = `value:${event.detail.value.join(',')}`;
+      });
+    </script>
   </body>
 </html>

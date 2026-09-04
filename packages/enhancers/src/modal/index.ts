@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
 import { setupDialog, type DialogApi, type DialogOptions } from '../core/dialog.js';
 
 /** Options for {@link enhanceModal}; an alias of {@link DialogOptions}. */
@@ -19,5 +19,6 @@ export const enhanceModal = defineEnhancer<EnhanceModalOptions, ModalApi>({
   name: 'modal',
   selector: 'dialog[data-hl-modal]',
   defaults: { closeOnBackdrop: true },
+  attributes: { closeOnBackdrop: 'boolean', defaultOpen: 'boolean' },
   setup: (ctx) => setupDialog('modal', ctx),
 });

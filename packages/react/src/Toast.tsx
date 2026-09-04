@@ -17,6 +17,7 @@ function ensureApi(): ToastApi {
 const facade: ToastApi = {
   show: (message, options) => ensureApi().show(message, options),
   dismiss: (toast) => ensureApi().dismiss(toast),
+  dismissAll: () => ensureApi().dismissAll(),
 };
 
 /** Props for {@link ToastRegion}. */

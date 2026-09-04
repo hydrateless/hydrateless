@@ -47,6 +47,6 @@
   });
 </script>
 
-<div {...rest} data-hl-command data-hl-command-hotkey={hotkey} {@attach command.attach}>
+<div {...rest} data-hl-command data-hl-hotkey={hotkey} {@attach command.attach}>
   {@render children?.()}
 </div>

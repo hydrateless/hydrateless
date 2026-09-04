@@ -211,7 +211,7 @@ validation.
 
 ## Toasts and `useToast`
 
-`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast) }`
+`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast), dismissAll() }`
 and works from any component with no provider. The first `show()` creates a
 polite live region at the end of `<body>`; render `<ToastRegion />` once if you
 want to control where toasts appear.

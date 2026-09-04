@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hydrateless: Vanilla Example</title>
     <link rel="stylesheet" href="../packages/hydrateless/dist/hydrateless.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "@hydrateless/enhancers/tabs": "../packages/enhancers/dist/tabs/index.js",
-          "@hydrateless/enhancers/modal": "../packages/enhancers/dist/modal/index.js",
-          "@hydrateless/enhancers/popover": "../packages/enhancers/dist/popover/index.js",
-          "@hydrateless/enhancers/dropdown": "../packages/enhancers/dist/dropdown/index.js",
-          "@hydrateless/enhancers/toast": "../packages/enhancers/dist/toast/index.js"
-        }
-      }
-    </script>
     <style>
       body {
         margin: 0;
@@ -218,8 +207,10 @@
     </main>
 
     <script type="module">
-      // Scans the page and lazy-loads only the enhancers it uses.
-      import '../packages/auto/dist/index.js';
+      // The self-contained bundle (the same file the CDN serves) scans the page
+      // and runs only the enhancers it finds. No import map or bundler needed;
+      // every option is read from data-hl-* attributes in the markup above.
+      import '../packages/auto/dist/hydrateless.js';
 
       // Theme toggle: `data-theme` on <html> overrides the OS preference.
       const toggle = document.getElementById('theme-toggle');

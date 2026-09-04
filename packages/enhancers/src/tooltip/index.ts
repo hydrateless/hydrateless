@@ -1,20 +1,21 @@
+import { defineEnhancer } from '../core/define.js';
+import { ensureId, setAttrs, resolveRef } from '../core/dom.js';
+import { Events } from '../core/events.js';
+import { Keys } from '../core/keys.js';
+import { noop, type Disposer } from '../core/lifecycle.js';
 import {
-  defineEnhancer,
-  ensureId,
-  setAttrs,
-  resolveRef,
   supportsPopover,
   keepPositioned,
-  noop,
-  Events,
-  Keys,
-  type Disposer,
+  parsePlacement,
   type Placement,
-} from '../core/index.js';
+} from '../core/platform.js';
 
 /** Options for {@link enhanceTooltip}. */
 export type EnhanceTooltipOptions = {
-  /** Preferred placement relative to the trigger. Defaults to `top`. */
+  /**
+   * Preferred placement relative to the trigger; `start`/`end` are logical
+   * inline sides. Defaults to `top`.
+   */
   placement?: Placement;
   /** Run the JS positioning fallback when CSS anchor positioning is missing. Defaults to `true`. */
   position?: boolean;
@@ -22,6 +23,8 @@ export type EnhanceTooltipOptions = {
   showDelay?: number;
   /** Grace period in ms before hiding, so the pointer can reach the tooltip. */
   hideDelay?: number;
+  /** Show the tooltip immediately on enhance. Defaults to `false`. */
+  defaultOpen?: boolean;
   /** Called after the tooltip shows or hides. */
   onOpenChange?: (open: boolean) => void;
 };
@@ -45,13 +48,23 @@ export type TooltipApi = {
  * trigger `data-hl-tooltip-managed`) so it can add show/hide delays, a grace
  * period for crossing onto the tip, Escape-to-dismiss from anywhere while the
  * tip is shown, and a JS positioning fallback kept in sync on scroll and
- * resize. Visibility is observable through `onOpenChange`/`hl:open-change`
- * and controllable through the returned API.
+ * resize. The chosen side is stamped on the tip as `data-hl-side` so the
+ * stylesheet can pick the matching `position-area`. Visibility is observable
+ * through `onOpenChange`/`hl:open-change` and controllable through the
+ * returned API. Markup can set `data-hl-placement`, `data-hl-show-delay`,
+ * `data-hl-hide-delay`, and `data-hl-default-open` on the trigger.
  */
 export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>({
   name: 'tooltip',
   selector: '[data-hl-tooltip]',
   defaults: { placement: 'top', position: true, showDelay: 150, hideDelay: 100 },
+  attributes: {
+    placement: parsePlacement,
+    position: 'boolean',
+    showDelay: 'number',
+    hideDelay: 'number',
+    defaultOpen: 'boolean',
+  },
   setup({ root, options, on, add, emit }) {
     const ref = root.getAttribute('aria-describedby') || root.getAttribute('data-hl-tooltip');
     const tip = resolveRef(root.ownerDocument, ref);
@@ -87,12 +100,14 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
       add(() => tip.removeAttribute('hidden'));
     }
 
-    // Link the tip to its trigger for CSS anchor positioning.
+    // Link the tip to its trigger for CSS anchor positioning, and tell the
+    // stylesheet which side was asked for.
     const anchorName = `--${ensureId(root, 'hl-tooltip-anchor')}`;
     root.style.setProperty('anchor-name', anchorName);
     tip.style.setProperty('position-anchor', anchorName);
-
-    const placement = (root.getAttribute('data-hl-placement') as Placement) || options.placement;
+    const placement = options.placement!;
+    tip.dataset.hlSide = placement.split('-')[0];
+    add(() => delete tip.dataset.hlSide);
 
     let showTimer: number | undefined;
     let hideTimer: number | undefined;
@@ -153,6 +168,8 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     on<KeyboardEvent>(doc, 'keydown', (e) => {
       if (e.key === Keys.Escape && isOpen()) hide();
     });
+
+    if (options.defaultOpen) show();
 
     return {
       get open() {

@@ -1,11 +1,14 @@
 /**
  * Table: `<table class="hl-table">`, optionally inside
  * `<div class="hl-table-wrapper">` so wide tables scroll instead of breaking
- * the layout. Pure CSS; there is no enhancer.
+ * the layout. Add `data-hl-table` and mark headers `data-hl-sort` for the
+ * sorting enhancer; it sets `aria-sort` on the active column.
  *   data-hl-striped: zebra rows
  *   data-hl-hover:   highlight row on hover
  *   data-hl-align:   start (default) | center | end, on the table or a cell
  *   data-hl-size:    sm | md (default) | lg, cell padding density
+ *   data-hl-table:   opt in to the sorting enhancer
+ *   data-hl-sort:    a sortable header (value: the column key)
  */
 @layer components {
   .hl-table-wrapper {
@@ -46,6 +49,50 @@
     letter-spacing: 0.03em;
     color: var(--hl-fg-muted);
     border-block-end-color: var(--hl-border-strong);
+  }
+
+  /* Sortable headers: a pointer cursor, a focus ring, and a direction glyph. */
+  .hl-table th[data-hl-sort] {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hl-table th[data-hl-sort]:hover {
+    color: var(--hl-fg);
+  }
+
+  .hl-table th[data-hl-sort]:focus-visible {
+    outline: var(--hl-focus-ring);
+    outline-offset: calc(var(--hl-focus-offset) * -1);
+  }
+
+  .hl-table th[data-hl-sort]::after {
+    content: '';
+    display: inline-block;
+    inline-size: 0.35em;
+    block-size: 0.35em;
+    margin-inline-start: var(--hl-space-1);
+    border-inline-end: 1.5px solid currentcolor;
+    border-block-end: 1.5px solid currentcolor;
+    opacity: 0;
+    translate: 0 -0.15em;
+    rotate: 45deg;
+    transition: opacity var(--hl-duration-fast) var(--hl-ease-standard);
+  }
+
+  .hl-table th[data-hl-sort]:hover::after {
+    opacity: 0.4;
+  }
+
+  .hl-table th[aria-sort='ascending']::after,
+  .hl-table th[aria-sort='descending']::after {
+    opacity: 1;
+    color: var(--hl-primary);
+  }
+
+  .hl-table th[aria-sort='ascending']::after {
+    rotate: 225deg;
+    translate: 0 0.1em;
   }
 
   .hl-table tfoot td {

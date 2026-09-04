@@ -1,7 +1,11 @@
 /**
  * Slider: native `<input type="range" class="hl-slider">`. Restyled track and
  * thumb across WebKit/Blink and Firefox while keeping native keyboard support
- * and RTL direction. Pure CSS; there is no enhancer.
+ * and RTL direction. Firefox paints the filled part of the track natively
+ * (`::-moz-range-progress`); other engines get it from the
+ * `--hl-slider-progress` custom property the enhancer keeps in sync when the
+ * input sits inside a `[data-hl-slider]` wrapper (with an optional `<output>`).
+ *   data-hl-slider: wrapper around the input (and output) for the enhancer
  */
 @layer components {
   .hl-slider {
@@ -20,6 +24,40 @@
     block-size: var(--_track);
     border-radius: var(--hl-radius-full);
     background: var(--hl-surface-3);
+  }
+
+  /* Fill up to the thumb once the enhancer publishes the progress. */
+  .hl-slider[style*='--hl-slider-progress']::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      var(--hl-primary) var(--hl-slider-progress),
+      var(--hl-surface-3) var(--hl-slider-progress)
+    );
+  }
+
+  :is(
+      [dir='rtl'] .hl-slider,
+      .hl-slider:dir(rtl)
+    )[style*='--hl-slider-progress']::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to left,
+      var(--hl-primary) var(--hl-slider-progress),
+      var(--hl-surface-3) var(--hl-slider-progress)
+    );
+  }
+
+  [data-hl-slider] {
+    display: flex;
+    align-items: center;
+    gap: var(--hl-space-3);
+  }
+
+  [data-hl-slider] > output {
+    min-inline-size: 3ch;
+    font-size: var(--hl-text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--hl-fg-muted);
+    text-align: end;
   }
 
   .hl-slider::-moz-range-track {

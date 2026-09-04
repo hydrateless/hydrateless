@@ -37,11 +37,13 @@ npm run format
 
 - `packages/`
   - `hydrateless/`: all CSS (reset, tokens, theme, and component styles) with subpath exports
-  - `enhancers/`: optional JS enhancers built on the shared `defineEnhancer` contract, plus the core helpers they share (lifecycle, keyboard, menu items, positioning, platform detection)
+  - `enhancers/`: optional JS enhancers built on the shared `defineEnhancer` contract, plus the core helpers they share (lifecycle, keyboard, menu items and submenus, positioning, pagination math, platform detection). Each enhancer is its own subpath export and declares its `data-hl-*` attribute schema in its definition
   - `auto/`: drop-in auto-loader that detects `data-hl-*` attributes and lazy-loads enhancers
+  - `test-setup/` (root): shared Vitest setup and the cross-framework component contract
   - `react/`, `vue/`, `svelte/`: framework component suites wrapping the enhancers. The three export the same component list and prop contracts; each ships one low-level escape hatch, `useEnhancer`, plus `useField` and `useToast`
   - `e2e/`: Playwright and axe suite that exercises every component with JavaScript off and on
   - `docs/`: the VitePress documentation site (private; deployed to GitHub Pages)
+- `examples/`: minimal starter apps (built in CI so the published packages keep working from a consumer's point of view)
 
 ### Naming conventions
 
@@ -50,13 +52,22 @@ npm run format
 - Stylesheet file names match the docs slugs (`segmented-control.css`, `radio-group.css`, `command-palette.css`).
 - Directional values are logical (`start`/`end`), never `left`/`right`, and CSS uses logical properties throughout.
 - Enhancer options follow one pattern: `defaultX` for initial state, `onXChange(value)` for notifications, and an imperative `x`/`setX` pair on the returned API. Cancelable actions emit `hl:select` or `hl:command`.
+- Every non-function option is declared in the enhancer's `attributes` schema so markup can set it as `data-hl-<option-in-kebab-case>`. Don't read `root.getAttribute('data-hl-…')` by hand for options.
+- Enhancers read their items lazily and call `observe(root, …)` so items added after setup take part. Don't snapshot `querySelectorAll` results at setup time.
+
+### Adding an enhancer
+
+1. Create `packages/enhancers/src/<name>/index.ts` with `defineEnhancer`, a TSDoc comment on every export, and a unit test beside it.
+2. Export it from `packages/enhancers/src/index.ts`, add the subpath to `package.json` `exports` and `tsup.config.ts`, and add its `{ name, selector }` to `manifest.ts`. The auto-loader's typed loader maps (`auto/src/index.ts` and `cdn.ts`) fail to compile until they know the new name.
+3. Add the CSS hooks it needs to the component stylesheet, the docs component data (`packages/docs/.vitepress/data/components/`), the docs demo runtime (`demo-runtime.ts`), a row in `reference.md`, and an e2e fixture and spec.
+4. If a framework component should wrap it, add it to all three bindings; `test-setup/component-contract.ts` fails any package that lags behind.
 
 ## Coding guidelines
 
 - **Format**: Prettier (see `.prettierrc.json`). Run `npm run format`.
 - **Lint**: ESLint for JS/TS. Run `npm run lint`.
 - **Typecheck**: TypeScript. Run `npm run typecheck`.
-- **Tests**: if you add tests, place them alongside the source or under a `tests/` directory and keep them fast.
+- **Tests**: if you add tests, place them alongside the source or under a `tests/` directory and keep them fast. Anything a user can do in a browser also needs an e2e assertion in `packages/e2e` (fixtures are plain HTML pages that run with JavaScript off and on).
 
 ### Documentation comments
 
@@ -115,7 +126,7 @@ feat: add tabs component with full ARIA and keyboard support
 fix: correct focus trapping in modal on Safari
 docs: document Hydrateless theming and CSS variable tokens
 style: format CSS and update stylelint config
-chore: update Storybook and visual regression fixtures
+chore: update Playwright fixtures and snapshots
 ci: add workflow for a11y (axe) and visual regression tests
 perf: reduce CSS specificity and bundle size for accordion
 refactor: extract shared base styles and JS enhancer utilities
@@ -178,7 +189,7 @@ Co-authored-by: Name <email>
 - Lint: `npm run lint` passes.
 - Typecheck: `npm run typecheck` passes.
 - Tests: added/updated if applicable; all pass.
-- Docs: update `README.md` if behavior changes.
+- Docs: update `README.md`, the relevant guide, and `packages/docs/reference.md` if behavior changes; add a note to `packages/docs/guide/migration.md` for anything breaking.
 
 ## Versioning and releases
 
@@ -228,7 +239,7 @@ fix/accordion-overflow
 
 ## CI
 
-- **CI** (`ci.yml`): runs lint, format check, typecheck, build, test, and size budgets on Node 20 and 22 for every push and PR, then runs the Playwright end-to-end suite (JavaScript off and on, with axe checks) against the built packages.
+- **CI** (`ci.yml`): runs lint, format check, typecheck, build, test, and size budgets on Node 20 and 22 for every push and PR, then runs the Playwright end-to-end suite (JavaScript off and on, with axe checks) against the built packages, and builds every app in `examples/` against the workspace packages.
 - **PR Lint** (`pr-lint.yml`): validates the PR title against Conventional Commits format (protects squash merges) and checks individual commit messages via commitlint (protects rebase merges). Recommended: add the **PR title** job as a required status check in branch-protection settings.
 - **Release** (`release.yml`): runs on merge to `main`; computes version, generates changelog, tags, creates GitHub Release, and publishes all workspace packages to npm.
 

@@ -171,7 +171,8 @@ export const DropdownItem = defineComponent({
                 props.role === 'menuitemcheckbox'
                   ? el.getAttribute('aria-checked') !== 'true'
                   : props.role === 'menuitemradio' || undefined;
-              emit('select', value, checked);
+              // Same shape as the root `select` event: (value, item, checked).
+              emit('select', value, el, checked);
             },
           },
           slots.default?.(),

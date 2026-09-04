@@ -1,11 +1,12 @@
 import {
   defineEnhancer,
   resolveContainer,
-  noop,
   toHandle,
-  Events,
+  type Enhancer,
   type EnhancerHandle,
-} from '../core/index.js';
+} from '../core/define.js';
+import { noop, on as listen, combine, type Disposer } from '../core/lifecycle.js';
+import { Events } from '../core/events.js';
 
 /**
  * Semantic intent of a toast, matching the `data-hl-intent` vocabulary shared
@@ -29,12 +30,19 @@ export type EnhanceToastOptions = {
   onOpenChange?: (open: boolean, toast: HTMLElement) => void;
 };
 
-/** Imperative handle returned by {@link enhanceToast}. */
+/**
+ * Imperative handle returned by {@link enhanceToast}. Toasts are transient
+ * and many can be shown at once, so unlike the other overlays this API is
+ * `show`/`dismiss` rather than `open`/`setOpen`; each toast still reports
+ * through `onOpenChange`/`hl:open-change`.
+ */
 export type ToastApi = {
   /** Show a toast with `message` and return its element. */
   show: (message: string, options?: ToastOptions) => HTMLElement;
-  /** Dismiss a toast element previously returned by `show`. */
+  /** Dismiss a toast element previously returned by `show` (or server-rendered). */
   dismiss: (toast: HTMLElement) => void;
+  /** Dismiss every toast currently in the region. */
+  dismissAll: () => void;
 };
 
 const REGION = '[data-hl-toast-region]';
@@ -47,6 +55,7 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
   name: 'toast',
   selector: REGION,
   defaults: { duration: 5000 },
+  attributes: { duration: 'number' },
   setup({ root, container, options, on, add, emit }) {
     const region = root;
     const doc = region.ownerDocument;
@@ -55,10 +64,12 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
     if (!region.hasAttribute('aria-live')) region.setAttribute('aria-live', 'polite');
     if (!region.hasAttribute('aria-relevant')) region.setAttribute('aria-relevant', 'additions');
 
-    const timers = new Set<ReturnType<typeof setTimeout>>();
+    // Per-toast timers and listeners, released when that toast goes away (so
+    // a long-lived region doesn't accumulate handlers for dismissed toasts).
+    const cleanups = new Map<HTMLElement, Disposer>();
     add(() => {
-      for (const timer of timers) clearTimeout(timer);
-      timers.clear();
+      for (const cleanup of cleanups.values()) cleanup();
+      cleanups.clear();
     });
 
     const notify = (open: boolean, toast: HTMLElement) => {
@@ -67,9 +78,17 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
     };
 
     const dismiss = (toast: HTMLElement) => {
+      cleanups.get(toast)?.();
+      cleanups.delete(toast);
       if (!toast.parentElement) return;
       toast.remove();
       notify(false, toast);
+    };
+
+    const dismissAll = () => {
+      for (const toast of Array.from(region.querySelectorAll<HTMLElement>('[data-hl-toast]'))) {
+        dismiss(toast);
+      }
     };
 
     const show = (message: string, toastOptions: ToastOptions = {}): HTMLElement => {
@@ -98,25 +117,28 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
       notify(true, toast);
 
       if (duration > 0) {
-        let timer: ReturnType<typeof setTimeout>;
-        const start = () => {
-          timer = setTimeout(() => {
-            timers.delete(timer);
-            dismiss(toast);
-          }, duration);
-          timers.add(timer);
-        };
+        let timer: ReturnType<typeof setTimeout> | undefined;
         const stop = () => {
-          clearTimeout(timer);
-          timers.delete(timer);
+          if (timer !== undefined) clearTimeout(timer);
+          timer = undefined;
+        };
+        const start = () => {
+          stop();
+          timer = setTimeout(() => dismiss(toast), duration);
         };
         start();
         // Pause while the pointer or keyboard focus is on the toast (WCAG
         // 2.2.1), so the close button can be reached before it disappears.
-        on(toast, 'mouseenter', stop);
-        on(toast, 'mouseleave', start);
-        on(toast, 'focusin', stop);
-        on(toast, 'focusout', start);
+        cleanups.set(
+          toast,
+          combine([
+            stop,
+            listen(toast, 'mouseenter', stop),
+            listen(toast, 'mouseleave', start),
+            listen(toast, 'focusin', stop),
+            listen(toast, 'focusout', start),
+          ]),
+        );
       }
 
       return toast;
@@ -149,23 +171,14 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
       });
     }
 
-    const api: ToastApi = { show, dismiss };
+    const api: ToastApi = { show, dismiss, dismissAll };
     apis.set(region, api);
     add(() => apis.delete(region));
     return api;
   },
 });
 
-/**
- * Adopt (or create) a polite live region and expose an imperative API for
- * showing and dismissing toasts. Declarative `[data-hl-toast-trigger]` buttons
- * are handled through event delegation, so triggers added later need no
- * re-enhancement. Hovering or focusing a toast pauses its auto-dismiss timer,
- * `danger` toasts are announced assertively, and every show/dismiss is
- * observable through `onOpenChange`/`hl:open-change`. Outside a browser this
- * is a safe no-op that returns an empty handle.
- */
-export function enhanceToast(
+function adoptOrCreate(
   containerArg?: Document | HTMLElement,
   options: EnhanceToastOptions = {},
 ): EnhancerHandle<ToastApi> {
@@ -196,3 +209,17 @@ export function enhanceToast(
   if (existing) return toHandle([{ root: region!, api: existing, destroy: noop }]);
   return handle;
 }
+
+/**
+ * Adopt (or create) a polite live region and expose an imperative API for
+ * showing and dismissing toasts. Declarative `[data-hl-toast-trigger]` buttons
+ * are handled through event delegation, so triggers added later need no
+ * re-enhancement. Hovering or focusing a toast pauses its auto-dismiss timer,
+ * `danger` toasts are announced assertively, and every show/dismiss is
+ * observable through `onOpenChange`/`hl:open-change`. Outside a browser this
+ * is a safe no-op that returns an empty handle. Markup can set
+ * `data-hl-duration` on the region.
+ */
+export const enhanceToast: Enhancer<EnhanceToastOptions, ToastApi> = Object.assign(adoptOrCreate, {
+  definition: base.definition,
+});

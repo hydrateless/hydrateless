@@ -1,22 +1,22 @@
+import { defineEnhancer } from '../core/define.js';
+import { ensureId, setAttrs, isRtl } from '../core/dom.js';
+import { Events } from '../core/events.js';
+import { createTypeahead, isTypeaheadKey, Keys, type MoveDirection } from '../core/keys.js';
+import { noop, type Disposer } from '../core/lifecycle.js';
 import {
-  defineEnhancer,
-  ensureId,
-  setAttrs,
-  createTypeahead,
-  isTypeaheadKey,
-  keepPositioned,
-  noop,
   menuItemsOf,
   isDisabledItem,
   nextEnabledIndex,
   activateMenuItem,
   prepareMenuItems,
-  Events,
-  Keys,
-  type Disposer,
-  type MoveDirection,
+} from '../core/menu-items.js';
+import {
+  keepPositioned,
+  parsePlacement,
+  supportsPopover,
   type Placement,
-} from '../core/index.js';
+} from '../core/platform.js';
+import { menuOf, submenuOf, createSubmenus } from '../core/submenus.js';
 
 /** Options for {@link enhanceDropdown}. */
 export type EnhanceDropdownOptions = {
@@ -59,24 +59,31 @@ export type DropdownApi = {
  * it. This enhancer adds the menu semantics the platform doesn't: `role="menu"`
  * wiring, roving focus into the items on open, arrow/Home/End/typeahead
  * navigation that skips disabled items, `menuitemcheckbox`/`menuitemradio`
- * state, focus returned to the trigger when the menu closes from the keyboard
- * or by activating an item, and a JS positioning fallback (kept in sync on
- * scroll and resize) for engines without anchor positioning. Open state is
- * observable through `onOpenChange`/`hl:open-change` and activating an item
- * emits a cancelable `hl:select`.
+ * state, nested submenus (an item followed by a sibling `[role="menu"]` opens
+ * it with the inline-end arrow, Enter, Space, click, or hover; the inline-start
+ * arrow and Escape step back out), focus returned to the trigger when the menu
+ * closes from the keyboard or by activating an item, and a JS positioning
+ * fallback for engines without anchor positioning. Items added or removed
+ * after enhancement are picked up automatically. Open state is observable
+ * through `onOpenChange`/`hl:open-change` and activating an item emits a
+ * cancelable `hl:select`. Markup can set `data-hl-placement`,
+ * `data-hl-close-on-select`, and `data-hl-default-open` on the root.
  */
 export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownApi>({
   name: 'dropdown',
   selector: '[data-hl-dropdown]',
   defaults: { placement: 'bottom-start', position: true, closeOnSelect: true },
-  setup({ root, options, on, add, emit }) {
+  attributes: {
+    placement: parsePlacement,
+    position: 'boolean',
+    closeOnSelect: 'boolean',
+    defaultOpen: 'boolean',
+  },
+  setup({ root, options, on, observe, add, emit }) {
     const doc = root.ownerDocument;
     const trigger = root.querySelector<HTMLElement>('[data-hl-dropdown-trigger]');
     const menu = root.querySelector<HTMLElement>('[data-hl-dropdown-menu]');
     if (!trigger || !menu) return;
-
-    const items = menuItemsOf(menu);
-    if (items.length === 0) return;
 
     if (!menu.hasAttribute('popover')) menu.setAttribute('popover', 'auto');
     const menuId = ensureId(menu, 'hl-dropdown-menu');
@@ -90,9 +97,21 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
       trigger.setAttribute('popovertarget', menuId);
     }
     setAttrs(menu, { role: 'menu', 'aria-labelledby': triggerId });
-    prepareMenuItems(items);
 
-    const labels = items.map((item) => item.textContent ?? '');
+    const submenus = createSubmenus(
+      { add },
+      { usePopover: supportsPopover(), position: options.position!, placement: () => 'end-start' },
+    );
+
+    // Items are re-read on every interaction, and re-prepared whenever the
+    // menu's subtree changes, so items rendered later behave like the rest.
+    const prepare = () => {
+      prepareMenuItems(menuItemsOf(menu));
+      submenus.prepare(menu);
+    };
+    prepare();
+    observe(menu, prepare);
+
     const typeahead = createTypeahead();
     const isOpen = () => menu.matches(':popover-open');
 
@@ -103,10 +122,13 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     let stopPositioning: Disposer = noop;
     add(() => stopPositioning());
 
-    const focusIndex = (index: number) => {
+    const focusIn = (items: HTMLElement[], index: number) => {
       if (index !== -1) items[index]?.focus();
     };
-    const focusEdge = (which: 'first' | 'last') => focusIndex(nextEnabledIndex(items, -1, which));
+    const focusEdge = (which: 'first' | 'last') => {
+      const items = menuItemsOf(menu);
+      focusIn(items, nextEnabledIndex(items, -1, which));
+    };
 
     // `toggle` is the single source of truth for open state, but browsers
     // dispatch it asynchronously, so anything focus-related that must beat the
@@ -124,6 +146,8 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
         const which = requestedFocus ?? 'first';
         requestedFocus = null;
         if (which !== 'none' && !menu.contains(doc.activeElement)) focusEdge(which);
+      } else {
+        submenus.close(0);
       }
       options.onOpenChange?.(open);
       emit(Events.openChange, { open });
@@ -140,16 +164,11 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     };
     const hide = (restoreFocus = true) => {
       if (!isOpen()) return;
+      submenus.close(0);
       menu.hidePopover();
       // Keyboard and item-activation paths hand focus back to the trigger, as
       // the menu button pattern requires; light dismiss leaves focus alone.
       if (restoreFocus) trigger.focus();
-    };
-
-    const move = (direction: MoveDirection) => {
-      const active = doc.activeElement as HTMLElement | null;
-      const current = active ? items.indexOf(active) : -1;
-      focusIndex(nextEnabledIndex(items, current, direction));
     };
 
     const select = (item: HTMLElement) => {
@@ -178,7 +197,21 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     });
 
     on<KeyboardEvent>(menu, 'keydown', (e) => {
-      const target = e.target as HTMLElement;
+      // Keys act on the focused item; fall back to the event target so a
+      // keydown dispatched on the menu itself still navigates.
+      const focused = doc.activeElement as HTMLElement | null;
+      const origin = focused && menu.contains(focused) ? focused : (e.target as HTMLElement);
+      const item = origin.closest<HTMLElement>('[role^="menuitem"]');
+      const surface = (item && menuOf(item)) ?? menu;
+      const items = menuItemsOf(surface);
+      const current = item ? items.indexOf(item) : -1;
+      const depth = submenus.depthOf(origin);
+      const rtl = isRtl(root);
+      const openKey = rtl ? Keys.ArrowLeft : Keys.ArrowRight;
+      const closeKey = rtl ? Keys.ArrowRight : Keys.ArrowLeft;
+      const move = (direction: MoveDirection) =>
+        focusIn(items, nextEnabledIndex(items, current, direction));
+
       switch (e.key) {
         case Keys.ArrowDown:
           e.preventDefault();
@@ -198,7 +231,8 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
           break;
         case Keys.Escape:
           e.preventDefault();
-          hide(true);
+          if (depth > 0) submenus.close(depth - 1, true);
+          else hide(true);
           break;
         case Keys.Tab:
           // Let the browser move focus on from the trigger, which is where the
@@ -206,31 +240,60 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
           hide(true);
           break;
         case Keys.Enter:
-        case Keys.Space: {
-          // Buttons activate natively; anything else (links, list items) gets
-          // the same click-driven path so every item type behaves alike.
-          const item = target.closest<HTMLElement>('[role^="menuitem"]');
-          if (item && items.includes(item) && item.tagName !== 'BUTTON') {
+        case Keys.Space:
+          if (!item) break;
+          if (submenuOf(item) && !isDisabledItem(item)) {
+            e.preventDefault();
+            submenus.open(item, 'first');
+          } else if (item.tagName !== 'BUTTON') {
+            // Buttons activate natively; anything else (links, list items) gets
+            // the same click-driven path so every item type behaves alike.
             e.preventDefault();
             item.click();
           }
           break;
-        }
-        default: {
-          if (isTypeaheadKey(e)) {
+        default:
+          if (e.key === openKey) {
+            if (item && submenuOf(item) && !isDisabledItem(item)) {
+              e.preventDefault();
+              submenus.open(item, 'first');
+            }
+          } else if (e.key === closeKey) {
+            if (depth > 0) {
+              e.preventDefault();
+              submenus.close(depth - 1, true);
+            }
+          } else if (isTypeaheadKey(e)) {
             e.preventDefault();
-            const active = doc.activeElement as HTMLElement | null;
-            const from = active ? items.indexOf(active) : -1;
-            const match = typeahead(e.key, labels, from);
-            if (match !== -1 && !isDisabledItem(items[match])) focusIndex(match);
+            const labels = items.map((entry) => entry.textContent ?? '');
+            const match = typeahead(e.key, labels, current);
+            if (match !== -1 && !isDisabledItem(items[match])) focusIn(items, match);
           }
-        }
       }
     });
 
     on(menu, 'click', (e) => {
       const item = (e.target as HTMLElement).closest<HTMLElement>('[role^="menuitem"]');
-      if (item && items.includes(item)) select(item);
+      if (!item || !menu.contains(item)) return;
+      if (submenuOf(item)) {
+        e.preventDefault();
+        if (isDisabledItem(item)) return;
+        const depth = submenus.depthOf(item);
+        if (submenus.layers[depth]?.trigger === item) submenus.close(depth, true);
+        else submenus.open(item, 'first');
+        return;
+      }
+      select(item);
+    });
+
+    // Hovering a submenu trigger opens it (without stealing focus); hovering a
+    // sibling leaf collapses any branch below that level.
+    on(menu, 'pointerover', (e) => {
+      const item = (e.target as HTMLElement).closest<HTMLElement>('[role^="menuitem"]');
+      if (!item || !menu.contains(item) || isDisabledItem(item)) return;
+      const depth = submenus.depthOf(item);
+      if (submenuOf(item)) submenus.open(item, 'none');
+      else if (submenus.layers.length > depth) submenus.close(depth);
     });
 
     if (options.defaultOpen) show('none');

@@ -24,7 +24,7 @@
   <button type="button" role="menuitem" data-hl-value={value} disabled={disabled || undefined}>
     {#if trigger}{@render trigger()}{:else}{label}{/if}
   </button>
-  <ul {...rest} role="menu" data-hl-menu-submenu class={klass}>
+  <ul {...rest} role="menu" data-hl-submenu class={klass}>
     {@render children?.()}
   </ul>
 </li>

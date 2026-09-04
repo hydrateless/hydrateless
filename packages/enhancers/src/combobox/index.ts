@@ -1,15 +1,10 @@
-import {
-  defineEnhancer,
-  ensureId,
-  setAttrs,
-  nextIndex,
-  keepPositioned,
-  noop,
-  Events,
-  Keys,
-  type Disposer,
-  type MoveDirection,
-} from '../core/index.js';
+import { defineEnhancer } from '../core/define.js';
+import { ensureId, setAttrs } from '../core/dom.js';
+import { isDisabledItem, nextEnabledIndex } from '../core/menu-items.js';
+import { keepPositioned } from '../core/platform.js';
+import { noop, type Disposer } from '../core/lifecycle.js';
+import { Events } from '../core/events.js';
+import { Keys, type MoveDirection } from '../core/keys.js';
 
 /** Options for {@link enhanceCombobox}. */
 export type EnhanceComboboxOptions = {
@@ -17,8 +12,12 @@ export type EnhanceComboboxOptions = {
   filter?: boolean;
   /** Highlight the first match automatically while typing. Defaults to `true`. */
   autoHighlight?: boolean;
+  /** Run the JS positioning fallback when CSS anchor positioning is missing. Defaults to `true`. */
+  position?: boolean;
   /** Initial committed value; pre-fills the input. */
   defaultValue?: string;
+  /** Start with the listbox expanded. */
+  defaultOpen?: boolean;
   /** Called with the committed value after a selection or `setValue`. */
   onValueChange?: (value: string) => void;
   /** Called after the listbox expands or collapses. */
@@ -40,25 +39,33 @@ export type ComboboxApi = {
 /** Number of options PageUp/PageDown jumps over. */
 const PAGE = 10;
 
-const isDisabled = (option: HTMLElement) => option.getAttribute('aria-disabled') === 'true';
-
 /**
  * Editable combobox (text input + `role="listbox"` popup) implementing the APG
  * pattern: `aria-expanded`, `aria-activedescendant`, Up/Down/PageUp/PageDown
  * navigation that skips disabled options (Home and End stay with the text
  * caret, as the pattern requires), Alt+Down to expand without moving, type-
- * to-filter, Enter to commit, Escape/outside-click to dismiss. Selection emits
- * a cancelable `hl:select` followed by `hl:change`, expanding or collapsing
- * the listbox emits `hl:open-change`, and both the committed value and the
- * open state are controllable through the returned API. Before this runs, the
- * stylesheet reveals the listbox on `:focus-within` so the options are at
- * least reachable; the root is marked `data-hl-ready` once JS owns visibility.
+ * to-filter, Enter to commit, Escape/outside-click to dismiss. Options are
+ * read live and given ids as they appear, so lists fetched after enhancement
+ * work. Selection emits a cancelable `hl:select` followed by `hl:change`,
+ * expanding or collapsing the listbox emits `hl:open-change`, and both the
+ * committed value and the open state are controllable through the returned
+ * API. Before this runs, the stylesheet reveals the listbox on `:focus-within`
+ * so the options are at least reachable; the root is marked `data-hl-ready`
+ * once JS owns visibility. Markup can set `data-hl-filter`,
+ * `data-hl-auto-highlight`, and `data-hl-default-value` on the root.
  */
 export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxApi>({
   name: 'combobox',
   selector: '[data-hl-combobox]',
-  defaults: { filter: true, autoHighlight: true },
-  setup({ root, options, on, add, emit }) {
+  defaults: { filter: true, autoHighlight: true, position: true },
+  attributes: {
+    filter: 'boolean',
+    autoHighlight: 'boolean',
+    position: 'boolean',
+    defaultValue: 'string',
+    defaultOpen: 'boolean',
+  },
+  setup({ root, options, on, observe, add, emit }) {
     const input = root.querySelector<HTMLInputElement>('input, [role="combobox"]');
     const listbox = root.querySelector<HTMLElement>('[role="listbox"], [data-hl-combobox-list]');
     if (!input || !listbox) return;
@@ -87,7 +94,10 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     listbox.style.setProperty('position-anchor', anchorName);
 
     const allOptions = () => Array.from(listbox.querySelectorAll<HTMLElement>('[role="option"]'));
-    for (const option of allOptions()) ensureId(option, 'hl-option');
+    const prepare = () => {
+      for (const option of allOptions()) ensureId(option, 'hl-option');
+    };
+    prepare();
 
     let active = -1;
     let stopPositioning: Disposer = noop;
@@ -107,13 +117,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     /** Move `active` through the visible options, skipping disabled ones. */
     const step = (direction: MoveDirection, list = visible()) => {
       if (list.length === 0) return;
-      let next = nextIndex(active, list.length, direction);
-      const dir: MoveDirection =
-        direction === 'first' ? 'next' : direction === 'last' ? 'prev' : direction;
-      for (let i = 0; i < list.length && isDisabled(list[next]); i += 1) {
-        next = nextIndex(next, list.length, dir);
-      }
-      active = isDisabled(list[next]) ? -1 : next;
+      active = nextEnabledIndex(list, active, direction);
     };
 
     const isOpen = () => !listbox.hidden;
@@ -125,7 +129,9 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       if (isOpen()) return;
       listbox.hidden = false;
       setAttrs(input, { 'aria-expanded': 'true' });
-      stopPositioning = keepPositioned(input, listbox, { placement: 'bottom-start' });
+      if (options.position) {
+        stopPositioning = keepPositioned(input, listbox, { placement: 'bottom-start' });
+      }
       notifyOpen(true);
     };
     const close = () => {
@@ -154,7 +160,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     };
 
     const select = (option: HTMLElement) => {
-      if (isDisabled(option)) return;
+      if (isDisabledItem(option)) return;
       const value = option.dataset.hlValue ?? option.textContent?.trim() ?? '';
       const proceed = emit(Events.select, { value, option }, { cancelable: true });
       if (proceed) commit(value);
@@ -163,6 +169,19 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     };
 
     if (options.defaultValue != null) input.value = options.defaultValue;
+    if (options.defaultOpen) open();
+
+    // Options rendered later (async search results) get ids and, while the
+    // list is open, the highlight is re-applied to whatever is now visible.
+    observe(listbox, () => {
+      prepare();
+      if (isOpen()) {
+        filter(input.value);
+        const list = visible();
+        if (active >= list.length) active = list.length - 1;
+        paint();
+      }
+    });
 
     on(input, 'input', () => {
       open();
@@ -197,7 +216,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
           if (isOpen() && list.length > 0) {
             e.preventDefault();
             active = Math.min(active === -1 ? PAGE - 1 : active + PAGE, list.length - 1);
-            if (isDisabled(list[active])) step('next', list);
+            if (isDisabledItem(list[active])) step('next', list);
             paint();
           }
           break;
@@ -205,7 +224,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
           if (isOpen() && list.length > 0) {
             e.preventDefault();
             active = Math.max(active === -1 ? 0 : active - PAGE, 0);
-            if (isDisabled(list[active])) step('prev', list);
+            if (isDisabledItem(list[active])) step('prev', list);
             paint();
           }
           break;

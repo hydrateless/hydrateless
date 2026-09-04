@@ -2,9 +2,10 @@
   import { enhanceTooltip, type EnhanceTooltipOptions } from '@hydrateless/enhancers';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import type { TooltipTriggerProps } from '../context.js';
   import { useEnhancer } from '../useEnhancer.svelte.js';
 
-  interface Props extends HTMLAttributes<HTMLSpanElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
     /** The hint shown on hover/focus: plain text or a snippet for rich content. */
     content?: string | Snippet;
     /** Preferred placement relative to the trigger. Defaults to `top`. */
@@ -17,8 +18,20 @@
     open?: boolean;
     /** Called after the tip shows or hides. */
     onOpenChange?: (open: boolean) => void;
-    /** A single focusable element that triggers the tooltip. */
-    children?: Snippet;
+    /**
+     * A single focusable element that triggers the tooltip. The snippet
+     * receives the trigger attributes; spread them so server-rendered markup
+     * links the trigger to the tip before any script runs:
+     *
+     * ```svelte
+     * <Tooltip content="Save">
+     *   {#snippet children(trigger)}<Button {...trigger}>Save</Button>{/snippet}
+     * </Tooltip>
+     * ```
+     *
+     * Without the spread, the first child is linked on the client instead.
+     */
+    children?: Snippet<[TooltipTriggerProps]>;
   }
 
   let {
@@ -36,14 +49,20 @@
   // SSR-safe: $props.id() is stable across server and client renders.
   const generatedId = $props.id();
   const tipId = `hl-tip-${generatedId}`;
+  const triggerProps: TooltipTriggerProps = {
+    'data-hl-tooltip': tipId,
+    'aria-describedby': tipId,
+  };
 
-  // The trigger is whatever the consumer renders first, so it's linked to the
-  // tip here rather than asking them to repeat the id.
+  // Consumers that don't spread the snippet's trigger props still get linked
+  // on the client: whatever they rendered first is the trigger.
   const tooltip = useEnhancer(
     (node: HTMLElement, options?: Partial<EnhanceTooltipOptions>) => {
       const trigger = node.querySelector<HTMLElement>(':scope > :first-child');
-      trigger?.setAttribute('data-hl-tooltip', tipId);
-      trigger?.setAttribute('aria-describedby', tipId);
+      if (trigger && !trigger.hasAttribute('data-hl-tooltip')) {
+        trigger.setAttribute('data-hl-tooltip', tipId);
+        trigger.setAttribute('aria-describedby', tipId);
+      }
       return enhanceTooltip(node, options);
     },
     () => ({
@@ -68,7 +87,7 @@
   style={['position:relative;display:inline-block', style].filter(Boolean).join(';')}
   {@attach tooltip.attach}
 >
-  {@render children?.()}
+  {@render children?.(triggerProps)}
   <span id={tipId} role="tooltip" hidden
     >{#if typeof content === 'function'}{@render content()}{:else}{content}{/if}</span
   >

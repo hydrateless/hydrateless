@@ -10,7 +10,10 @@
     <main>
       <h1>Slider</h1>
       <label class="hl-label" for="volume">Volume</label>
-      <input class="hl-slider" id="volume" type="range" min="0" max="100" value="40" />
+      <div data-hl-slider data-hl-unit="%">
+        <input class="hl-slider" id="volume" type="range" min="0" max="100" value="40" />
+        <output for="volume">40%</output>
+      </div>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
   </body>

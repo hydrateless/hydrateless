@@ -2,7 +2,7 @@
 export { useEnhancer } from './useEnhancer.svelte.js';
 export type { UseEnhancer } from './useEnhancer.svelte.js';
 export { useField } from './context.js';
-export type { FieldBindings } from './context.js';
+export type { FieldBindings, TooltipTriggerProps } from './context.js';
 export { useToast } from './toast.js';
 
 // Disclosure

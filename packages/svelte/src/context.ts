@@ -1,4 +1,5 @@
 import { getContext, setContext } from 'svelte';
+import type { Registration } from './registry.svelte.js';
 
 /**
  * What a Field shares with its descendants. The getters stay live, so controls
@@ -71,6 +72,17 @@ export function useField(): FieldBindings | null {
   };
 }
 
+/**
+ * Attributes a `<Tooltip>` hands to its `children` snippet. Spread them onto
+ * the trigger element so server-rendered markup already links it to the tip.
+ */
+export interface TooltipTriggerProps {
+  /** Marks the trigger and names the tip it describes. */
+  'data-hl-tooltip': string;
+  /** Points at the tip so assistive tech announces it. */
+  'aria-describedby': string;
+}
+
 /** Shared state a RadioGroup provides to its radios (name, selected value, and a setter). @internal */
 export interface RadioGroupContext {
   readonly name: string | undefined;
@@ -92,12 +104,14 @@ export function getRadioGroupContext(): RadioGroupContext | undefined {
 
 /**
  * Ids a Dropdown generates so the trigger's `popovertarget` and the menu's
- * `id` agree in server-rendered markup, before any script runs.
+ * `id` agree in server-rendered markup, before any script runs, plus the live
+ * open state so the trigger's `aria-expanded` renders correctly too.
  * @internal
  */
 export interface DropdownContext {
   readonly menuId: string;
   readonly triggerId: string;
+  readonly open: boolean;
 }
 
 const DROPDOWN_KEY = Symbol('hl-dropdown');
@@ -116,15 +130,17 @@ export function getDropdownContext(): DropdownContext | undefined {
  * Selection state a Tabs root shares with its tabs and panels so `aria-selected`,
  * `tabindex`, and `hidden` can be rendered on the server. Tabs and panels
  * register in document order; a panel pairs with the tab at the same index.
+ * Indexes are live, so an `{#each}` that adds or removes tabs renumbers the
+ * rest; children unregister on destroy.
  * @internal
  */
 export interface TabsContext {
   /** The selected tab's value (falls back to the first registered tab). */
   readonly value: string | undefined;
-  /** Register a tab and get its index. `value` defaults to that index. */
-  registerTab: (value: string | undefined) => number;
-  /** Register a panel and get its index. */
-  registerPanel: () => number;
+  /** Register a tab by a getter for its value, which defaults to its index. */
+  registerTab: (value: () => string | undefined) => Registration;
+  /** Register a panel. */
+  registerPanel: () => Registration;
   /** Value of the tab registered at `index`. */
   tabValueAt: (index: number) => string | undefined;
 }
@@ -149,8 +165,8 @@ export function getTabsContext(): TabsContext | undefined {
 export interface AccordionContext {
   /** Values of the open items. */
   readonly value: readonly string[];
-  /** Register an item and get its index, which is its default value. */
-  registerItem: () => number;
+  /** Register an item; its live index is its default value. */
+  registerItem: () => Registration;
 }
 
 const ACCORDION_KEY = Symbol('hl-accordion');

@@ -31,5 +31,8 @@ export function useToast(options?: EnhanceToastOptions): ToastApi {
     dismiss(toast) {
       resolve()?.dismiss(toast);
     },
+    dismissAll() {
+      resolve()?.dismissAll();
+    },
   };
 }

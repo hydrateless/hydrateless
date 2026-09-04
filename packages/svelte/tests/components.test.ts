@@ -19,6 +19,8 @@ import PresentationalHarness from './harness/PresentationalHarness.svelte';
 import ControlsHarness from './harness/ControlsHarness.svelte';
 import TableHarness from './harness/TableHarness.svelte';
 import ToastHarness from './harness/ToastHarness.svelte';
+import TooltipHarness from './harness/TooltipHarness.svelte';
+import DynamicHarness from './harness/DynamicHarness.svelte';
 import Button from '../src/components/Button.svelte';
 import Drawer from '../src/components/Drawer.svelte';
 import Skeleton from '../src/components/Skeleton.svelte';
@@ -90,6 +92,54 @@ describe('Accordion', () => {
     await settle();
     await tick();
     expect(getByTestId('value').textContent).toBe('a');
+  });
+});
+
+describe('dynamic children', () => {
+  it('Tabs renumber index-valued tabs and panels when an {#each} changes', async () => {
+    const { container, getByText } = render(DynamicHarness);
+    const tabs = () => container.querySelectorAll<HTMLElement>('[role="tab"]');
+    const panels = () => container.querySelectorAll<HTMLElement>('[role="tabpanel"]');
+    expect(tabs()).toHaveLength(3);
+    expect(tabs()[1].getAttribute('aria-selected')).toBe('true');
+    expect(panels()[1].hidden).toBe(false);
+    await fireEvent.click(getByText('drop first tab'));
+    await settle();
+    await tick();
+    expect(tabs()).toHaveLength(2);
+    // Values are positional, so the tab now at index 1 ("Three") carries the
+    // selected value "1" and the Svelte-rendered state agrees with the enhancer.
+    expect(tabs()[1].textContent).toBe('Three');
+    expect(tabs()[1].getAttribute('aria-selected')).toBe('true');
+    expect(panels()[1].hidden).toBe(false);
+    expect(panels()[0].hidden).toBe(true);
+  });
+
+  it('Accordion renumbers index-valued items when an {#each} changes', async () => {
+    const { container, getByText } = render(DynamicHarness);
+    const details = () => container.querySelectorAll<HTMLDetailsElement>('details');
+    expect(details()).toHaveLength(2);
+    expect(details()[1].open).toBe(true);
+    await fireEvent.click(getByText('prepend item'));
+    await settle();
+    await tick();
+    expect(details()).toHaveLength(3);
+    // Item "B" shifted to index 2, so index 1 ("A") is now the open value.
+    expect(details()[1].open).toBe(true);
+    expect(details()[2].open).toBe(false);
+  });
+});
+
+describe('Tooltip', () => {
+  it('links a spread trigger and falls back to the first child', () => {
+    const { container } = render(TooltipHarness);
+    const tips = container.querySelectorAll<HTMLElement>('[role="tooltip"]');
+    const save = container.querySelector<HTMLElement>('button.hl-button')!;
+    expect(save.getAttribute('data-hl-tooltip')).toBe(tips[0].id);
+    expect(save.getAttribute('aria-describedby')).toBe(tips[0].id);
+    const fallback = container.querySelector<HTMLElement>('button:not(.hl-button)')!;
+    expect(fallback.getAttribute('data-hl-tooltip')).toBe(tips[1].id);
+    expect(fallback.getAttribute('aria-describedby')).toBe(tips[1].id);
   });
 });
 
@@ -194,7 +244,7 @@ describe('Menu', () => {
     const trigger = getByText('Resources');
     expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
-    expect(container.querySelector('[data-hl-menu-submenu]')?.getAttribute('role')).toBe('menu');
+    expect(container.querySelector('[data-hl-submenu]')?.getAttribute('role')).toBe('menu');
   });
 
   it('controlled: binds the open submenu value two-way', async () => {

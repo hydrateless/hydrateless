@@ -103,7 +103,7 @@ Which model and emits each component uses:
 | ------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | `Tabs`             | `v-model` (string), `default-value`                                                      | `orientation`, `activation`                              |
 | `Accordion`        | `v-model` (string[]), `default-value`                                                    | `allow-multiple`                                         |
-| `Disclosure`       | `v-model:open`, `default-open`                                                           | `title` or the `summary` slot                            |
+| `Disclosure`       | `v-model:open`, `default-open`                                                           | `title` or the `summary` slot, `name`                    |
 | `Menu`             | `v-model` (open submenu or `null`), `default-value`                                      | `@select="(value, item, checked) => ..."`, `orientation` |
 | `Dropdown`         | `v-model:open`, `default-open`                                                           | `@select`, `close-on-select`, `placement`                |
 | `Modal`, `Drawer`  | `v-model:open`, `default-open`                                                           | `close-on-backdrop`; Drawer `side="start" \| "end"`      |
@@ -215,7 +215,7 @@ validation.
 
 ## Toasts and `useToast`
 
-`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast) }`
+`useToast()` returns `{ show(message, { duration, intent }), dismiss(toast), dismissAll() }`
 and works from any component with no plugin or provider. The first `show()`
 creates a polite live region at the end of `<body>`; render `<ToastRegion />`
 once if you want to control where toasts appear.

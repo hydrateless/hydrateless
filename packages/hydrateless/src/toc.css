@@ -3,7 +3,7 @@
  * links. With no JavaScript it is a plain link list; the enhancer marks the
  * link for the heading in view with `aria-current="true"`.
  *   data-hl-toc:         the nav
- *   data-hl-toc-content: optional element whose headings are observed
+ *   data-hl-content-selector: optional element whose headings are observed
  */
 @layer components {
   nav[data-hl-toc] {

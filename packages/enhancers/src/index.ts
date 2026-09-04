@@ -4,6 +4,12 @@ export {
   type EnhanceAccordionOptions,
   type AccordionApi,
 } from './accordion/index.js';
+export { enhanceAlert, type EnhanceAlertOptions, type AlertApi } from './alert/index.js';
+export {
+  enhanceCheckbox,
+  type EnhanceCheckboxOptions,
+  type CheckboxApi,
+} from './checkbox/index.js';
 export {
   enhanceDisclosure,
   type EnhanceDisclosureOptions,
@@ -18,7 +24,25 @@ export {
 export { enhanceMenu, type EnhanceMenuOptions, type MenuApi } from './menu/index.js';
 export { enhanceModal, type EnhanceModalOptions, type ModalApi } from './modal/index.js';
 export { enhanceDrawer, type EnhanceDrawerOptions, type DrawerApi } from './drawer/index.js';
+export {
+  enhancePagination,
+  type EnhancePaginationOptions,
+  type PaginationApi,
+} from './pagination/index.js';
 export { enhancePopover, type EnhancePopoverOptions, type PopoverApi } from './popover/index.js';
+export {
+  enhanceSegmented,
+  type EnhanceSegmentedOptions,
+  type SegmentedApi,
+} from './segmented/index.js';
+export { enhanceSlider, type EnhanceSliderOptions, type SliderApi } from './slider/index.js';
+export {
+  enhanceTable,
+  type EnhanceTableOptions,
+  type TableApi,
+  type SortState,
+  type SortDirection,
+} from './table/index.js';
 export { enhanceTooltip, type EnhanceTooltipOptions, type TooltipApi } from './tooltip/index.js';
 export {
   enhanceCombobox,
@@ -39,56 +63,5 @@ export {
 export { MANIFEST, type ManifestEntry, type ComponentName } from './manifest.js';
 
 // Shared headless core: utilities for building custom enhancers.
-export {
-  type Disposer,
-  noop,
-  on,
-  combine,
-  selectRoots,
-  uid,
-  defineEnhancer,
-  resolveContainer,
-  toHandle,
-  type Enhancer,
-  type EnhancerContext,
-  type EnhancerDefinition,
-  type EnhancerHandle,
-  type EnhancerInstance,
-  Events,
-  emit,
-  type EmitOptions,
-  isBrowser,
-  resolveRef,
-  ensureId,
-  setAttrs,
-  getDocument,
-  getWindow,
-  lockScroll,
-  prefersReducedMotion,
-  afterTransition,
-  Keys,
-  isTypeaheadKey,
-  wrapIndex,
-  nextIndex,
-  createTypeahead,
-  type MoveDirection,
-  supportsPopover,
-  supportsInvokers,
-  supportsAnchorPositioning,
-  positionFallback,
-  keepPositioned,
-  type Placement,
-  type Side,
-  type Align,
-  type PositionOptions,
-  type PositionResult,
-  MENU_ITEM_SELECTOR,
-  menuItemsOf,
-  isDisabledItem,
-  nextEnabledIndex,
-  menuItemValue,
-  activateMenuItem,
-  prepareMenuItems,
-  type MenuItemActivation,
-} from './core/index.js';
+export * from './core/index.js';
 export { type DialogOptions, type DialogApi } from './core/dialog.js';

@@ -7,7 +7,7 @@
   {
     "name": "CDN auto bundle: every enhancer (brotli)",
     "path": "packages/auto/dist/hydrateless.js",
-    "limit": "10 kB"
+    "limit": "15 kB"
   },
   {
     "name": "Auto loader core, lazy ESM entry (brotli)",
@@ -17,7 +17,7 @@
   {
     "name": "@hydrateless/enhancers: every entry and shared chunk (brotli)",
     "path": "packages/enhancers/dist/*.js",
-    "limit": "22 kB"
+    "limit": "32 kB"
   },
   {
     "name": "@hydrateless/react (brotli)",

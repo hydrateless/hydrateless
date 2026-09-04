@@ -10,29 +10,46 @@
     <main>
       <h1>Table</h1>
       <div class="hl-table-wrapper">
-        <table class="hl-table" data-hl-striped data-hl-hover data-hl-align="start">
+        <table class="hl-table" data-hl-table data-hl-striped data-hl-hover data-hl-align="start">
           <caption>
             Team members
           </caption>
           <thead>
             <tr>
-              <th scope="col">Name</th>
+              <th scope="col" data-hl-sort="name">Name</th>
               <th scope="col">Role</th>
+              <th scope="col" data-hl-sort="joined" data-hl-align="end">Joined</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Ada Lovelace</td>
-              <td>Engineer</td>
-            </tr>
-            <tr>
               <td>Grace Hopper</td>
               <td>Admiral</td>
+              <td data-hl-align="end">1952</td>
+            </tr>
+            <tr>
+              <td>Ada Lovelace</td>
+              <td>Engineer</td>
+              <td data-hl-align="end">1843</td>
+            </tr>
+            <tr>
+              <td>Margaret Hamilton</td>
+              <td>Director</td>
+              <td data-hl-align="end">1969</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <p id="result" aria-live="polite"></p>
     </main>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>
+    <script type="module">
+      document.addEventListener('hl:change', (event) => {
+        const { value } = event.detail;
+        document.getElementById('result').textContent = value
+          ? `sort:${value.column}:${value.direction}`
+          : 'sort:none';
+      });
+    </script>
   </body>
 </html>

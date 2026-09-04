@@ -144,7 +144,8 @@ and focus; your stylesheet owns the look, and can still read the tokens.
 
 `defineEnhancer` turns a per-root `setup` function into a full enhancer with
 the shared lifecycle: root discovery inside a container, idempotent
-de-duplication, automatic listener teardown, re-enhancement after destroy, SSR
+de-duplication, option merging from defaults and `data-hl-*` attributes,
+automatic listener and observer teardown, re-enhancement after destroy, SSR
 safety, and the uniform handle.
 
 ```ts
@@ -161,8 +162,11 @@ export const enhanceRating = defineEnhancer<RatingOptions, RatingApi>({
   name: 'rating',
   selector: '[data-hl-rating]',
   defaults: { max: 5 },
-  setup({ root, options, on, add, emit }) {
-    const stars = Array.from(root.querySelectorAll<HTMLButtonElement>('button'));
+  // Markup can set these: <div data-hl-rating data-hl-max="10" data-hl-default-value="7">
+  attributes: { max: 'number', defaultValue: 'number' },
+  setup({ root, options, on, observe, add, emit }) {
+    // Read the stars lazily so ones rendered later take part.
+    const stars = () => Array.from(root.querySelectorAll<HTMLButtonElement>('button'));
     let value = options.defaultValue ?? 0;
 
     setAttrs(root, {
@@ -172,11 +176,13 @@ export const enhanceRating = defineEnhancer<RatingOptions, RatingApi>({
     ensureId(root, 'hl-rating');
 
     const paint = () => {
-      stars.forEach((star, i) => {
+      stars().forEach((star, i) => {
         setAttrs(star, { role: 'radio', 'aria-checked': i + 1 === value ? 'true' : 'false' });
         star.tabIndex = i + 1 === value || (value === 0 && i === 0) ? 0 : -1;
       });
     };
+    // Re-paint when stars are added or removed; disconnected on destroy.
+    observe(root, paint);
 
     const set = (next: number) => {
       value = Math.max(0, Math.min(options.max!, next));
@@ -186,7 +192,7 @@ export const enhanceRating = defineEnhancer<RatingOptions, RatingApi>({
     };
 
     on(root, 'click', (e) => {
-      const index = stars.indexOf((e.target as HTMLElement).closest('button')!);
+      const index = stars().indexOf((e.target as HTMLElement).closest('button')!);
       if (index !== -1) set(index + 1);
     });
 
@@ -195,7 +201,7 @@ export const enhanceRating = defineEnhancer<RatingOptions, RatingApi>({
       else if (e.key === Keys.ArrowLeft || e.key === Keys.ArrowDown) set(value - 1);
       else return;
       e.preventDefault();
-      stars[value - 1]?.focus();
+      stars()[value - 1]?.focus();
     });
 
     root.setAttribute('data-hl-ready', '');
@@ -214,21 +220,28 @@ export const enhanceRating = defineEnhancer<RatingOptions, RatingApi>({
 
 What the context gives you:
 
-| Member      | Purpose                                                                                     |
-| ----------- | ------------------------------------------------------------------------------------------- |
-| `root`      | The matched element.                                                                        |
-| `container` | What the enhancer was called with (often `document`).                                       |
-| `options`   | Caller options merged over `defaults`.                                                      |
-| `on()`      | `addEventListener` that is removed automatically on destroy.                                |
-| `add()`     | Register any other disposer (timers, observers, attribute resets).                          |
-| `uid()`     | Generate an id namespaced to the enhancer.                                                  |
-| `emit()`    | Dispatch a bubbling `hl:*` `CustomEvent` from the root; returns `false` if it was canceled. |
+| Member      | Purpose                                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------- |
+| `root`      | The matched element.                                                                                |
+| `container` | What the enhancer was called with (often `document`).                                               |
+| `options`   | `defaults`, then the root's `data-hl-*` attributes, then caller options, merged in that order.      |
+| `on()`      | `addEventListener` that is removed automatically on destroy.                                        |
+| `observe()` | A `MutationObserver` on a target (default `childList` + `subtree`) that is disconnected on destroy. |
+| `add()`     | Register any other disposer (timers, attribute resets).                                             |
+| `uid()`     | Generate an id namespaced to the enhancer.                                                          |
+| `emit()`    | Dispatch a bubbling `hl:*` `CustomEvent` from the root; returns `false` if it was canceled.         |
+
+The `attributes` schema maps option names to how their `data-hl-*` value is
+parsed: `'boolean'`, `'number'`, `'string'`, a list of allowed strings, or a
+function from the raw string. See
+[Configuring with Data Attributes](/guide/data-attributes) for the rules.
 
 Use the shared helpers so your component behaves like the built-in ones:
 `Events` and `Keys` for names, `ensureId`/`setAttrs` for ARIA wiring,
-`createTypeahead`, `nextIndex`, `keepPositioned` for floating surfaces, and the
-menu-item helpers (`menuItemsOf`, `activateMenuItem`) if you build a menu-like
-control.
+`createTypeahead`, `nextIndex`, `nextEnabledIndex`, `isRtl` for logical
+keyboard handling, `parsePlacement`/`keepPositioned` for floating surfaces,
+`paginationRange` for page lists, the menu-item helpers (`menuItemsOf`,
+`activateMenuItem`) and `createSubmenus` if you build a menu-like control.
 
 Calling `enhanceRating()` with no container in the browser scans `document`;
 outside a browser it returns an empty handle, so it is safe in SSR code paths.

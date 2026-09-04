@@ -1,0 +1,15 @@
+# Default owners for everything in the repo. Later rules override earlier ones.
+* @owenthcarey
+
+# Published packages: changes here alter the public surface.
+/packages/hydrateless/ @owenthcarey
+/packages/enhancers/ @owenthcarey
+/packages/auto/ @owenthcarey
+/packages/react/ @owenthcarey
+/packages/vue/ @owenthcarey
+/packages/svelte/ @owenthcarey
+
+# Release, CI, and security process.
+/.github/ @owenthcarey
+/.releaserc.json @owenthcarey
+/SECURITY.md @owenthcarey

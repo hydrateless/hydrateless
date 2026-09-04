@@ -69,15 +69,24 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(function Combo
 ) {
   const ref = useForwardedRef(forwardedRef);
   const [value, setValue] = useControlled(valueProp, defaultValue, onValueChange);
-  const [, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
   const api = useEnhancer<EnhanceComboboxOptions, ComboboxApi>(
     ref,
     enhanceCombobox,
-    { filter, autoHighlight, defaultValue: value, onValueChange: setValue, onOpenChange: setOpen },
+    {
+      filter,
+      autoHighlight,
+      defaultValue: value,
+      defaultOpen: open,
+      onValueChange: setValue,
+      onOpenChange: setOpen,
+    },
     [filter, autoHighlight],
   );
   useSyncApi(api, valueProp, (api, value) => api.setValue(value));
-  useSyncApi(api, openProp ?? defaultOpen, (api, open) => api.setOpen(open));
+  // Only a controlled `open` is pushed back in; `defaultOpen` seeds the
+  // enhancer once and then leaves it in charge of its own state.
+  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
 
   return (
     <div {...rest} ref={ref} data-hl-combobox>

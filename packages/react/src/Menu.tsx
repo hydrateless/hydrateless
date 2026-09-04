@@ -171,7 +171,7 @@ export const MenuSubmenu = forwardRef<HTMLUListElement, MenuSubmenuProps>(functi
       >
         {label}
       </button>
-      <ul {...rest} ref={ref} role="menu" data-hl-menu-submenu>
+      <ul {...rest} ref={ref} role="menu" data-hl-submenu>
         {children}
       </ul>
     </li>

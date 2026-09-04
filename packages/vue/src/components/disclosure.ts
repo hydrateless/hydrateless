@@ -16,13 +16,24 @@ import {
   type AccordionApi,
   type DisclosureApi,
 } from '@hydrateless/enhancers';
-import { cx, useApiSync, useControlled } from '../internal/index.js';
+import {
+  createRegistry,
+  cx,
+  useApiSync,
+  useControlled,
+  useRegistration,
+  type Registration,
+} from '../internal/index.js';
 import { useEnhancer } from '../useEnhancer.js';
 
 interface AccordionContext {
   value: ComputedRef<string[] | undefined>;
-  /** Claim the next item index; the enhancer falls back to it too. */
-  register: () => number;
+  /**
+   * Register an item; the enhancer falls back to the same index. `index` is
+   * live, so items inserted or removed by a `v-for` renumber the rest, and
+   * `unregister` frees the slot on unmount.
+   */
+  register: () => Registration;
 }
 const AccordionKey: InjectionKey<AccordionContext> = Symbol('hl-accordion');
 
@@ -70,8 +81,8 @@ export const Accordion = defineComponent({
       (a) => a.value,
       (a, v) => a.setValue(v),
     );
-    let count = 0;
-    provide(AccordionKey, { value, register: () => count++ });
+    const items = createRegistry();
+    provide(AccordionKey, { value, register: () => items.register() });
     return () => h('div', { ...attrs, 'data-hl-accordion': '', ref: host }, slots.default?.());
   },
 });
@@ -93,14 +104,19 @@ export const AccordionItem = defineComponent({
   props: accordionItemProps,
   setup(props, { slots, attrs }) {
     const ctx = inject(AccordionKey, null);
-    const index = ctx?.register();
+    const { node, index } = useRegistration(ctx?.register());
+    const value = computed(() => props.value ?? String(index.value));
     // Rendered open state keeps server output right before the enhancer runs.
-    const open = computed(() => ctx?.value.value?.includes(props.value ?? String(index)));
+    const open = computed(() => ctx?.value.value?.includes(value.value));
     return () =>
-      h('details', { ...attrs, 'data-hl-value': props.value, open: open.value || undefined }, [
-        h('summary', slots.summary?.() ?? props.title),
-        h('div', { class: 'hl-accordion-panel' }, slots.default?.()),
-      ]);
+      h(
+        'details',
+        { ...attrs, ref: node, 'data-hl-value': props.value, open: open.value || undefined },
+        [
+          h('summary', slots.summary?.() ?? props.title),
+          h('div', { class: 'hl-accordion-panel' }, slots.default?.()),
+        ],
+      );
   },
 });
 
@@ -109,6 +125,11 @@ const disclosureProps = {
   open: { type: Boolean as PropType<boolean | undefined>, default: undefined },
   /** Open the disclosure initially for uncontrolled usage. */
   defaultOpen: { type: Boolean, default: false },
+  /**
+   * Native `<details name>`: disclosures sharing a name form an exclusive
+   * group, so opening one closes the rest with no JavaScript involved.
+   */
+  name: { type: String, default: undefined },
   /** Header text; the `summary` slot takes precedence. */
   title: { type: String, default: undefined },
 } as const;
@@ -150,6 +171,7 @@ export const Disclosure = defineComponent({
           ...attrs,
           class: cx('hl-disclosure', attrs.class as string),
           'data-hl-disclosure': '',
+          name: props.name,
           open: open.value || undefined,
           ref: host,
         },

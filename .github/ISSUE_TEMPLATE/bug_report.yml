@@ -1,0 +1,69 @@
+name: Bug report
+description: Something renders or behaves incorrectly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A minimal reproduction (a CodePen, StackBlitz, or a snippet of HTML that shows the problem) gets bugs fixed fastest.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      multiple: true
+      options:
+        - hydrateless (CSS)
+        - '@hydrateless/enhancers'
+        - '@hydrateless/auto'
+        - '@hydrateless/react'
+        - '@hydrateless/vue'
+        - '@hydrateless/svelte'
+        - Documentation site
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.10.0
+    validations:
+      required: true
+  - type: dropdown
+    id: javascript
+    attributes:
+      label: Does it happen with JavaScript disabled, enabled, or both?
+      options:
+        - Enabled only (enhancer behavior)
+        - Disabled only (CSS baseline)
+        - Both
+        - Not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Markup or a link. Include the `data-hl-*` attributes and any options passed to the enhancer or component.
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include console errors and, for accessibility issues, the screen reader and browser pair.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Safari 26 on macOS 26, Firefox 150 on Windows 11
+    validations:
+      required: true

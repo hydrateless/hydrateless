@@ -55,6 +55,11 @@ export function useField(): FieldControl | null {
 
 /** Props for {@link Field}. */
 export interface FieldProps extends HTMLAttributes<HTMLDivElement> {
+  /**
+   * Id given to the control inside the Field (the label's `htmlFor` target).
+   * Generated when omitted. Help and error text derive their ids from it.
+   */
+  id?: string;
   /** Label text; renders a {@link FieldLabel} before the control. */
   label?: ReactNode;
   /** Help text; renders a {@link FieldHelp} after the control. */
@@ -94,7 +99,9 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
   },
   ref,
 ) {
-  const baseId = useHlId('field');
+  // Like the Vue and Svelte Fields, `id` names the control, not the wrapper,
+  // so `<Field id="email">` gives the input the id a label or test expects.
+  const baseId = useHlId('field', id);
   const hasError = error != null && error !== false;
   const value: FieldContextValue = {
     id: baseId,
@@ -109,7 +116,6 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
       <div
         {...rest}
         ref={ref}
-        id={id}
         className={cx('hl-field', className)}
         data-hl-invalid={value.invalid || undefined}
       >
