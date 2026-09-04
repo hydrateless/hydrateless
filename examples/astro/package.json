@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@hydrateless/auto": "file:../../packages/auto",
-    "astro": "^5.0.0",
+    "astro": "^7.2.10",
     "hydrateless": "file:../../packages/hydrateless"
   }
 }
