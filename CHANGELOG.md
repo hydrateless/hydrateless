@@ -1,3 +1,9 @@
+## [0.10.1](https://github.com/hydrateless/hydrateless/compare/v0.10.0...v0.10.1) (2026-09-06)
+
+### Bug Fixes
+
+- make docs playgrounds reliable and accessible ([#23](https://github.com/hydrateless/hydrateless/issues/23)) ([06a1ff8](https://github.com/hydrateless/hydrateless/commit/06a1ff80561c66e1ee36d742fbbbe4dcd955019b))
+
 ## [0.10.0](https://github.com/hydrateless/hydrateless/compare/v0.9.0...v0.10.0) (2026-09-04)
 
 ### ⚠ BREAKING CHANGES

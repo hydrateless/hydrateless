@@ -1,6 +1,6 @@
 {
   "name": "@hydrateless/docs",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,9 +11,9 @@
     "docs:api": "typedoc"
   },
   "dependencies": {
-    "@hydrateless/auto": "^0.10.0",
-    "@hydrateless/enhancers": "^0.10.0",
-    "hydrateless": "^0.10.0"
+    "@hydrateless/auto": "^0.10.1",
+    "@hydrateless/enhancers": "^0.10.1",
+    "hydrateless": "^0.10.1"
   },
   "devDependencies": {
     "typedoc": "^0.27.0",
