@@ -11,8 +11,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.0",
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.49.0",
-    "@types/node": "^22.0.0"
+    "@types/node": "^26.4.1"
   }
 }
