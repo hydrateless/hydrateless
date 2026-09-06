@@ -23,10 +23,10 @@ export const toc: ComponentDoc = {
       id: 'default',
       title: 'Table of contents',
       description:
-        'The empty nav on the left is filled from the sample content on the right. Toggle JS off to see the unenhanced state.',
+        'The empty nav is filled from the sample content beside it, or below it on narrow screens. Toggle JS off to see the unenhanced state.',
       layout: 'fill',
       render: () =>
-        `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:1rem;width:100%;align-items:start">
+        `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:1rem;width:100%;align-items:start">
   <nav data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="On this page"></nav>
   <article id="toc-demo-content">
     <h2>Introduction</h2>

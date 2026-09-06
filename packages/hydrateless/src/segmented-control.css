@@ -10,6 +10,9 @@
 @layer components {
   .hl-segmented {
     display: inline-flex;
+    flex-wrap: wrap;
+    max-inline-size: 100%;
+    min-inline-size: 0;
     align-items: stretch;
     gap: var(--hl-space-1);
     padding: var(--hl-space-1);
@@ -21,6 +24,7 @@
   .hl-segmented-item {
     position: relative;
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
     gap: var(--hl-space-2);

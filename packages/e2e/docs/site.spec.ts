@@ -221,8 +221,12 @@ test('every button and badge color combination has readable text in light and da
       element.innerHTML = html;
     }, markup);
     for (const theme of ['light', 'dark']) {
-      await demo.locator('.hl-demo-preview').evaluate((element, mode) => {
+      await demo.locator('.hl-demo-preview').evaluate(async (element, mode) => {
         (element as HTMLElement).dataset.theme = mode;
+        // Contrast applies to the settled theme, not interpolated transition colors.
+        await Promise.all(
+          element.getAnimations({ subtree: true }).map((animation) => animation.finished),
+        );
       }, theme);
       const result = await new AxeBuilder({ page })
         .include('.hl-demo-stage')
