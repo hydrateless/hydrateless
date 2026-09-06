@@ -11,7 +11,7 @@
      Driving every token color from a variable keeps the rules below DRY. */
   --hlc-bg: #f6f8fa;
   --hlc-fg: #1f2328;
-  --hlc-comment: #6e7781;
+  --hlc-comment: #59636e;
   --hlc-string: #0a3069;
   --hlc-tag: #116329;
   --hlc-attr: #0550ae;
@@ -28,7 +28,7 @@
 .dark .hl-code {
   --hlc-bg: #1b1b1f;
   --hlc-fg: #d6deeb;
-  --hlc-comment: #637777;
+  --hlc-comment: #93a3a8;
   --hlc-string: #ecc48d;
   --hlc-tag: #7fdbca;
   --hlc-attr: #addb67;
@@ -182,7 +182,7 @@
 .hl-demo-frame {
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   background: var(--vp-c-bg);
 }
 .hl-demo-toolbar {
@@ -333,7 +333,7 @@
   color: var(--vp-c-brand-1);
 }
 .hl-muted {
-  color: var(--vp-c-text-3);
+  color: var(--vp-c-text-2);
 }
 .hl-req {
   color: var(--vp-c-danger-1, #e11d48);
@@ -579,4 +579,97 @@
   .hl-demo-preview {
     padding: 1.5rem 1rem;
   }
+}
+
+/* Keep controls, tables, and source examples usable on narrow screens. */
+.hl-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.hl-demo-toolbar,
+.hl-install-tabs,
+.hl-knob {
+  flex-wrap: wrap;
+}
+.hl-knob,
+.hl-knob-input,
+.hl-knob-select,
+.hl-demo-stage {
+  min-width: 0;
+  max-width: 100%;
+}
+.hl-demo-stage.is-center {
+  flex-wrap: wrap;
+}
+.hl-demo-preview,
+.hl-studio-preview {
+  font-family: var(--hl-font-sans);
+  font-size: var(--hl-text-base);
+  line-height: var(--hl-leading-normal);
+}
+.hl-chip {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.vp-doc .hl-api-table {
+  table-layout: fixed;
+  overflow-wrap: anywhere;
+}
+.hl-chip.is-stable,
+.hl-chip.is-css {
+  color: var(--vp-c-green-1);
+}
+.hl-code-copy {
+  opacity: 1;
+}
+.vp-doc .hl-code pre {
+  padding-top: 2.75rem;
+}
+.hl-demo-stage {
+  position: relative;
+}
+@media (max-width: 640px) {
+  .hl-studio-preview {
+    padding: 1rem;
+  }
+  .hl-related-grid,
+  .hl-gallery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.hl-demo-result {
+  margin: 0;
+  padding: 0.65rem 1rem;
+  border-top: 1px solid var(--vp-c-divider);
+  color: var(--vp-c-text-1);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.hl-demo-toolbar {
+  border-radius: 12px 12px 0 0;
+}
+.hl-knobs,
+.hl-demo-preview:last-child {
+  border-radius: 0 0 12px 12px;
+}
+
+.hl-demo-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.hl-api-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+.hl-api-table-wrap .hl-api-table {
+  min-width: 32rem;
+  margin-top: 0;
 }

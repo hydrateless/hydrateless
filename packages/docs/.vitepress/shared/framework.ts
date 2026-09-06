@@ -1,4 +1,4 @@
-import { computed, ref, type Ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 
 /** The code flavors the docs can show for any example. */
 export type Framework = 'html' | 'react' | 'vue' | 'svelte';
@@ -53,7 +53,8 @@ function hydrate(): void {
  * from the same source, so the docs feel like one cohesive switch.
  */
 export function useFramework() {
-  hydrate();
+  // Match server-rendered markup until hydration has finished.
+  onMounted(hydrate);
   return {
     framework: computed<Framework>({
       get: () => framework.value,

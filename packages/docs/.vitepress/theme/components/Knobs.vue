@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useId } from 'vue';
 import type { Knob, KnobOption, KnobValues } from '../../data/types';
 
-defineProps<{ knobs: Knob[]; values: KnobValues }>();
+defineProps<{ knobs: Knob[]; values: KnobValues; disabled?: boolean }>();
+const id = useId();
 const emit = defineEmits<{ change: [string, string | boolean | number] }>();
 
 function set(id: string, value: string | boolean | number) {
@@ -19,15 +21,22 @@ function optionValue(option: string | KnobOption): string {
 <template>
   <div class="hl-knobs">
     <label v-for="knob in knobs" :key="knob.id" class="hl-knob">
-      <span class="hl-knob-label">{{ knob.label }}</span>
+      <span :id="`${id}-${knob.id}`" class="hl-knob-label">{{ knob.label }}</span>
 
       <select
         v-if="knob.type === 'select'"
         class="hl-knob-select"
+        :disabled="disabled"
+        :aria-labelledby="`${id}-${knob.id}`"
         :value="values[knob.id]"
         @change="set(knob.id, ($event.target as HTMLSelectElement).value)"
       >
-        <option v-for="opt in knob.options" :key="optionValue(opt)" :value="optionValue(opt)">
+        <option
+          v-for="opt in knob.options"
+          :key="optionValue(opt)"
+          :value="optionValue(opt)"
+          :selected="optionValue(opt) === values[knob.id]"
+        >
           {{ optionLabel(opt) }}
         </option>
       </select>
@@ -36,6 +45,8 @@ function optionValue(option: string | KnobOption): string {
         v-else-if="knob.type === 'boolean'"
         type="checkbox"
         class="hl-knob-check"
+        :disabled="disabled"
+        :aria-labelledby="`${id}-${knob.id}`"
         :checked="Boolean(values[knob.id])"
         @change="set(knob.id, ($event.target as HTMLInputElement).checked)"
       />
@@ -44,6 +55,8 @@ function optionValue(option: string | KnobOption): string {
         v-else-if="knob.type === 'text'"
         type="text"
         class="hl-knob-input"
+        :disabled="disabled"
+        :aria-labelledby="`${id}-${knob.id}`"
         :value="values[knob.id]"
         :placeholder="knob.placeholder"
         @input="set(knob.id, ($event.target as HTMLInputElement).value)"
@@ -52,6 +65,8 @@ function optionValue(option: string | KnobOption): string {
       <span v-else-if="knob.type === 'number'" class="hl-knob-range">
         <input
           type="range"
+          :disabled="disabled"
+          :aria-labelledby="`${id}-${knob.id}`"
           :min="knob.min"
           :max="knob.max"
           :step="knob.step"

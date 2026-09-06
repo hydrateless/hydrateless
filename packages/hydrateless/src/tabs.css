@@ -14,6 +14,7 @@
  */
 @layer components {
   [data-hl-tabs] {
+    min-inline-size: 0;
     border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
   }
@@ -21,6 +22,7 @@
   .hl-tablist,
   [data-hl-tabs] [role='tablist'] {
     display: flex;
+    overflow-x: auto;
     gap: var(--hl-space-2);
     padding: var(--hl-space-2);
     border-block-end: var(--hl-border-width) solid var(--hl-border);
@@ -41,6 +43,7 @@
     position: relative;
     appearance: none;
     display: inline-flex;
+    flex: none;
     align-items: center;
     background: transparent;
     border: 0;

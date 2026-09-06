@@ -1,5 +1,5 @@
 import type { ComponentDoc } from '../types';
-import { attr } from './_util';
+import { attr, escapeHtml } from './_util';
 
 export const switchToggle: ComponentDoc = {
   slug: 'switch',
@@ -26,15 +26,15 @@ export const switchToggle: ComponentDoc = {
       render: (v) =>
         `<label data-hl-switch>
   <input type="checkbox" role="switch"${attr('checked', v.checked)}${attr('disabled', v.disabled)} />
-  ${v.label}
+  ${escapeHtml(v.label)}
 </label>`,
       code: {
         react: (v) =>
-          `import { Switch } from '@hydrateless/react';\n\n<Switch${v.checked ? ' defaultChecked' : ''}>${v.label}</Switch>`,
+          `import { Switch } from '@hydrateless/react';\n\n<Switch${v.checked ? ' defaultChecked' : ''}${v.disabled ? ' disabled' : ''}>${escapeHtml(v.label)}</Switch>`,
         vue: (v) =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Switch } from '@hydrateless/vue';\nconst checked = ref(${v.checked});\n</script>\n\n<template>\n  <Switch v-model="checked">${v.label}</Switch>\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport { Switch } from '@hydrateless/vue';\nconst checked = ref(${v.checked});\n</script>\n\n<template>\n  <Switch v-model="checked"${v.disabled ? ' disabled' : ''}>${escapeHtml(v.label)}</Switch>\n</template>`,
         svelte: (v) =>
-          `<script>\n  import { Switch } from '@hydrateless/svelte';\n  let checked = $state(${v.checked});\n</script>\n\n<Switch bind:checked>${v.label}</Switch>`,
+          `<script>\n  import { Switch } from '@hydrateless/svelte';\n  let checked = $state(${v.checked});\n</script>\n\n<Switch bind:checked${v.disabled ? ' disabled' : ''}>${escapeHtml(v.label)}</Switch>`,
       },
     },
   ],

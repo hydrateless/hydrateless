@@ -90,8 +90,10 @@ test.describe('right-to-left', () => {
     };
 
     // #notify is unchecked, #dark is checked in the markup.
-    expect(await thumbCenter(page, '#notify')).toBeGreaterThan(await midpoint('#notify'));
-    expect(await thumbCenter(page, '#dark')).toBeLessThan(await midpoint('#dark'));
+    await expect
+      .poll(() => thumbCenter(page, '#notify'))
+      .toBeGreaterThan(await midpoint('#notify'));
+    await expect.poll(() => thumbCenter(page, '#dark')).toBeLessThan(await midpoint('#dark'));
 
     // Flipping the state flips the side, in the RTL direction.
     await page.locator('#notify').click();

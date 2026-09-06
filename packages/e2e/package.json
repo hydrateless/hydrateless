@@ -5,6 +5,7 @@
   "description": "Real-browser end-to-end and accessibility tests for Hydrateless across Chromium, Firefox, and WebKit.",
   "type": "module",
   "scripts": {
+    "test:docs": "playwright test --config playwright.docs.config.ts",
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright show-report",
     "typecheck": "tsc -p tsconfig.json --noEmit"

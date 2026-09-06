@@ -29,20 +29,20 @@ export const dropdown: ComponentDoc = {
         `<div data-hl-dropdown>
   <button class="hl-button" data-hl-variant="outline" data-hl-dropdown-trigger popovertarget="demo-dropdown-menu">Actions</button>
   <ul id="demo-dropdown-menu" data-hl-dropdown-menu popover>
-    <li><button role="menuitem" data-hl-value="edit">Edit</button></li>
-    <li><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
-    <li><button role="menuitem" data-hl-value="archive" disabled>Archive</button></li>
+    <li role="none"><button role="menuitem" data-hl-value="edit">Edit</button></li>
+    <li role="none"><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
+    <li role="none"><button role="menuitem" data-hl-value="archive" disabled>Archive</button></li>
     <li role="separator" class="hl-dropdown-separator"></li>
-    <li><button role="menuitem" data-hl-value="delete">Delete</button></li>
+    <li role="none"><button role="menuitem" data-hl-value="delete">Delete</button></li>
   </ul>
 </div>`,
       code: {
         react: () =>
-          `import {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/react';\n\n<Dropdown onSelect={(value) => run(value)}>\n  <DropdownTrigger>Actions</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownItem value="edit">Edit</DropdownItem>\n    <DropdownItem value="duplicate">Duplicate</DropdownItem>\n    <DropdownItem value="archive" disabled>Archive</DropdownItem>\n    <DropdownSeparator />\n    <DropdownItem value="delete">Delete</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
+          `import {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/react';\n\n<Dropdown onSelect={(value) => console.log(value)}>\n  <DropdownTrigger>Actions</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownItem value="edit">Edit</DropdownItem>\n    <DropdownItem value="duplicate">Duplicate</DropdownItem>\n    <DropdownItem value="archive" disabled>Archive</DropdownItem>\n    <DropdownSeparator />\n    <DropdownItem value="delete">Delete</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
         vue: () =>
-          `<script setup>\nimport {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/vue';\n</script>\n\n<template>\n  <Dropdown @select="(value) => run(value)">\n    <DropdownTrigger>Actions</DropdownTrigger>\n    <DropdownMenu>\n      <DropdownItem value="edit">Edit</DropdownItem>\n      <DropdownItem value="duplicate">Duplicate</DropdownItem>\n      <DropdownItem value="archive" disabled>Archive</DropdownItem>\n      <DropdownSeparator />\n      <DropdownItem value="delete">Delete</DropdownItem>\n    </DropdownMenu>\n  </Dropdown>\n</template>`,
+          `<script setup>\nimport {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/vue';\n</script>\n\n<template>\n  <Dropdown @select="(value) => console.log(value)">\n    <DropdownTrigger>Actions</DropdownTrigger>\n    <DropdownMenu>\n      <DropdownItem value="edit">Edit</DropdownItem>\n      <DropdownItem value="duplicate">Duplicate</DropdownItem>\n      <DropdownItem value="archive" disabled>Archive</DropdownItem>\n      <DropdownSeparator />\n      <DropdownItem value="delete">Delete</DropdownItem>\n    </DropdownMenu>\n  </Dropdown>\n</template>`,
         svelte: () =>
-          `<script>\n  import {\n    Dropdown,\n    DropdownTrigger,\n    DropdownMenu,\n    DropdownItem,\n    DropdownSeparator,\n  } from '@hydrateless/svelte';\n</script>\n\n<Dropdown onSelect={(value) => run(value)}>\n  <DropdownTrigger>Actions</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownItem value="edit">Edit</DropdownItem>\n    <DropdownItem value="duplicate">Duplicate</DropdownItem>\n    <DropdownItem value="archive" disabled>Archive</DropdownItem>\n    <DropdownSeparator />\n    <DropdownItem value="delete">Delete</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
+          `<script>\n  import {\n    Dropdown,\n    DropdownTrigger,\n    DropdownMenu,\n    DropdownItem,\n    DropdownSeparator,\n  } from '@hydrateless/svelte';\n</script>\n\n<Dropdown onSelect={(value) => console.log(value)}>\n  <DropdownTrigger>Actions</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownItem value="edit">Edit</DropdownItem>\n    <DropdownItem value="duplicate">Duplicate</DropdownItem>\n    <DropdownItem value="archive" disabled>Archive</DropdownItem>\n    <DropdownSeparator />\n    <DropdownItem value="delete">Delete</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
       },
     },
     {
@@ -52,27 +52,27 @@ export const dropdown: ComponentDoc = {
         '`role="menuitemcheckbox"` toggles `aria-checked`; `role="menuitemradio"` checks itself and unchecks its siblings in the same `role="group"`. `hl:select` and `onSelect` report the new `checked` state. Pass `closeOnSelect: false` to keep the menu open while several boxes are toggled.',
       layout: 'center',
       render: () =>
-        `<div data-hl-dropdown>
+        `<div data-hl-dropdown data-hl-close-on-select="false">
   <button class="hl-button" data-hl-variant="outline" data-hl-dropdown-trigger popovertarget="demo-dropdown-view">View</button>
   <ul id="demo-dropdown-view" data-hl-dropdown-menu popover>
-    <li>
+    <li role="none">
       <ul role="group" aria-label="Layout">
-        <li><button role="menuitemradio" aria-checked="true" data-hl-value="list">List</button></li>
-        <li><button role="menuitemradio" aria-checked="false" data-hl-value="grid">Grid</button></li>
+        <li role="none"><button role="menuitemradio" aria-checked="true" data-hl-value="list">List</button></li>
+        <li role="none"><button role="menuitemradio" aria-checked="false" data-hl-value="grid">Grid</button></li>
       </ul>
     </li>
     <li role="separator" class="hl-dropdown-separator"></li>
-    <li><button role="menuitemcheckbox" aria-checked="false" data-hl-value="hidden">Show hidden files</button></li>
-    <li><button role="menuitemcheckbox" aria-checked="true" data-hl-value="extensions">Show extensions</button></li>
+    <li role="none"><button role="menuitemcheckbox" aria-checked="false" data-hl-value="hidden">Show hidden files</button></li>
+    <li role="none"><button role="menuitemcheckbox" aria-checked="true" data-hl-value="extensions">Show extensions</button></li>
   </ul>
 </div>`,
       code: {
         react: () =>
-          `import {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownGroup,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/react';\n\n<Dropdown closeOnSelect={false} onSelect={(value, item, checked) => update(value, checked)}>\n  <DropdownTrigger>View</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownGroup label="Layout">\n      <DropdownItem role="menuitemradio" value="list" checked>List</DropdownItem>\n      <DropdownItem role="menuitemradio" value="grid">Grid</DropdownItem>\n    </DropdownGroup>\n    <DropdownSeparator />\n    <DropdownItem role="menuitemcheckbox" value="hidden">Show hidden files</DropdownItem>\n    <DropdownItem role="menuitemcheckbox" value="extensions" checked>Show extensions</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
+          `import {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownGroup,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/react';\n\n<Dropdown closeOnSelect={false} onSelect={(value, item, checked) => console.log(value, checked)}>\n  <DropdownTrigger>View</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownGroup label="Layout">\n      <DropdownItem role="menuitemradio" value="list" checked>List</DropdownItem>\n      <DropdownItem role="menuitemradio" value="grid">Grid</DropdownItem>\n    </DropdownGroup>\n    <DropdownSeparator />\n    <DropdownItem role="menuitemcheckbox" value="hidden">Show hidden files</DropdownItem>\n    <DropdownItem role="menuitemcheckbox" value="extensions" checked>Show extensions</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
         vue: () =>
-          `<script setup>\nimport {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownGroup,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/vue';\n</script>\n\n<template>\n  <Dropdown :close-on-select="false" @select="(value, item, checked) => update(value, checked)">\n    <DropdownTrigger>View</DropdownTrigger>\n    <DropdownMenu>\n      <DropdownGroup label="Layout">\n        <DropdownItem role="menuitemradio" value="list" checked>List</DropdownItem>\n        <DropdownItem role="menuitemradio" value="grid">Grid</DropdownItem>\n      </DropdownGroup>\n      <DropdownSeparator />\n      <DropdownItem role="menuitemcheckbox" value="hidden">Show hidden files</DropdownItem>\n      <DropdownItem role="menuitemcheckbox" value="extensions" checked>Show extensions</DropdownItem>\n    </DropdownMenu>\n  </Dropdown>\n</template>`,
+          `<script setup>\nimport {\n  Dropdown,\n  DropdownTrigger,\n  DropdownMenu,\n  DropdownGroup,\n  DropdownItem,\n  DropdownSeparator,\n} from '@hydrateless/vue';\n</script>\n\n<template>\n  <Dropdown :close-on-select="false" @select="(value, item, checked) => console.log(value, checked)">\n    <DropdownTrigger>View</DropdownTrigger>\n    <DropdownMenu>\n      <DropdownGroup label="Layout">\n        <DropdownItem role="menuitemradio" value="list" checked>List</DropdownItem>\n        <DropdownItem role="menuitemradio" value="grid">Grid</DropdownItem>\n      </DropdownGroup>\n      <DropdownSeparator />\n      <DropdownItem role="menuitemcheckbox" value="hidden">Show hidden files</DropdownItem>\n      <DropdownItem role="menuitemcheckbox" value="extensions" checked>Show extensions</DropdownItem>\n    </DropdownMenu>\n  </Dropdown>\n</template>`,
         svelte: () =>
-          `<script>\n  import {\n    Dropdown,\n    DropdownTrigger,\n    DropdownMenu,\n    DropdownGroup,\n    DropdownItem,\n    DropdownSeparator,\n  } from '@hydrateless/svelte';\n</script>\n\n<Dropdown closeOnSelect={false} onSelect={(value, item, checked) => update(value, checked)}>\n  <DropdownTrigger>View</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownGroup label="Layout">\n      <DropdownItem role="menuitemradio" value="list" checked>List</DropdownItem>\n      <DropdownItem role="menuitemradio" value="grid">Grid</DropdownItem>\n    </DropdownGroup>\n    <DropdownSeparator />\n    <DropdownItem role="menuitemcheckbox" value="hidden">Show hidden files</DropdownItem>\n    <DropdownItem role="menuitemcheckbox" value="extensions" checked>Show extensions</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
+          `<script>\n  import {\n    Dropdown,\n    DropdownTrigger,\n    DropdownMenu,\n    DropdownGroup,\n    DropdownItem,\n    DropdownSeparator,\n  } from '@hydrateless/svelte';\n</script>\n\n<Dropdown closeOnSelect={false} onSelect={(value, item, checked) => console.log(value, checked)}>\n  <DropdownTrigger>View</DropdownTrigger>\n  <DropdownMenu>\n    <DropdownGroup label="Layout">\n      <DropdownItem role="menuitemradio" value="list" checked>List</DropdownItem>\n      <DropdownItem role="menuitemradio" value="grid">Grid</DropdownItem>\n    </DropdownGroup>\n    <DropdownSeparator />\n    <DropdownItem role="menuitemcheckbox" value="hidden">Show hidden files</DropdownItem>\n    <DropdownItem role="menuitemcheckbox" value="extensions" checked>Show extensions</DropdownItem>\n  </DropdownMenu>\n</Dropdown>`,
       },
     },
   ],

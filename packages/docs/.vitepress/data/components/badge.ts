@@ -1,5 +1,5 @@
 import type { ComponentDoc } from '../types';
-import { INTENTS } from './_util';
+import { INTENTS, escapeHtml } from './_util';
 
 export const badge: ComponentDoc = {
   slug: 'badge',
@@ -29,14 +29,14 @@ export const badge: ComponentDoc = {
         { id: 'label', type: 'text', label: 'Label', default: 'Active' },
       ],
       render: (v) =>
-        `<span class="hl-badge" data-hl-intent="${v.intent}" data-hl-variant="${v.variant}"${v.size !== 'md' ? ` data-hl-size="${v.size}"` : ''}>${v.label}</span>`,
+        `<span class="hl-badge" data-hl-intent="${v.intent}" data-hl-variant="${v.variant}"${v.size !== 'md' ? ` data-hl-size="${v.size}"` : ''}>${escapeHtml(v.label)}</span>`,
       code: {
         react: (v) =>
-          `import { Badge } from '@hydrateless/react';\n\n<Badge intent="${v.intent}" variant="${v.variant}">${v.label}</Badge>`,
+          `import { Badge } from '@hydrateless/react';\n\n<Badge size="${v.size}" intent="${v.intent}" variant="${v.variant}">${escapeHtml(v.label)}</Badge>`,
         vue: (v) =>
-          `<script setup>\nimport { Badge } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Badge intent="${v.intent}" variant="${v.variant}">${v.label}</Badge>\n</template>`,
+          `<script setup>\nimport { Badge } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Badge size="${v.size}" intent="${v.intent}" variant="${v.variant}">${escapeHtml(v.label)}</Badge>\n</template>`,
         svelte: (v) =>
-          `<script>\n  import { Badge } from '@hydrateless/svelte';\n</script>\n\n<Badge intent="${v.intent}" variant="${v.variant}">${v.label}</Badge>`,
+          `<script>\n  import { Badge } from '@hydrateless/svelte';\n</script>\n\n<Badge size="${v.size}" intent="${v.intent}" variant="${v.variant}">${escapeHtml(v.label)}</Badge>`,
       },
     },
     {

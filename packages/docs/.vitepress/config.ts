@@ -27,6 +27,10 @@ export default defineConfig({
   lang: 'en-US',
   lastUpdated: true,
   cleanUrls: true,
+  // The published CSS already targets our supported browsers. Reprocessing it
+  // with the repository's PostCSS preset rewrites light-dark(), logical RTL
+  // properties, and selectors, so previews no longer match the shipped library.
+  vite: { css: { postcss: { plugins: [] } } },
   // The site is served at the root of the custom domain (hydrateless.com), so
   // the base is '/'. Overridable via DOCS_BASE for a subpath deployment (e.g.
   // a GitHub Project Pages preview at /hydrateless/).

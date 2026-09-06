@@ -79,7 +79,7 @@ export const tooltip: ComponentDoc = {
   ],
   tokens: [
     { name: '--hl-fg', description: 'Tooltip background (inverted surface).' },
-    { name: '--hl-bg', description: 'Tooltip text color.' },
+    { name: '--hl-surface', description: 'Tooltip text color.' },
     { name: '--hl-radius-sm', description: 'Corner radius.' },
   ],
   a11y: [

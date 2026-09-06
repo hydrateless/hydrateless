@@ -137,7 +137,7 @@
 
   .hl-button[data-hl-variant='outline'] {
     background: transparent;
-    color: var(--_accent);
+    color: var(--_soft-fg);
     border-color: var(--hl-border-strong);
   }
 
@@ -148,7 +148,7 @@
 
   .hl-button[data-hl-variant='ghost'] {
     background: transparent;
-    color: var(--_accent);
+    color: var(--_soft-fg);
   }
 
   .hl-button[data-hl-variant='ghost']:hover {
@@ -159,7 +159,7 @@
     block-size: auto;
     padding: 0;
     background: transparent;
-    color: var(--_accent);
+    color: var(--_soft-fg);
     border-color: transparent;
     text-decoration: underline;
     text-underline-offset: 0.2em;

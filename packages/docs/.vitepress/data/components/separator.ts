@@ -30,7 +30,7 @@ export const separator: ComponentDoc = {
 </div>`,
       code: {
         react: () =>
-          `import { Separator } from '@hydrateless/react';\n\n<Separator />\n<Separator orientation="vertical" />`,
+          `import { Separator } from '@hydrateless/react';\n\n<>\n  <Separator />\n  <Separator orientation="vertical" />\n</>`,
         vue: () =>
           `<script setup>\nimport { Separator } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Separator />\n  <Separator orientation="vertical" />\n</template>`,
         svelte: () =>

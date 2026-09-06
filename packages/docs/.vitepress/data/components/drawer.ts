@@ -21,15 +21,17 @@ export const drawer: ComponentDoc = {
     {
       id: 'playground',
       title: 'Playground',
+      description:
+        'Click the backdrop or press `Esc` to close. With JS off, backdrop dismissal requires native `closedby` support.',
       layout: 'center',
       knobs: [
         { id: 'side', type: 'select', label: 'Side', options: ['end', 'start'], default: 'end' },
       ],
       render: (v) =>
         `<button class="hl-button" command="show-modal" commandfor="demo-drawer">Open drawer</button>
-<dialog id="demo-drawer" class="hl-drawer" data-hl-drawer data-hl-side="${v.side}">
-  <div class="hl-drawer-header">Settings</div>
-  <div class="hl-drawer-body">A drawer slides in from the chosen edge. Click the backdrop or press Escape to close.</div>
+<dialog id="demo-drawer" closedby="any" aria-labelledby="demo-drawer-title" class="hl-drawer" data-hl-drawer data-hl-side="${v.side}">
+  <div class="hl-drawer-header" id="demo-drawer-title">Settings</div>
+  <div class="hl-drawer-body">A drawer slides in from the chosen edge. Press Escape or choose Close to dismiss it.</div>
   <div class="hl-drawer-footer">
     <button class="hl-button" data-hl-variant="ghost" command="close" commandfor="demo-drawer">Close</button>
   </div>

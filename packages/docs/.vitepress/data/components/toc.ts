@@ -28,7 +28,7 @@ export const toc: ComponentDoc = {
       render: () =>
         `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:1rem;width:100%;align-items:start">
   <nav data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="On this page"></nav>
-  <main id="toc-demo-content">
+  <article id="toc-demo-content">
     <h2>Introduction</h2>
     <p style="margin:0 0 .75rem">A short overview of the project.</p>
     <h2>Installation</h2>
@@ -36,7 +36,7 @@ export const toc: ComponentDoc = {
     <p style="margin:0 0 .75rem">Install with your tool of choice.</p>
     <h2>Usage</h2>
     <p style="margin:0">Import a component and render it.</p>
-  </main>
+  </article>
 </div>`,
       code: {
         react: () =>

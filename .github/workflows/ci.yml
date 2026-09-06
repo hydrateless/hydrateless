@@ -106,7 +106,7 @@ jobs:
         run: npm run build
 
   docs:
-    name: Docs build
+    name: Docs build and playgrounds
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -118,9 +118,20 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      # Build-only validation of the docs site (packages + TypeDoc + VitePress)
-      # so a broken build (such as invalid YAML frontmatter) fails the PR before
-      # merge. Building and deploying on push to main stays in docs.yml. This
-      # mirrors the deploy build, which serves from the root of hydrateless.com.
+      # Exercise the production build so hydration, CSS isolation, and native
+      # browser behavior match the deployed site. Deployment stays in docs.yml.
       - name: Build docs (packages + TypeDoc + VitePress)
         run: npm run docs:build
+      - name: Typecheck docs
+        run: npm -w @hydrateless/docs run typecheck
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Test docs playgrounds
+        run: npm -w @hydrateless/e2e run test:docs
+      - name: Upload docs browser failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-test-results
+          path: packages/e2e/docs-test-results
+          retention-days: 7

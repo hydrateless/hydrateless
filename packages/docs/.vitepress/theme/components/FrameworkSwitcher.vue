@@ -7,13 +7,12 @@ const { framework, setFramework } = useFramework();
 </script>
 
 <template>
-  <div class="hl-fw-switch" role="tablist" aria-label="Code language">
+  <div class="hl-fw-switch" role="group" aria-label="Code language">
     <button
       v-for="fw in only ?? FRAMEWORKS"
       :key="fw"
       type="button"
-      role="tab"
-      :aria-selected="framework === fw"
+      :aria-pressed="framework === fw"
       :class="{ active: framework === fw }"
       @click="setFramework(fw)"
     >

@@ -28,18 +28,18 @@ export const radioGroup: ComponentDoc = {
         },
       ],
       render: (v) =>
-        `<div class="hl-radio-group" role="radiogroup"${v.orientation === 'horizontal' ? attr('data-hl-orientation', 'horizontal') : ''}>
+        `<div class="hl-radio-group" role="radiogroup" aria-label="Plan" aria-orientation="${v.orientation}"${v.orientation === 'horizontal' ? attr('data-hl-orientation', 'horizontal') : ''}>
   <label class="hl-radio"><input type="radio" name="plan-demo" checked /><span>Free</span></label>
   <label class="hl-radio"><input type="radio" name="plan-demo" /><span>Pro</span></label>
   <label class="hl-radio"><input type="radio" name="plan-demo" /><span>Team</span></label>
 </div>`,
       code: {
-        react: () =>
-          `import { useState } from 'react';\nimport { RadioGroup, Radio } from '@hydrateless/react';\n\nfunction Example() {\n  const [value, setValue] = useState('free');\n  return (\n    <RadioGroup value={value} onValueChange={setValue}>\n      <Radio value="free">Free</Radio>\n      <Radio value="pro">Pro</Radio>\n    </RadioGroup>\n  );\n}`,
-        vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { RadioGroup, Radio } from '@hydrateless/vue';\nconst value = ref('free');\n</script>\n\n<template>\n  <RadioGroup v-model="value">\n    <Radio value="free">Free</Radio>\n    <Radio value="pro">Pro</Radio>\n  </RadioGroup>\n</template>`,
-        svelte: () =>
-          `<script>\n  import { RadioGroup, Radio } from '@hydrateless/svelte';\n  let value = $state('free');\n</script>\n\n<RadioGroup bind:value>\n  <Radio value="free">Free</Radio>\n  <Radio value="pro">Pro</Radio>\n</RadioGroup>`,
+        react: (v) =>
+          `import { useState } from 'react';\nimport { RadioGroup, Radio } from '@hydrateless/react';\n\nfunction Example() {\n  const [value, setValue] = useState('free');\n  return (\n    <RadioGroup aria-label="Plan" orientation="${v.orientation}" value={value} onValueChange={setValue}>\n      <Radio value="free">Free</Radio>\n      <Radio value="pro">Pro</Radio>\n    </RadioGroup>\n  );\n}`,
+        vue: (v) =>
+          `<script setup>\nimport { ref } from 'vue';\nimport { RadioGroup, Radio } from '@hydrateless/vue';\nconst value = ref('free');\n</script>\n\n<template>\n  <RadioGroup aria-label="Plan" orientation="${v.orientation}" v-model="value">\n    <Radio value="free">Free</Radio>\n    <Radio value="pro">Pro</Radio>\n  </RadioGroup>\n</template>`,
+        svelte: (v) =>
+          `<script>\n  import { RadioGroup, Radio } from '@hydrateless/svelte';\n  let value = $state('free');\n</script>\n\n<RadioGroup aria-label="Plan" orientation="${v.orientation}" bind:value>\n  <Radio value="free">Free</Radio>\n  <Radio value="pro">Pro</Radio>\n</RadioGroup>`,
       },
     },
   ],

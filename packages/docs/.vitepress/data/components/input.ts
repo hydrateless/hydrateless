@@ -25,14 +25,14 @@ export const input: ComponentDoc = {
         { id: 'disabled', type: 'boolean', label: 'Disabled', default: false },
       ],
       render: (v) =>
-        `<input class="hl-input"${v.size !== 'md' ? attr('data-hl-size', v.size) : ''}${attr('data-hl-invalid', v.invalid)}${attr('aria-invalid', v.invalid ? 'true' : '')}${attr('disabled', v.disabled)} placeholder="${str(v, 'placeholder')}" />`,
+        `<input aria-label="Email" class="hl-input"${v.size !== 'md' ? attr('data-hl-size', v.size) : ''}${attr('data-hl-invalid', v.invalid)}${attr('aria-invalid', v.invalid ? 'true' : '')}${attr('disabled', v.disabled)} placeholder="${str(v, 'placeholder')}" />`,
       code: {
         react: (v) =>
-          `import { Input } from '@hydrateless/react';\n\n<Input placeholder="${str(v, 'placeholder')}"${v.size !== 'md' ? ` size="${v.size}"` : ''}${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />`,
+          `import { Input } from '@hydrateless/react';\n\n<Input aria-label="Email" placeholder="${str(v, 'placeholder')}"${v.size !== 'md' ? ` size="${v.size}"` : ''}${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />`,
         vue: (v) =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Input } from '@hydrateless/vue';\nconst value = ref('');\n</script>\n\n<template>\n  <Input v-model="value" placeholder="${str(v, 'placeholder')}"${v.size !== 'md' ? ` size="${v.size}"` : ''}${v.invalid ? ' invalid' : ''} />\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport { Input } from '@hydrateless/vue';\nconst value = ref('');\n</script>\n\n<template>\n  <Input aria-label="Email" v-model="value" placeholder="${str(v, 'placeholder')}"${v.size !== 'md' ? ` size="${v.size}"` : ''}${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />\n</template>`,
         svelte: (v) =>
-          `<script>\n  import { Input } from '@hydrateless/svelte';\n  let value = $state('');\n</script>\n\n<Input bind:value placeholder="${str(v, 'placeholder')}"${v.size !== 'md' ? ` size="${v.size}"` : ''}${v.invalid ? ' invalid' : ''} />`,
+          `<script>\n  import { Input } from '@hydrateless/svelte';\n  let value = $state('');\n</script>\n\n<Input aria-label="Email" bind:value placeholder="${str(v, 'placeholder')}"${v.size !== 'md' ? ` size="${v.size}"` : ''}${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />`,
       },
     },
   ],

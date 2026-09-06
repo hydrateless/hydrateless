@@ -30,14 +30,14 @@ export const progress: ComponentDoc = {
         { id: 'indeterminate', type: 'boolean', label: 'Indeterminate', default: false },
       ],
       render: (v) =>
-        `<progress class="hl-progress" data-hl-intent="${v.intent}"${v.indeterminate ? '' : ` value="${str(v, 'value', '60')}" max="100"`} style="width:100%"></progress>`,
+        `<progress aria-label="Upload progress" class="hl-progress" data-hl-intent="${v.intent}"${v.indeterminate ? '' : ` value="${str(v, 'value', '60')}" max="100"`} style="width:100%"></progress>`,
       code: {
         react: (v) =>
-          `import { Progress } from '@hydrateless/react';\n\n<Progress${v.indeterminate ? '' : ` value={${str(v, 'value', '60')}}`} intent="${v.intent}" />`,
+          `import { Progress } from '@hydrateless/react';\n\n<Progress aria-label="Upload progress"${v.indeterminate ? '' : ` value={${str(v, 'value', '60')}}`} intent="${v.intent}" />`,
         vue: (v) =>
-          `<script setup>\nimport { Progress } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Progress${v.indeterminate ? '' : ` :value="${str(v, 'value', '60')}"`} intent="${v.intent}" />\n</template>`,
+          `<script setup>\nimport { Progress } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Progress aria-label="Upload progress"${v.indeterminate ? '' : ` :value="${str(v, 'value', '60')}"`} intent="${v.intent}" />\n</template>`,
         svelte: (v) =>
-          `<script>\n  import { Progress } from '@hydrateless/svelte';\n</script>\n\n<Progress${v.indeterminate ? '' : ` value={${str(v, 'value', '60')}}`} intent="${v.intent}" />`,
+          `<script>\n  import { Progress } from '@hydrateless/svelte';\n</script>\n\n<Progress aria-label="Upload progress"${v.indeterminate ? '' : ` value={${str(v, 'value', '60')}}`} intent="${v.intent}" />`,
       },
     },
   ],
@@ -53,7 +53,7 @@ export const progress: ComponentDoc = {
   ],
   tokens: [
     { name: '--hl-primary', description: 'Fill color.' },
-    { name: '--hl-surface', description: 'Track color.' },
+    { name: '--hl-surface-3', description: 'Track color.' },
     { name: '--hl-radius-full', description: 'Bar corner radius.' },
   ],
   a11y: [

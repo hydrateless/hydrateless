@@ -37,11 +37,11 @@ export const combobox: ComponentDoc = {
 </div>`,
       code: {
         react: () =>
-          `import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/react';\n\n<Combobox defaultValue="" onValueChange={(value) => console.log(value)}>\n  <ComboboxInput placeholder="Search fruit" />\n  <ComboboxList>\n    <ComboboxOption value="apple">Apple</ComboboxOption>\n    <ComboboxOption value="banana">Banana</ComboboxOption>\n    <ComboboxOption value="cherry" disabled>Cherry (out of season)</ComboboxOption>\n  </ComboboxList>\n</Combobox>`,
+          `import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/react';\n\n<Combobox defaultValue="" onValueChange={(value) => console.log(value)}>\n  <ComboboxInput aria-label="Fruit" placeholder="Search fruit" />\n  <ComboboxList aria-label="Fruit">\n    <ComboboxOption value="apple">Apple</ComboboxOption>\n    <ComboboxOption value="banana">Banana</ComboboxOption>\n    <ComboboxOption value="cherry" disabled>Cherry (out of season)</ComboboxOption>\n  </ComboboxList>\n</Combobox>`,
         vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/vue';\nconst fruit = ref('');\n</script>\n\n<template>\n  <Combobox v-model="fruit">\n    <ComboboxInput placeholder="Search fruit" />\n    <ComboboxList>\n      <ComboboxOption value="apple">Apple</ComboboxOption>\n      <ComboboxOption value="banana">Banana</ComboboxOption>\n      <ComboboxOption value="cherry" disabled>Cherry (out of season)</ComboboxOption>\n    </ComboboxList>\n  </Combobox>\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/vue';\nconst fruit = ref('');\n</script>\n\n<template>\n  <Combobox v-model="fruit">\n    <ComboboxInput aria-label="Fruit" placeholder="Search fruit" />\n    <ComboboxList aria-label="Fruit">\n      <ComboboxOption value="apple">Apple</ComboboxOption>\n      <ComboboxOption value="banana">Banana</ComboboxOption>\n      <ComboboxOption value="cherry" disabled>Cherry (out of season)</ComboboxOption>\n    </ComboboxList>\n  </Combobox>\n</template>`,
         svelte: () =>
-          `<script>\n  import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/svelte';\n  let fruit = $state('');\n</script>\n\n<Combobox bind:value={fruit}>\n  <ComboboxInput placeholder="Search fruit" />\n  <ComboboxList>\n    <ComboboxOption value="apple">Apple</ComboboxOption>\n    <ComboboxOption value="banana">Banana</ComboboxOption>\n    <ComboboxOption value="cherry" disabled>Cherry (out of season)</ComboboxOption>\n  </ComboboxList>\n</Combobox>`,
+          `<script>\n  import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from '@hydrateless/svelte';\n  let fruit = $state('');\n</script>\n\n<Combobox bind:value={fruit}>\n  <ComboboxInput aria-label="Fruit" placeholder="Search fruit" />\n  <ComboboxList aria-label="Fruit">\n    <ComboboxOption value="apple">Apple</ComboboxOption>\n    <ComboboxOption value="banana">Banana</ComboboxOption>\n    <ComboboxOption value="cherry" disabled>Cherry (out of season)</ComboboxOption>\n  </ComboboxList>\n</Combobox>`,
       },
     },
   ],
@@ -118,10 +118,10 @@ export const combobox: ComponentDoc = {
     },
   ],
   tokens: [
-    { name: '--hl-surface', description: 'Listbox background.' },
+    { name: '--hl-overlay', description: 'Listbox background.' },
     { name: '--hl-border', description: 'Listbox and input border.' },
-    { name: '--hl-surface-2', description: 'Active option highlight.' },
-    { name: '--hl-focus-ring', description: 'Focus ring on the input.' },
+    { name: '--hl-primary-subtle', description: 'Active option highlight.' },
+    { name: '--hl-focus-shadow', description: 'Focus ring on the input.' },
   ],
   a11y: [
     'The input becomes `role="combobox"` with `aria-expanded`, `aria-controls`, `aria-haspopup="listbox"`, and `aria-activedescendant`.',

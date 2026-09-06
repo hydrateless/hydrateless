@@ -35,16 +35,16 @@ export const avatar: ComponentDoc = {
       render: (v) => {
         const size = v.size !== 'md' ? attr('data-hl-size', v.size) : '';
         const shape = v.shape === 'square' ? attr('data-hl-shape', 'square') : '';
-        return `<span class="hl-avatar"${size}${shape}><img src="https://i.pravatar.cc/96?img=1" alt="Ada" /></span>
+        return `<span class="hl-avatar"${size}${shape}><img src="../avatars/ada.svg" alt="Ada" /></span>
 <span class="hl-avatar"${size}${shape}>AL</span>`;
       },
       code: {
-        react: () =>
-          `import { Avatar } from '@hydrateless/react';\n\n<Avatar src="https://i.pravatar.cc/96?img=1" alt="Ada" />\n<Avatar>AL</Avatar>`,
-        vue: () =>
-          `<script setup>\nimport { Avatar } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Avatar src="https://i.pravatar.cc/96?img=1" alt="Ada" />\n  <Avatar>AL</Avatar>\n</template>`,
-        svelte: () =>
-          `<script>\n  import { Avatar } from '@hydrateless/svelte';\n</script>\n\n<Avatar src="https://i.pravatar.cc/96?img=1" alt="Ada" />\n<Avatar>AL</Avatar>`,
+        react: (v) =>
+          `import { Avatar } from '@hydrateless/react';\n\n<>\n  <Avatar size="${v.size}" shape="${v.shape}" src="../avatars/ada.svg" alt="Ada" />\n  <Avatar size="${v.size}" shape="${v.shape}">AL</Avatar>\n</>`,
+        vue: (v) =>
+          `<script setup>\nimport { Avatar } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Avatar size="${v.size}" shape="${v.shape}" src="../avatars/ada.svg" alt="Ada" />\n  <Avatar size="${v.size}" shape="${v.shape}">AL</Avatar>\n</template>`,
+        svelte: (v) =>
+          `<script>\n  import { Avatar } from '@hydrateless/svelte';\n</script>\n\n<Avatar size="${v.size}" shape="${v.shape}" src="../avatars/ada.svg" alt="Ada" />\n<Avatar size="${v.size}" shape="${v.shape}">AL</Avatar>`,
       },
     },
     {
@@ -54,9 +54,9 @@ export const avatar: ComponentDoc = {
       layout: 'center',
       render: () =>
         `<div class="hl-avatar-group">
-  <span class="hl-avatar"><img src="https://i.pravatar.cc/96?img=2" alt="Grace" /></span>
-  <span class="hl-avatar"><img src="https://i.pravatar.cc/96?img=3" alt="Alan" /></span>
-  <span class="hl-avatar"><img src="https://i.pravatar.cc/96?img=4" alt="Edsger" /></span>
+  <span class="hl-avatar"><img src="../avatars/grace.svg" alt="Grace" /></span>
+  <span class="hl-avatar"><img src="../avatars/alan.svg" alt="Alan" /></span>
+  <span class="hl-avatar"><img src="../avatars/edsger.svg" alt="Edsger" /></span>
   <span class="hl-avatar">+3</span>
 </div>`,
     },
@@ -77,7 +77,7 @@ export const avatar: ComponentDoc = {
     },
   ],
   tokens: [
-    { name: '--hl-surface', description: 'Fallback background.' },
+    { name: '--hl-surface-3', description: 'Fallback background.' },
     { name: '--hl-radius-full', description: 'Circle radius.' },
   ],
   a11y: [

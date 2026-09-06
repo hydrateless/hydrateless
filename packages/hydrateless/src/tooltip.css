@@ -16,6 +16,9 @@
  */
 @layer components {
   [role='tooltip'] {
+    /* Closed baseline tips must not intercept input or remain exposed to AT. */
+    display: none;
+
     /* Fallback placement: the JS positioner writes inline position/inset on
        engines without CSS anchor positioning. */
     position: absolute;
@@ -64,7 +67,16 @@
      comes from `data-hl-side` on the tip (enhanced) or `data-hl-placement` on
      the preceding trigger (no-JS baseline). */
   @supports (anchor-name: --x) {
+    :has(> [data-hl-tooltip]) {
+      anchor-scope: --hl-tooltip-trigger;
+    }
+
+    [data-hl-tooltip] {
+      anchor-name: --hl-tooltip-trigger;
+    }
+
     [role='tooltip'] {
+      position-anchor: --hl-tooltip-trigger;
       position: fixed;
       inset: auto;
       position-area: block-start;

@@ -52,7 +52,38 @@ export function setupDialog(
     dialog.setAttribute('closedby', 'any');
   }
 
-  let releaseScroll: Disposer = noop;
+  // WebKit supports dialog invokers before closedby. Match native light-dismiss
+  // there, including cancel prevention and drags that start inside the panel.
+  if (!('closedBy' in dialog)) {
+    let pressedBackdrop = false;
+    const outside = (event: MouseEvent) => {
+      const box = dialog.getBoundingClientRect();
+      return (
+        event.clientX < box.left ||
+        event.clientX > box.right ||
+        event.clientY < box.top ||
+        event.clientY > box.bottom
+      );
+    };
+    on(dialog, 'pointerdown', (event) => {
+      const pointer = event as PointerEvent;
+      pressedBackdrop = pointer.button === 0 && event.target === dialog && outside(pointer);
+    });
+    on(dialog, 'click', (event) => {
+      const dismiss = pressedBackdrop && event.target === dialog && outside(event as MouseEvent);
+      pressedBackdrop = false;
+      if (!dismiss || !dialog.open || dialog.getAttribute('closedby') !== 'any') return;
+      if ('requestClose' in dialog && typeof dialog.requestClose === 'function')
+        dialog.requestClose();
+      else {
+        const CancelEvent = doc.defaultView?.Event ?? Event;
+        if (dialog.dispatchEvent(new CancelEvent('cancel', { cancelable: true }))) dialog.close();
+      }
+    });
+  }
+
+  // A native invoker can open the dialog before a lazy enhancer arrives.
+  let releaseScroll: Disposer = dialog.open ? lockScroll(doc) : noop;
   let isOpen = dialog.open;
 
   const sync = (open: boolean) => {

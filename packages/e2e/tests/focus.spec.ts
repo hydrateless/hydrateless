@@ -73,6 +73,8 @@ test.describe('focus management', () => {
 
       await trigger.click();
       await expect(menu).toBeVisible();
+      // Native popover visibility precedes its queued toggle/focus event.
+      await expect(page.locator('[role="menuitem"]').first()).toBeFocused();
       await page.keyboard.press('ArrowDown');
       await page.keyboard.press('Enter');
 
@@ -87,6 +89,7 @@ test.describe('focus management', () => {
 
       await trigger.click();
       await expect(menu).toBeVisible();
+      await expect(page.locator('[role="menuitem"]').first()).toBeFocused();
       await page.keyboard.press('Tab');
       await expect(menu).toBeHidden();
       // The items are out of the tab sequence, so focus must not be left on one.

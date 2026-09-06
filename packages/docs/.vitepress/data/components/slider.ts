@@ -28,14 +28,14 @@ export const slider: ComponentDoc = {
         { id: 'disabled', type: 'boolean', label: 'Disabled', default: false },
       ],
       render: (v) =>
-        `<input type="range" class="hl-slider" min="0" max="100" value="${str(v, 'value', '50')}"${v.disabled ? ' disabled' : ''} style="width:100%" />`,
+        `<input aria-label="Value" type="range" class="hl-slider" min="0" max="100" value="${str(v, 'value', '50')}"${v.disabled ? ' disabled' : ''} style="width:100%" />`,
       code: {
-        react: () =>
-          `import { Slider } from '@hydrateless/react';\n\n<Slider min={0} max={100} defaultValue={50} />`,
-        vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Slider } from '@hydrateless/vue';\nconst value = ref(50);\n</script>\n\n<template>\n  <Slider v-model="value" min="0" max="100" />\n</template>`,
-        svelte: () =>
-          `<script>\n  import { Slider } from '@hydrateless/svelte';\n  let value = $state(50);\n</script>\n\n<Slider bind:value min={0} max={100} />`,
+        react: (v) =>
+          `import { Slider } from '@hydrateless/react';\n\n<Slider aria-label="Value"${v.disabled ? ' disabled' : ''} min={0} max={100} defaultValue={${v.value}} />`,
+        vue: (v) =>
+          `<script setup>\nimport { ref } from 'vue';\nimport { Slider } from '@hydrateless/vue';\nconst value = ref(${v.value});\n</script>\n\n<template>\n  <Slider aria-label="Value"${v.disabled ? ' disabled' : ''} v-model="value" min="0" max="100" />\n</template>`,
+        svelte: (v) =>
+          `<script>\n  import { Slider } from '@hydrateless/svelte';\n  let value = $state(${v.value});\n</script>\n\n<Slider aria-label="Value"${v.disabled ? ' disabled' : ''} bind:value min={0} max={100} />`,
       },
     },
     {
@@ -48,7 +48,7 @@ export const slider: ComponentDoc = {
         `<label class="hl-label" for="volume-demo">Volume</label>
 <div data-hl-slider data-hl-unit="%" style="width:100%">
   <input type="range" class="hl-slider" id="volume-demo" min="0" max="100" value="35" />
-  <output for="volume-demo"></output>
+  <output for="volume-demo">35%</output>
 </div>`,
     },
   ],
@@ -72,7 +72,7 @@ export const slider: ComponentDoc = {
   ],
   tokens: [
     { name: '--hl-primary', description: 'Filled track and thumb color.' },
-    { name: '--hl-border', description: 'Empty track color.' },
+    { name: '--hl-surface-3', description: 'Empty track color.' },
   ],
   a11y: [
     'A native range input exposes value, min, max, and step to assistive tech.',
