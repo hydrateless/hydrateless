@@ -22,16 +22,18 @@ export const pagination: ComponentDoc = {
     {
       id: 'default',
       title: 'Pagination',
+      description:
+        'This in-page preview updates with the enhancer. Use real page URLs for server-rendered navigation without JavaScript.',
       layout: 'center',
       render: () =>
-        `<nav class="hl-pagination" aria-label="Pagination">
+        `<nav class="hl-pagination" aria-label="Pagination" data-hl-pagination data-hl-total="9">
   <ul>
-    <li><a class="hl-pagination-item" href="#" aria-label="Previous page">‹</a></li>
-    <li><a class="hl-pagination-item" href="#" aria-current="page">1</a></li>
-    <li><a class="hl-pagination-item" href="#">2</a></li>
+    <li><a class="hl-pagination-item" href="#" data-hl-page="prev" aria-label="Previous page" aria-disabled="true">‹</a></li>
+    <li><a class="hl-pagination-item" href="#" data-hl-page="1" aria-current="page">1</a></li>
+    <li><a class="hl-pagination-item" href="#" data-hl-page="2">2</a></li>
     <li aria-hidden="true"><span class="hl-pagination-ellipsis">…</span></li>
-    <li><a class="hl-pagination-item" href="#">9</a></li>
-    <li><a class="hl-pagination-item" href="#" aria-label="Next page">›</a></li>
+    <li><a class="hl-pagination-item" href="#" data-hl-page="9">9</a></li>
+    <li><a class="hl-pagination-item" href="#" data-hl-page="next" aria-label="Next page">›</a></li>
   </ul>
 </nav>`,
       code: {

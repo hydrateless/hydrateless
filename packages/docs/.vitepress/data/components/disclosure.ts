@@ -71,7 +71,7 @@ export const disclosure: ComponentDoc = {
   ],
   tokens: [
     { name: '--hl-border', description: 'Panel border.' },
-    { name: '--hl-radius-md', description: 'Corner radius.' },
+    { name: '--hl-radius-lg', description: 'Corner radius.' },
   ],
   a11y: [
     'The native `<details>` summary is a real button with built-in keyboard support.',

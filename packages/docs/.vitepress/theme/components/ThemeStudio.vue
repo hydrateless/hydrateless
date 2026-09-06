@@ -57,18 +57,32 @@ function hsl(h: number, s: number, l: number, a = 1): string {
   return a === 1 ? `hsl(${h}deg ${s}% ${l}%)` : `hsl(${h}deg ${s}% ${l}% / ${a})`;
 }
 
+// Choose the higher-contrast foreground using relative luminance.
+function foreground(hex: string): string {
+  const channels = [1, 3, 5].map((offset) => {
+    const value = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+  return luminance > 0.179 ? '#000000' : '#ffffff';
+}
+
 const vars = computed<Record<string, string>>(() => {
   const [h, s, l] = hexToHsl(state.primary);
   const dark = state.mode === 'dark';
   const r = state.radius;
+  const primaryFg = foreground(state.primary);
+  const hoverDirection = primaryFg === '#000000' ? 1 : -1;
   return {
     '--hl-primary': hsl(h, s, l),
-    '--hl-primary-hover': hsl(h, s, clamp(l + (dark ? 8 : -8))),
-    '--hl-primary-active': hsl(h, s, clamp(l + (dark ? 16 : -16))),
-    '--hl-primary-fg': l > 60 ? hsl(h, 30, 12) : 'hsl(0deg 0% 100%)',
+    '--hl-primary-hover': hsl(h, s, clamp(l + hoverDirection * 8)),
+    '--hl-primary-active': hsl(h, s, clamp(l + hoverDirection * 16)),
+    '--hl-primary-fg': primaryFg,
     '--hl-primary-subtle': dark ? hsl(h, clamp(s - 20), 22, 0.5) : hsl(h, clamp(s + 10), 95),
-    '--hl-primary-subtle-fg': dark ? hsl(h, clamp(s - 10), 80) : hsl(h, s, clamp(l - 12)),
+    '--hl-primary-subtle-fg': dark ? hsl(h, clamp(s - 10), 80) : hsl(h, s, 20),
     '--hl-ring': hsl(h, s, l),
+    '--hl-focus-ring': 'var(--hl-border-width-2) solid var(--hl-ring)',
+    '--hl-focus-shadow': '0 0 0 3px color-mix(in oklab, var(--hl-ring) 30%, transparent)',
     '--hl-border': state.border,
     '--hl-border-strong': state.border,
     '--hl-radius-xs': `${Math.round(r * 0.25)}px`,
@@ -78,33 +92,37 @@ const vars = computed<Record<string, string>>(() => {
     '--hl-radius-xl': `${Math.round(r * 2)}px`,
     '--hl-radius-2xl': `${Math.round(r * 2.5)}px`,
     '--hl-text-base': `${state.size}px`,
+    '--hl-text-xs': `${state.size * 0.75}px`,
+    '--hl-text-sm': `${state.size * 0.875}px`,
+    '--hl-text-lg': `${state.size * 1.125}px`,
+    '--hl-text-xl': `${state.size * 1.25}px`,
     '--hl-font-sans': FONTS[state.font],
   };
 });
 
 const cssText = computed(() => {
   const lines = Object.entries(vars.value).map(([k, v]) => `  ${k}: ${v};`);
-  return `:root {\n${lines.join('\n')}\n}`;
+  return `:root {\n  color-scheme: ${state.mode};\n${lines.join('\n')}\n}`;
 });
 
 const previewEl = ref<HTMLElement | null>(null);
 let disposer: Disposer | undefined;
-onMounted(() => {
+const revision = ref(0);
+const mounted = ref(false);
+function enhance() {
   if (previewEl.value) disposer = enhanceDemo(previewEl.value);
+}
+onMounted(() => {
+  enhance();
+  mounted.value = true;
 });
 onBeforeUnmount(() => disposer?.());
-
-// Re-enhance if the markup ever changes (it does not today, but keeps the tabs
-// demo robust against future edits).
-watch(
-  () => state.mode,
-  () => {
-    /* mode only flips data-theme; no re-enhance needed */
-  },
-);
+watch(revision, () => disposer?.(), { flush: 'pre' });
+watch(revision, enhance, { flush: 'post' });
 
 function reset() {
   Object.assign(state, defaults());
+  revision.value += 1;
 }
 
 const preview = `
@@ -122,8 +140,8 @@ const preview = `
       <span class="hl-badge" data-hl-intent="success" data-hl-variant="soft">Active</span>
     </div>
     <div class="hl-field">
-      <label class="hl-label">Workspace name</label>
-      <input class="hl-input" value="Hydrateless" />
+      <label class="hl-label" for="studio-workspace">Workspace name</label>
+      <input id="studio-workspace" class="hl-input" value="Hydrateless" />
     </div>
     <label data-hl-switch>
       <input type="checkbox" role="switch" checked />
@@ -135,12 +153,12 @@ const preview = `
       </div>
     </div>
     <div data-hl-tabs>
-      <div role="tablist">
-        <button role="tab">Overview</button>
-        <button role="tab">Activity</button>
+      <div role="tablist" aria-label="Project">
+        <button role="tab" id="studio-overview" aria-controls="studio-overview-panel" aria-selected="true">Overview</button>
+        <button role="tab" id="studio-activity" aria-controls="studio-activity-panel" aria-selected="false" tabindex="-1">Activity</button>
       </div>
-      <div role="tabpanel">Tabs, accordions, and the rest pick up your tokens too.</div>
-      <div role="tabpanel">Second panel.</div>
+      <div role="tabpanel" id="studio-overview-panel" aria-labelledby="studio-overview" tabindex="0">Tabs, accordions, and the rest pick up your tokens too.</div>
+      <div role="tabpanel" id="studio-activity-panel" aria-labelledby="studio-activity" tabindex="0" hidden>Second panel.</div>
     </div>
   </div>
 </div>`;
@@ -151,43 +169,65 @@ const preview = `
     <div class="hl-studio-controls">
       <label class="hl-knob">
         <span class="hl-knob-label">Primary color</span>
-        <input type="color" v-model="state.primary" />
+        <input
+          :disabled="!mounted"
+          type="color"
+          aria-label="Primary color"
+          v-model="state.primary"
+        />
       </label>
       <label class="hl-knob">
         <span class="hl-knob-label">Border color</span>
-        <input type="color" v-model="state.border" />
+        <input :disabled="!mounted" type="color" aria-label="Border color" v-model="state.border" />
       </label>
       <label class="hl-knob">
         <span class="hl-knob-label">Radius</span>
         <span class="hl-knob-range">
-          <input type="range" min="0" max="24" step="1" v-model.number="state.radius" />
+          <input
+            :disabled="!mounted"
+            type="range"
+            min="0"
+            max="24"
+            step="1"
+            aria-label="Radius"
+            v-model.number="state.radius"
+          />
           <output>{{ state.radius }}px</output>
         </span>
       </label>
       <label class="hl-knob">
         <span class="hl-knob-label">Base size</span>
         <span class="hl-knob-range">
-          <input type="range" min="14" max="18" step="1" v-model.number="state.size" />
+          <input
+            :disabled="!mounted"
+            type="range"
+            min="14"
+            max="18"
+            step="1"
+            aria-label="Base size"
+            v-model.number="state.size"
+          />
           <output>{{ state.size }}px</output>
         </span>
       </label>
       <label class="hl-knob">
         <span class="hl-knob-label">Font</span>
-        <select class="hl-knob-select" v-model="state.font">
+        <select :disabled="!mounted" class="hl-knob-select" aria-label="Font" v-model="state.font">
           <option v-for="(_, name) in FONTS" :key="name" :value="name">{{ name }}</option>
         </select>
       </label>
       <label class="hl-knob">
         <span class="hl-knob-label">Mode</span>
-        <select class="hl-knob-select" v-model="state.mode">
+        <select :disabled="!mounted" class="hl-knob-select" aria-label="Mode" v-model="state.mode">
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>
       </label>
-      <button type="button" class="hl-demo-btn" @click="reset">Reset</button>
+      <button :disabled="!mounted" type="button" class="hl-demo-btn" @click="reset">Reset</button>
     </div>
 
     <div
+      :key="revision"
       ref="previewEl"
       class="hl-studio-preview"
       :data-theme="state.mode"

@@ -65,7 +65,7 @@
     font-weight: var(--hl-font-semibold);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--hl-fg-subtle);
+    color: var(--hl-fg-muted);
   }
 
   [data-hl-command] [role='option'] {

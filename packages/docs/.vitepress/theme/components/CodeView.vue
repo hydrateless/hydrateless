@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { highlight } from '../lib/highlight';
+import { useClipboard } from '../lib/clipboard';
 
 const props = defineProps<{
   code: string;
@@ -10,19 +11,7 @@ const props = defineProps<{
 
 const highlighted = computed(() => highlight(props.code.trimEnd(), props.lang));
 
-const copied = ref(false);
-let timer: ReturnType<typeof setTimeout> | undefined;
-
-async function copy() {
-  try {
-    await navigator.clipboard.writeText(props.code.trimEnd());
-    copied.value = true;
-    clearTimeout(timer);
-    timer = setTimeout(() => (copied.value = false), 1600);
-  } catch {
-    // Clipboard can be blocked; fail quietly.
-  }
-}
+const { status, copy, ready } = useClipboard(() => props.code);
 </script>
 
 <template>
@@ -31,11 +20,19 @@ async function copy() {
     <button
       class="hl-code-copy"
       type="button"
-      :aria-label="copied ? 'Copied' : 'Copy code'"
+      aria-label="Copy code"
+      :disabled="!ready"
       @click="copy"
     >
-      {{ copied ? 'Copied' : 'Copy' }}
+      {{ status === 'copied' ? 'Copied' : status === 'failed' ? 'Copy failed' : 'Copy' }}
     </button>
-    <pre><code v-html="highlighted" /></pre>
+    <span class="hl-sr-only" role="status">{{
+      status === 'copied'
+        ? 'Code copied.'
+        : status === 'failed'
+          ? 'Clipboard unavailable. Select and copy the code manually.'
+          : ''
+    }}</span>
+    <pre tabindex="0" aria-label="Code example"><code v-html="highlighted" /></pre>
   </div>
 </template>

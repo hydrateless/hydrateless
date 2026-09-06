@@ -27,18 +27,18 @@ export const segmentedControl: ComponentDoc = {
         { id: 'size', type: 'select', label: 'Size', options: ['sm', 'md', 'lg'], default: 'md' },
       ],
       render: (v) =>
-        `<div class="hl-segmented" role="radiogroup"${v.size !== 'md' ? attr('data-hl-size', v.size) : ''}>
+        `<div class="hl-segmented" role="radiogroup" aria-label="View"${v.size !== 'md' ? attr('data-hl-size', v.size) : ''}>
   <label class="hl-segmented-item"><input type="radio" name="view-demo" checked /><span>List</span></label>
   <label class="hl-segmented-item"><input type="radio" name="view-demo" /><span>Board</span></label>
   <label class="hl-segmented-item"><input type="radio" name="view-demo" /><span>Calendar</span></label>
 </div>`,
       code: {
-        react: () =>
-          `import { SegmentedControl } from '@hydrateless/react';\n\n<SegmentedControl\n  options={[\n    { label: 'List', value: 'list' },\n    { label: 'Board', value: 'board' },\n  ]}\n  defaultValue="list"\n/>`,
-        vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { SegmentedControl } from '@hydrateless/vue';\nconst value = ref('list');\nconst options = [\n  { label: 'List', value: 'list' },\n  { label: 'Board', value: 'board' },\n];\n</script>\n\n<template>\n  <SegmentedControl v-model="value" :options="options" />\n</template>`,
-        svelte: () =>
-          `<script>\n  import { SegmentedControl } from '@hydrateless/svelte';\n  let value = $state('list');\n  const options = [\n    { label: 'List', value: 'list' },\n    { label: 'Board', value: 'board' },\n  ];\n</script>\n\n<SegmentedControl bind:value {options} />`,
+        react: (v) =>
+          `import { SegmentedControl } from '@hydrateless/react';\n\n<SegmentedControl aria-label="View" size="${v.size}"\n  options={[\n    { label: 'List', value: 'list' },\n    { label: 'Board', value: 'board' },\n  ]}\n  defaultValue="list"\n/>`,
+        vue: (v) =>
+          `<script setup>\nimport { ref } from 'vue';\nimport { SegmentedControl } from '@hydrateless/vue';\nconst value = ref('list');\nconst options = [\n  { label: 'List', value: 'list' },\n  { label: 'Board', value: 'board' },\n];\n</script>\n\n<template>\n  <SegmentedControl aria-label="View" size="${v.size}" v-model="value" :options="options" />\n</template>`,
+        svelte: (v) =>
+          `<script>\n  import { SegmentedControl } from '@hydrateless/svelte';\n  let value = $state('list');\n  const options = [\n    { label: 'List', value: 'list' },\n    { label: 'Board', value: 'board' },\n  ];\n</script>\n\n<SegmentedControl aria-label="View" size="${v.size}" bind:value {options} />`,
       },
     },
     {
@@ -88,8 +88,8 @@ export const segmentedControl: ComponentDoc = {
     },
   ],
   tokens: [
-    { name: '--hl-surface', description: 'Track background.' },
-    { name: '--hl-bg', description: 'Selected segment background.' },
+    { name: '--hl-surface-2', description: 'Track background.' },
+    { name: '--hl-surface', description: 'Selected segment background.' },
     { name: '--hl-radius-md', description: 'Corner radius.' },
   ],
   a11y: [

@@ -33,16 +33,16 @@ automatically once the DOM is ready:
 ## Pinning a version
 
 `@latest` always resolves to the newest release, including breaking ones. For
-anything beyond a prototype, pin to a major so you get fixes but not surprises,
-and bump it deliberately:
+anything beyond a prototype, pin to the current minor release so you get patch fixes,
+and update it deliberately:
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/hydrateless.min.css" />
-<script type="module" src="https://unpkg.com/@hydrateless/auto@1/dist/hydrateless.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@0.10/dist/hydrateless.min.css" />
+<script type="module" src="https://unpkg.com/@hydrateless/auto@0.10/dist/hydrateless.js"></script>
 ```
 
 Before 1.0, minor releases can include breaking changes, so pin the minor
-instead (`hydrateless@0.10`). Pin an exact version (`hydrateless@1.2.3`) when
+instead (`hydrateless@0.10`). Pin an exact version (`hydrateless@0.10.0`) when
 you need byte-for-byte reproducibility, for example alongside a Subresource
 Integrity hash.
 
@@ -80,10 +80,10 @@ parsing rules.
 
 ```html
 <!-- Just the pieces you need -->
-<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/reset.css" />
-<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/tokens.css" />
-<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/theme.css" />
-<link rel="stylesheet" href="https://unpkg.com/hydrateless@1/dist/tabs.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@0.10/dist/reset.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@0.10/dist/tokens.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@0.10/dist/theme.css" />
+<link rel="stylesheet" href="https://unpkg.com/hydrateless@0.10/dist/tabs.css" />
 ```
 
 Component file names match the subpath exports: `segmented-control.css`,
@@ -95,10 +95,13 @@ and `theme.css` when loading components individually.
 The same paths work on jsDelivr; swap the host for `https://cdn.jsdelivr.net/npm/`:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hydrateless@1/dist/hydrateless.min.css" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hydrateless@0.10/dist/hydrateless.min.css"
+/>
 <script
   type="module"
-  src="https://cdn.jsdelivr.net/npm/@hydrateless/auto@1/dist/hydrateless.js"
+  src="https://cdn.jsdelivr.net/npm/@hydrateless/auto@0.10/dist/hydrateless.js"
 ></script>
 ```
 
@@ -111,7 +114,7 @@ container and options you want:
 ```html
 <html data-hl-manual>
   <script type="module">
-    import { autoSync } from 'https://unpkg.com/@hydrateless/auto@1/dist/hydrateless.js';
+    import { autoSync } from 'https://unpkg.com/@hydrateless/auto@0.10/dist/hydrateless.js';
 
     // Enhance only a specific subtree, and keep the disposer for later cleanup.
     const dispose = autoSync(document.querySelector('#widget'), {

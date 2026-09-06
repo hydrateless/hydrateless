@@ -7,7 +7,7 @@ export const modal: ComponentDoc = {
   importName: 'Modal',
   summary: 'A dialog overlay built on the native <dialog> element.',
   description:
-    'A dialog overlay built on the native `<dialog>` element and `showModal()`, which provides top-layer rendering and focus containment for free. Buttons open and close it declaratively with HTML Invoker Commands (`command="show-modal"` and `command="close"`), so it works with no JavaScript; the enhancer adds labeling, background scroll-lock, and the controlled API.',
+    'A dialog overlay built on the native `<dialog>` element and `showModal()`, which provides top-layer rendering and focus containment for free. Buttons open and close it declaratively with HTML Invoker Commands (`command="show-modal"` and `command="close"`), so it works with no JavaScript; the enhancer adds labeling, background scroll locking, a backdrop dismissal fallback, and the controlled API.',
   status: 'stable',
   cssOnly: false,
   native: '<dialog>',
@@ -22,13 +22,13 @@ export const modal: ComponentDoc = {
       id: 'default',
       title: 'Modal',
       description:
-        'Open the dialog, then press `Esc` or click the backdrop to close. Toggle JS off to see the native fallback.',
+        'Open the dialog, then press `Esc` or click the backdrop to close. With JS off, backdrop dismissal requires native `closedby` support.',
       layout: 'center',
       render: () =>
         `<button class="hl-button" command="show-modal" commandfor="demo-modal">Open modal</button>
-<dialog id="demo-modal" class="hl-modal" data-hl-modal>
-  <div class="hl-modal-header">Confirm action</div>
-  <div class="hl-modal-body">This dialog is the native dialog element. Press Escape or click the backdrop to close.</div>
+<dialog id="demo-modal" closedby="any" aria-labelledby="demo-modal-title" class="hl-modal" data-hl-modal>
+  <div class="hl-modal-header" id="demo-modal-title">Confirm action</div>
+  <div class="hl-modal-body">This is a native dialog. Press Escape or choose Cancel or Confirm to close it.</div>
   <div class="hl-modal-footer">
     <button class="hl-button" data-hl-variant="ghost" command="close" commandfor="demo-modal">Cancel</button>
     <button class="hl-button" data-hl-intent="primary" command="close" commandfor="demo-modal">Confirm</button>

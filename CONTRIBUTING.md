@@ -29,9 +29,15 @@ npm run size
 # end-to-end tests (Playwright; run npx playwright install once)
 npm -w packages/e2e run test:e2e
 
+# docs playgrounds (production build, all three browser engines)
+npm run docs:build
+npm -w packages/e2e run test:docs
+
 # format code
 npm run format
 ```
+
+The docs suite checks playground controls, resets, framework examples, keyboard interactions, JavaScript-disabled pages, light and dark themes, accessibility, and mobile layouts. It starts a production preview automatically. If you've started a preview yourself, restart it after rebuilding so it serves the current assets.
 
 ## Project layout (high-level)
 

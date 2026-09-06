@@ -90,7 +90,7 @@ export const field: ComponentDoc = {
   ],
   tokens: [
     { name: '--hl-fg-muted', description: 'Help text color.' },
-    { name: '--hl-danger', description: 'Error text and required marker color.' },
+    { name: '--hl-danger-subtle-fg', description: 'Error text and required marker color.' },
     { name: '--hl-space-1-5', description: 'Gap between label, control, and message.' },
   ],
   a11y: [

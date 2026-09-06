@@ -19,8 +19,8 @@ export const skipLink: ComponentDoc = {
       description: 'Tab into the frame to reveal the link, which is hidden until focused.',
       layout: 'fill',
       render: () =>
-        `<a class="hl-skip-link" href="#main-content" style="position:static;transform:none">Skip to content</a>
-<p style="margin:.75rem 0 0">The link sits before your nav and points at the main landmark. It only appears on focus in real use.</p>`,
+        `<a class="hl-skip-link" href="#skip-demo-content" target="_self">Skip to content</a>
+<p id="skip-demo-content" tabindex="-1" style="margin:2rem 0 0">Example content. Focus the skip link, then press Enter to move focus here.</p>`,
       code: {
         react: () =>
           `import { SkipLink } from '@hydrateless/react';\n\n<SkipLink href="#main-content" />`,
@@ -40,8 +40,8 @@ export const skipLink: ComponentDoc = {
     },
   ],
   tokens: [
-    { name: '--hl-primary', description: 'Link background when focused.' },
-    { name: '--hl-radius-md', description: 'Corner radius.' },
+    { name: '--hl-fg', description: 'Link background when focused.' },
+    { name: '--hl-radius-sm', description: 'Corner radius.' },
   ],
   a11y: [
     'Place it as the first focusable element in the document.',

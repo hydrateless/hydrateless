@@ -11,6 +11,9 @@
   :is(.hl-modal, dialog[data-hl-modal]) {
     inline-size: min(90vi, var(--hl-modal-inline-size));
     max-inline-size: none;
+
+    /* The reset clears the UA's auto margin; restore native dialog centering. */
+    margin: auto;
     padding: 0;
     border: none;
     border-radius: var(--hl-radius-lg);

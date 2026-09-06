@@ -8,19 +8,19 @@ enhancers fill the few remaining gaps.
 
 ## Platform features by component
 
-| Feature                                                 | Used by                                                         | Without it                                                                                             |
-| ------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Popover API (`popover`, `popovertarget`)                | Dropdown, menu submenus, popover, tooltip, combobox             | Required. Surfaces render inline (not in the top layer) and don't light-dismiss.                       |
-| `<dialog>` with `showModal()` and `closedby`            | Modal, drawer, command palette host                             | `<dialog>` is required. Without `closedby`, Escape still closes natively but backdrop clicks don't.    |
-| Invoker Commands (`command`/`commandfor`)               | Buttons that open dialogs and popovers with no JS               | Progressive. The enhancers wire `click` handlers where `commandForElement` is missing.                 |
-| CSS anchor positioning (`anchor-name`, `position-area`) | Dropdown, menu, popover, tooltip, combobox                      | Progressive. `supportsAnchorPositioning()` is false and a small JS positioner runs (`position: true`). |
-| `light-dark()` and `color-scheme`                       | Every color token                                               | Required for automatic dark mode. See [Dark Mode](/guide/dark-mode).                                   |
-| `@layer`                                                | The whole stylesheet (`reset`, `tokens`, `theme`, `components`) | Required. Layers are shipped natively, not flattened.                                                  |
-| `@starting-style`                                       | Entry transitions on overlays and toasts                        | Progressive. Surfaces appear without the fade.                                                         |
-| `:has()`                                                | Checkbox, switch, radio group, segmented control, tabs baseline | Required for the CSS-only selection styling.                                                           |
-| `:dir()`                                                | Logical mirroring in drawer, slider, switch, disclosure         | Progressive. `[dir="rtl"]` selectors cover the same cases.                                             |
-| `field-sizing: content`                                 | Textarea auto-grow                                              | Progressive. The textarea keeps its `rows`.                                                            |
-| `MutationObserver`, `IntersectionObserver`              | Live collections, the auto-loader, TOC scroll spy               | Required for enhancement. The CSS baseline is unaffected.                                              |
+| Feature                                                 | Used by                                                         | Without it                                                                                                                  |
+| ------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Popover API (`popover`, `popovertarget`)                | Dropdown, menu submenus, popover, tooltip, combobox             | Required. Surfaces render inline (not in the top layer) and don't light-dismiss.                                            |
+| `<dialog>` with `showModal()` and `closedby`            | Modal, drawer, command palette host                             | `<dialog>` is required. Without `closedby`, the enhancer adds backdrop dismissal; the no-JS baseline still supports Escape. |
+| Invoker Commands (`command`/`commandfor`)               | Buttons that open dialogs and popovers with no JS               | Required for declarative invokers. Where missing, call `showModal()` or the enhancer API from your own trigger.             |
+| CSS anchor positioning (`anchor-name`, `position-area`) | Dropdown, menu, popover, tooltip, combobox                      | Progressive. `supportsAnchorPositioning()` is false and a small JS positioner runs (`position: true`).                      |
+| `light-dark()` and `color-scheme`                       | Every color token                                               | Required for automatic dark mode. See [Dark Mode](/guide/dark-mode).                                                        |
+| `@layer`                                                | The whole stylesheet (`reset`, `tokens`, `theme`, `components`) | Required. Layers are shipped natively, not flattened.                                                                       |
+| `@starting-style`                                       | Entry transitions on overlays and toasts                        | Progressive. Surfaces appear without the fade.                                                                              |
+| `:has()`                                                | Checkbox, switch, radio group, segmented control, tabs baseline | Required for the CSS-only selection styling.                                                                                |
+| `:dir()`                                                | Logical mirroring in drawer, slider, switch, disclosure         | Progressive. `[dir="rtl"]` selectors cover the same cases.                                                                  |
+| `field-sizing: content`                                 | Textarea auto-grow                                              | Progressive. The textarea keeps its `rows`.                                                                                 |
+| `MutationObserver`, `IntersectionObserver`              | Live collections, the auto-loader, TOC scroll spy               | Required for enhancement. The CSS baseline is unaffected.                                                                   |
 
 The CSS build runs through `postcss-preset-env` (stage 1) and Autoprefixer, but
 deliberately leaves the features above native rather than polyfilling them, and

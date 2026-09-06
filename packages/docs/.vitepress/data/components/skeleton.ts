@@ -36,11 +36,11 @@ export const skeleton: ComponentDoc = {
       },
       code: {
         react: (v) =>
-          `import { Skeleton } from '@hydrateless/react';\n\n<Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />`,
+          `import { Skeleton } from '@hydrateless/react';\n\n<Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : v.shape === 'rect' ? ' width="12rem" height="5rem"' : ' width="12rem"'} />`,
         vue: (v) =>
-          `<script setup>\nimport { Skeleton } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />\n</template>`,
+          `<script setup>\nimport { Skeleton } from '@hydrateless/vue';\n</script>\n\n<template>\n  <Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : v.shape === 'rect' ? ' width="12rem" height="5rem"' : ' width="12rem"'} />\n</template>`,
         svelte: (v) =>
-          `<script>\n  import { Skeleton } from '@hydrateless/svelte';\n</script>\n\n<Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : ' width="12rem"'} />`,
+          `<script>\n  import { Skeleton } from '@hydrateless/svelte';\n</script>\n\n<Skeleton shape="${v.shape}"${v.shape === 'circle' ? ' width="3rem" height="3rem"' : v.shape === 'rect' ? ' width="12rem" height="5rem"' : ' width="12rem"'} />`,
       },
     },
   ],

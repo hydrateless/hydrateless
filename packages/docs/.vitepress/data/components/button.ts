@@ -1,13 +1,8 @@
 import type { ComponentDoc, KnobValues } from '../types';
 
-const attr = (name: string, value: unknown): string =>
-  value === false || value == null || value === ''
-    ? ''
-    : value === true
-      ? ` ${name}`
-      : ` ${name}="${value}"`;
+import { attr, escapeHtml } from './_util';
 
-const label = (v: KnobValues): string => String(v.label || 'Save');
+const label = (v: KnobValues): string => escapeHtml(v.label);
 
 export const button: ComponentDoc = {
   slug: 'button',
@@ -53,13 +48,13 @@ export const button: ComponentDoc = {
         `<button class="hl-button"${attr('data-hl-intent', v.intent)}${attr('data-hl-variant', v.variant)}${attr(
           'data-hl-size',
           v.size,
-        )}${attr('data-hl-block', v.block)}${attr('data-hl-loading', v.loading)}${attr('disabled', v.disabled)}>${label(v)}</button>`,
+        )}${attr('data-hl-block', v.block)}${attr('data-hl-loading', v.loading)}${attr('aria-busy', v.loading ? 'true' : '')}${attr('disabled', v.disabled || v.loading)}>${label(v)}</button>`,
       code: {
         html: (v) =>
           `<button class="hl-button"${attr('data-hl-intent', v.intent)}${attr('data-hl-variant', v.variant)}${attr(
             'data-hl-size',
             v.size,
-          )}${attr('data-hl-block', v.block)}${attr('data-hl-loading', v.loading)}${attr('disabled', v.disabled)}>${label(v)}</button>`,
+          )}${attr('data-hl-block', v.block)}${attr('data-hl-loading', v.loading)}${attr('aria-busy', v.loading ? 'true' : '')}${attr('disabled', v.disabled || v.loading)}>${label(v)}</button>`,
         react: (v) =>
           `import { Button } from '@hydrateless/react';\n\n<Button intent="${v.intent}" variant="${v.variant}" size="${v.size}"${
             v.block ? ' block' : ''
@@ -94,7 +89,7 @@ export const button: ComponentDoc = {
       layout: 'row',
       render: () =>
         `<button class="hl-button" data-hl-intent="primary" data-hl-icon aria-label="Add">+</button>
-<button class="hl-button" data-hl-intent="primary" data-hl-loading>Saving</button>
+<button class="hl-button" data-hl-intent="primary" data-hl-loading disabled aria-busy="true">Saving</button>
 <button class="hl-button" data-hl-variant="outline" disabled>Disabled</button>`,
     },
   ],

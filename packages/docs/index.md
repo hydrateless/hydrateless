@@ -54,14 +54,14 @@ These are real Hydrateless components, not screenshots. Toggle JavaScript off in
 
 <Demo layout="fill">
   <div data-hl-tabs style="width:100%">
-    <div role="tablist">
-      <button role="tab">Overview</button>
-      <button role="tab">Install</button>
-      <button role="tab">Theme</button>
+    <div role="tablist" aria-label="Hydrateless overview">
+      <button role="tab" aria-selected="true" id="intro-overview" aria-controls="intro-overview-panel">Overview</button>
+      <button role="tab" aria-selected="false" tabindex="-1">Install</button>
+      <button role="tab" aria-selected="false" tabindex="-1">Theme</button>
     </div>
-    <div role="tabpanel"><p style="margin:0">Accessible primitives with full keyboard support and ARIA wired by tiny enhancers.</p></div>
-    <div role="tabpanel"><p style="margin:0">Ship the CSS, then add enhancers only where an interaction needs them.</p></div>
-    <div role="tabpanel"><p style="margin:0">Restyle everything from a handful of CSS variables in the theme studio.</p></div>
+    <div role="tabpanel" id="intro-overview-panel" aria-labelledby="intro-overview" tabindex="0"><p style="margin:0">Accessible primitives with full keyboard support and ARIA wired by tiny enhancers.</p></div>
+    <div role="tabpanel" tabindex="0" hidden><p style="margin:0">Ship the CSS, then add enhancers only where an interaction needs them.</p></div>
+    <div role="tabpanel" tabindex="0" hidden><p style="margin:0">Restyle everything from a handful of CSS variables in the theme studio.</p></div>
   </div>
 </Demo>
 

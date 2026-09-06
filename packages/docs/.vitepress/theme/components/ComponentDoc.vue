@@ -21,7 +21,7 @@ const related = computed(() =>
 const enhancerSnippet = computed(() => {
   const e = doc.value?.enhancer;
   if (!e) return '';
-  return `import { ${e.fn} } from '${e.subpath}';\n\nconst handle = ${e.signature ?? `${e.fn}(document)`};\n// handle.api  -> imperative controls\n// handle.destroy()  -> tear everything down`;
+  return `import { ${e.fn} } from '${e.subpath}';\n\nconst handle = ${e.fn}(document);\n// handle.api  -> imperative controls\n// handle.destroy()  -> tear everything down`;
 });
 
 function renderInline(text: string): string {
@@ -44,7 +44,7 @@ function renderInline(text: string): string {
 
     <p class="hl-cmp-desc" v-html="renderInline(doc.description)" />
 
-    <Demo v-for="demo in doc.demos" :key="demo.id" :demo="demo" />
+    <Demo v-for="demo in doc.demos" :key="`${doc.slug}-${demo.id}`" :demo="demo" />
 
     <section v-if="doc.enhancer" class="hl-section">
       <h2 id="javascript">JavaScript</h2>

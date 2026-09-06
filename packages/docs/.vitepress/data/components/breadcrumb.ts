@@ -20,8 +20,8 @@ export const breadcrumb: ComponentDoc = {
       render: () =>
         `<nav data-hl-breadcrumb aria-label="Breadcrumb">
   <ol>
-    <li><a href="#">Home</a></li>
-    <li><a href="#">Docs</a></li>
+    <li><a href="../">Home</a></li>
+    <li><a href="../guide/getting-started">Docs</a></li>
     <li><span aria-current="page">Components</span></li>
   </ol>
 </nav>`,
@@ -45,7 +45,7 @@ export const breadcrumb: ComponentDoc = {
     },
   ],
   tokens: [
-    { name: '--hl-fg-muted', description: 'Separator and inactive link color.' },
+    { name: '--hl-fg-subtle', description: 'Separator and inactive link color.' },
     { name: '--hl-primary', description: 'Hovered link color.' },
   ],
   a11y: [

@@ -44,11 +44,11 @@ export const commandPalette: ComponentDoc = {
 </div>`,
       code: {
         react: () =>
-          `import {\n  Command,\n  CommandInput,\n  CommandList,\n  CommandGroup,\n  CommandItem,\n  CommandEmpty,\n} from '@hydrateless/react';\n\n<Command hotkey="k" onCommand={(value) => run(value)} onQueryChange={(query) => track(query)}>\n  <CommandInput placeholder="Type a command" />\n  <CommandEmpty>No results found.</CommandEmpty>\n  <CommandList>\n    <CommandGroup label="Actions">\n      <CommandItem value="new" keywords="create">New File</CommandItem>\n      <CommandItem value="open">Open</CommandItem>\n    </CommandGroup>\n  </CommandList>\n</Command>`,
+          `import {\n  Command,\n  CommandInput,\n  CommandList,\n  CommandGroup,\n  CommandItem,\n  CommandEmpty,\n} from '@hydrateless/react';\n\n<Command hotkey="k" onCommand={(value) => console.log(value)} onQueryChange={(query) => console.log(query)}>\n  <CommandInput aria-label="Command" placeholder="Type a command" />\n  <CommandEmpty>No results found.</CommandEmpty>\n  <CommandList aria-label="Commands">\n    <CommandGroup label="Actions">\n      <CommandItem value="new" keywords="create">New File</CommandItem>\n      <CommandItem value="open">Open</CommandItem>\n    </CommandGroup>\n  </CommandList>\n</Command>`,
         vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport {\n  Command,\n  CommandInput,\n  CommandList,\n  CommandGroup,\n  CommandItem,\n  CommandEmpty,\n} from '@hydrateless/vue';\nconst query = ref('');\n</script>\n\n<template>\n  <Command v-model:query="query" hotkey="k" @command="(value) => run(value)">\n    <CommandInput placeholder="Type a command" />\n    <CommandEmpty>No results found.</CommandEmpty>\n    <CommandList>\n      <CommandGroup label="Actions">\n        <CommandItem value="new" keywords="create">New File</CommandItem>\n        <CommandItem value="open">Open</CommandItem>\n      </CommandGroup>\n    </CommandList>\n  </Command>\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport {\n  Command,\n  CommandInput,\n  CommandList,\n  CommandGroup,\n  CommandItem,\n  CommandEmpty,\n} from '@hydrateless/vue';\nconst query = ref('');\n</script>\n\n<template>\n  <Command v-model:query="query" hotkey="k" @command="(value) => console.log(value)">\n    <CommandInput aria-label="Command" placeholder="Type a command" />\n    <CommandEmpty>No results found.</CommandEmpty>\n    <CommandList aria-label="Commands">\n      <CommandGroup label="Actions">\n        <CommandItem value="new" keywords="create">New File</CommandItem>\n        <CommandItem value="open">Open</CommandItem>\n      </CommandGroup>\n    </CommandList>\n  </Command>\n</template>`,
         svelte: () =>
-          `<script>\n  import {\n    Command,\n    CommandInput,\n    CommandList,\n    CommandGroup,\n    CommandItem,\n    CommandEmpty,\n  } from '@hydrateless/svelte';\n  let query = $state('');\n</script>\n\n<Command bind:query hotkey="k" onCommand={(value) => run(value)}>\n  <CommandInput placeholder="Type a command" />\n  <CommandEmpty>No results found.</CommandEmpty>\n  <CommandList>\n    <CommandGroup>\n      {#snippet label()}Actions{/snippet}\n      <CommandItem value="new" keywords="create">New File</CommandItem>\n      <CommandItem value="open">Open</CommandItem>\n    </CommandGroup>\n  </CommandList>\n</Command>`,
+          `<script>\n  import {\n    Command,\n    CommandInput,\n    CommandList,\n    CommandGroup,\n    CommandItem,\n    CommandEmpty,\n  } from '@hydrateless/svelte';\n  let query = $state('');\n</script>\n\n<Command bind:query hotkey="k" onCommand={(value) => console.log(value)}>\n  <CommandInput aria-label="Command" placeholder="Type a command" />\n  <CommandEmpty>No results found.</CommandEmpty>\n  <CommandList aria-label="Commands">\n    <CommandGroup>\n      {#snippet label()}Actions{/snippet}\n      <CommandItem value="new" keywords="create">New File</CommandItem>\n      <CommandItem value="open">Open</CommandItem>\n    </CommandGroup>\n  </CommandList>\n</Command>`,
       },
     },
   ],
@@ -120,9 +120,9 @@ export const commandPalette: ComponentDoc = {
     },
   ],
   tokens: [
-    { name: '--hl-surface', description: 'Palette background.' },
+    { name: '--hl-overlay', description: 'Palette background.' },
     { name: '--hl-border', description: 'Palette border.' },
-    { name: '--hl-surface-2', description: 'Active item highlight.' },
+    { name: '--hl-primary-subtle', description: 'Active item highlight.' },
     { name: '--hl-focus-ring', description: 'Focus ring on the input.' },
   ],
   a11y: [

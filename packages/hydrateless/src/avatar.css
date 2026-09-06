@@ -18,7 +18,7 @@
     border-radius: var(--hl-radius-full);
     overflow: hidden;
     background: var(--hl-surface-3);
-    color: var(--hl-fg-muted);
+    color: var(--hl-fg);
     font-size: calc(var(--_size) * 0.4);
     font-weight: var(--hl-font-medium);
     line-height: 1;

@@ -11,16 +11,17 @@ interaction truly requires it.
 
 Pick the packages you need:
 
-```bash
-# CSS only (most users start here)
-npm install hydrateless
+For CSS only:
 
-# CSS + auto-init (detects components and loads JS enhancers automatically)
-npm install hydrateless @hydrateless/auto
+<InstallTabs packages="hydrateless" />
 
-# CSS + manual JS enhancers (pick exactly which enhancers to load)
-npm install hydrateless @hydrateless/enhancers
-```
+For CSS with automatic enhancement:
+
+<InstallTabs packages="hydrateless @hydrateless/auto" />
+
+For CSS with manually selected enhancers:
+
+<InstallTabs packages="hydrateless @hydrateless/enhancers" />
 
 Prefer no build step at all? Jump to [CDN Usage](./cdn).
 
@@ -76,27 +77,36 @@ Components use standard HTML elements with `data-hl-*` attributes:
 
 <Demo layout="fill">
   <div data-hl-tabs style="width:100%">
-    <div role="tablist">
-      <button role="tab">Overview</button>
-      <button role="tab">Features</button>
-      <button role="tab">Install</button>
+    <div role="tablist" aria-label="Hydrateless overview">
+      <button role="tab" aria-selected="true" id="intro-overview" aria-controls="intro-overview-panel">Overview</button>
+      <button role="tab" aria-selected="false" tabindex="-1">Features</button>
+      <button role="tab" aria-selected="false" tabindex="-1">Install</button>
     </div>
-    <div role="tabpanel"><p style="margin:0">Hydrateless delivers accessible UI primitives with zero runtime cost by default.</p></div>
-    <div role="tabpanel"><p style="margin:0">CSS-first components, optional JS enhancers, auto-init, design tokens, and full ARIA support.</p></div>
-    <div role="tabpanel"><p style="margin:0"><code>npm install hydrateless @hydrateless/auto</code></p></div>
+    <div role="tabpanel" id="intro-overview-panel" aria-labelledby="intro-overview" tabindex="0"><p style="margin:0">Hydrateless delivers accessible UI primitives with zero runtime cost by default.</p></div>
+    <div role="tabpanel" tabindex="0" hidden><p style="margin:0">CSS-first components, optional JS enhancers, auto-init, design tokens, and full ARIA support.</p></div>
+    <div role="tabpanel" tabindex="0" hidden><p style="margin:0"><code>npm install hydrateless @hydrateless/auto</code></p></div>
   </div>
 </Demo>
 
 ```html
 <div data-hl-tabs>
-  <div role="tablist">
-    <button role="tab">Overview</button>
-    <button role="tab">Features</button>
-    <button role="tab">Install</button>
+  <div role="tablist" aria-label="Hydrateless overview">
+    <button
+      role="tab"
+      aria-selected="true"
+      id="intro-overview"
+      aria-controls="intro-overview-panel"
+    >
+      Overview
+    </button>
+    <button role="tab" aria-selected="false" tabindex="-1">Features</button>
+    <button role="tab" aria-selected="false" tabindex="-1">Install</button>
   </div>
-  <div role="tabpanel">…</div>
-  <div role="tabpanel">…</div>
-  <div role="tabpanel">…</div>
+  <div role="tabpanel" id="intro-overview-panel" aria-labelledby="intro-overview" tabindex="0">
+    …
+  </div>
+  <div role="tabpanel" tabindex="0" hidden>…</div>
+  <div role="tabpanel" tabindex="0" hidden>…</div>
 </div>
 ```
 

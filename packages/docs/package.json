@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "typecheck": "vue-tsc --noEmit",
     "docs:dev": "vitepress dev",
     "docs:build": "npm run docs:api && vitepress build",
     "docs:preview": "vitepress preview",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "typedoc": "^0.27.0",
-    "vitepress": "^1.5.0"
+    "vitepress": "^1.5.0",
+    "vue-tsc": "^3.3.11"
   }
 }

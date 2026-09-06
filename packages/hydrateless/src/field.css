@@ -21,7 +21,7 @@
   .hl-label[data-hl-required]::after {
     content: '*';
     margin-inline-start: var(--hl-space-1);
-    color: var(--hl-danger);
+    color: var(--hl-danger-subtle-fg);
   }
 
   .hl-help {
@@ -34,11 +34,11 @@
     margin: 0;
     font-size: var(--hl-text-xs);
     font-weight: var(--hl-font-medium);
-    color: var(--hl-danger);
+    color: var(--hl-danger-subtle-fg);
   }
 
   .hl-field[data-hl-invalid] .hl-label {
-    color: var(--hl-danger);
+    color: var(--hl-danger-subtle-fg);
   }
 
   .hl-fieldset {

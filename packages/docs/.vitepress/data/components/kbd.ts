@@ -19,7 +19,8 @@ export const kbd: ComponentDoc = {
       layout: 'center',
       render: () => `<kbd class="hl-kbd">⌘</kbd> <kbd class="hl-kbd">K</kbd>`,
       code: {
-        react: () => `import { Kbd } from '@hydrateless/react';\n\n<Kbd>⌘</Kbd> <Kbd>K</Kbd>`,
+        react: () =>
+          `import { Kbd } from '@hydrateless/react';\n\n<>\n  <Kbd>⌘</Kbd> <Kbd>K</Kbd>\n</>`,
         vue: () =>
           `<script setup>\nimport { Kbd } from '@hydrateless/vue';\n</script>\n\n<template><Kbd>⌘</Kbd> <Kbd>K</Kbd></template>`,
         svelte: () =>

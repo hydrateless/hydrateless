@@ -71,8 +71,8 @@
     --hl-danger-subtle-fg: light-dark(var(--hl-red-700), var(--hl-red-200));
 
     /* Intent: success */
-    --hl-success: var(--hl-green-600);
-    --hl-success-hover: var(--hl-green-700);
+    --hl-success: var(--hl-green-700);
+    --hl-success-hover: var(--hl-green-800);
     --hl-success-fg: hsl(0deg 0% 100%);
     --hl-success-subtle: light-dark(var(--hl-green-50), hsl(144deg 61% 20% / 0.35));
     --hl-success-subtle-fg: light-dark(var(--hl-green-700), var(--hl-green-200));
@@ -85,8 +85,8 @@
     --hl-warning-subtle-fg: light-dark(var(--hl-amber-800), var(--hl-amber-200));
 
     /* Intent: info */
-    --hl-info: var(--hl-sky-600);
-    --hl-info-hover: var(--hl-sky-700);
+    --hl-info: var(--hl-sky-700);
+    --hl-info-hover: var(--hl-sky-800);
     --hl-info-fg: hsl(0deg 0% 100%);
     --hl-info-subtle: light-dark(var(--hl-sky-50), hsl(202deg 80% 24% / 0.35));
     --hl-info-subtle-fg: light-dark(var(--hl-sky-700), var(--hl-sky-200));

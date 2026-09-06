@@ -31,11 +31,11 @@ export const popover: ComponentDoc = {
 </div>`,
       code: {
         react: () =>
-          `import { useState } from 'react';\nimport { Popover } from '@hydrateless/react';\n\nfunction Example() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <button onClick={() => setOpen((v) => !v)}>Toggle</button>\n      <Popover open={open} onOpenChange={setOpen} placement="bottom">\n        Popover content.\n      </Popover>\n    </>\n  );\n}`,
+          `import { useState } from 'react';\nimport { Popover } from '@hydrateless/react';\n\nfunction Example() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <button popoverTarget="example-popover">Toggle</button>\n      <Popover id="example-popover" aria-label="Example popover" open={open} onOpenChange={setOpen} placement="bottom">\n        Popover content.\n      </Popover>\n    </>\n  );\n}`,
         vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Popover } from '@hydrateless/vue';\nconst open = ref(false);\n</script>\n\n<template>\n  <button @click="open = !open">Toggle</button>\n  <Popover v-model:open="open" placement="bottom">Popover content.</Popover>\n</template>`,
+          `<script setup>\nimport { ref } from 'vue';\nimport { Popover } from '@hydrateless/vue';\nconst open = ref(false);\n</script>\n\n<template>\n  <button popovertarget="example-popover">Toggle</button>\n  <Popover id="example-popover" aria-label="Example popover" v-model:open="open" placement="bottom">Popover content.</Popover>\n</template>`,
         svelte: () =>
-          `<script>\n  import { Popover } from '@hydrateless/svelte';\n  let open = $state(false);\n</script>\n\n<button onclick={() => (open = !open)}>Toggle</button>\n<Popover bind:open placement="bottom">Popover content.</Popover>`,
+          `<script>\n  import { Popover } from '@hydrateless/svelte';\n  let open = $state(false);\n</script>\n\n<button popovertarget="example-popover">Toggle</button>\n<Popover id="example-popover" aria-label="Example popover" bind:open placement="bottom">Popover content.</Popover>`,
       },
     },
   ],

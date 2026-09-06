@@ -74,7 +74,7 @@
 
   .hl-badge[data-hl-variant='outline'] {
     background: transparent;
-    color: var(--_accent);
+    color: var(--_soft-fg);
     border-color: currentcolor;
   }
 

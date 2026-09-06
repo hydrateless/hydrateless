@@ -82,4 +82,60 @@ describe('enhanceModal', () => {
     const opener = document.querySelector<HTMLElement>('[command]')!;
     expect(() => opener.click()).not.toThrow();
   });
+
+  it('locks an already-open dialog and restores the page on teardown', () => {
+    const doc = document.implementation.createHTMLDocument();
+    doc.body.innerHTML = '<dialog data-hl-modal open>Already open</dialog>';
+    doc.body.style.overflow = 'auto';
+    const handle = enhanceModal(doc);
+
+    expect(handle.api?.open).toBe(true);
+    expect(doc.body.style.overflow).toBe('hidden');
+    handle.destroy();
+    expect(doc.body.style.overflow).toBe('auto');
+  });
+
+  it('dismisses backdrop clicks when native closedby is unavailable', () => {
+    const dialog = document.querySelector('dialog')!;
+    const handle = enhanceModal(document);
+    dialog.showModal();
+    dialog.dispatchEvent(new MouseEvent('pointerdown', { clientX: -10, clientY: -10 }));
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: -10, clientY: -10 }));
+    expect(dialog.open).toBe(false);
+
+    handle.destroy();
+    dialog.showModal();
+    dialog.dispatchEvent(new MouseEvent('pointerdown', { clientX: -10, clientY: -10 }));
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: -10, clientY: -10 }));
+    expect(dialog.open).toBe(true);
+    dialog.close();
+  });
+
+  it('preserves cancel prevention and drags that start inside the dialog', () => {
+    const dialog = document.querySelector('dialog')!;
+    const handle = enhanceModal(document);
+    dialog.showModal();
+    dialog.querySelector('p')!.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: -10, clientY: -10 }));
+    expect(dialog.open).toBe(true);
+
+    dialog.addEventListener('cancel', (event) => event.preventDefault(), { once: true });
+    dialog.dispatchEvent(new MouseEvent('pointerdown', { clientX: -10, clientY: -10 }));
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: -10, clientY: -10 }));
+    expect(dialog.open).toBe(true);
+    dialog.close();
+    handle.destroy();
+  });
+
+  it('respects an authored closedby policy in the backdrop fallback', () => {
+    const dialog = document.querySelector('dialog')!;
+    dialog.setAttribute('closedby', 'closerequest');
+    const handle = enhanceModal(document);
+    dialog.showModal();
+    dialog.dispatchEvent(new MouseEvent('pointerdown', { clientX: -10, clientY: -10 }));
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: -10, clientY: -10 }));
+    expect(dialog.open).toBe(true);
+    dialog.close();
+    handle.destroy();
+  });
 });

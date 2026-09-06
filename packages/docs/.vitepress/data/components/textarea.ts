@@ -23,14 +23,14 @@ export const textarea: ComponentDoc = {
         { id: 'disabled', type: 'boolean', label: 'Disabled', default: false },
       ],
       render: (v) =>
-        `<textarea class="hl-textarea" rows="3" placeholder="Write a message…"${attr('data-hl-invalid', v.invalid)}${attr('aria-invalid', v.invalid ? 'true' : '')}${attr('disabled', v.disabled)}></textarea>`,
+        `<textarea aria-label="Message" class="hl-textarea" rows="3" placeholder="Write a message…"${attr('data-hl-invalid', v.invalid)}${attr('aria-invalid', v.invalid ? 'true' : '')}${attr('disabled', v.disabled)}></textarea>`,
       code: {
-        react: () =>
-          `import { Textarea } from '@hydrateless/react';\n\n<Textarea placeholder="Write a message…" rows={3} />`,
-        vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Textarea } from '@hydrateless/vue';\nconst value = ref('');\n</script>\n\n<template>\n  <Textarea v-model="value" placeholder="Write a message…" rows="3" />\n</template>`,
-        svelte: () =>
-          `<script>\n  import { Textarea } from '@hydrateless/svelte';\n  let value = $state('');\n</script>\n\n<Textarea bind:value placeholder="Write a message…" rows="3" />`,
+        react: (v) =>
+          `import { Textarea } from '@hydrateless/react';\n\n<Textarea aria-label="Message" placeholder="Write a message…" rows={3}${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />`,
+        vue: (v) =>
+          `<script setup>\nimport { ref } from 'vue';\nimport { Textarea } from '@hydrateless/vue';\nconst value = ref('');\n</script>\n\n<template>\n  <Textarea aria-label="Message" v-model="value" placeholder="Write a message…" rows="3"${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />\n</template>`,
+        svelte: (v) =>
+          `<script>\n  import { Textarea } from '@hydrateless/svelte';\n  let value = $state('');\n</script>\n\n<Textarea aria-label="Message" bind:value placeholder="Write a message…" rows="3"${v.invalid ? ' invalid' : ''}${v.disabled ? ' disabled' : ''} />`,
       },
     },
   ],

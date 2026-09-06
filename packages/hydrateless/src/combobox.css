@@ -34,7 +34,16 @@
   /* Modern engines pin the listbox to the input via the anchor-name the
      enhancer sets, so it escapes overflow-clipping ancestors. */
   @supports (anchor-name: --x) {
+    [data-hl-combobox] {
+      anchor-scope: --hl-combobox-input;
+    }
+
+    [data-hl-combobox] > input {
+      anchor-name: --hl-combobox-input;
+    }
+
     [data-hl-combobox] [role='listbox'] {
+      position-anchor: --hl-combobox-input;
       position: fixed;
       inset: auto;
       inline-size: anchor-size(width);

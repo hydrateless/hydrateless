@@ -1,5 +1,9 @@
 import type { KnobValues } from '../types';
 
+/** Escape editable text for HTML and framework templates, including expressions. */
+export const escapeHtml = (value: unknown): string =>
+  String(value ?? '').replace(/[&<>"'{}]/g, (character) => `&#${character.charCodeAt(0)};`);
+
 /**
  * Serialize one HTML attribute from a knob value: booleans render as bare
  * attributes (or nothing), empty/nullish values are dropped, everything else
@@ -10,11 +14,11 @@ export const attr = (name: string, value: unknown): string =>
     ? ''
     : value === true
       ? ` ${name}`
-      : ` ${name}="${value}"`;
+      : ` ${name}="${escapeHtml(value)}"`;
 
 /** The six semantic intents every themed component shares. */
 export const INTENTS = ['neutral', 'primary', 'danger', 'success', 'warning', 'info'];
 
-/** Read a knob value as a string with a fallback. */
+/** Read a knob value as escaped template text, with a fallback. */
 export const str = (v: KnobValues, key: string, fallback = ''): string =>
-  v[key] == null ? fallback : String(v[key]);
+  escapeHtml(v[key] == null ? fallback : v[key]);
