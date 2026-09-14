@@ -112,8 +112,8 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "vitest": "^4.1.0",
-    "jsdom": "^29.0.0"
+    "vitest": "^5.0.0",
+    "jsdom": "^30.0.1"
   },
   "publishConfig": {
     "access": "public"
