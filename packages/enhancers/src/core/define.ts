@@ -28,6 +28,16 @@ export type AttributeSchema<Options extends object> = {
   readonly [K in keyof Options]?: AttributeType;
 };
 
+/** Options accepted by imperative `setValue` and `setOpen` API methods. */
+export interface SetOptions {
+  /**
+   * Update internal state and DOM without invoking `on*Change` callbacks or
+   * emitting `hl:*` DOM events. Used by controlled framework bindings so
+   * syncing props into the DOM never echoes change events back to the parent.
+   */
+  silent?: boolean;
+}
+
 /**
  * The toolkit handed to an enhancer's `setup`. Everything registered through
  * `on`/`observe`/`add` is torn down automatically when the instance is destroyed.
@@ -37,7 +47,10 @@ export interface EnhancerContext<Options extends object> {
   root: HTMLElement;
   /** The container the enhancer was invoked with (often `document`). */
   container: Document | HTMLElement;
-  /** Options merged from the definition's defaults, the root's `data-hl-*` attributes, and the caller. */
+  /**
+   * Live options merged from defaults, the root's `data-hl-*` attributes, and
+   * the caller. Updated in place whenever `handle.update()` is called.
+   */
   options: Options;
   /** Attach an event listener that is auto-removed on destroy. */
   on: <E extends Event = Event>(
@@ -59,6 +72,8 @@ export interface EnhancerContext<Options extends object> {
   ) => void;
   /** Register an arbitrary disposer to run on teardown. */
   add: (disposer: Disposer) => void;
+  /** Register a listener called after `handle.update()` refreshes `options` in place. */
+  onUpdate: (listener: () => void) => void;
   /** Generate a unique id namespaced to this enhancer. */
   uid: (prefix?: string) => string;
   /**
@@ -68,10 +83,12 @@ export interface EnhancerContext<Options extends object> {
   emit: (type: string, detail?: unknown, options?: EmitOptions) => boolean;
 }
 
-/** One enhanced root: its element, its imperative API, and its own teardown. */
-export interface EnhancerInstance<Api = null> {
+/** One enhanced root: its element, its imperative API, live option updater, and teardown. */
+export interface EnhancerInstance<Api = null, Options extends object = never> {
   root: HTMLElement;
   api: Api;
+  /** Re-merge options in place and notify the enhancer without tearing it down. */
+  update: (options?: Partial<Options>) => void;
   destroy: Disposer;
 }
 
@@ -81,13 +98,15 @@ export interface EnhancerInstance<Api = null> {
  * always enhance a single root. `instances` carries one entry per enhanced
  * root for callers that enhance a whole container.
  */
-export interface EnhancerHandle<Api = null> {
+export interface EnhancerHandle<Api = null, Options extends object = never> {
   /** Tear down every instance this call created. */
   destroy: Disposer;
+  /** Update options on every enhanced instance in place without destroying it. */
+  update: (options?: Partial<Options>) => void;
   /** The first enhanced root's API, or `null` when nothing matched. */
   api: Api | null;
   /** One entry per enhanced root, in document order. */
-  instances: EnhancerInstance<Api>[];
+  instances: EnhancerInstance<Api, Options>[];
 }
 
 /** Declarative description of an enhancer, passed to {@link defineEnhancer}. */
@@ -112,14 +131,19 @@ export interface EnhancerDefinition<Options extends object = Record<string, neve
 export type Enhancer<Options extends object = Record<string, never>, Api = null> = ((
   container?: Document | HTMLElement,
   options?: Partial<Options>,
-) => EnhancerHandle<Api>) & {
+) => EnhancerHandle<Api, Options>) & {
   readonly definition: Readonly<EnhancerDefinition<Options, Api>>;
 };
 
 /** Build a handle from a list of instances. */
-export function toHandle<Api>(instances: EnhancerInstance<Api>[]): EnhancerHandle<Api> {
+export function toHandle<Api, Options extends object = never>(
+  instances: EnhancerInstance<Api, Options>[],
+): EnhancerHandle<Api, Options> {
   return {
     destroy: combine(instances.map((instance) => instance.destroy)),
+    update: (options) => {
+      for (const instance of instances) instance.update(options);
+    },
     api: instances[0]?.api ?? null,
     instances,
   };
@@ -190,11 +214,12 @@ export function omitUndefined<T extends object>(value: T | undefined): Partial<T
  * Turn a per-root `setup` into a full enhancer with the shared lifecycle every
  * Hydrateless component needs: root discovery (including the container itself),
  * idempotent de-duplication, option merging (defaults, then the root's
- * `data-hl-*` attributes, then caller options), automatic listener and
- * observer teardown, re-enhancement after destroy, and a uniform handle
- * exposing each instance's imperative API. This is the single contract all
- * enhancers are built on. Calling an enhancer with no container outside a
- * browser is a safe no-op that returns an empty handle.
+ * `data-hl-*` attributes, then caller options), in-place option updates via
+ * `handle.update()`, automatic listener and observer teardown, re-enhancement
+ * after destroy, and a uniform handle exposing each instance's imperative API.
+ * This is the single contract all enhancers are built on. Calling an enhancer
+ * with no container outside a browser is a safe no-op that returns an empty
+ * handle.
  */
 export function defineEnhancer<Options extends object = Record<string, never>, Api = null>(
   def: EnhancerDefinition<Options, Api>,
@@ -204,25 +229,33 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
   const enhancer = (
     containerArg?: Document | HTMLElement,
     options?: Partial<Options>,
-  ): EnhancerHandle<Api> => {
+  ): EnhancerHandle<Api, Options> => {
     const container = resolveContainer(containerArg);
     if (!container) return toHandle([]);
     const roots = selectRoots(container, def.selector);
-    const instances: EnhancerInstance<Api>[] = [];
+    const instances: EnhancerInstance<Api, Options>[] = [];
 
     for (const root of roots) {
       if (enhanced.has(root)) continue;
       enhanced.add(root);
 
       const bag: Disposer[] = [];
+      const updateListeners: Array<() => void> = [];
+      let alive = true;
+
+      const mergeOptions = (caller?: Partial<Options>): Options =>
+        ({
+          ...(def.defaults ?? {}),
+          ...readAttributes<Options>(root, def.attributes),
+          ...omitUndefined(caller),
+        }) as Options;
+
+      const currentOptions = mergeOptions(options);
+
       const ctx: EnhancerContext<Options> = {
         root,
         container,
-        options: {
-          ...(def.defaults ?? {}),
-          ...readAttributes<Options>(root, def.attributes),
-          ...omitUndefined(options),
-        } as Options,
+        options: currentOptions,
         on: (target, type, handler, listenerOptions) => {
           bag.push(onEvent(target, type, handler, listenerOptions));
         },
@@ -235,6 +268,9 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
         add: (disposer) => {
           bag.push(disposer);
         },
+        onUpdate: (listener) => {
+          updateListeners.push(listener);
+        },
         uid: (prefix) => makeUid(prefix ?? def.name),
         emit: (type, detail, emitOptions) => emit(root, type, detail, emitOptions),
       };
@@ -244,7 +280,18 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
       instances.push({
         root,
         api,
+        update: (next) => {
+          if (!alive) return;
+          const merged = mergeOptions(next);
+          for (const key of Object.keys(currentOptions)) {
+            delete (currentOptions as Record<string, unknown>)[key];
+          }
+          Object.assign(currentOptions, merged);
+          for (const listener of updateListeners) listener();
+        },
         destroy: () => {
+          alive = false;
+          updateListeners.length = 0;
           enhanced.delete(root);
           combine(bag)();
         },

@@ -1,4 +1,5 @@
 import { defineComponent, h, type ExtractPublicPropTypes } from 'vue';
+import { cx } from '../internal/index.js';
 
 /** Props for {@link Breadcrumb}. */
 export type BreadcrumbProps = Record<never, never>;
@@ -12,9 +13,15 @@ export const Breadcrumb = defineComponent({
   inheritAttrs: false,
   setup(_, { slots, attrs }) {
     return () =>
-      h('nav', { 'aria-label': 'Breadcrumb', ...attrs, 'data-hl-breadcrumb': '' }, [
-        h('ol', slots.default?.()),
-      ]);
+      h(
+        'nav',
+        {
+          'aria-label': 'Breadcrumb',
+          ...attrs,
+          class: cx('hl-breadcrumb', attrs.class as string),
+        },
+        [h('ol', slots.default?.())],
+      );
   },
 });
 

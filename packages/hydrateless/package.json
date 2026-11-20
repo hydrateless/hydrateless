@@ -32,6 +32,7 @@
     "./reset.css": "./dist/reset.css",
     "./tokens.css": "./dist/tokens.css",
     "./theme.css": "./dist/theme.css",
+    "./behavior.css": "./dist/behavior.css",
     "./components.css": "./dist/components.css",
     "./accordion.css": "./dist/accordion.css",
     "./disclosure.css": "./dist/disclosure.css",

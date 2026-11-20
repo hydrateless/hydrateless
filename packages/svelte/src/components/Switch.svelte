@@ -24,7 +24,7 @@
   const field = useField();
 </script>
 
-<label data-hl-switch class={klass}>
+<label class={['hl-switch', klass]}>
   <input
     {...rest}
     id={id ?? field?.id}

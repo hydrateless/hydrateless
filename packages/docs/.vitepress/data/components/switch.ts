@@ -24,7 +24,7 @@ export const switchToggle: ComponentDoc = {
         { id: 'label', type: 'text', label: 'Label', default: 'Enable notifications' },
       ],
       render: (v) =>
-        `<label data-hl-switch>
+        `<label class="hl-switch">
   <input type="checkbox" role="switch"${attr('checked', v.checked)}${attr('disabled', v.disabled)} />
   ${escapeHtml(v.label)}
 </label>`,

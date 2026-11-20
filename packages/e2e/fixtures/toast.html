@@ -28,10 +28,12 @@
         Show danger toast
       </button>
     </main>
-    <div data-hl-toast-region role="status" aria-live="polite">
-      <div data-hl-toast id="server-toast">
+    <div class="hl-toast-region" data-hl-toast-region role="status" aria-live="polite">
+      <div class="hl-toast" data-hl-toast id="server-toast">
         <span class="hl-toast-message">Server-rendered note</span>
-        <button type="button" data-hl-toast-close aria-label="Dismiss">&times;</button>
+        <button type="button" class="hl-toast-close" data-hl-toast-close aria-label="Dismiss">
+          &times;
+        </button>
       </div>
     </div>
     <script type="module" src="/packages/e2e/fixtures/boot.js"></script>

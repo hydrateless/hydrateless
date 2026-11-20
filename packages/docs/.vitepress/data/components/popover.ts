@@ -31,11 +31,11 @@ export const popover: ComponentDoc = {
 </div>`,
       code: {
         react: () =>
-          `import { useState } from 'react';\nimport { Popover } from '@hydrateless/react';\n\nfunction Example() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <button popoverTarget="example-popover">Toggle</button>\n      <Popover id="example-popover" aria-label="Example popover" open={open} onOpenChange={setOpen} placement="bottom">\n        Popover content.\n      </Popover>\n    </>\n  );\n}`,
+          `import { Popover, PopoverTrigger } from '@hydrateless/react';\n\nfunction Example() {\n  return (\n    <>\n      <PopoverTrigger target="example-popover" className="hl-button">Toggle</PopoverTrigger>\n      <Popover id="example-popover" aria-label="Example popover" placement="bottom">\n        Popover content.\n      </Popover>\n    </>\n  );\n}`,
         vue: () =>
-          `<script setup>\nimport { ref } from 'vue';\nimport { Popover } from '@hydrateless/vue';\nconst open = ref(false);\n</script>\n\n<template>\n  <button popovertarget="example-popover">Toggle</button>\n  <Popover id="example-popover" aria-label="Example popover" v-model:open="open" placement="bottom">Popover content.</Popover>\n</template>`,
+          `<script setup>\nimport { Popover, PopoverTrigger } from '@hydrateless/vue';\n</script>\n\n<template>\n  <PopoverTrigger target="example-popover" class="hl-button">Toggle</PopoverTrigger>\n  <Popover id="example-popover" aria-label="Example popover" placement="bottom">Popover content.</Popover>\n</template>`,
         svelte: () =>
-          `<script>\n  import { Popover } from '@hydrateless/svelte';\n  let open = $state(false);\n</script>\n\n<button popovertarget="example-popover">Toggle</button>\n<Popover id="example-popover" aria-label="Example popover" bind:open placement="bottom">Popover content.</Popover>`,
+          `<script>\n  import { Popover, PopoverTrigger } from '@hydrateless/svelte';\n</script>\n\n<PopoverTrigger target="example-popover" class="hl-button">Toggle</PopoverTrigger>\n<Popover id="example-popover" aria-label="Example popover" placement="bottom">Popover content.</Popover>`,
       },
     },
   ],

@@ -26,7 +26,7 @@ export const combobox: ComponentDoc = {
         'Type to filter, use `Up`/`Down` to move (`Alt+Down` expands without moving), `PageUp`/`PageDown` to jump, and `Enter` to select. `Home`/`End` stay with the text caret. Disabled options are skipped.',
       layout: 'fill',
       render: () =>
-        `<div data-hl-combobox style="max-width:18rem">
+        `<div class="hl-combobox" data-hl-combobox style="max-width:18rem">
   <input class="hl-input" placeholder="Search fruit" aria-label="Fruit" />
   <ul role="listbox" aria-label="Fruit">
     <li role="option" data-hl-value="apple">Apple</li>

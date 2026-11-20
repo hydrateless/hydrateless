@@ -18,44 +18,32 @@ import type { EnhancerHandle } from '@hydrateless/enhancers';
  * for markup the components don't cover. Returns a shallow ref to the
  * enhancer's imperative API (`setValue`, `setOpen`, and so on), `null` until
  * mounted. The enhancer runs client-side only, so components stay SSR-safe,
- * and is destroyed on unmount. `options` may be a getter; it's re-read, and
- * the enhancer re-attached, whenever `deps` changes.
- *
- * ```vue
- * <script setup>
- * import { useTemplateRef } from 'vue';
- * import { enhanceTabs } from '@hydrateless/enhancers';
- * const host = useTemplateRef('host');
- * const api = useEnhancer(host, enhanceTabs, { activation: 'automatic' });
- * // api.value?.setValue('two');
- * </script>
- * <template><div data-hl-tabs ref="host">...</div></template>
- * ```
+ * and is destroyed on unmount. When `deps` changes, `options` is re-read and
+ * applied in place via `handle.update()`, preserving open overlays and state.
  */
 export function useEnhancer<Options extends object, Api>(
   el: Ref<HTMLElement | null>,
-  enhancer: (container: HTMLElement, options?: Partial<Options>) => EnhancerHandle<Api>,
+  enhancer: (container: HTMLElement, options?: Partial<Options>) => EnhancerHandle<Api, Options>,
   options?: MaybeRefOrGetter<Partial<Options>>,
   deps?: WatchSource<unknown>,
 ): ShallowRef<Api | null> {
   const api = shallowRef<Api | null>(null);
-  let destroy: (() => void) | null = null;
+  let handle: EnhancerHandle<Api, Options> | null = null;
 
   const detach = () => {
-    destroy?.();
-    destroy = null;
+    handle?.destroy();
+    handle = null;
     api.value = null;
   };
   const attach = () => {
     detach();
     if (!el.value) return;
-    const handle = enhancer(el.value, toValue(options));
+    handle = enhancer(el.value, toValue(options));
     api.value = handle.api;
-    destroy = handle.destroy;
   };
 
   onMounted(attach);
-  if (deps) watch(deps, attach);
+  if (deps) watch(deps, () => handle?.update(toValue(options)));
   onBeforeUnmount(detach);
 
   return api;

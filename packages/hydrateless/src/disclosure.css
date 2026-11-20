@@ -1,20 +1,17 @@
 /**
- * Disclosure: a styled native `<details>`. The class and the `data-hl-disclosure`
- * attribute (which also opts into the state enhancer) are interchangeable, so
- * plain HTML needs only one of them.
+ * Disclosure: a styled native `<details class="hl-disclosure">`.
  *
  * No-JS baseline: fully functional; exclusive groups need only a shared `name`
- * attribute. The enhancer mirrors open state into its API and reads no other
- * attributes.
+ * attribute. Add `data-hl-disclosure` to opt into the state enhancer.
  */
 @layer components {
-  details:is(.hl-disclosure, [data-hl-disclosure]) {
+  .hl-disclosure {
     border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
     background: var(--hl-surface);
   }
 
-  details:is(.hl-disclosure, [data-hl-disclosure]) > summary {
+  .hl-disclosure > summary {
     display: flex;
     align-items: center;
     gap: var(--hl-space-2);
@@ -23,37 +20,37 @@
     padding: var(--hl-space-3) var(--hl-space-4);
   }
 
-  details:is(.hl-disclosure, [data-hl-disclosure]) > summary::-webkit-details-marker {
+  .hl-disclosure > summary::-webkit-details-marker {
     display: none;
   }
 
-  details:is(.hl-disclosure, [data-hl-disclosure]) > summary:focus-visible {
+  .hl-disclosure > summary:focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: var(--hl-focus-offset);
   }
 
   /* The marker sits at the inline end so it lands on the left under RTL. */
-  details:is(.hl-disclosure, [data-hl-disclosure]) > summary::after {
+  .hl-disclosure > summary::after {
     content: '\25B8';
     margin-inline-start: auto;
     transition: rotate var(--hl-duration-fast) var(--hl-ease-standard);
   }
 
-  details:is(.hl-disclosure, [data-hl-disclosure])[open] > summary::after {
+  .hl-disclosure[open] > summary::after {
     rotate: 90deg;
   }
 
   /* Mirror the marker under RTL so it points into the reading direction, and
      rotate the other way so the open state still points down. */
-  details:is(.hl-disclosure, [data-hl-disclosure]):dir(rtl) > summary::after {
+  .hl-disclosure:dir(rtl) > summary::after {
     scale: -1 1;
   }
 
-  details:is(.hl-disclosure, [data-hl-disclosure])[open]:dir(rtl) > summary::after {
+  .hl-disclosure[open]:dir(rtl) > summary::after {
     rotate: -90deg;
   }
 
-  details:is(.hl-disclosure, [data-hl-disclosure]) > .hl-disclosure-panel {
+  .hl-disclosure > .hl-disclosure-panel {
     padding: var(--hl-space-3) var(--hl-space-4) var(--hl-space-4);
   }
 }

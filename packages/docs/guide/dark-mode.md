@@ -7,23 +7,24 @@ the element's `color-scheme`.
 
 ## How it works
 
-`theme.css` declares the color scheme:
+`tokens/semantic.css` declares the color scheme alongside the semantic color
+tokens:
 
 ```css
 :root {
   color-scheme: light dark;
 }
 
-[data-theme='light'] {
+[data-hl-theme='light'] {
   color-scheme: light;
 }
 
-[data-theme='dark'] {
+[data-hl-theme='dark'] {
   color-scheme: dark;
 }
 ```
 
-And `semantic.css` defines each color once:
+And defines each color once:
 
 ```css
 :root {
@@ -49,24 +50,24 @@ Pages follow `prefers-color-scheme` with no extra markup.
 
 ## Manual override
 
-To let users pick a theme regardless of their OS setting, set `data-theme` on
+To let users pick a theme regardless of their OS setting, set `data-hl-theme` on
 the root element:
 
 ```html
-<html data-theme="dark">
+<html data-hl-theme="dark">
   ...
 </html>
 ```
 
-`data-theme` accepts `light` or `dark`. It works by narrowing `color-scheme` to
-a single value, which forces every `light-dark()` token to that side. Remove the
-attribute to fall back to automatic behavior.
+`data-hl-theme` accepts `light` or `dark`. It works by narrowing `color-scheme`
+to a single value, which forces every `light-dark()` token to that side. Remove
+the attribute to fall back to automatic behavior.
 
-Because the override is just `color-scheme`, you can also scope it. A
-`data-theme="dark"` on a sidebar makes only the sidebar dark:
+Because the override is just `color-scheme`, you can also scope it. Setting
+`data-hl-theme="dark"` on a sidebar makes only the sidebar dark:
 
 ```html
-<aside data-theme="dark">
+<aside data-hl-theme="dark">
   <!-- Every component inside renders with the dark token values. -->
 </aside>
 ```
@@ -78,8 +79,8 @@ A theme toggle is a single attribute flip:
 ```js
 function setTheme(theme) {
   // 'light' | 'dark' | undefined (follow the OS)
-  if (theme) document.documentElement.dataset.theme = theme;
-  else delete document.documentElement.dataset.theme;
+  if (theme) document.documentElement.dataset.hlTheme = theme;
+  else delete document.documentElement.dataset.hlTheme;
 }
 ```
 
@@ -89,7 +90,7 @@ first paint:
 ```html
 <script>
   const saved = localStorage.getItem('theme');
-  if (saved) document.documentElement.dataset.theme = saved;
+  if (saved) document.documentElement.dataset.hlTheme = saved;
 </script>
 ```
 

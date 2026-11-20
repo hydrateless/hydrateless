@@ -13,6 +13,7 @@ export {
   type EnhancerDefinition,
   type EnhancerHandle,
   type EnhancerInstance,
+  type SetOptions,
 } from './define.js';
 export { Events, emit, type EmitOptions } from './events.js';
 export { isBrowser, isRtl, resolveRef, ensureId, setAttrs, getDocument, getWindow } from './dom.js';

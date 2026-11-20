@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs, isRtl } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { createTypeahead, isTypeaheadKey, Keys, type MoveDirection } from '../core/keys.js';
@@ -47,9 +47,10 @@ export type DropdownApi = {
   readonly open: boolean;
   /**
    * Open or close the menu. Opening moves focus to the first item, as the APG
-   * menu button pattern expects; pass `focus: false` to leave focus untouched.
+   * menu button pattern expects; pass `focus: false` to leave focus untouched,
+   * or `silent: true` to skip change notifications.
    */
-  setOpen: (open: boolean, options?: { focus?: boolean }) => void;
+  setOpen: (open: boolean, options?: SetOptions & { focus?: boolean }) => void;
 };
 
 /**
@@ -79,10 +80,10 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     closeOnSelect: 'boolean',
     defaultOpen: 'boolean',
   },
-  setup({ root, options, on, observe, add, emit }) {
+  setup({ root, options, on, observe, add, onUpdate, emit }) {
     const doc = root.ownerDocument;
     const trigger = root.querySelector<HTMLElement>('[data-hl-dropdown-trigger]');
-    const menu = root.querySelector<HTMLElement>('[data-hl-dropdown-menu]');
+    const menu = root.querySelector<HTMLElement>('[data-hl-dropdown-menu], .hl-dropdown-menu');
     if (!trigger || !menu) return;
 
     if (!menu.hasAttribute('popover')) menu.setAttribute('popover', 'auto');
@@ -119,8 +120,18 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     // What `show()` asked for; `null` means the popover was opened natively
     // (the trigger's `popovertarget`), which the APG treats like "focus first".
     let requestedFocus: FocusTarget | null = null;
+    let suppressNotify = false;
     let stopPositioning: Disposer = noop;
     add(() => stopPositioning());
+
+    const position = () => {
+      stopPositioning();
+      stopPositioning =
+        isOpen() && options.position
+          ? keepPositioned(trigger, menu, { placement: options.placement })
+          : noop;
+    };
+    onUpdate(position);
 
     const focusIn = (items: HTMLElement[], index: number) => {
       if (index !== -1) items[index]?.focus();
@@ -136,6 +147,8 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
     // synchronously in `show`/`hide` below rather than here.
     on(menu, 'toggle', (e) => {
       const open = (e as ToggleEvent).newState === 'open';
+      const silent = suppressNotify;
+      suppressNotify = false;
       setAttrs(trigger, { 'aria-expanded': open ? 'true' : 'false' });
       stopPositioning();
       stopPositioning = noop;
@@ -149,22 +162,26 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
       } else {
         submenus.close(0);
       }
-      options.onOpenChange?.(open);
-      emit(Events.openChange, { open });
+      if (!silent) {
+        options.onOpenChange?.(open);
+        emit(Events.openChange, { open });
+      }
     });
 
-    const show = (focus: FocusTarget = 'first') => {
+    const show = (focus: FocusTarget = 'first', silent = false) => {
       if (isOpen()) {
         if (focus !== 'none') focusEdge(focus);
         return;
       }
       requestedFocus = focus;
+      if (silent) suppressNotify = true;
       menu.showPopover();
       if (focus !== 'none') focusEdge(focus);
     };
-    const hide = (restoreFocus = true) => {
+    const hide = (restoreFocus = true, silent = false) => {
       if (!isOpen()) return;
       submenus.close(0);
+      if (silent) suppressNotify = true;
       menu.hidePopover();
       // Keyboard and item-activation paths hand focus back to the trigger, as
       // the menu button pattern requires; light dismiss leaves focus alone.
@@ -302,9 +319,9 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
       get open() {
         return isOpen();
       },
-      setOpen(next, { focus = true } = {}) {
-        if (next) show(focus ? 'first' : 'none');
-        else hide(false);
+      setOpen(next, { focus = true, silent = false } = {}) {
+        if (next) show(focus ? 'first' : 'none', silent);
+        else hide(false, silent);
       },
     };
   },

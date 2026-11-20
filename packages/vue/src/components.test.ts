@@ -580,4 +580,47 @@ describe('primitives', () => {
     });
     expect(await violationIds(alert.element)).toEqual([]);
   });
+
+  it('reconciles DOM back on vetoed controlled Tabs updates and updates options in place', async () => {
+    const emitted: string[] = [];
+    const { wrapper, state } = mountWith(
+      { value: 'a', orientation: 'horizontal' as 'horizontal' | 'vertical' },
+      (s) =>
+        h(
+          Tabs,
+          {
+            modelValue: s.value,
+            orientation: s.orientation,
+            'onUpdate:modelValue': (v: string) => emitted.push(v),
+          },
+          () => [
+            h(TabList, () => [
+              h(Tab, { value: 'a' }, () => 'A'),
+              h(Tab, { value: 'b' }, () => 'B'),
+            ]),
+            h(TabPanel, () => 'Alpha'),
+            h(TabPanel, () => 'Beta'),
+          ],
+        ),
+    );
+
+    // Click tab B while parent rejects the update (keeps modelValue = 'a').
+    await wrapper.findAll('[role="tab"]')[1].trigger('click');
+    await nextTick();
+    expect(emitted).toEqual(['b']);
+    expect(wrapper.findAll('[role="tab"]')[0].attributes('aria-selected')).toBe('true');
+
+    // Programmatic value change updates DOM without echoing update:modelValue.
+    state.value = 'b';
+    await nextTick();
+    expect(wrapper.findAll('[role="tab"]')[1].attributes('aria-selected')).toBe('true');
+    expect(emitted).toEqual(['b']);
+
+    // Orientation updates in place without resetting selection.
+    state.orientation = 'vertical';
+    await nextTick();
+    expect(wrapper.get('[role="tablist"]').attributes('aria-orientation')).toBe('vertical');
+    expect(wrapper.findAll('[role="tab"]')[1].attributes('aria-selected')).toBe('true');
+    wrapper.unmount();
+  });
 });

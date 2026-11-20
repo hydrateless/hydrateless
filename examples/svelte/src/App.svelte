@@ -26,6 +26,7 @@
     ModalBody,
     ModalFooter,
     ModalHeader,
+    ModalTrigger,
     Pagination,
     Tab,
     TabList,
@@ -36,7 +37,6 @@
 
   const toast = useToast();
 
-  let open = $state(false);
   let page = $state(3);
   let fruit = $state('');
   let email = $state('');
@@ -87,7 +87,7 @@
         </CardHeader>
         <CardBody>
           <p>Accessible primitives built on semantic HTML and modern CSS.</p>
-          <Button onclick={() => (open = true)}>Open modal</Button>
+          <ModalTrigger target="confirm-modal" class="hl-button">Open modal</ModalTrigger>
         </CardBody>
       </Card>
     </TabPanel>
@@ -115,12 +115,19 @@
 
   <Pagination {page} count={10} onPageChange={(p) => (page = p)} />
 
-  <Modal bind:open>
+  <Modal id="confirm-modal">
     <ModalHeader><h2>Confirm</h2></ModalHeader>
     <ModalBody><p>Are you sure you want to continue?</p></ModalBody>
     <ModalFooter>
-      <Button onclick={() => (open = false)}>Cancel</Button>
-      <Button intent="primary" onclick={() => (open = false)}>Confirm</Button>
+      <ModalTrigger target="confirm-modal" command="close" class="hl-button">Cancel</ModalTrigger>
+      <ModalTrigger
+        target="confirm-modal"
+        command="close"
+        class="hl-button"
+        data-hl-intent="primary"
+      >
+        Confirm
+      </ModalTrigger>
     </ModalFooter>
   </Modal>
 </main>

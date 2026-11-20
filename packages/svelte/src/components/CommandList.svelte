@@ -7,9 +7,9 @@
     children?: Snippet;
   }
 
-  let { children, ...rest }: Props = $props();
+  let { class: klass, children, ...rest }: Props = $props();
 </script>
 
-<div {...rest} data-hl-command-list role="listbox">
+<div {...rest} class={['hl-command-list', klass]} data-hl-command-list role="listbox">
   {@render children?.()}
 </div>

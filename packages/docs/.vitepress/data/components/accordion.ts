@@ -25,7 +25,7 @@ export const accordion: ComponentDoc = {
         'With the enhancer, opening one panel closes the others and arrow keys move between headers. Toggle JS off and each `<details>` works on its own.',
       layout: 'fill',
       render: () =>
-        `<div data-hl-accordion style="width:100%">
+        `<div class="hl-accordion" data-hl-accordion style="width:100%">
   <details data-hl-value="what" open>
     <summary>What is Hydrateless?</summary>
     <div class="hl-accordion-panel">A library of accessible UI primitives that work with semantic HTML and CSS first, with optional JS enhancers.</div>

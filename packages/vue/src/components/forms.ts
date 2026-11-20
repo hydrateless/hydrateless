@@ -346,7 +346,7 @@ function checkable(name: string, wrapper: Record<string, string>, role?: string)
 export const Checkbox = checkable('HlCheckbox', { class: 'hl-checkbox' });
 
 /** Toggle switch built on a native checkbox. Supports `v-model` and `<Field>` wiring. */
-export const Switch = checkable('HlSwitch', { 'data-hl-switch': '' }, 'switch');
+export const Switch = checkable('HlSwitch', { class: 'hl-switch' }, 'switch');
 
 const sliderProps = {
   modelValue: { type: [String, Number] as PropType<string | number>, default: undefined },

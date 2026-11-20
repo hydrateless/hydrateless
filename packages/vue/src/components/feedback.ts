@@ -181,6 +181,7 @@ export const ToastRegion = defineComponent({
         'aria-live': 'polite',
         'aria-relevant': 'additions',
         ...attrs,
+        class: cx('hl-toast-region', attrs.class as string),
         'data-hl-toast-region': '',
         ref: host,
       });

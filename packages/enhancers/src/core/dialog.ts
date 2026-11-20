@@ -2,7 +2,7 @@ import { lockScroll } from './scroll-lock.js';
 import { ensureId, setAttrs } from './dom.js';
 import { noop, type Disposer } from './lifecycle.js';
 import { Events } from './events.js';
-import type { EnhancerContext } from './define.js';
+import type { EnhancerContext, SetOptions } from './define.js';
 
 /** Shared options for the modal and drawer dialog enhancers. */
 export type DialogOptions = {
@@ -22,8 +22,8 @@ export type DialogOptions = {
 export type DialogApi = {
   /** Whether the dialog is currently open. */
   readonly open: boolean;
-  /** Open or close the dialog. */
-  setOpen: (open: boolean) => void;
+  /** Open or close the dialog. Pass `silent: true` to skip change notifications. */
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /**
@@ -38,7 +38,7 @@ export type DialogApi = {
  */
 export function setupDialog(
   name: 'modal' | 'drawer',
-  { root, options, on, add, emit }: EnhancerContext<DialogOptions>,
+  { root, options, on, add, onUpdate, emit }: EnhancerContext<DialogOptions>,
 ): DialogApi {
   const dialog = root as HTMLDialogElement;
   const doc = dialog.ownerDocument;
@@ -48,9 +48,17 @@ export function setupDialog(
     if (header) setAttrs(dialog, { 'aria-labelledby': ensureId(header, `hl-${name}-title`) });
   }
 
-  if (options.closeOnBackdrop && !dialog.hasAttribute('closedby')) {
-    dialog.setAttribute('closedby', 'any');
-  }
+  const authoredClosedBy = dialog.hasAttribute('closedby');
+  const syncClosedBy = () => {
+    if (authoredClosedBy) return;
+    if (options.closeOnBackdrop) dialog.setAttribute('closedby', 'any');
+    else dialog.removeAttribute('closedby');
+  };
+  syncClosedBy();
+  onUpdate(syncClosedBy);
+  add(() => {
+    if (!authoredClosedBy) dialog.removeAttribute('closedby');
+  });
 
   // WebKit supports dialog invokers before closedby. Match native light-dismiss
   // there, including cancel prevention and drags that start inside the panel.
@@ -86,15 +94,19 @@ export function setupDialog(
   let releaseScroll: Disposer = dialog.open ? lockScroll(doc) : noop;
   let isOpen = dialog.open;
 
-  const sync = (open: boolean) => {
-    if (open === isOpen) return;
-    isOpen = open;
+  const updateScroll = (open: boolean) => {
     if (open) {
       releaseScroll = lockScroll(doc);
     } else {
       releaseScroll();
       releaseScroll = noop;
     }
+  };
+
+  const sync = (open: boolean) => {
+    if (open === isOpen) return;
+    isOpen = open;
+    updateScroll(open);
     options.onOpenChange?.(open);
     emit(Events.openChange, { open });
   };
@@ -112,8 +124,12 @@ export function setupDialog(
     get open() {
       return dialog.open;
     },
-    setOpen(next) {
+    setOpen(next, { silent = false } = {}) {
       if (next === dialog.open) return;
+      if (silent) {
+        isOpen = next;
+        updateScroll(next);
+      }
       if (next) dialog.showModal();
       else dialog.close();
     },

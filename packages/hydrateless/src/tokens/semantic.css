@@ -5,8 +5,8 @@
  * component CSS.
  *
  * Every color is a `light-dark()` pair resolved by `color-scheme`. The root
- * follows the system preference; `[data-theme="light"]` and
- * `[data-theme="dark"]` pin a scheme on any subtree. This is the single place
+ * follows the system preference; `[data-hl-theme="light"]` and
+ * `[data-hl-theme="dark"]` pin a scheme on any subtree. This is the single place
  * `color-scheme` is declared, so `theme.css` and components must not repeat it.
  */
 @layer tokens {
@@ -118,11 +118,11 @@
   }
 
   /* Pin a scheme for a subtree; `light-dark()` picks the matching side. */
-  [data-theme='light'] {
+  [data-hl-theme='light'] {
     color-scheme: light;
   }
 
-  [data-theme='dark'] {
+  [data-hl-theme='dark'] {
     color-scheme: dark;
   }
 

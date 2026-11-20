@@ -21,7 +21,7 @@
   },
   {
     "name": "@hydrateless/react (brotli)",
-    "path": "packages/react/dist/index.js",
+    "path": "packages/react/dist/*.js",
     "limit": "8 kB"
   },
   {

@@ -9,9 +9,10 @@ flash of non-interactive content.
 
 ## The mental model
 
-1. **Render HTML on the server.** Components are just elements with `data-hl-*`
-   attributes. Many (accordion, disclosure, modal, drawer, popover, dropdown,
-   tooltip) work with CSS and the platform alone.
+1. **Render HTML on the server.** Components are plain HTML elements with
+   `.hl-*` styling classes and optional `data-hl-*` enhancer attributes. Many
+   (accordion, disclosure, modal, drawer, popover, dropdown, tooltip) work with
+   CSS and the platform alone.
 2. **Ship the CSS.** Include `hydrateless` in your stylesheet bundle so the
    server-rendered markup is styled immediately.
 3. **Enhance on the client (optional).** For behavior the platform can't express

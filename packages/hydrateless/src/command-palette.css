@@ -1,21 +1,17 @@
 /**
- * Command palette: `<div data-hl-command>` containing a search input
- * (`.hl-command-input` or `[data-hl-command-input]`), an empty state
- * (`[data-hl-command-empty]`), and a `[data-hl-command-list] role="listbox"` of
- * grouped `[role="option"]` items. Often placed inside a `<dialog class="hl-modal">`.
+ * Command palette: `<div class="hl-command">` containing a search input
+ * (`.hl-command-input`), an empty state (`.hl-command-empty`), and a
+ * `.hl-command-list` (`role="listbox"`) of grouped `[role="option"]` items.
+ * Often placed inside a `<dialog class="hl-modal">`.
  *
  * No-JS baseline: every item is listed and the empty state stays hidden,
- * since nothing can filter yet. The enhancer marks the root `data-hl-ready`
- * and then toggles `hidden` on items, groups, and the empty state.
- *   data-hl-command:        root
- *   data-hl-command-input:  filter field
- *   data-hl-command-list:   listbox
- *   data-hl-command-group:  a group wrapper (hidden when all its items are)
- *   data-hl-command-empty:  "no results" message
- *   data-hl-ready:          set by the enhancer
+ * since nothing can filter yet. Add `data-hl-command` (and `data-hl-command-*`
+ * part attributes if authoring without classes) to opt into the enhancer,
+ * which marks the root `data-hl-ready` and toggles `hidden` on items, groups,
+ * and the empty state.
  */
 @layer components {
-  [data-hl-command] {
+  .hl-command {
     display: flex;
     flex-direction: column;
     min-block-size: 0;
@@ -24,7 +20,7 @@
     border-radius: var(--hl-radius-lg);
   }
 
-  :is(.hl-command-input, [data-hl-command-input]) {
+  .hl-command :is(.hl-command-input, [data-hl-command-input]) {
     flex: none;
     inline-size: 100%;
     block-size: var(--hl-control-height-lg);
@@ -39,23 +35,24 @@
   }
 
   /* The field is flush with the palette edge, so the ring is drawn inward. */
-  :is(.hl-command-input, [data-hl-command-input]):focus-visible {
+  .hl-command :is(.hl-command-input, [data-hl-command-input]):focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: calc(var(--hl-focus-offset) * -1);
+    box-shadow: none;
   }
 
-  :is(.hl-command-input, [data-hl-command-input])::placeholder {
+  .hl-command :is(.hl-command-input, [data-hl-command-input])::placeholder {
     color: var(--hl-fg-subtle);
   }
 
-  [data-hl-command-list] {
+  .hl-command :is(.hl-command-list, [data-hl-command-list]) {
     flex: 1 1 auto;
     max-block-size: 24rem;
     overflow-y: auto;
     padding: var(--hl-space-2);
   }
 
-  [data-hl-command-group][hidden] {
+  .hl-command :is(.hl-command-group, [data-hl-command-group])[hidden] {
     display: none;
   }
 
@@ -68,7 +65,7 @@
     color: var(--hl-fg-muted);
   }
 
-  [data-hl-command] [role='option'] {
+  .hl-command [role='option'] {
     display: flex;
     align-items: center;
     gap: var(--hl-space-3);
@@ -79,29 +76,29 @@
     cursor: pointer;
   }
 
-  [data-hl-command] [role='option'][hidden] {
+  .hl-command [role='option'][hidden] {
     display: none;
   }
 
-  [data-hl-command] [role='option']:hover,
-  [data-hl-command] [role='option'][aria-selected='true'] {
+  .hl-command [role='option']:hover,
+  .hl-command [role='option'][aria-selected='true'] {
     background: var(--hl-primary-subtle);
     color: var(--hl-primary-subtle-fg);
   }
 
-  [data-hl-command] [role='option'][aria-disabled='true'] {
+  .hl-command [role='option'][aria-disabled='true'] {
     opacity: var(--hl-disabled-opacity);
     pointer-events: none;
   }
 
-  [data-hl-command] [role='option'] svg {
+  .hl-command [role='option'] svg {
     inline-size: 1.1em;
     block-size: 1.1em;
     flex: none;
     opacity: 0.7;
   }
 
-  [data-hl-command-empty] {
+  .hl-command :is(.hl-command-empty, [data-hl-command-empty]) {
     padding: var(--hl-space-8) var(--hl-space-4);
     text-align: center;
     font-size: var(--hl-text-sm);
@@ -109,13 +106,13 @@
   }
 
   /* No-JS baseline: there is no filtering, so there are never "no results". */
-  [data-hl-command-empty][hidden],
-  [data-hl-command]:not([data-hl-ready]) [data-hl-command-empty] {
+  .hl-command :is(.hl-command-empty, [data-hl-command-empty])[hidden],
+  .hl-command:not([data-hl-ready]) :is(.hl-command-empty, [data-hl-command-empty]) {
     display: none;
   }
 
   @media (forced-colors: active) {
-    [data-hl-command] [role='option'][aria-selected='true'] {
+    .hl-command [role='option'][aria-selected='true'] {
       background: Highlight;
       color: HighlightText;
     }

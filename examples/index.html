@@ -52,7 +52,7 @@
             enhancers this page needs and nothing else.
           </p>
         </div>
-        <label data-hl-switch>
+        <label class="hl-switch">
           <input type="checkbox" role="switch" id="theme-toggle" />
           Dark
         </label>
@@ -99,7 +99,7 @@
       <!-- Dropdown: popover + popovertarget for the baseline; the enhancer adds menu semantics. -->
       <section>
         <h2>Dropdown</h2>
-        <div data-hl-dropdown>
+        <div class="hl-dropdown" data-hl-dropdown>
           <button
             class="hl-button"
             data-hl-variant="outline"
@@ -108,7 +108,7 @@
           >
             Actions
           </button>
-          <ul id="actions" data-hl-dropdown-menu popover>
+          <ul id="actions" class="hl-dropdown-menu" data-hl-dropdown-menu popover>
             <li><button role="menuitem" data-hl-value="edit">Edit</button></li>
             <li><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
             <li>
@@ -127,7 +127,7 @@
       <!-- Tabs: aria-selected, tabindex, and hidden are rendered so the initial state is correct before JS. -->
       <section>
         <h2>Tabs</h2>
-        <div data-hl-tabs>
+        <div class="hl-tabs" data-hl-tabs>
           <div role="tablist" aria-label="Project">
             <button role="tab" aria-selected="true" tabindex="0" data-hl-value="overview">
               Overview
@@ -166,7 +166,7 @@
             Fail
           </button>
         </div>
-        <div data-hl-toast-region></div>
+        <div class="hl-toast-region" data-hl-toast-region></div>
       </section>
 
       <!-- Form: Field wiring with label, help text, and native constraint validation. -->
@@ -212,12 +212,12 @@
       // every option is read from data-hl-* attributes in the markup above.
       import '../packages/auto/dist/hydrateless.js';
 
-      // Theme toggle: `data-theme` on <html> overrides the OS preference.
+      // Theme toggle: `data-hl-theme` on <html> overrides the OS preference.
       const toggle = document.getElementById('theme-toggle');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
       toggle.checked = prefersDark.matches;
       toggle.addEventListener('change', () => {
-        document.documentElement.dataset.theme = toggle.checked ? 'dark' : 'light';
+        document.documentElement.dataset.hlTheme = toggle.checked ? 'dark' : 'light';
       });
     </script>
   </body>

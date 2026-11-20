@@ -113,7 +113,7 @@ test.describe('right-to-left', () => {
 
   test('breadcrumb: the trail reads right to left', async ({ page }) => {
     await gotoRtl(page, 'breadcrumb', 'baseline');
-    const items = page.locator('nav[data-hl-breadcrumb] li');
+    const items = page.locator('nav.hl-breadcrumb li');
     const first = await items.first().boundingBox();
     const last = await items.last().boundingBox();
     if (!first || !last) throw new Error('breadcrumb items have no boxes');

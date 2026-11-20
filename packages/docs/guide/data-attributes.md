@@ -6,17 +6,31 @@ root, so a server-rendered page, a CMS template, or a plain HTML file gets the
 full range of behavior with nothing but the auto-initializer `<script>` tag.
 
 ```html
-<div data-hl-accordion data-hl-allow-multiple data-hl-default-value="shipping returns">
+<div
+  class="hl-accordion"
+  data-hl-accordion
+  data-hl-allow-multiple
+  data-hl-default-value="shipping returns"
+>
   <details data-hl-value="shipping">…</details>
   <details data-hl-value="returns">…</details>
   <details data-hl-value="warranty">…</details>
 </div>
 
-<div data-hl-tabs data-hl-activation="automatic" data-hl-orientation="vertical">…</div>
+<div class="hl-tabs" data-hl-tabs data-hl-activation="automatic" data-hl-orientation="vertical">
+  …
+</div>
 
-<span data-hl-tooltip="save-tip" data-hl-placement="bottom-start" data-hl-show-delay="0">
+<button
+  class="hl-button"
+  data-hl-tooltip="save-tip"
+  data-hl-placement="bottom-start"
+  data-hl-show-delay="0"
+  aria-describedby="save-tip"
+>
   Save
-</span>
+</button>
+<span id="save-tip" class="hl-tooltip" role="tooltip" hidden>Save changes</span>
 ```
 
 ## Naming

@@ -32,6 +32,7 @@
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (open === undefined) open = defaultOpen;
+  let syncTick = $state(0);
 
   const drawer = useEnhancer(enhanceDrawer, () => ({
     closeOnBackdrop,
@@ -39,11 +40,15 @@
     onOpenChange: (next) => {
       open = next;
       onOpenChange?.(next);
+      syncTick += 1;
     },
   }));
 
   $effect(() => {
-    if (open != null) drawer.api?.setOpen(open);
+    void syncTick;
+    if (open != null && drawer.api && drawer.api.open !== open) {
+      drawer.api.setOpen(open, { silent: true });
+    }
   });
 </script>
 

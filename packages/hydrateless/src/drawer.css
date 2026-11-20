@@ -1,15 +1,15 @@
 /**
- * Drawer: a native `<dialog class="hl-drawer">` (or `<dialog data-hl-drawer>`)
- * pinned to one inline edge of the viewport, with optional `.hl-drawer-header`,
- * `.hl-drawer-body`, and `.hl-drawer-footer`.
+ * Drawer: a native `<dialog class="hl-drawer">` pinned to one inline edge of
+ * the viewport, with optional `.hl-drawer-header`, `.hl-drawer-body`, and
+ * `.hl-drawer-footer`.
  *
  * No-JS baseline: `<button command="show-modal" commandfor="id">` opens it and
- * `command="close"` closes it; Escape is native. The enhancer only adds focus
- * return, backdrop dismiss, and the open API.
+ * `command="close"` closes it; Escape is native. Add `data-hl-drawer` to opt
+ * into the enhancer (scroll lock, labeling, backdrop dismiss, and the open API).
  *   data-hl-side: start | end (default). Logical edges, so they flip under RTL.
  */
 @layer components {
-  :is(.hl-drawer, dialog[data-hl-drawer]) {
+  .hl-drawer {
     --_slide: 100%;
 
     inset-block: 0;
@@ -30,39 +30,39 @@
       overlay var(--hl-duration-slow) allow-discrete;
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer])[data-hl-side='start'] {
+  .hl-drawer[data-hl-side='start'] {
     --_slide: -100%;
 
     inset-inline: 0 auto;
   }
 
   /* `translate` is physical, so the slide direction mirrors under RTL. */
-  :is(.hl-drawer, dialog[data-hl-drawer]):dir(rtl) {
+  .hl-drawer:dir(rtl) {
     --_slide: -100%;
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer])[data-hl-side='start']:dir(rtl) {
+  .hl-drawer[data-hl-side='start']:dir(rtl) {
     --_slide: 100%;
   }
 
   /* Closed state doubles as the exit target of the slide. */
-  :is(.hl-drawer, dialog[data-hl-drawer]):not([open]) {
+  .hl-drawer:not([open]) {
     translate: var(--_slide) 0;
   }
 
   /* A column so the body scrolls between a fixed header and footer. */
-  :is(.hl-drawer, dialog[data-hl-drawer])[open] {
+  .hl-drawer[open] {
     display: flex;
     flex-direction: column;
   }
 
   @starting-style {
-    :is(.hl-drawer, dialog[data-hl-drawer])[open] {
+    .hl-drawer[open] {
       translate: var(--_slide) 0;
     }
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer])::backdrop {
+  .hl-drawer::backdrop {
     background: var(--hl-scrim);
     opacity: 0;
     transition:
@@ -71,37 +71,35 @@
       overlay var(--hl-duration-slow) allow-discrete;
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer])[open]::backdrop {
+  .hl-drawer[open]::backdrop {
     opacity: 1;
   }
 
   @starting-style {
-    :is(.hl-drawer, dialog[data-hl-drawer])[open]::backdrop {
+    .hl-drawer[open]::backdrop {
       opacity: 0;
     }
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer])
-    :is(.hl-drawer-header, .hl-drawer-body, .hl-drawer-footer) {
+  .hl-drawer :is(.hl-drawer-header, .hl-drawer-body, .hl-drawer-footer) {
     padding: var(--hl-space-4);
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer]) .hl-drawer-body {
+  .hl-drawer .hl-drawer-body {
     flex: 1 1 auto;
     overflow-y: auto;
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer]) .hl-drawer-header {
+  .hl-drawer .hl-drawer-header {
     border-block-end: var(--hl-border-width) solid var(--hl-border);
   }
 
-  :is(.hl-drawer, dialog[data-hl-drawer]) .hl-drawer-footer {
+  .hl-drawer .hl-drawer-footer {
     border-block-start: var(--hl-border-width) solid var(--hl-border);
   }
 
   /* Interactive children inside the drawer get the standard ring. */
-  :is(.hl-drawer, dialog[data-hl-drawer])
-    :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  .hl-drawer :is(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: var(--hl-focus-offset);
   }

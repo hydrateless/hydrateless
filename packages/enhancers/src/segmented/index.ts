@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { setAttrs, isRtl } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { Keys, type MoveDirection } from '../core/keys.js';
@@ -17,7 +17,7 @@ export type SegmentedApi = {
   /** The selected segment's value. */
   readonly value: string;
   /** Select the segment with `value`. */
-  setValue: (value: string) => void;
+  setValue: (value: string, options?: SetOptions) => void;
 };
 
 const BUTTON = 'button, [role="radio"]';
@@ -65,9 +65,10 @@ export const enhanceSegmented = defineEnhancer<EnhanceSegmentedOptions, Segmente
         get value() {
           return read();
         },
-        setValue(value) {
+        setValue(value, { silent = false } = {}) {
           apply(value);
-          notify(read());
+          if (silent) last = read();
+          else notify(read());
         },
       };
     }
@@ -106,12 +107,13 @@ export const enhanceSegmented = defineEnhancer<EnhanceSegmentedOptions, Segmente
       }
     };
 
-    const select = (button: HTMLElement, focus = false) => {
+    const select = (button: HTMLElement, focus = false, silent = false) => {
       if (isDisabledItem(button)) return;
       selected = valueOf(button);
       paint();
       if (focus) button.focus();
-      notify(selected);
+      if (silent) last = selected;
+      else notify(selected);
     };
 
     paint();
@@ -151,9 +153,9 @@ export const enhanceSegmented = defineEnhancer<EnhanceSegmentedOptions, Segmente
       get value() {
         return selected;
       },
-      setValue(value) {
+      setValue(value, { silent = false } = {}) {
         const button = buttons().find((entry) => valueOf(entry) === value);
-        if (button) select(button);
+        if (button) select(button, false, silent);
       },
     };
   },

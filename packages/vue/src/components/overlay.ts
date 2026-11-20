@@ -35,7 +35,12 @@ const openProps = {
 type OpenEmit = (event: 'update:open', open: boolean | undefined) => void;
 
 /** Controlled/uncontrolled `open` plus the sync into an `open`/`setOpen` API. */
-function useOpen<Api extends { readonly open: boolean; setOpen: (open: boolean) => void }>(
+function useOpen<
+  Api extends {
+    readonly open: boolean;
+    setOpen: (open: boolean, options?: { silent?: boolean }) => void;
+  },
+>(
   props: { open?: boolean; defaultOpen?: boolean },
   emit: OpenEmit,
   attach: (open: Controlled<boolean | undefined>) => ShallowRef<Api | null>,
@@ -50,7 +55,8 @@ function useOpen<Api extends { readonly open: boolean; setOpen: (open: boolean) 
     api,
     open.value,
     (a) => a.open,
-    (a, v) => a.setOpen(v),
+    (a, v) => a.setOpen(v, { silent: true }),
+    open.tick,
   );
   return open.value;
 }
@@ -152,6 +158,39 @@ export const Drawer = defineComponent({
   },
 });
 
+const dialogTriggerProps = {
+  /** Id of the `<dialog>` this button invokes (`commandfor`). */
+  target: { type: String, required: true },
+  /** Invoker command to dispatch. Defaults to `'show-modal'`. */
+  command: { type: String as PropType<'show-modal' | 'close'>, default: 'show-modal' },
+} as const;
+
+/** Props for {@link ModalTrigger}. */
+export type ModalTriggerProps = ExtractPublicPropTypes<typeof dialogTriggerProps>;
+/** Props for {@link DrawerTrigger}. */
+export type DrawerTriggerProps = ExtractPublicPropTypes<typeof dialogTriggerProps>;
+
+function dialogTrigger(name: string) {
+  return defineComponent({
+    name,
+    inheritAttrs: false,
+    props: dialogTriggerProps,
+    setup(props, { slots, attrs }) {
+      return () =>
+        h(
+          'button',
+          { type: 'button', ...attrs, command: props.command, commandfor: props.target },
+          slots.default?.(),
+        );
+    },
+  });
+}
+
+/** Declarative invoker button for a {@link Modal} (`command` + `commandfor`). */
+export const ModalTrigger = dialogTrigger('HlModalTrigger');
+/** Declarative invoker button for a {@link Drawer} (`command` + `commandfor`). */
+export const DrawerTrigger = dialogTrigger('HlDrawerTrigger');
+
 /** Props for {@link ModalHeader}. */
 export type ModalHeaderProps = Record<never, never>;
 /** Props for {@link ModalBody}. */
@@ -220,7 +259,44 @@ export const Popover = defineComponent({
     return () =>
       h(
         'div',
-        { ...attrs, 'data-hl-popover': '', popover: 'auto', role: 'dialog', ref: host },
+        {
+          ...attrs,
+          class: cx('hl-popover', attrs.class as string),
+          'data-hl-popover': '',
+          popover: 'auto',
+          role: 'dialog',
+          ref: host,
+        },
+        slots.default?.(),
+      );
+  },
+});
+
+const popoverTriggerProps = {
+  /** Id of the `<Popover>` surface this button invokes (`popovertarget`). */
+  target: { type: String, required: true },
+  /** Popover action to perform. Defaults to `'toggle'`. */
+  action: { type: String as PropType<'toggle' | 'show' | 'hide'>, default: 'toggle' },
+} as const;
+
+/** Props for {@link PopoverTrigger}. */
+export type PopoverTriggerProps = ExtractPublicPropTypes<typeof popoverTriggerProps>;
+
+/** Declarative invoker button for a {@link Popover} (`popovertarget`). */
+export const PopoverTrigger = defineComponent({
+  name: 'HlPopoverTrigger',
+  inheritAttrs: false,
+  props: popoverTriggerProps,
+  setup(props, { slots, attrs }) {
+    return () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          ...attrs,
+          popovertarget: props.target,
+          popovertargetaction: props.action === 'toggle' ? undefined : props.action,
+        },
         slots.default?.(),
       );
   },
@@ -272,7 +348,11 @@ export const Tooltip = defineComponent({
       const [trigger] = (slots.default?.() ?? []) as VNode[];
       return h('span', { ...attrs, ref: host }, [
         trigger && cloneVNode(trigger, { 'data-hl-tooltip': tipId, 'aria-describedby': tipId }),
-        h('span', { id: tipId, role: 'tooltip' }, slots.content?.() ?? props.content),
+        h(
+          'span',
+          { id: tipId, class: 'hl-tooltip', role: 'tooltip' },
+          slots.content?.() ?? props.content,
+        ),
       ]);
     };
   },

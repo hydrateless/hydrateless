@@ -33,21 +33,43 @@ export interface CommandProps extends HTMLAttributes<HTMLDivElement> {
  * `hotkey`.
  */
 export const Command = forwardRef<HTMLDivElement, CommandProps>(function Command(
-  { hotkey, query: queryProp, defaultQuery, onQueryChange, onCommand, children, ...rest },
+  {
+    hotkey,
+    query: queryProp,
+    defaultQuery,
+    onQueryChange,
+    onCommand,
+    className,
+    children,
+    ...rest
+  },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [query, setQuery] = useControlled(queryProp, defaultQuery, onQueryChange);
+  const [query, setQuery, syncTick] = useControlled(queryProp, defaultQuery, onQueryChange);
   const api = useEnhancer<EnhanceCommandOptions, CommandApi>(
     ref,
     enhanceCommand,
     { hotkey, defaultValue: query, onValueChange: setQuery, onCommand },
     [hotkey],
   );
-  useSyncApi(api, queryProp, (api, query) => api.setValue(query));
+  useSyncApi(
+    api,
+    queryProp,
+    (api, query) => {
+      if (api.value !== query) api.setValue(query, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
-    <div {...rest} ref={ref} data-hl-command data-hl-hotkey={hotkey}>
+    <div
+      {...rest}
+      ref={ref}
+      className={cx('hl-command', className)}
+      data-hl-command
+      data-hl-hotkey={hotkey}
+    >
       {children}
     </div>
   );
@@ -55,7 +77,7 @@ export const Command = forwardRef<HTMLDivElement, CommandProps>(function Command
 
 /** Props for {@link CommandInput}. */
 export interface CommandInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  /** Apply the `hl-input` style. Defaults to `true`. */
+  /** Apply the `hl-command-input` style. Defaults to `true`. */
   styled?: boolean;
 }
 
@@ -68,7 +90,7 @@ export const CommandInput = forwardRef<HTMLInputElement, CommandInputProps>(func
     <input
       {...rest}
       ref={ref}
-      className={cx(styled && 'hl-input', className)}
+      className={cx(styled && 'hl-command-input', className)}
       data-hl-command-input
     />
   );
@@ -79,11 +101,17 @@ export type CommandListProps = HTMLAttributes<HTMLDivElement>;
 
 /** The scrollable list of commands (`role="listbox"`). */
 export const CommandList = forwardRef<HTMLDivElement, CommandListProps>(function CommandList(
-  { children, ...rest },
+  { className, children, ...rest },
   ref,
 ) {
   return (
-    <div {...rest} ref={ref} data-hl-command-list role="listbox">
+    <div
+      {...rest}
+      ref={ref}
+      className={cx('hl-command-list', className)}
+      data-hl-command-list
+      role="listbox"
+    >
       {children}
     </div>
   );
@@ -97,11 +125,11 @@ export interface CommandGroupProps extends HTMLAttributes<HTMLDivElement> {
 
 /** A labelled group of commands. */
 export const CommandGroup = forwardRef<HTMLDivElement, CommandGroupProps>(function CommandGroup(
-  { label, children, ...rest },
+  { label, className, children, ...rest },
   ref,
 ) {
   return (
-    <div {...rest} ref={ref} data-hl-command-group>
+    <div {...rest} ref={ref} className={cx('hl-command-group', className)} data-hl-command-group>
       {label != null && (
         <div className="hl-command-group-label" role="presentation">
           {label}
@@ -140,11 +168,17 @@ export type CommandEmptyProps = HTMLAttributes<HTMLDivElement>;
 
 /** Shown when no commands match the query. */
 export const CommandEmpty = forwardRef<HTMLDivElement, CommandEmptyProps>(function CommandEmpty(
-  { children = 'No results found.', ...rest },
+  { className, children = 'No results found.', ...rest },
   ref,
 ) {
   return (
-    <div {...rest} ref={ref} data-hl-command-empty hidden>
+    <div
+      {...rest}
+      ref={ref}
+      className={cx('hl-command-empty', className)}
+      data-hl-command-empty
+      hidden
+    >
       {children}
     </div>
   );

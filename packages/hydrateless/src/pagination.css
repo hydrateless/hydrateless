@@ -1,8 +1,10 @@
 /**
  * Pagination: `<nav class="hl-pagination" aria-label="Pagination">` wrapping a
  * list of `.hl-pagination-item` links/buttons; mark the active page with
- * `aria-current="page"` and use `.hl-pagination-ellipsis` for gaps. Pure CSS;
- * there is no enhancer. Item order follows the writing direction.
+ * `aria-current="page"` and use `.hl-pagination-ellipsis` for gaps. Add
+ * `data-hl-pagination` to opt into the enhancer (live page state, disabled
+ * ends, arrow-key navigation, and rendering from `data-hl-total`). Item order
+ * follows the writing direction.
  */
 @layer components {
   .hl-pagination ul {

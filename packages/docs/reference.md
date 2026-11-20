@@ -43,9 +43,27 @@ case: `allowMultiple` is `data-hl-allow-multiple`, `defaultValue` is
 `data-hl-default-value`, `showDelay` is `data-hl-show-delay`.
 
 ```html
-<div data-hl-accordion data-hl-allow-multiple data-hl-default-value="shipping returns">…</div>
-<div data-hl-tabs data-hl-activation="automatic" data-hl-orientation="vertical">…</div>
-<span data-hl-tooltip="tip" data-hl-placement="bottom-start" data-hl-show-delay="0">…</span>
+<div
+  class="hl-accordion"
+  data-hl-accordion
+  data-hl-allow-multiple
+  data-hl-default-value="shipping returns"
+>
+  …
+</div>
+<div class="hl-tabs" data-hl-tabs data-hl-activation="automatic" data-hl-orientation="vertical">
+  …
+</div>
+<button
+  class="hl-button"
+  data-hl-tooltip="tip"
+  data-hl-placement="bottom-start"
+  data-hl-show-delay="0"
+  aria-describedby="tip"
+>
+  …
+</button>
+<span id="tip" class="hl-tooltip" role="tooltip" hidden>…</span>
 ```
 
 Parsing follows the option's type: booleans accept a bare attribute, `""`, or
@@ -420,15 +438,22 @@ Events: `hl:open-change { open, toast }`. Auto-dismiss pauses on hover and focus
 Every enhancer returns the same handle shape:
 
 ```ts
-interface EnhancerHandle<Api> {
+interface EnhancerHandle<Api, Options extends object = never> {
   /** Tear down every instance this call created. */
   destroy: () => void;
+  /** Update options in place on every enhanced instance without destroying it. */
+  update: (options?: Partial<Options>) => void;
   /** The first enhanced root's API, or null when nothing matched. */
   api: Api | null;
-  /** One entry per enhanced root: { root, api, destroy }. */
-  instances: EnhancerInstance<Api>[];
+  /** One entry per enhanced root: { root, api, update, destroy }. */
+  instances: EnhancerInstance<Api, Options>[];
 }
 ```
+
+Every stateful `setValue` and `setOpen` method accepts an optional `{ silent?: boolean }`
+option (`SetOptions`). When `silent: true` is passed, the enhancer updates the DOM and
+internal state without invoking `onValueChange`/`onOpenChange` or dispatching `hl:*`
+events, which lets controlled framework bindings avoid callback echo loops.
 
 ## Events
 

@@ -49,11 +49,11 @@ These are real Hydrateless components, not screenshots. Toggle JavaScript off in
   <button class="hl-button" data-hl-intent="primary" data-hl-variant="soft">Soft</button>
   <button class="hl-button" data-hl-variant="outline">Outline</button>
   <span class="hl-badge" data-hl-intent="success" data-hl-variant="soft">Stable</span>
-  <label data-hl-switch><input type="checkbox" role="switch" checked /> Notifications</label>
+  <label class="hl-switch"><input type="checkbox" role="switch" checked /> Notifications</label>
 </Demo>
 
 <Demo layout="fill">
-  <div data-hl-tabs style="width:100%">
+  <div class="hl-tabs" data-hl-tabs style="width:100%">
     <div role="tablist" aria-label="Hydrateless overview">
       <button role="tab" aria-selected="true" id="intro-overview" aria-controls="intro-overview-panel">Overview</button>
       <button role="tab" aria-selected="false" tabindex="-1">Install</button>

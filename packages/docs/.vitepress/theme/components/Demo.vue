@@ -149,7 +149,7 @@ function renderInline(text: string): string {
         <button type="button" class="hl-demo-btn" :disabled="!mounted" @click="reset">Reset</button>
       </div>
 
-      <div class="hl-demo-preview" :data-theme="effectiveTheme" :dir="dir">
+      <div class="hl-demo-preview" :data-hl-theme="effectiveTheme" :dir="dir">
         <div
           v-if="demo"
           :key="`${revision}-${jsEnabled}`"

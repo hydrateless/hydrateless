@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
+import { cx } from './util.js';
 import { useControlled } from './internal/useControlled.js';
 import { useSyncApi } from './internal/useSyncApi.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
@@ -73,25 +74,41 @@ export interface TabsProps extends HTMLAttributes<HTMLDivElement> {
  * ```
  */
 export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
-  { activation, orientation, value: valueProp, defaultValue, onValueChange, children, ...rest },
+  {
+    activation,
+    orientation,
+    value: valueProp,
+    defaultValue,
+    onValueChange,
+    className,
+    children,
+    ...rest
+  },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [selected, setValue] = useControlled(valueProp, defaultValue, onValueChange);
+  const [selected, setValue, syncTick] = useControlled(valueProp, defaultValue, onValueChange);
   const api = useEnhancer<EnhanceTabsOptions, TabsApi>(
     ref,
     enhanceTabs,
     { activation, orientation, defaultValue: selected, onValueChange: setValue },
     [activation, orientation],
   );
-  useSyncApi(api, valueProp, (api, value) => api.setValue(value));
+  useSyncApi(
+    api,
+    valueProp,
+    (api, value) => {
+      if (api.value !== value) api.setValue(value, { silent: true });
+    },
+    syncTick,
+  );
 
   const values = tabValues(children);
   const selectedIndex = selected == null ? 0 : values ? values.indexOf(selected) : Number(selected);
 
   return (
     <TabsContext.Provider value={{ selected, selectedIndex }}>
-      <div {...rest} ref={ref} data-hl-tabs>
+      <div {...rest} ref={ref} className={cx('hl-tabs', className)} data-hl-tabs>
         {indexChildren(children, TabPanel)}
       </div>
     </TabsContext.Provider>

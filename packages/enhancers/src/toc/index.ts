@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { type Disposer } from '../core/lifecycle.js';
@@ -22,7 +22,7 @@ export type TocApi = {
   /** Id of the heading currently marked `aria-current`, or `null`. */
   readonly value: string | null;
   /** Mark the entry for heading `value` as current (or clear with `null`). */
-  setValue: (value: string | null) => void;
+  setValue: (value: string | null, options?: SetOptions) => void;
   /** Rebuild the list from the current headings. */
   refresh: () => void;
 };
@@ -48,7 +48,7 @@ export const enhanceToc = defineEnhancer<EnhanceTocOptions, TocApi>({
     scrollSpy: 'boolean',
     watch: 'boolean',
   },
-  setup({ root, container, options, observe, add, emit }) {
+  setup({ root, container, options, observe, add, onUpdate, emit }) {
     const doc = root.ownerDocument;
     const scope: ParentNode = container instanceof Document ? doc : container;
 
@@ -62,15 +62,17 @@ export const enhanceToc = defineEnhancer<EnhanceTocOptions, TocApi>({
 
     const linkById = new Map<string, HTMLAnchorElement>();
     let current: string | null = null;
-    const setCurrent = (id: string | null) => {
+    const setCurrent = (id: string | null, silent = false) => {
       if (id === current) return;
       current = id;
       linkById.forEach((a, key) => {
         if (key === id) a.setAttribute('aria-current', 'true');
         else a.removeAttribute('aria-current');
       });
-      options.onValueChange?.(id);
-      emit(Events.change, { value: id });
+      if (!silent) {
+        options.onValueChange?.(id);
+        emit(Events.change, { value: id });
+      }
     };
 
     const contentRoot = () =>
@@ -157,11 +159,13 @@ export const enhanceToc = defineEnhancer<EnhanceTocOptions, TocApi>({
       );
     }
 
+    onUpdate(build);
+
     return {
       get value() {
         return current;
       },
-      setValue: setCurrent,
+      setValue: (id, { silent = false } = {}) => setCurrent(id, silent),
       refresh: build,
     };
   },

@@ -7,6 +7,7 @@ import DropdownHarness from './harness/DropdownHarness.svelte';
 import FieldHarness from './harness/FieldHarness.svelte';
 import TableHarness from './harness/TableHarness.svelte';
 import TooltipHarness from './harness/TooltipHarness.svelte';
+import ContractHarness from './harness/ContractHarness.svelte';
 
 // Server output must already carry the state-dependent attributes so nothing
 // flashes before the enhancers hydrate.
@@ -70,5 +71,18 @@ describe('@hydrateless/svelte server rendering', () => {
     expect(body).toMatch(
       /<table[^>]*class="hl-table report"[^>]*data-hl-striped[^>]*data-hl-hover[^>]*data-hl-align="end"[^>]*data-hl-size="sm"/,
     );
+  });
+
+  it('Overlay triggers and unified styling classes render on the server', () => {
+    const { body } = render(ContractHarness);
+    expect(body).toMatch(/<button[^>]*command="show-modal"[^>]*commandfor="contract-modal"/);
+    expect(body).toMatch(/<button[^>]*command="close"[^>]*commandfor="contract-drawer"/);
+    expect(body).toMatch(
+      /<button[^>]*popovertarget="contract-popover"[^>]*popovertargetaction="show"/,
+    );
+    expect(body).toMatch(/<label[^>]*class="hl-switch"/);
+    expect(body).not.toContain('data-hl-switch');
+    expect(body).toMatch(/<nav[^>]*class="hl-breadcrumb"/);
+    expect(body).not.toContain('data-hl-breadcrumb');
   });
 });

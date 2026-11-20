@@ -60,24 +60,35 @@ ordering is explicit:
 
 See [CSS Layers](./css-layers) for more.
 
-## The `data-hl-*` conventions
+## The `.hl-*` and `data-hl-*` contract
+
+Styling and behavior are strictly separated:
+
+- **`.hl-*` classes** own every visual rule (`.hl-button`, `.hl-tabs`,
+  `.hl-popover`, `.hl-switch`, `.hl-breadcrumb`, `.hl-tooltip`, and so on). You
+  can style any component with `.hl-*` alone and omit `data-hl-*` when you want
+  CSS-only behavior with zero JavaScript.
+- **`data-hl-*` attributes** own enhancer opt-in, enhancer options, and visual
+  variants or states. Omit `.hl-*` and keep `data-hl-*` to run any enhancer
+  headlessly with your own stylesheet or Tailwind.
 
 Every attribute the library reads or writes follows a small vocabulary:
 
-| Attribute                                       | Role                                                                                    |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `data-hl-<component>`                           | Component root; the enhancer's selector (`data-hl-tabs`, `data-hl-dropdown`)            |
-| `data-hl-<component>-<part>`                    | A named part inside the root (`data-hl-dropdown-trigger`, `data-hl-command-input`)      |
-| `data-hl-value`                                 | The value an item reports (tabs, accordion items, menu items, options, commands)        |
-| `data-hl-intent`                                | Semantic color: `neutral`, `primary`, `danger`, `success`, `warning`, `info`            |
-| `data-hl-variant`                               | Visual style of a button or badge: `solid`, `soft`, `outline`, `ghost`, `link`          |
-| `data-hl-size`                                  | `sm`, `md`, `lg` (and `xl` for spinners)                                                |
-| `data-hl-shape`                                 | Skeleton shape: `text`, `circle`, `rect`                                                |
-| `data-hl-side`                                  | Drawer edge: `start`, `end`                                                             |
-| `data-hl-orientation`                           | `horizontal`, `vertical`                                                                |
-| `data-hl-invalid`, `data-hl-required`           | Form states, paired with `aria-invalid` and `required`                                  |
-| `data-hl-ready`                                 | Set on a root by its enhancer; CSS no-JS baselines are gated on `:not([data-hl-ready])` |
-| `data-hl-toast-trigger`, `-intent`, `-duration` | Declarative toast buttons                                                               |
+| Attribute                                       | Role                                                                                          |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `data-hl-<component>`                           | Enhancer opt-in root (`data-hl-tabs`, `data-hl-dropdown`)                                     |
+| `data-hl-<component>-<part>`                    | A named behavioral part inside the root (`data-hl-dropdown-trigger`, `data-hl-command-input`) |
+| `data-hl-value`                                 | The value an item reports (tabs, accordion items, menu items, options, commands)              |
+| `data-hl-theme`                                 | Color scheme override (`light` or `dark`) on `<html>` or any subtree                          |
+| `data-hl-intent`                                | Semantic color: `neutral`, `primary`, `danger`, `success`, `warning`, `info`                  |
+| `data-hl-variant`                               | Visual style of a button or badge: `solid`, `soft`, `outline`, `ghost`, `link`                |
+| `data-hl-size`                                  | `sm`, `md`, `lg` (and `xl` for spinners)                                                      |
+| `data-hl-shape`                                 | Skeleton shape: `text`, `circle`, `rect`                                                      |
+| `data-hl-side`                                  | Drawer edge or resolved overlay side: `start`, `end`, `top`, `bottom`                         |
+| `data-hl-orientation`                           | `horizontal`, `vertical`                                                                      |
+| `data-hl-invalid`, `data-hl-required`           | Form states, paired with `aria-invalid` and `required`                                        |
+| `data-hl-ready`                                 | Set on a root by its enhancer; CSS no-JS baselines are gated on `:not([data-hl-ready])`       |
+| `data-hl-toast-trigger`, `-intent`, `-duration` | Declarative toast buttons                                                                     |
 
 Rules of thumb when you add your own:
 
@@ -111,13 +122,13 @@ Match the existing attribute and add a value:
 
 Components are designed to nest. A card header with a dropdown, a field with a
 combobox, a modal containing a command palette: all work because each component
-only styles its own class or attribute and reads shared tokens.
+styles only its own `.hl-*` class and reads shared tokens.
 
 ```html
 <div class="hl-card">
   <div class="hl-card-header">
     <h3 class="hl-card-title">Members</h3>
-    <div data-hl-dropdown>
+    <div class="hl-dropdown" data-hl-dropdown>
       <button
         class="hl-button"
         data-hl-variant="ghost"
@@ -126,7 +137,7 @@ only styles its own class or attribute and reads shared tokens.
       >
         Manage
       </button>
-      <ul id="members-menu" data-hl-dropdown-menu popover>
+      <ul id="members-menu" class="hl-dropdown-menu" data-hl-dropdown-menu popover>
         <li><button role="menuitem" data-hl-value="invite">Invite</button></li>
       </ul>
     </div>
@@ -134,11 +145,21 @@ only styles its own class or attribute and reads shared tokens.
 </div>
 ```
 
-### Restyle from scratch
+### Restyle from scratch (headless mode)
 
-Because behavior lives in enhancers and ARIA, you can drop the `hl-*` classes
-entirely and keep the `data-hl-*` roots. The enhancer still wires roles, keys,
-and focus; your stylesheet owns the look, and can still read the tokens.
+Because every visual rule in `hydrateless.css` is scoped to `.hl-*` classes, you
+can drop the `.hl-*` classes entirely and keep only the `data-hl-*` attributes.
+The enhancer still wires roles, keyboard navigation, and focus without applying
+Hydrateless visual chrome.
+
+If you're styling with Tailwind or your own design system and want only the
+minimal structural rules (hidden states, `:not([data-hl-ready])` no-JS
+baselines, and CSS anchor positioning) with zero visual styling, import the
+headless behavior sheet instead of `hydrateless.css`:
+
+```css
+@import 'hydrateless/behavior.css';
+```
 
 ## Writing your own enhancer
 
@@ -220,16 +241,17 @@ export const enhanceRating = defineEnhancer<RatingOptions, RatingApi>({
 
 What the context gives you:
 
-| Member      | Purpose                                                                                             |
-| ----------- | --------------------------------------------------------------------------------------------------- |
-| `root`      | The matched element.                                                                                |
-| `container` | What the enhancer was called with (often `document`).                                               |
-| `options`   | `defaults`, then the root's `data-hl-*` attributes, then caller options, merged in that order.      |
-| `on()`      | `addEventListener` that is removed automatically on destroy.                                        |
-| `observe()` | A `MutationObserver` on a target (default `childList` + `subtree`) that is disconnected on destroy. |
-| `add()`     | Register any other disposer (timers, attribute resets).                                             |
-| `uid()`     | Generate an id namespaced to the enhancer.                                                          |
-| `emit()`    | Dispatch a bubbling `hl:*` `CustomEvent` from the root; returns `false` if it was canceled.         |
+| Member       | Purpose                                                                                             |
+| ------------ | --------------------------------------------------------------------------------------------------- |
+| `root`       | The matched element.                                                                                |
+| `container`  | What the enhancer was called with (often `document`).                                               |
+| `options`    | `defaults`, then the root's `data-hl-*` attributes, then caller options, merged in that order.      |
+| `on()`       | `addEventListener` that is removed automatically on destroy.                                        |
+| `observe()`  | A `MutationObserver` on a target (default `childList` + `subtree`) that is disconnected on destroy. |
+| `add()`      | Register any other disposer (timers, attribute resets).                                             |
+| `onUpdate()` | Register a listener invoked when `handle.update()` updates `options` in place.                      |
+| `uid()`      | Generate an id namespaced to the enhancer.                                                          |
+| `emit()`     | Dispatch a bubbling `hl:*` `CustomEvent` from the root; returns `false` if it was canceled.         |
 
 The `attributes` schema maps option names to how their `data-hl-*` value is
 parsed: `'boolean'`, `'number'`, `'string'`, a list of allowed strings, or a

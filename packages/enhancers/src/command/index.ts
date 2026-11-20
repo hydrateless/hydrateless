@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs } from '../core/dom.js';
 import { isDisabledItem, nextEnabledIndex } from '../core/menu-items.js';
 import { Events } from '../core/events.js';
@@ -30,11 +30,11 @@ export type CommandApi = {
   /** The current filter query. */
   readonly value: string;
   /** Set the filter query: updates the input and re-filters the list. */
-  setValue: (value: string) => void;
+  setValue: (value: string, options?: SetOptions) => void;
   /** Whether the hosting `<dialog>` is open. Always `true` for an inline palette. */
   readonly open: boolean;
   /** Open (clearing the query and focusing the input) or close the hosting `<dialog>`. */
-  setOpen: (open: boolean) => void;
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /**
@@ -69,10 +69,10 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
     const list = root.querySelector<HTMLElement>('[data-hl-command-list], [role="listbox"]');
     if (!input || !list) return;
 
-    const empty = root.querySelector<HTMLElement>('[data-hl-command-empty]');
-    const groups = () => Array.from(root.querySelectorAll<HTMLElement>('[data-hl-command-group]'));
+    const empty = root.querySelector<HTMLElement>('[data-hl-command-empty], .hl-command-empty');
+    const groups = () =>
+      Array.from(root.querySelectorAll<HTMLElement>('[data-hl-command-group], .hl-command-group'));
     const dialog = root.closest<HTMLDialogElement>('dialog');
-    const hotkey = (options.hotkey ?? '').toLowerCase();
 
     root.setAttribute('data-hl-ready', '');
     add(() => root.removeAttribute('data-hl-ready'));
@@ -228,15 +228,16 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       if (item) run(item);
     });
 
-    const openDialog = () => {
+    let wasOpen = dialog?.open ?? true;
+    const openDialog = (silent = false) => {
       if (!dialog) return;
+      if (silent) wasOpen = true;
       if (!dialog.open) dialog.showModal();
       reset();
       input.focus();
     };
 
     if (dialog) {
-      let wasOpen = dialog.open;
       const sync = (open: boolean) => {
         if (open === wasOpen) return;
         wasOpen = open;
@@ -246,14 +247,13 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       on(dialog, 'toggle', (e) => sync((e as ToggleEvent).newState === 'open'));
       on(dialog, 'close', () => sync(false));
 
-      if (hotkey) {
-        on<KeyboardEvent>(dialog.ownerDocument, 'keydown', (e) => {
-          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === hotkey) {
-            e.preventDefault();
-            openDialog();
-          }
-        });
-      }
+      on<KeyboardEvent>(dialog.ownerDocument, 'keydown', (e) => {
+        const key = (options.hotkey ?? '').toLowerCase();
+        if (key && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === key) {
+          e.preventDefault();
+          openDialog();
+        }
+      });
     }
 
     // Initialize the input, active option, and empty state.
@@ -267,19 +267,23 @@ export const enhanceCommand = defineEnhancer<EnhanceCommandOptions, CommandApi>(
       get value() {
         return input.value;
       },
-      setValue(value) {
+      setValue(value, { silent = false } = {}) {
         if (input.value === value) return;
         input.value = value;
         filter(value);
-        notify();
+        if (silent) lastValue = input.value;
+        else notify();
       },
       get open() {
         return dialog ? dialog.open : true;
       },
-      setOpen(next) {
+      setOpen(next, { silent = false } = {}) {
         if (!dialog) return;
-        if (next) openDialog();
-        else if (dialog.open) dialog.close();
+        if (next) openDialog(silent);
+        else if (dialog.open) {
+          if (silent) wasOpen = false;
+          dialog.close();
+        }
       },
     };
   },

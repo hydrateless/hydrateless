@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { enhanceToast, type EnhanceToastOptions, type ToastApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
+import { cx } from './util.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
 
 let sharedApi: ToastApi | null = null;
@@ -35,7 +36,7 @@ export interface ToastRegionProps extends HTMLAttributes<HTMLDivElement> {
  * omitted, the first `show()` call creates a region at the end of `<body>`.
  */
 export const ToastRegion = forwardRef<HTMLDivElement, ToastRegionProps>(function ToastRegion(
-  { duration, onOpenChange, ...props },
+  { duration, onOpenChange, className, ...props },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
@@ -58,7 +59,9 @@ export const ToastRegion = forwardRef<HTMLDivElement, ToastRegionProps>(function
     [duration],
   );
 
-  return <div {...props} ref={ref} data-hl-toast-region />;
+  return (
+    <div {...props} ref={ref} className={cx('hl-toast-region', className)} data-hl-toast-region />
+  );
 });
 
 /**

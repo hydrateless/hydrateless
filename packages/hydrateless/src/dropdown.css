@@ -1,26 +1,24 @@
 /**
- * Dropdown menu button: `<div data-hl-dropdown>` wrapping a
- * `[data-hl-dropdown-trigger]` button and a `[data-hl-dropdown-menu]` list.
+ * Dropdown menu button: `<div class="hl-dropdown">` wrapping a trigger button
+ * and a `<ul class="hl-dropdown-menu" popover>` list.
  *
  * No-JS baseline: the menu is a native `popover` and the trigger points at it
  * with `popovertarget`, so opening, Escape, and light dismiss work before any
- * script runs; both attributes must be in the markup. The enhancer adds arrow
- * keys, typeahead, checkable items, and focus return, and reads:
- *   data-hl-dropdown:         root
- *   data-hl-dropdown-trigger: the button
- *   data-hl-dropdown-menu:    the `<ul>` (or any list) of items
- *   data-hl-value:            an item's value for `hl:select`
+ * script runs; both attributes must be in the markup. Add `data-hl-dropdown`,
+ * `data-hl-dropdown-trigger`, and `data-hl-dropdown-menu` to opt into the
+ * enhancer (arrow keys, typeahead, checkable items, nested submenus, and focus
+ * return).
  * Items are `role="menuitem"`, `menuitemcheckbox`, or `menuitemradio`, either
  * directly in the list, inside `<li>`, or inside `<li><ul role="group">`. An
  * item followed by a sibling `<ul role="menu">` (or `[data-hl-submenu]`) opens
  * it as a nested submenu to the inline-end side.
  */
 @layer components {
-  [data-hl-dropdown] {
+  .hl-dropdown {
     display: inline-block;
   }
 
-  [data-hl-dropdown-menu] {
+  .hl-dropdown-menu {
     margin: 0;
     min-inline-size: 10rem;
     border: var(--hl-border-width) solid var(--hl-border);
@@ -38,14 +36,14 @@
 
   /* Closed state doubles as the exit target. Engines without the Popover API
      drop this rule, so nothing is hidden by accident. */
-  [data-hl-dropdown-menu]:not(:popover-open) {
+  .hl-dropdown-menu:not(:popover-open) {
     z-index: var(--hl-z-dropdown);
     opacity: 0;
     translate: 0 -0.25rem;
   }
 
   @starting-style {
-    [data-hl-dropdown-menu]:popover-open {
+    .hl-dropdown-menu:popover-open {
       opacity: 0;
       translate: 0 -0.25rem;
     }
@@ -53,7 +51,7 @@
 
   /* Open below the trigger, start-aligned, flipping when cramped. */
   @supports (position-area: block-end) {
-    [data-hl-dropdown-menu] {
+    .hl-dropdown-menu {
       position: fixed;
       position-area: block-end span-inline-end;
       position-try-fallbacks: flip-block, flip-inline;
@@ -61,18 +59,18 @@
     }
   }
 
-  [data-hl-dropdown-menu] [role='group'] {
+  .hl-dropdown-menu [role='group'] {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   /* Nested submenus share the panel styling and sit beside their trigger. */
-  [data-hl-dropdown-menu] li {
+  .hl-dropdown-menu li {
     position: relative;
   }
 
-  [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu]) {
+  .hl-dropdown-menu :is([role='menu'], [data-hl-submenu]) {
     position: absolute;
     inset-block-start: 0;
     inset-inline-start: calc(100% + var(--hl-space-1));
@@ -87,18 +85,18 @@
     box-shadow: var(--hl-overlay-shadow);
   }
 
-  [data-hl-dropdown-menu]
+  .hl-dropdown-menu
     :is([role='menu'], [data-hl-submenu]):is([hidden], [popover]:not(:popover-open)) {
     display: none;
   }
 
-  [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu])[popover] {
+  .hl-dropdown-menu :is([role='menu'], [data-hl-submenu])[popover] {
     position: fixed;
     inset: auto;
   }
 
   @supports (position-area: block-end) {
-    [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu])[popover] {
+    .hl-dropdown-menu :is([role='menu'], [data-hl-submenu])[popover] {
       position-area: inline-end span-block-end;
       position-try-fallbacks: flip-inline, flip-block;
       margin-inline: var(--hl-space-1);
@@ -106,7 +104,7 @@
   }
 
   /* Submenu chevron: a rotated square corner at the inline end. */
-  [data-hl-dropdown-menu] [role^='menuitem'][aria-haspopup='menu']::after {
+  .hl-dropdown-menu [role^='menuitem'][aria-haspopup='menu']::after {
     content: '';
     inline-size: 0.4rem;
     block-size: 0.4rem;
@@ -117,11 +115,11 @@
     opacity: 0.6;
   }
 
-  [data-hl-dropdown-menu] [role^='menuitem'][aria-expanded='true'] {
+  .hl-dropdown-menu [role^='menuitem'][aria-expanded='true'] {
     background: var(--hl-surface-2);
   }
 
-  [data-hl-dropdown-menu] [role^='menuitem'] {
+  .hl-dropdown-menu [role^='menuitem'] {
     display: flex;
     align-items: center;
     gap: var(--hl-space-2);
@@ -136,17 +134,25 @@
     font: inherit;
   }
 
-  [data-hl-dropdown-menu] [role^='menuitem']:hover {
+  .hl-dropdown-menu [role^='menuitem']:hover {
     background: var(--hl-surface-2);
   }
 
-  [data-hl-dropdown-menu] [role^='menuitem']:focus-visible {
+  .hl-dropdown-menu [role^='menuitem'][data-hl-intent='danger'] {
+    color: var(--hl-danger-subtle-fg);
+  }
+
+  .hl-dropdown-menu [role^='menuitem'][data-hl-intent='danger']:hover {
+    background: var(--hl-danger-subtle);
+  }
+
+  .hl-dropdown-menu [role^='menuitem']:focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: calc(var(--hl-focus-offset) * -1);
   }
 
   /* Checkable items reserve room for a mark so labels line up. */
-  [data-hl-dropdown-menu] :is([role='menuitemcheckbox'], [role='menuitemradio'])::before {
+  .hl-dropdown-menu :is([role='menuitemcheckbox'], [role='menuitemradio'])::before {
     content: '';
     flex: none;
     inline-size: 1em;
@@ -156,22 +162,23 @@
     color: var(--hl-primary);
   }
 
-  [data-hl-dropdown-menu] [role='menuitemcheckbox'][aria-checked='true']::before {
+  .hl-dropdown-menu [role='menuitemcheckbox'][aria-checked='true']::before {
     content: '\2713';
   }
 
-  [data-hl-dropdown-menu] [role='menuitemradio'][aria-checked='true']::before {
+  .hl-dropdown-menu [role='menuitemradio'][aria-checked='true']::before {
     background: currentcolor;
     border-radius: var(--hl-radius-full);
     scale: 0.5;
   }
 
-  [data-hl-dropdown-menu] [role^='menuitem']:is(:disabled, [aria-disabled='true']) {
+  .hl-dropdown-menu [role^='menuitem']:is(:disabled, [aria-disabled='true']) {
     opacity: var(--hl-disabled-opacity);
     cursor: not-allowed;
   }
 
-  [data-hl-dropdown-menu] [role='separator'] {
+  .hl-dropdown-separator,
+  .hl-dropdown-menu [role='separator'] {
     block-size: var(--hl-border-width);
     margin: var(--hl-space-1) 0;
     background: var(--hl-border);
@@ -179,11 +186,12 @@
   }
 
   @media (forced-colors: active) {
-    [data-hl-dropdown-menu] [role^='menuitem']:is(:disabled, [aria-disabled='true']) {
+    .hl-dropdown-menu [role^='menuitem']:is(:disabled, [aria-disabled='true']) {
       color: GrayText;
     }
 
-    [data-hl-dropdown-menu] [role='separator'] {
+    .hl-dropdown-separator,
+    .hl-dropdown-menu [role='separator'] {
       background: CanvasText;
     }
   }

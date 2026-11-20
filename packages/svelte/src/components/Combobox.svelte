@@ -35,6 +35,7 @@
     open = $bindable(),
     defaultOpen = false,
     onOpenChange,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
@@ -42,30 +43,41 @@
   if (value === undefined) value = defaultValue;
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial values once
   if (open === undefined) open = defaultOpen;
+  let valueTick = $state(0);
+  let openTick = $state(0);
 
   const combobox = useEnhancer(enhanceCombobox, () => ({
     filter,
     autoHighlight,
     defaultValue: untrack(() => value),
+    defaultOpen: untrack(() => open),
     onValueChange: (next) => {
       value = next;
       onValueChange?.(next);
+      valueTick += 1;
     },
     onOpenChange: (next) => {
       open = next;
       onOpenChange?.(next);
+      openTick += 1;
     },
   }));
 
   $effect(() => {
-    if (value != null) combobox.api?.setValue(value);
+    void valueTick;
+    if (value != null && combobox.api && combobox.api.value !== value) {
+      combobox.api.setValue(value, { silent: true });
+    }
   });
 
   $effect(() => {
-    if (open != null) combobox.api?.setOpen(open);
+    void openTick;
+    if (open != null && combobox.api && combobox.api.open !== open) {
+      combobox.api.setOpen(open, { silent: true });
+    }
   });
 </script>
 
-<div {...rest} data-hl-combobox {@attach combobox.attach}>
+<div {...rest} class={['hl-combobox', klass]} data-hl-combobox {@attach combobox.attach}>
   {@render children?.()}
 </div>

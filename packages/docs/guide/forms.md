@@ -29,8 +29,7 @@ label, help text, and error message.
 - `.hl-fieldset` and `.hl-legend` group related fields.
 
 Any Hydrateless control fits in the middle slot: `.hl-input`, `.hl-textarea`,
-`.hl-select`, a `[data-hl-switch]`, a `[data-hl-combobox]`, or an
-`.hl-slider`.
+`.hl-select`, `.hl-switch`, `.hl-combobox`, or `.hl-slider`.
 
 ## Field wiring in the framework bindings
 

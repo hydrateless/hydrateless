@@ -170,4 +170,37 @@ describe('defineEnhancer', () => {
     expect(event.bubbles).toBe(true);
     document.removeEventListener(Events.change, spy);
   });
+
+  it('update() refreshes options in place and runs onUpdate listeners without tearing down', () => {
+    const updated = vi.fn();
+    const enhanceLive = defineEnhancer<{ step?: number }, { count: () => number }>({
+      name: 'live-counter',
+      selector: '[data-counter]',
+      defaults: { step: 1 },
+      setup({ root, options, on, onUpdate }) {
+        let count = 0;
+        on(root, 'click', () => {
+          count += options.step!;
+        });
+        onUpdate(() => updated(options.step));
+        return { count: () => count };
+      },
+    });
+
+    const a = document.getElementById('a')!;
+    const handle = enhanceLive(a, { step: 2 });
+    a.click();
+    expect(handle.api!.count()).toBe(2);
+
+    handle.update({ step: 10 });
+    expect(updated).toHaveBeenCalledWith(10);
+    a.click();
+    // Internal state survived the option update (2 + 10 = 12).
+    expect(handle.api!.count()).toBe(12);
+
+    // Updating after destroy is a safe no-op.
+    handle.destroy();
+    handle.update({ step: 5 });
+    expect(updated).toHaveBeenCalledTimes(1);
+  });
 });

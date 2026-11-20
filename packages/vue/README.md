@@ -161,12 +161,12 @@ const api = useEnhancer(host, enhanceDropdown, { placement: 'bottom-end' });
 </script>
 
 <template>
-  <div ref="host" data-hl-dropdown>...</div>
+  <div ref="host" class="hl-dropdown" data-hl-dropdown>...</div>
 </template>
 ```
 
-Pass a getter for `options` and a fourth `deps` watch source to re-attach when
-an option changes.
+Pass a getter for `options` and a fourth `deps` watch source to update options
+in place via `handle.update()` when an option changes.
 
 ## Breaking changes in this release
 

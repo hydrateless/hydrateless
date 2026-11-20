@@ -9,17 +9,17 @@
   <body>
     <main>
       <h1>Command palette</h1>
-      <div data-hl-command>
+      <div class="hl-command" data-hl-command>
         <input
           id="cmd-input"
           data-hl-command-input
-          class="hl-input"
+          class="hl-command-input hl-input"
           aria-label="Search commands"
           placeholder="Type a command…"
         />
-        <div data-hl-command-empty hidden>No results found.</div>
-        <div data-hl-command-list role="listbox" aria-label="Commands">
-          <div data-hl-command-group role="group" aria-label="General">
+        <div class="hl-command-empty" data-hl-command-empty hidden>No results found.</div>
+        <div class="hl-command-list" data-hl-command-list role="listbox" aria-label="Commands">
+          <div class="hl-command-group" data-hl-command-group role="group" aria-label="General">
             <div
               role="option"
               aria-selected="false"

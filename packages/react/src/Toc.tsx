@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { enhanceToc, type EnhanceTocOptions, type TocApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
+import { cx } from './util.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
 
 /** Props for {@link Toc}. */
@@ -15,7 +16,7 @@ export interface TocProps extends HTMLAttributes<HTMLElement> {
 
 /** Auto-generated table of contents with optional scroll-spy. */
 export const Toc = forwardRef<HTMLElement, TocProps>(function Toc(
-  { contentSelector, headings, scrollSpy, ...rest },
+  { contentSelector, headings, scrollSpy, className, ...rest },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
@@ -27,5 +28,5 @@ export const Toc = forwardRef<HTMLElement, TocProps>(function Toc(
     [contentSelector, headings, scrollSpy],
   );
 
-  return <nav {...rest} ref={ref} data-hl-toc />;
+  return <nav {...rest} ref={ref} className={cx('hl-toc', className)} data-hl-toc />;
 });

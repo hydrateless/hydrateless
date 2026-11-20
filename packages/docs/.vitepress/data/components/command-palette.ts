@@ -26,16 +26,16 @@ export const commandPalette: ComponentDoc = {
         'Type to filter, navigate with `Up`/`Down` (and `PageUp`/`PageDown` in steps of ten), and run with `Enter`. `Esc` clears a non-empty query first, then closes the hosting `<dialog>`.',
       layout: 'fill',
       render: () =>
-        `<div data-hl-command class="hl-command" style="max-width:22rem">
-  <input class="hl-input hl-command-input" data-hl-command-input placeholder="Type a command" aria-label="Command" />
-  <div data-hl-command-empty class="hl-command-empty" hidden>No results found.</div>
-  <div data-hl-command-list role="listbox" aria-label="Commands">
-    <div data-hl-command-group role="group" aria-labelledby="demo-cmd-actions">
+        `<div class="hl-command" data-hl-command style="max-width:22rem">
+  <input class="hl-command-input hl-input" data-hl-command-input placeholder="Type a command" aria-label="Command" />
+  <div class="hl-command-empty" data-hl-command-empty hidden>No results found.</div>
+  <div class="hl-command-list" data-hl-command-list role="listbox" aria-label="Commands">
+    <div class="hl-command-group" data-hl-command-group role="group" aria-labelledby="demo-cmd-actions">
       <div class="hl-command-group-label" id="demo-cmd-actions">Actions</div>
       <div role="option" data-hl-value="new" data-hl-keywords="create">New File</div>
       <div role="option" data-hl-value="open">Open</div>
     </div>
-    <div data-hl-command-group role="group" aria-labelledby="demo-cmd-nav">
+    <div class="hl-command-group" data-hl-command-group role="group" aria-labelledby="demo-cmd-nav">
       <div class="hl-command-group-label" id="demo-cmd-nav">Navigation</div>
       <div role="option" data-hl-value="settings" data-hl-keywords="preferences">Go to Settings</div>
       <div role="option" data-hl-value="docs">Open Docs</div>

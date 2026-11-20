@@ -9,7 +9,7 @@ import {
   type PropType,
 } from 'vue';
 import { enhanceMenu, type EnhanceMenuOptions, type MenuApi } from '@hydrateless/enhancers';
-import { useApiSync, useControlled } from '../internal/index.js';
+import { cx, useApiSync, useControlled } from '../internal/index.js';
 import { useEnhancer } from '../useEnhancer.js';
 
 interface MenuContext {
@@ -46,7 +46,7 @@ export const Menu = defineComponent({
   emits: ['update:modelValue', 'select'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value, set } = useControlled<string | null | undefined, 'update:modelValue'>(
+    const { value, set, tick } = useControlled<string | null | undefined, 'update:modelValue'>(
       props,
       emit,
       { prop: 'modelValue', event: 'update:modelValue', default: props.defaultValue },
@@ -66,7 +66,8 @@ export const Menu = defineComponent({
       api,
       value,
       (a) => a.value,
-      (a, v) => a.setValue(v),
+      (a, v) => a.setValue(v, { silent: true }),
+      tick,
     );
     let count = 0;
     provide(MenuKey, { register: () => count++ });
@@ -75,6 +76,7 @@ export const Menu = defineComponent({
         'ul',
         {
           ...attrs,
+          class: cx('hl-menu', attrs.class as string),
           'data-hl-menu': '',
           role: props.orientation === 'vertical' ? 'menu' : 'menubar',
           'aria-orientation': props.orientation,

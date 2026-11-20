@@ -53,11 +53,13 @@ The docs suite checks playground controls, resets, framework examples, keyboard 
 
 ### Naming conventions
 
-- Component roots carry a `data-hl-<component>` attribute; the enhancer for that component is `enhance<Component>` and lives at `@hydrateless/enhancers/<component>`.
-- State and variant attributes are always prefixed: `data-hl-intent`, `data-hl-size`, `data-hl-variant` (visual style), `data-hl-side`, `data-hl-shape`, `data-hl-orientation`, `data-hl-ready` (set by an enhancer once JS owns behavior).
+- Visual component styles attach strictly to `.hl-<component>` classes (for example `.hl-tabs`, `.hl-popover`, `.hl-switch`, `.hl-breadcrumb`, `.hl-tooltip`). Never couple visual styling to `[data-hl-<component>]` enhancer opt-in selectors or unscoped ARIA selectors like bare `[role='tooltip']`.
+- Structural behavior-only rules (hidden states, `:not([data-hl-ready])` no-JS baselines, and CSS anchor positioning) live in `hydrateless/behavior.css` for headless consumers.
+- Enhancer opt-in roots carry a `data-hl-<component>` attribute; the enhancer for that component is `enhance<Component>` and lives at `@hydrateless/enhancers/<component>`. Pure-CSS components (`switch`, `breadcrumb`) don't use a `data-hl-<component>` attribute.
+- State, theme, and variant attributes are always prefixed: `data-hl-theme` (`light`/`dark`), `data-hl-intent`, `data-hl-size`, `data-hl-variant` (visual style), `data-hl-side`, `data-hl-shape`, `data-hl-orientation`, `data-hl-ready` (set by an enhancer once JS owns behavior).
 - Stylesheet file names match the docs slugs (`segmented-control.css`, `radio-group.css`, `command-palette.css`).
 - Directional values are logical (`start`/`end`), never `left`/`right`, and CSS uses logical properties throughout.
-- Enhancer options follow one pattern: `defaultX` for initial state, `onXChange(value)` for notifications, and an imperative `x`/`setX` pair on the returned API. Cancelable actions emit `hl:select` or `hl:command`.
+- Enhancer options follow one pattern: `defaultX` for initial state, `onXChange(value)` for notifications, an imperative `x`/`setX(next, { silent? })` pair on the returned API, and in-place `update(options)` support via `ctx.onUpdate()`. Cancelable actions emit `hl:select` or `hl:command`.
 - Every non-function option is declared in the enhancer's `attributes` schema so markup can set it as `data-hl-<option-in-kebab-case>`. Don't read `root.getAttribute('data-hl-…')` by hand for options.
 - Enhancers read their items lazily and call `observe(root, …)` so items added after setup take part. Don't snapshot `querySelectorAll` results at setup time.
 

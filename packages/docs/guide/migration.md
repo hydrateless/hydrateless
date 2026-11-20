@@ -1,4 +1,112 @@
-# Migrating to 0.10
+# Migration Guide
+
+## Migrating to 0.11
+
+0.11 separates visual styling from enhancer behavior across every stylesheet,
+scopes global selectors so third-party markup stays untouched, adds a
+structural-only headless stylesheet, and hardens the enhancer and framework
+contracts for React Server Components, pre-hydration overlay triggers, in-place
+option updates, and silent controlled syncing.
+
+### Styling uses `.hl-*` classes; `data-hl-*` owns behavior
+
+Every component stylesheet now styles strictly on `.hl-*` classes instead of
+`[data-hl-*]` enhancer opt-in attributes. Add the matching class to any
+hand-written HTML that previously relied on `data-hl-*` alone for styling:
+
+| Component         | Old selector (0.10)                                                  | New styling class (0.11)                                                                         |
+| ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Accordion         | `[data-hl-accordion]`                                                | `.hl-accordion`                                                                                  |
+| Breadcrumb        | `[data-hl-breadcrumb]`                                               | `.hl-breadcrumb` (drop `data-hl-breadcrumb`; CSS-only)                                           |
+| Combobox          | `[data-hl-combobox]`                                                 | `.hl-combobox`                                                                                   |
+| Command palette   | `[data-hl-command]` and parts                                        | `.hl-command`, `.hl-command-input`, `.hl-command-list`, `.hl-command-group`, `.hl-command-empty` |
+| Disclosure        | `[data-hl-disclosure]`                                               | `.hl-disclosure`                                                                                 |
+| Drawer            | `dialog[data-hl-drawer]`                                             | `.hl-drawer`                                                                                     |
+| Dropdown          | `[data-hl-dropdown]`, `[data-hl-dropdown-menu]`                      | `.hl-dropdown`, `.hl-dropdown-menu`, `.hl-dropdown-separator`                                    |
+| Menu              | `[data-hl-menu]`                                                     | `.hl-menu`                                                                                       |
+| Modal             | `dialog[data-hl-modal]`                                              | `.hl-modal`                                                                                      |
+| Popover           | `[data-hl-popover]`                                                  | `.hl-popover`                                                                                    |
+| Slider group      | `[data-hl-slider]` wrapper layout                                    | `.hl-slider-group` (keep `data-hl-slider` when opting into the enhancer)                         |
+| Switch            | `[data-hl-switch]`                                                   | `.hl-switch` (drop `data-hl-switch`; CSS-only)                                                   |
+| Tabs              | `[data-hl-tabs]`                                                     | `.hl-tabs`                                                                                       |
+| Toast             | `[data-hl-toast-region]`, `[data-hl-toast]`, `[data-hl-toast-close]` | `.hl-toast-region`, `.hl-toast`, `.hl-toast-close`                                               |
+| Table of contents | `[data-hl-toc]`                                                      | `.hl-toc`                                                                                        |
+| Tooltip           | `[role='tooltip']`                                                   | `.hl-tooltip`                                                                                    |
+
+Framework components (`@hydrateless/react`, `@hydrateless/vue`, and
+`@hydrateless/svelte`) emit the new `.hl-*` classes automatically.
+
+```diff
+- <label data-hl-switch>
++ <label class="hl-switch">
+    <input type="checkbox" role="switch" /> Notifications
+  </label>
+
+- <div data-hl-tabs>
++ <div class="hl-tabs" data-hl-tabs>
+```
+
+Because visual rules no longer attach to `[data-hl-*]`:
+
+- Pure-CSS components (`.hl-popover`, `.hl-tooltip`, `.hl-accordion`, `.hl-tabs`
+  with radios) render styled and work with zero JavaScript when you omit
+  `data-hl-*`.
+- Headless users can omit `.hl-*` and keep `data-hl-*` to run enhancers without
+  Hydrateless visual chrome. Import `hydrateless/behavior.css` if you want
+  structural behavior rules (hidden states, `:not([data-hl-ready])` baselines,
+  and CSS anchor positioning) without visual styling.
+- Third-party `[role="tooltip"]` elements without `.hl-tooltip` are no longer
+  hidden or styled by `hydrateless.css`.
+
+### Theme override renamed to `data-hl-theme`
+
+The manual color-scheme override attribute is now `data-hl-theme` so it stays
+within the `data-hl-*` namespace and avoids colliding with other libraries or
+host apps:
+
+```diff
+- <html data-theme="dark">
++ <html data-hl-theme="dark">
+```
+
+```diff
+- document.documentElement.dataset.theme = 'dark';
++ document.documentElement.dataset.hlTheme = 'dark';
+```
+
+### Enhancers: in-place updates and silent syncing
+
+- `EnhancerHandle` and `EnhancerInstance` now expose `update(options?)` (and
+  `defineEnhancer`'s `setup` context exposes `onUpdate(listener)`), letting
+  option changes update a live enhancer in place without tearing down open
+  overlays or resetting state.
+- Every stateful `setValue` and `setOpen` method now accepts an optional
+  `{ silent?: boolean }` option (`SetOptions`) to update DOM state without
+  invoking `onValueChange`/`onOpenChange` or dispatching `hl:*` events.
+- `enhanceToast` attaches `.hl-toast` and `.hl-toast-close` only when the
+  region has `.hl-toast-region` (and adds `.hl-toast-region` when creating a
+  fallback region), keeping headless toast regions unstyled.
+
+### Framework bindings
+
+- **Overlay triggers:** `@hydrateless/react`, `@hydrateless/vue`, and
+  `@hydrateless/svelte` now export `ModalTrigger`, `DrawerTrigger`, and
+  `PopoverTrigger` for declarative, pre-hydration invokers (`command`/
+  `commandfor` and `popovertarget`).
+- **React Server Components split:** `@hydrateless/react` now splits static,
+  hook-free components into `@hydrateless/react/server` (no `'use client'`) and
+  interactive components into `@hydrateless/react/client` (`'use client'`),
+  re-exporting both from the root entry without forcing a client boundary on
+  static components.
+- **In-place `useEnhancer` updates:** Changing option dependencies in
+  `useEnhancer` now calls `handle.update()` instead of destroying and
+  re-creating the enhancer.
+- **Controlled sync and veto reconciliation:** Programmatic controlled prop
+  updates pass `{ silent: true }` so `onValueChange`/`onOpenChange` callbacks
+  aren't echoed back to the parent. If a controlled parent vetoes a user-driven
+  change, the DOM reconciles back to the controlled prop silently.
+
+## Migrating to 0.10
 
 0.10 makes every enhancer live (items added after enhancement take part) and
 declaratively configurable (every non-function option has a `data-hl-*`

@@ -1,21 +1,19 @@
 /**
- * Combobox: `<div data-hl-combobox>` wrapping an `<input>` and a
+ * Combobox: `<div class="hl-combobox">` wrapping an `<input>` and a
  * `<ul role="listbox">` of `<li role="option">`.
  *
  * No-JS baseline: the listbox is hidden until the root has focus within it,
- * so the options are at least reachable and readable. The enhancer marks the
- * root `data-hl-ready` and then owns visibility through `hidden`, filtering,
- * and `aria-activedescendant`.
- *   data-hl-combobox: root
- *   data-hl-ready:    set by the enhancer; the baseline rules stand down
+ * so the options are at least reachable and readable. Add `data-hl-combobox` to
+ * opt into the enhancer, which marks the root `data-hl-ready` and owns
+ * visibility through `hidden`, filtering, and `aria-activedescendant`.
  */
 @layer components {
-  [data-hl-combobox] {
+  .hl-combobox {
     position: relative;
     display: block;
   }
 
-  [data-hl-combobox] [role='listbox'] {
+  .hl-combobox [role='listbox'] {
     position: absolute;
     inset-block-start: calc(100% + var(--hl-space-1));
     inset-inline: 0;
@@ -31,18 +29,17 @@
     box-shadow: var(--hl-overlay-shadow);
   }
 
-  /* Modern engines pin the listbox to the input via the anchor-name the
-     enhancer sets, so it escapes overflow-clipping ancestors. */
+  /* Modern engines pin the listbox to the input so it escapes overflow-clipping ancestors. */
   @supports (anchor-name: --x) {
-    [data-hl-combobox] {
+    .hl-combobox {
       anchor-scope: --hl-combobox-input;
     }
 
-    [data-hl-combobox] > input {
+    .hl-combobox > input {
       anchor-name: --hl-combobox-input;
     }
 
-    [data-hl-combobox] [role='listbox'] {
+    .hl-combobox [role='listbox'] {
       position-anchor: --hl-combobox-input;
       position: fixed;
       inset: auto;
@@ -53,28 +50,28 @@
     }
   }
 
-  [data-hl-combobox] [role='listbox'][hidden] {
+  .hl-combobox [role='listbox'][hidden] {
     display: none;
   }
 
   /* No-JS baseline: reveal the list while the field has focus. */
-  [data-hl-combobox]:not([data-hl-ready]) [role='listbox'] {
+  .hl-combobox:not([data-hl-ready]) [role='listbox'] {
     display: none;
   }
 
-  [data-hl-combobox]:not([data-hl-ready]):focus-within [role='listbox'] {
+  .hl-combobox:not([data-hl-ready]):focus-within [role='listbox'] {
     display: block;
   }
 
   /* The input may be a plain `<input>` rather than `.hl-input`; make sure it
      still shows a focus ring. */
-  [data-hl-combobox] > input:focus-visible {
+  .hl-combobox > input:focus-visible {
     outline: none;
     border-color: var(--hl-ring);
     box-shadow: var(--hl-focus-shadow);
   }
 
-  [data-hl-combobox] [role='option'] {
+  .hl-combobox [role='option'] {
     display: flex;
     align-items: center;
     gap: var(--hl-space-2);
@@ -85,28 +82,28 @@
     cursor: pointer;
   }
 
-  [data-hl-combobox] [role='option']:hover,
-  [data-hl-combobox] [role='option'][aria-selected='true'] {
+  .hl-combobox [role='option']:hover,
+  .hl-combobox [role='option'][aria-selected='true'] {
     background: var(--hl-primary-subtle);
     color: var(--hl-primary-subtle-fg);
   }
 
-  [data-hl-combobox] [role='option'][hidden] {
+  .hl-combobox [role='option'][hidden] {
     display: none;
   }
 
-  [data-hl-combobox] [role='option'][aria-disabled='true'] {
+  .hl-combobox [role='option'][aria-disabled='true'] {
     opacity: var(--hl-disabled-opacity);
     pointer-events: none;
   }
 
   @media (forced-colors: active) {
-    [data-hl-combobox] [role='option'][aria-selected='true'] {
+    .hl-combobox [role='option'][aria-selected='true'] {
       background: Highlight;
       color: HighlightText;
     }
 
-    [data-hl-combobox] [role='option'][aria-disabled='true'] {
+    .hl-combobox [role='option'][aria-disabled='true'] {
       color: GrayText;
     }
   }

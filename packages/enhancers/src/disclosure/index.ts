@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { Events } from '../core/events.js';
 
 /** Options for {@link enhanceDisclosure}. */
@@ -14,7 +14,7 @@ export type DisclosureApi = {
   /** Whether the disclosure is currently open. */
   readonly open: boolean;
   /** Open or close the disclosure. */
-  setOpen: (open: boolean) => void;
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /**
@@ -46,7 +46,8 @@ export const enhanceDisclosure = defineEnhancer<EnhanceDisclosureOptions, Disclo
       get open() {
         return details.open;
       },
-      setOpen(next) {
+      setOpen(next, { silent = false } = {}) {
+        if (silent) last = next;
         details.open = next;
       },
     };

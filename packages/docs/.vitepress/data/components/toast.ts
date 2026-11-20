@@ -27,7 +27,7 @@ export const toast: ComponentDoc = {
         `<button class="hl-button" data-hl-toast-trigger="Saved successfully!" data-hl-toast-intent="success">Success</button>
 <button class="hl-button" data-hl-variant="outline" data-hl-toast-trigger="Heads up: quota at 90%." data-hl-toast-intent="warning" data-hl-toast-duration="8000">Warning</button>
 <button class="hl-button" data-hl-intent="danger" data-hl-variant="soft" data-hl-toast-trigger="Upload failed." data-hl-toast-intent="danger" data-hl-toast-duration="0">Danger (sticky)</button>
-<div data-hl-toast-region></div>`,
+<div class="hl-toast-region" data-hl-toast-region></div>`,
       code: {
         react: () =>
           `import { ToastRegion, useToast } from '@hydrateless/react';\n\nfunction SaveButton() {\n  const toast = useToast();\n  return (\n    <button onClick={() => toast.show('Saved!', { intent: 'success', duration: 4000 })}>\n      Save\n    </button>\n  );\n}\n\nexport function App() {\n  return (\n    <>\n      <SaveButton />\n      <ToastRegion />\n    </>\n  );\n}`,

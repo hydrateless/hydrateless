@@ -54,6 +54,8 @@
     'aria-describedby': tipId,
   };
 
+  let syncTick = $state(0);
+
   // Consumers that don't spread the snippet's trigger props still get linked
   // on the client: whatever they rendered first is the trigger.
   const tooltip = useEnhancer(
@@ -72,12 +74,16 @@
       onOpenChange: (next) => {
         open = next;
         onOpenChange?.(next);
+        syncTick += 1;
       },
     }),
   );
 
   $effect(() => {
-    if (open != null) tooltip.api?.setOpen(open);
+    void syncTick;
+    if (open != null && tooltip.api && tooltip.api.open !== open) {
+      tooltip.api.setOpen(open, { silent: true });
+    }
   });
 </script>
 
@@ -88,7 +94,7 @@
   {@attach tooltip.attach}
 >
   {@render children?.(triggerProps)}
-  <span id={tipId} role="tooltip" hidden
+  <span id={tipId} class="hl-tooltip" role="tooltip" hidden
     >{#if typeof content === 'function'}{@render content()}{:else}{content}{/if}</span
   >
 </span>

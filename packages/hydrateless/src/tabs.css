@@ -1,26 +1,25 @@
 /**
- * Tabs: `<div data-hl-tabs>`. Two markups are supported and styled together:
+ * Tabs: `<div class="hl-tabs">`. Two markups are supported and styled together:
  *
  *   - CSS-only baseline: `.hl-tablist` of `<label class="hl-tab">` wrapping a
  *     radio, then a `.hl-tabpanels` of `.hl-tabpanel`s. `:has(input:checked)`
  *     switches panels with no JavaScript (up to 8 tabs).
- *   - Enhanced: the enhancer adds `role="tab"`/`tabpanel`, roving focus, and
- *     `aria-selected`, toggles `[hidden]` on panels, and marks the root
- *     `data-hl-ready`, at which point the no-JS rules below stand down.
- *   data-hl-tabs:  root
- *   data-hl-ready: set by the enhancer
+ *   - Enhanced: add `data-hl-tabs` to opt into the enhancer, which adds
+ *     `role="tab"`/`tabpanel`, roving focus, and `aria-selected`, toggles
+ *     `[hidden]` on panels, and marks the root `data-hl-ready`, at which point
+ *     the no-JS rules below stand down.
  *   `aria-orientation="vertical"` on the tablist stacks the tabs at the
  *   inline start of the panels.
  */
 @layer components {
-  [data-hl-tabs] {
+  .hl-tabs {
     min-inline-size: 0;
     border: var(--hl-border-width) solid var(--hl-border);
     border-radius: var(--hl-radius-lg);
   }
 
   .hl-tablist,
-  [data-hl-tabs] [role='tablist'] {
+  .hl-tabs [role='tablist'] {
     display: flex;
     overflow-x: auto;
     gap: var(--hl-space-2);
@@ -28,18 +27,18 @@
     border-block-end: var(--hl-border-width) solid var(--hl-border);
   }
 
-  [data-hl-tabs]:has(> [role='tablist'][aria-orientation='vertical']) {
+  .hl-tabs:has(> [role='tablist'][aria-orientation='vertical']) {
     display: flex;
   }
 
-  [data-hl-tabs] [role='tablist'][aria-orientation='vertical'] {
+  .hl-tabs [role='tablist'][aria-orientation='vertical'] {
     flex-direction: column;
     border-block-end: 0;
     border-inline-end: var(--hl-border-width) solid var(--hl-border);
   }
 
   .hl-tab,
-  [data-hl-tabs] [role='tab'] {
+  .hl-tabs [role='tab'] {
     position: relative;
     appearance: none;
     display: inline-flex;
@@ -64,68 +63,68 @@
   }
 
   .hl-tab:has(input:checked),
-  [data-hl-tabs] [role='tab'][aria-selected='true'] {
+  .hl-tabs [role='tab'][aria-selected='true'] {
     background: var(--hl-surface-2);
   }
 
   .hl-tab:has(input:focus-visible),
-  [data-hl-tabs] [role='tab']:focus-visible {
+  .hl-tabs [role='tab']:focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: var(--hl-focus-offset);
   }
 
   .hl-tab:has(input:disabled),
-  [data-hl-tabs] [role='tab'][disabled],
-  [data-hl-tabs] [role='tab'][aria-disabled='true'] {
+  .hl-tabs [role='tab'][disabled],
+  .hl-tabs [role='tab'][aria-disabled='true'] {
     opacity: var(--hl-disabled-opacity);
     cursor: not-allowed;
   }
 
   .hl-tabpanel,
-  [data-hl-tabs] [role='tabpanel'] {
+  .hl-tabs [role='tabpanel'] {
     padding: var(--hl-space-4);
   }
 
   .hl-tabpanel[hidden],
-  [role='tabpanel'][hidden] {
+  .hl-tabs [role='tabpanel'][hidden] {
     display: none;
   }
 
   /* No-JS baseline: reveal the panel whose tab radio is checked, by position.
      These stand down once the enhancer sets data-hl-ready and owns [hidden]. */
-  [data-hl-tabs]:not([data-hl-ready]) .hl-tabpanels > .hl-tabpanel {
+  .hl-tabs:not([data-hl-ready]) .hl-tabpanels > .hl-tabpanel {
     display: none;
   }
 
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(1) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(1),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(2) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(2),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(3) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(3),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(4) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(4),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(5) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(5),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(6) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(6),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(7) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(7),
-  [data-hl-tabs]:not([data-hl-ready])
+  .hl-tabs:not([data-hl-ready])
     .hl-tablist:has(.hl-tab:nth-of-type(8) input:checked)
     ~ .hl-tabpanels
     > .hl-tabpanel:nth-of-type(8) {
@@ -133,7 +132,7 @@
   }
 
   /* Role-only markup (no radios) before JS: degrade to showing the first panel. */
-  [data-hl-tabs]:not([data-hl-ready]) [role='tabpanel'] ~ [role='tabpanel'] {
+  .hl-tabs:not([data-hl-ready]) [role='tabpanel'] ~ [role='tabpanel'] {
     display: none;
   }
 
@@ -141,12 +140,12 @@
      and give every tab an edge. */
   @media (forced-colors: active) {
     .hl-tab,
-    [data-hl-tabs] [role='tab'] {
+    .hl-tabs [role='tab'] {
       border: var(--hl-border-width) solid ButtonBorder;
     }
 
     .hl-tab:has(input:checked),
-    [data-hl-tabs] [role='tab'][aria-selected='true'] {
+    .hl-tabs [role='tab'][aria-selected='true'] {
       background: Highlight;
       color: HighlightText;
     }

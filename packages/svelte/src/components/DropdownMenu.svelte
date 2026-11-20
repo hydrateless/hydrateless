@@ -8,7 +8,7 @@
     children?: Snippet;
   }
 
-  let { id, children, ...rest }: Props = $props();
+  let { id, class: klass, children, ...rest }: Props = $props();
   const dropdown = getDropdownContext();
 </script>
 
@@ -17,6 +17,7 @@
 <ul
   {...rest}
   id={id ?? dropdown?.menuId}
+  class={['hl-dropdown-menu', klass]}
   data-hl-dropdown-menu
   popover="auto"
   role="menu"

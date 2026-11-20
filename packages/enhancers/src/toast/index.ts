@@ -94,7 +94,9 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
     const show = (message: string, toastOptions: ToastOptions = {}): HTMLElement => {
       const { duration = options.duration!, intent } = toastOptions;
 
+      const styled = region.classList.contains('hl-toast-region');
       const toast = doc.createElement('div');
+      if (styled) toast.className = 'hl-toast';
       toast.setAttribute('data-hl-toast', '');
       if (intent) toast.setAttribute('data-hl-intent', intent);
       // Errors interrupt (assertive); everything else waits its turn in the
@@ -108,6 +110,7 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
 
       const closeBtn = doc.createElement('button');
       closeBtn.type = 'button';
+      if (styled) closeBtn.className = 'hl-toast-close';
       closeBtn.setAttribute('data-hl-toast-close', '');
       closeBtn.setAttribute('aria-label', 'Dismiss');
       closeBtn.textContent = '\u00D7';
@@ -181,7 +184,7 @@ const base = defineEnhancer<EnhanceToastOptions, ToastApi>({
 function adoptOrCreate(
   containerArg?: Document | HTMLElement,
   options: EnhanceToastOptions = {},
-): EnhancerHandle<ToastApi> {
+): EnhancerHandle<ToastApi, EnhanceToastOptions> {
   const container = resolveContainer(containerArg);
   if (!container) return toHandle([]);
 
@@ -192,6 +195,7 @@ function adoptOrCreate(
   if (!exists) {
     const host = container instanceof Document ? container.body : container;
     const region = host.ownerDocument.createElement('div');
+    region.className = 'hl-toast-region';
     region.setAttribute('data-hl-toast-region', '');
     host.appendChild(region);
   }
@@ -206,7 +210,7 @@ function adoptOrCreate(
       ? container
       : container.querySelector<HTMLElement>(REGION);
   const existing = region ? apis.get(region) : undefined;
-  if (existing) return toHandle([{ root: region!, api: existing, destroy: noop }]);
+  if (existing) return toHandle([{ root: region!, api: existing, update: noop, destroy: noop }]);
   return handle;
 }
 

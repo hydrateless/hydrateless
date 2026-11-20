@@ -155,7 +155,13 @@ export const Toc = defineComponent({
     return () =>
       h(
         'nav',
-        { 'aria-label': 'Table of contents', ...attrs, 'data-hl-toc': '', ref: host },
+        {
+          'aria-label': 'Table of contents',
+          ...attrs,
+          class: cx('hl-toc', attrs.class as string),
+          'data-hl-toc': '',
+          ref: host,
+        },
         slots.default?.(),
       );
   },

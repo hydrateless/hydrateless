@@ -36,26 +36,32 @@ export type { MenuProps, MenuItemProps, MenuSubmenuProps } from './components/me
 
 export {
   Modal,
+  ModalTrigger,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Drawer,
+  DrawerTrigger,
   DrawerHeader,
   DrawerBody,
   DrawerFooter,
   Popover,
+  PopoverTrigger,
   Tooltip,
 } from './components/overlay.js';
 export type {
   ModalProps,
+  ModalTriggerProps,
   ModalHeaderProps,
   ModalBodyProps,
   ModalFooterProps,
   DrawerProps,
+  DrawerTriggerProps,
   DrawerHeaderProps,
   DrawerBodyProps,
   DrawerFooterProps,
   PopoverProps,
+  PopoverTriggerProps,
   TooltipProps,
 } from './components/overlay.js';
 

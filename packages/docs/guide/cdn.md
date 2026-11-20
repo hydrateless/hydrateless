@@ -61,10 +61,12 @@ The bundle passes no options, so configuration lives in the markup. Every
 non-function option has a `data-hl-*` attribute:
 
 ```html
-<div data-hl-accordion data-hl-allow-multiple>…</div>
-<div data-hl-tabs data-hl-activation="automatic">…</div>
-<nav data-hl-pagination data-hl-total="20" data-hl-default-value="3"><ul></ul></nav>
-<div data-hl-toast-region data-hl-duration="8000"></div>
+<div class="hl-accordion" data-hl-accordion data-hl-allow-multiple>…</div>
+<div class="hl-tabs" data-hl-tabs data-hl-activation="automatic">…</div>
+<nav class="hl-pagination" data-hl-pagination data-hl-total="20" data-hl-default-value="3">
+  <ul></ul>
+</nav>
+<div class="hl-toast-region" data-hl-toast-region data-hl-duration="8000"></div>
 ```
 
 See [Configuring with Data Attributes](/guide/data-attributes) for naming and
@@ -72,11 +74,12 @@ parsing rules.
 
 ## CSS options
 
-| File                                    | Use case                                             |
-| --------------------------------------- | ---------------------------------------------------- |
-| `hydrateless/dist/hydrateless.min.css`  | Minified, all components; recommended for production |
-| `hydrateless/dist/hydrateless.css`      | Unminified, all components                           |
-| `hydrateless/dist/tabs.css` (and so on) | Individual component styles                          |
+| File                                    | Use case                                                         |
+| --------------------------------------- | ---------------------------------------------------------------- |
+| `hydrateless/dist/hydrateless.min.css`  | Minified, all components; recommended for production             |
+| `hydrateless/dist/hydrateless.css`      | Unminified, all components                                       |
+| `hydrateless/dist/behavior.css`         | Structural behavior only (no visual chrome) for headless styling |
+| `hydrateless/dist/tabs.css` (and so on) | Individual component styles                                      |
 
 ```html
 <!-- Just the pieces you need -->

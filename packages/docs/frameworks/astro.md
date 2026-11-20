@@ -54,7 +54,7 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base>
-  <div data-hl-tabs>
+  <div class="hl-tabs" data-hl-tabs>
     <div role="tablist">
       <button role="tab" aria-selected="true" tabindex="0">Overview</button>
       <button role="tab" aria-selected="false" tabindex="-1">Install</button>
@@ -77,7 +77,7 @@ If you'd rather not ship the auto-initializer everywhere, import individual
 enhancers only on the pages that need them:
 
 ```astro
-<div data-hl-dropdown>…</div>
+<div class="hl-dropdown" data-hl-dropdown>…</div>
 
 <script>
   import { enhanceDropdown } from '@hydrateless/enhancers/dropdown';

@@ -25,7 +25,7 @@ export const menu: ComponentDoc = {
         "Arrow keys move between items; `Enter`, `Space`, or `Down` opens a submenu and `Esc` closes it. Each top-level trigger's `data-hl-value` is the value reported while its submenu is open.",
       layout: 'fill',
       render: () =>
-        `<ul data-hl-menu role="menubar" aria-label="Editor">
+        `<ul class="hl-menu" data-hl-menu role="menubar" aria-label="Editor">
   <li role="none">
     <button role="menuitem" data-hl-value="file">File</button>
     <ul role="menu" data-hl-submenu>

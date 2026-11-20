@@ -26,6 +26,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  ModalTrigger,
   Pagination,
   Tab,
   TabList,
@@ -60,7 +61,6 @@ function Toolbar() {
 }
 
 export function App() {
-  const [open, setOpen] = useState(false);
   const [page, setPage] = useState(3);
   const [fruit, setFruit] = useState('');
 
@@ -97,7 +97,9 @@ export function App() {
             </CardHeader>
             <CardBody>
               <p>Accessible primitives built on semantic HTML and modern CSS.</p>
-              <Button onClick={() => setOpen(true)}>Open modal</Button>
+              <ModalTrigger target="confirm-modal" className="hl-button">
+                Open modal
+              </ModalTrigger>
             </CardBody>
           </Card>
         </TabPanel>
@@ -125,7 +127,7 @@ export function App() {
 
       <Pagination page={page} count={10} onPageChange={setPage} />
 
-      <Modal open={open} onOpenChange={setOpen}>
+      <Modal id="confirm-modal">
         <ModalHeader>
           <h2>Confirm</h2>
         </ModalHeader>
@@ -133,10 +135,17 @@ export function App() {
           <p>Are you sure you want to continue?</p>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button intent="primary" onClick={() => setOpen(false)}>
+          <ModalTrigger target="confirm-modal" command="close" className="hl-button">
+            Cancel
+          </ModalTrigger>
+          <ModalTrigger
+            target="confirm-modal"
+            command="close"
+            className="hl-button"
+            data-hl-intent="primary"
+          >
             Confirm
-          </Button>
+          </ModalTrigger>
         </ModalFooter>
       </Modal>
 
