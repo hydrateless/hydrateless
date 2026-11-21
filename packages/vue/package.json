@@ -1,6 +1,6 @@
 {
   "name": "@hydrateless/vue",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Vue 3 bindings for Hydrateless: first-class components plus the useEnhancer, useField, and useToast composables.",
   "license": "MIT",
   "repository": {
@@ -28,7 +28,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hydrateless/enhancers": "^0.10.1"
+    "@hydrateless/enhancers": "^0.11.0"
   },
   "peerDependencies": {
     "vue": ">=3.5"

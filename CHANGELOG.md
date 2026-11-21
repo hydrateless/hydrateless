@@ -1,3 +1,13 @@
+## [0.11.0](https://github.com/hydrateless/hydrateless/compare/v0.10.1...v0.11.0) (2026-11-21)
+
+### ⚠ BREAKING CHANGES
+
+- separate styling from behavior, and harden contracts (#29)
+
+### Features
+
+- separate styling from behavior, and harden contracts ([#29](https://github.com/hydrateless/hydrateless/issues/29)) ([30e54a8](https://github.com/hydrateless/hydrateless/commit/30e54a8077917a978983b19ca723b830b2b10190))
+
 ## [0.10.1](https://github.com/hydrateless/hydrateless/compare/v0.10.0...v0.10.1) (2026-09-06)
 
 ### Bug Fixes
