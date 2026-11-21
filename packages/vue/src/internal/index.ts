@@ -44,6 +44,8 @@ export interface Controlled<T> {
   value: ComputedRef<T>;
   /** Record a change from the enhancer: update the internal mirror and emit. */
   set: (next: T) => void;
+  /** Increments on controlled enhancer updates so rejected changes reconcile back. */
+  tick: Ref<number>;
 }
 
 /**
@@ -59,15 +61,17 @@ export function useControlled<T, E extends string>(
 ): Controlled<T> {
   const controlled = () => props[prop] as T | undefined;
   const internal = shallowRef<T>(controlled() ?? fallback);
+  const tick = ref(0);
   const value = computed(() => {
     const outer = controlled();
     return outer === undefined ? internal.value : outer;
   });
   const set = (next: T) => {
-    internal.value = next;
+    if (controlled() !== undefined) tick.value += 1;
+    else internal.value = next;
     emit(event, next);
   };
-  return { value, set };
+  return { value, set, tick };
 }
 
 /** A live position in a parent's item list plus its disposer. */
@@ -165,13 +169,16 @@ function same(a: unknown, b: unknown): boolean {
 export function useApiSync<Api, T>(
   api: ShallowRef<Api | null>,
   source: ComputedRef<T>,
-  read: (api: Api) => unknown,
+  read: ((api: Api) => unknown) | null,
   write: (api: Api, value: Exclude<T, undefined>) => void,
+  tick?: Ref<number>,
 ): void {
-  watch(source, (value) => {
+  const sync = () => {
     const current = api.value;
-    if (current && value !== undefined && !same(read(current), value)) {
+    const value = source.value;
+    if (current && value !== undefined && (!read || !same(read(current), value))) {
       write(current, value as Exclude<T, undefined>);
     }
-  });
+  };
+  watch(tick ? [source, tick] : source, sync);
 }

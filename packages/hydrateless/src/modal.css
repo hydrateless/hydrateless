@@ -1,14 +1,14 @@
 /**
- * Modal: a native `<dialog class="hl-modal">` (or `<dialog data-hl-modal>`)
- * with optional `.hl-modal-header`, `.hl-modal-body`, and `.hl-modal-footer`.
+ * Modal: a native `<dialog class="hl-modal">` with optional `.hl-modal-header`,
+ * `.hl-modal-body`, and `.hl-modal-footer`.
  *
  * No-JS baseline: `<button command="show-modal" commandfor="id">` opens it and
- * `command="close"` closes it; Escape and the backdrop are native. The
- * enhancer only adds focus return, backdrop dismiss, and the open API, and
- * reads nothing beyond `data-hl-modal`.
+ * `command="close"` closes it; Escape and the backdrop are native. Add
+ * `data-hl-modal` to opt into the enhancer (scroll lock, labeling, backdrop
+ * dismiss fallback, and the open API).
  */
 @layer components {
-  :is(.hl-modal, dialog[data-hl-modal]) {
+  .hl-modal {
     inline-size: min(90vi, var(--hl-modal-inline-size));
     max-inline-size: none;
 
@@ -28,19 +28,19 @@
   }
 
   /* Closed state doubles as the exit target of the transition. */
-  :is(.hl-modal, dialog[data-hl-modal]):not([open]) {
+  .hl-modal:not([open]) {
     opacity: 0;
     translate: 0 var(--hl-space-2);
   }
 
   @starting-style {
-    :is(.hl-modal, dialog[data-hl-modal])[open] {
+    .hl-modal[open] {
       opacity: 0;
       translate: 0 var(--hl-space-2);
     }
   }
 
-  :is(.hl-modal, dialog[data-hl-modal])::backdrop {
+  .hl-modal::backdrop {
     background: var(--hl-scrim);
     opacity: 0;
     transition:
@@ -49,38 +49,37 @@
       overlay var(--hl-duration-base) allow-discrete;
   }
 
-  :is(.hl-modal, dialog[data-hl-modal])[open]::backdrop {
+  .hl-modal[open]::backdrop {
     opacity: 1;
   }
 
   @starting-style {
-    :is(.hl-modal, dialog[data-hl-modal])[open]::backdrop {
+    .hl-modal[open]::backdrop {
       opacity: 0;
     }
   }
 
-  :is(.hl-modal, dialog[data-hl-modal]) :is(.hl-modal-header, .hl-modal-body, .hl-modal-footer) {
+  .hl-modal :is(.hl-modal-header, .hl-modal-body, .hl-modal-footer) {
     padding: var(--hl-space-4);
   }
 
-  :is(.hl-modal, dialog[data-hl-modal]) .hl-modal-header {
+  .hl-modal .hl-modal-header {
     border-block-end: var(--hl-border-width) solid var(--hl-border);
   }
 
-  :is(.hl-modal, dialog[data-hl-modal]) .hl-modal-footer {
+  .hl-modal .hl-modal-footer {
     border-block-start: var(--hl-border-width) solid var(--hl-border);
   }
 
   /* Interactive children inside the dialog get the standard ring. */
-  :is(.hl-modal, dialog[data-hl-modal])
-    :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  .hl-modal :is(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: var(--hl-focus-ring);
     outline-offset: var(--hl-focus-offset);
   }
 
   /* The dialog loses its shadow in forced colors; a border keeps its edge. */
   @media (forced-colors: active) {
-    :is(.hl-modal, dialog[data-hl-modal]) {
+    .hl-modal {
       border: var(--hl-border-width) solid CanvasText;
     }
   }

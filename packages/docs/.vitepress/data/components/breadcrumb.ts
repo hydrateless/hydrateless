@@ -18,7 +18,7 @@ export const breadcrumb: ComponentDoc = {
       title: 'Breadcrumb',
       layout: 'fill',
       render: () =>
-        `<nav data-hl-breadcrumb aria-label="Breadcrumb">
+        `<nav class="hl-breadcrumb" aria-label="Breadcrumb">
   <ol>
     <li><a href="../">Home</a></li>
     <li><a href="../guide/getting-started">Docs</a></li>

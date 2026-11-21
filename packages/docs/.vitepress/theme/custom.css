@@ -214,9 +214,7 @@
   background: var(--vp-c-bg);
   color: var(--vp-c-text-2);
   cursor: pointer;
-  transition:
-    color 0.15s,
-    border-color 0.15s;
+  transition: border-color 0.15s;
   white-space: nowrap;
 }
 .hl-demo-btn:hover {
@@ -227,6 +225,9 @@
   color: #fff;
   background: var(--vp-c-warning-1, #d97706);
   border-color: transparent;
+}
+.dark .hl-demo-btn.off {
+  color: #1b1b1f;
 }
 .hl-demo-preview {
   background: var(--hl-bg);

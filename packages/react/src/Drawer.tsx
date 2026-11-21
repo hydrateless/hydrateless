@@ -6,6 +6,15 @@ import { useControlled } from './internal/useControlled.js';
 import { useSyncApi } from './internal/useSyncApi.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
 
+export {
+  DrawerTrigger,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
+  type DrawerTriggerProps,
+  type DrawerSectionProps,
+} from './OverlayParts.js';
+
 /** Props for {@link Drawer}. */
 export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'title'> {
   /** Controlled open state (pair with `onOpenChange`). */
@@ -24,9 +33,9 @@ export interface DrawerProps extends Omit<HTMLAttributes<HTMLDialogElement>, 'ti
  * Off-canvas panel built on the native `<dialog>` element and the drawer
  * enhancer (focus trap, scroll-lock, background `inert`). Mirrors
  * {@link Modal} but slides in from the chosen `side`. Compose with
- * `<DrawerHeader>`, `<DrawerBody>`, and `<DrawerFooter>`. Open state works
- * uncontrolled (`defaultOpen`, or an invoker button) or controlled (`open` +
- * `onOpenChange`).
+ * `<DrawerTrigger>`, `<DrawerHeader>`, `<DrawerBody>`, and `<DrawerFooter>`.
+ * Open state works uncontrolled (`defaultOpen`, or a `<DrawerTrigger>` invoker
+ * button) or controlled (`open` + `onOpenChange`).
  */
 export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer(
   {
@@ -42,14 +51,21 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const [open, setOpen, syncTick] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
   const api = useEnhancer<EnhanceDrawerOptions, DrawerApi>(
     ref,
     enhanceDrawer,
     { closeOnBackdrop, defaultOpen: open, onOpenChange: setOpen },
     [closeOnBackdrop],
   );
-  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
+  useSyncApi(
+    api,
+    openProp,
+    (api, open) => {
+      if (api.open !== open) api.setOpen(open, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
     <dialog
@@ -62,31 +78,4 @@ export const Drawer = forwardRef<HTMLDialogElement, DrawerProps>(function Drawer
       {children}
     </dialog>
   );
-});
-
-/** Props shared by the {@link Drawer} section components. */
-export type DrawerSectionProps = HTMLAttributes<HTMLDivElement>;
-
-/** Drawer heading region. */
-export const DrawerHeader = forwardRef<HTMLDivElement, DrawerSectionProps>(function DrawerHeader(
-  { className, ...rest },
-  ref,
-) {
-  return <div {...rest} ref={ref} className={cx('hl-drawer-header', className)} />;
-});
-
-/** Drawer main content region. */
-export const DrawerBody = forwardRef<HTMLDivElement, DrawerSectionProps>(function DrawerBody(
-  { className, ...rest },
-  ref,
-) {
-  return <div {...rest} ref={ref} className={cx('hl-drawer-body', className)} />;
-});
-
-/** Drawer actions region. */
-export const DrawerFooter = forwardRef<HTMLDivElement, DrawerSectionProps>(function DrawerFooter(
-  { className, ...rest },
-  ref,
-) {
-  return <div {...rest} ref={ref} className={cx('hl-drawer-footer', className)} />;
 });

@@ -31,14 +31,17 @@ export { default as MenuSubmenu } from './components/MenuSubmenu.svelte';
 
 // Overlays
 export { default as Modal } from './components/Modal.svelte';
+export { default as ModalTrigger } from './components/ModalTrigger.svelte';
 export { default as ModalHeader } from './components/ModalHeader.svelte';
 export { default as ModalBody } from './components/ModalBody.svelte';
 export { default as ModalFooter } from './components/ModalFooter.svelte';
 export { default as Drawer } from './components/Drawer.svelte';
+export { default as DrawerTrigger } from './components/DrawerTrigger.svelte';
 export { default as DrawerHeader } from './components/DrawerHeader.svelte';
 export { default as DrawerBody } from './components/DrawerBody.svelte';
 export { default as DrawerFooter } from './components/DrawerFooter.svelte';
 export { default as Popover } from './components/Popover.svelte';
+export { default as PopoverTrigger } from './components/PopoverTrigger.svelte';
 export { default as Tooltip } from './components/Tooltip.svelte';
 
 // Breadcrumb

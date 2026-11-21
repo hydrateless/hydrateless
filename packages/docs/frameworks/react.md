@@ -51,9 +51,11 @@ Every stateful component follows the native-input convention:
 - **Uncontrolled**: pass `defaultValue` (or `defaultOpen`, `defaultQuery`) and
   let the component own its state.
 - **Controlled**: pass `value` + `onValueChange` (or `open` + `onOpenChange`,
-  `query` + `onQueryChange`) and own the state yourself. The change callback
-  also fires for dismissals the user triggers (Escape, backdrop click, outside
-  click), so your state never drifts from the DOM.
+  `query` + `onQueryChange`) and own the state yourself. Programmatic prop
+  updates sync into the enhancer silently without echoing your callback, while
+  user-driven interactions (clicks, keyboard selection, Escape, backdrop click,
+  outside click) always notify you. If your parent ignores or vetoes a change,
+  the DOM reconciles back to your controlled prop.
 
 ```tsx
 import { useState } from 'react';
@@ -155,18 +157,63 @@ import {
 </Dropdown>;
 ```
 
+### Pre-hydration overlay triggers
+
+`ModalTrigger`, `DrawerTrigger`, and `PopoverTrigger` render native HTML
+invoker buttons (`command` + `commandfor`, or `popovertarget` +
+`popovertargetaction`), so modals, drawers, and popovers open and close before
+React hydrates and without extra client state:
+
+```tsx
+import { Modal, ModalTrigger, ModalHeader, ModalBody, ModalFooter } from '@hydrateless/react';
+
+export function Confirm() {
+  return (
+    <>
+      <ModalTrigger target="delete-modal" className="hl-button">
+        Delete
+      </ModalTrigger>
+      <Modal id="delete-modal">
+        <ModalHeader>
+          <h2>Delete project?</h2>
+        </ModalHeader>
+        <ModalBody>This can't be undone.</ModalBody>
+        <ModalFooter>
+          <ModalTrigger
+            target="delete-modal"
+            command="close"
+            className="hl-button"
+            data-hl-variant="ghost"
+          >
+            Cancel
+          </ModalTrigger>
+          <ModalTrigger
+            target="delete-modal"
+            command="close"
+            className="hl-button"
+            data-hl-intent="danger"
+          >
+            Delete
+          </ModalTrigger>
+        </ModalFooter>
+      </Modal>
+    </>
+  );
+}
+```
+
 ### Available components
 
-| Group        | Components                                                                                                                                                                                                      |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                                                |
-| Overlays     | `Dropdown` (+ `DropdownTrigger`, `DropdownMenu`, `DropdownGroup`, `DropdownItem`, `DropdownSeparator`), `Menu`, `MenuItem`, `MenuSubmenu`, `Modal`, `Drawer` (+ `Header`/`Body`/`Footer`), `Popover`, `Tooltip` |
-| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button`                                |
-| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                                                   |
-| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                                                         |
-| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                                                              |
-| Data display | `Card` (+ `CardHeader`, `CardBody`, `CardFooter`, `CardTitle`, `CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`, `Table`                                                                         |
-| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                                                 |
+| Group        | Components                                                                                                                                                                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                                                                                                   |
+| Overlays     | `Dropdown` (+ `DropdownTrigger`, `DropdownMenu`, `DropdownGroup`, `DropdownItem`, `DropdownSeparator`), `Menu`, `MenuItem`, `MenuSubmenu`, `Modal`, `ModalTrigger`, `Drawer`, `DrawerTrigger` (+ `Header`/`Body`/`Footer`), `Popover`, `PopoverTrigger`, `Tooltip` |
+| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button`                                                                                   |
+| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                                                                                                      |
+| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                                                                                                            |
+| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                                                                                                                 |
+| Data display | `Card` (+ `CardHeader`, `CardBody`, `CardFooter`, `CardTitle`, `CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`, `Table`                                                                                                                            |
+| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                                                                                                    |
 
 Every component forwards `className`, `id`, `ref`, and rest props to its root
 element.
@@ -255,7 +302,7 @@ export function MyTabs() {
   });
   // api.current?.setValue('install')
   return (
-    <div ref={ref} data-hl-tabs>
+    <div ref={ref} className="hl-tabs" data-hl-tabs>
       {/* your own tablist and tabpanel markup */}
     </div>
   );
@@ -264,12 +311,12 @@ export function MyTabs() {
 
 Signature: `useEnhancer(ref, enhancer, options?, deps?)`.
 
-- The instance is destroyed on unmount, and destroyed and re-created when
-  `deps` change.
+- The instance attaches once on mount and is destroyed on unmount. When `deps`
+  change, options are updated in place via `handle.update()` so open overlays
+  and active state are preserved instead of torn down.
 - Function-valued options (`onValueChange`, `onOpenChange`, and so on) always
   call the handler from the latest render, so they never need to be in `deps`.
-- Other options are read once; list the ones that should trigger
-  re-enhancement in `deps`.
+- List non-function options that should update the enhancer in `deps`.
 
 All shipped components are built on this hook, so custom wrappers behave
 exactly like the built-in ones. See [Composing](/guide/composing#writing-your-own-enhancer)
@@ -277,10 +324,24 @@ for writing an enhancer to attach.
 
 ## Server components
 
-Every module in `@hydrateless/react` carries a `'use client'` directive, so you
-can import components directly into React Server Components (Next.js App
-Router, for example) without writing wrapper files. The components render
-their full markup on the server; only the enhancer waits for the client.
+`@hydrateless/react` splits static, hook-free primitives from client-enhanced
+components so React Server Components (such as Next.js App Router) never pay
+for a client boundary on static markup:
+
+- `@hydrateless/react/server` exports pure server-safe components with no
+  `'use client'` directive and zero React hooks (`Alert`, `Avatar`,
+  `AvatarGroup`, `Badge`, `Breadcrumb`, `BreadcrumbItem`, `Button`, `Card` and
+  its parts, `Fieldset`, `Kbd`, `ModalTrigger`, `DrawerTrigger`,
+  `PopoverTrigger`, `ModalHeader`/`Body`/`Footer`, `DrawerHeader`/`Body`/
+  `Footer`, `Pagination`, `Progress`, `Separator`, `Skeleton`, `SkipLink`,
+  `Spinner`, and `Table`).
+- `@hydrateless/react/client` carries `'use client'` at the top of the bundle
+  and exports stateful, hook-driven, and enhancer-backed components (`Tabs`,
+  `Modal`, `Drawer`, `Popover`, `Dropdown`, `Menu`, `Tooltip`, `Combobox`,
+  `Command`, `Field`, form inputs, `useEnhancer`, `useField`, `useToast`).
+- The root entry `@hydrateless/react` re-exports both without `'use client'` on
+  the barrel, so bundlers preserve server-only imports for static components
+  while marking interactive ones as client modules automatically.
 
 ## TypeScript
 

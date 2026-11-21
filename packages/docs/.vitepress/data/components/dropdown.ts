@@ -26,9 +26,9 @@ export const dropdown: ComponentDoc = {
         'Open with a click or `Down`, then navigate with the arrow keys and typeahead. `Esc` closes and returns focus to the trigger; clicking outside closes without moving focus.',
       layout: 'center',
       render: () =>
-        `<div data-hl-dropdown>
+        `<div class="hl-dropdown" data-hl-dropdown>
   <button class="hl-button" data-hl-variant="outline" data-hl-dropdown-trigger popovertarget="demo-dropdown-menu">Actions</button>
-  <ul id="demo-dropdown-menu" data-hl-dropdown-menu popover>
+  <ul id="demo-dropdown-menu" class="hl-dropdown-menu" data-hl-dropdown-menu popover>
     <li role="none"><button role="menuitem" data-hl-value="edit">Edit</button></li>
     <li role="none"><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
     <li role="none"><button role="menuitem" data-hl-value="archive" disabled>Archive</button></li>
@@ -52,9 +52,9 @@ export const dropdown: ComponentDoc = {
         '`role="menuitemcheckbox"` toggles `aria-checked`; `role="menuitemradio"` checks itself and unchecks its siblings in the same `role="group"`. `hl:select` and `onSelect` report the new `checked` state. Pass `closeOnSelect: false` to keep the menu open while several boxes are toggled.',
       layout: 'center',
       render: () =>
-        `<div data-hl-dropdown data-hl-close-on-select="false">
+        `<div class="hl-dropdown" data-hl-dropdown data-hl-close-on-select="false">
   <button class="hl-button" data-hl-variant="outline" data-hl-dropdown-trigger popovertarget="demo-dropdown-view">View</button>
-  <ul id="demo-dropdown-view" data-hl-dropdown-menu popover>
+  <ul id="demo-dropdown-view" class="hl-dropdown-menu" data-hl-dropdown-menu popover>
     <li role="none">
       <ul role="group" aria-label="Layout">
         <li role="none"><button role="menuitemradio" aria-checked="true" data-hl-value="list">List</button></li>

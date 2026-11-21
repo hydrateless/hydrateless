@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs } from '../core/dom.js';
 import { isDisabledItem, nextEnabledIndex } from '../core/menu-items.js';
 import { keepPositioned } from '../core/platform.js';
@@ -28,12 +28,12 @@ export type EnhanceComboboxOptions = {
 export type ComboboxApi = {
   /** The input's current text. */
   readonly value: string;
-  /** Commit a value: updates the input and notifies listeners. */
-  setValue: (value: string) => void;
+  /** Commit a value: updates the input and notifies listeners unless `silent` is true. */
+  setValue: (value: string, options?: SetOptions) => void;
   /** Whether the listbox is currently expanded. */
   readonly open: boolean;
-  /** Expand or collapse the listbox. */
-  setOpen: (open: boolean) => void;
+  /** Expand or collapse the listbox. Pass `silent: true` to skip notifications. */
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /** Number of options PageUp/PageDown jumps over. */
@@ -65,7 +65,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     defaultValue: 'string',
     defaultOpen: 'boolean',
   },
-  setup({ root, options, on, observe, add, emit }) {
+  setup({ root, options, on, observe, add, onUpdate, emit }) {
     const input = root.querySelector<HTMLInputElement>('input, [role="combobox"]');
     const listbox = root.querySelector<HTMLElement>('[role="listbox"], [data-hl-combobox-list]');
     if (!input || !listbox) return;
@@ -125,24 +125,37 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       options.onOpenChange?.(open);
       emit(Events.openChange, { open });
     };
-    const open = () => {
+    const position = () => {
+      stopPositioning();
+      stopPositioning =
+        isOpen() && options.position
+          ? keepPositioned(input, listbox, { placement: 'bottom-start' })
+          : noop;
+    };
+    const open = (silent = false) => {
       if (isOpen()) return;
       listbox.hidden = false;
       setAttrs(input, { 'aria-expanded': 'true' });
-      if (options.position) {
-        stopPositioning = keepPositioned(input, listbox, { placement: 'bottom-start' });
-      }
-      notifyOpen(true);
+      position();
+      if (!silent) notifyOpen(true);
     };
-    const close = () => {
+    const close = (silent = false) => {
       if (!isOpen()) return;
       stopPositioning();
       stopPositioning = noop;
       listbox.hidden = true;
       active = -1;
       setAttrs(input, { 'aria-expanded': 'false', 'aria-activedescendant': null });
-      notifyOpen(false);
+      if (!silent) notifyOpen(false);
     };
+
+    onUpdate(() => {
+      position();
+      // Turning filtering off must not leave options hidden by an earlier query.
+      if (!options.filter) {
+        for (const option of allOptions()) option.hidden = false;
+      }
+    });
 
     const filter = (query: string) => {
       if (!options.filter) return;
@@ -153,10 +166,12 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       }
     };
 
-    const commit = (value: string) => {
+    const commit = (value: string, silent = false) => {
       input.value = value;
-      options.onValueChange?.(value);
-      emit(Events.change, { value });
+      if (!silent) {
+        options.onValueChange?.(value);
+        emit(Events.change, { value });
+      }
     };
 
     const select = (option: HTMLElement) => {
@@ -265,15 +280,15 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       get value() {
         return input.value;
       },
-      setValue(value) {
-        if (input.value !== value) commit(value);
+      setValue(value, { silent = false } = {}) {
+        if (input.value !== value) commit(value, silent);
       },
       get open() {
         return isOpen();
       },
-      setOpen(next) {
-        if (next) open();
-        else close();
+      setOpen(next, { silent = false } = {}) {
+        if (next) open(silent);
+        else close(silent);
       },
     };
   },

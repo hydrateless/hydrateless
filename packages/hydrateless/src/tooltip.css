@@ -1,21 +1,21 @@
 /**
- * Tooltip: a `[role="tooltip"]` element described by a `[data-hl-tooltip]`
- * trigger.
+ * Tooltip: `<span class="hl-tooltip" role="tooltip">` paired with a preceding
+ * trigger element (linked with `aria-describedby`).
  *
  * No-JS baseline: the tip (the trigger's next sibling, carrying `hidden`)
- * shows on the trigger's `:hover`/`:focus-visible`. When the enhancer runs it
- * marks the trigger `data-hl-tooltip-managed`, promotes the tip to a
- * `popover="manual"` in the top layer where available (otherwise toggles
- * `hidden`), and drives visibility through `data-hl-tooltip-open` with show
- * and hide delays, a grace period, and Escape to dismiss.
- *   data-hl-tooltip:         the trigger
+ * shows on the trigger's `:hover`/`:focus-visible` with no `data-hl-*`
+ * attribute required. Add `data-hl-tooltip` on the trigger to opt into the
+ * enhancer, which marks the trigger `data-hl-tooltip-managed`, promotes the
+ * tip to a `popover="manual"` in the top layer where available (otherwise
+ * toggles `hidden`), and drives visibility through `data-hl-tooltip-open` with
+ * show/hide delays, a grace period, and Escape to dismiss.
  *   data-hl-placement:       top (default) | bottom | start | end, on the trigger
  *   data-hl-side:            the resolved side, set on the tip by the enhancer
  *   data-hl-tooltip-managed: set on the trigger by the enhancer
  *   data-hl-tooltip-open:    set on the tip while shown
  */
 @layer components {
-  [role='tooltip'] {
+  .hl-tooltip {
     /* Closed baseline tips must not intercept input or remain exposed to AT. */
     display: none;
 
@@ -41,41 +41,40 @@
       overlay var(--hl-duration-fast) allow-discrete;
   }
 
-  [role='tooltip'][hidden] {
+  .hl-tooltip[hidden] {
     display: none;
   }
 
   /* Shown states: the enhanced popover, the enhanced `hidden` fallback, and
      the no-JS hover/focus baseline (suppressed once the trigger is managed). */
-  [role='tooltip']:is(:popover-open, [data-hl-tooltip-open]),
-  [data-hl-tooltip]:not([data-hl-tooltip-managed]):is(:hover, :focus-visible) + [role='tooltip'] {
+  .hl-tooltip:is(:popover-open, [data-hl-tooltip-open]),
+  :has(+ .hl-tooltip):not([data-hl-tooltip-managed]):is(:hover, :focus-visible) + .hl-tooltip {
     display: block;
     opacity: 1;
     translate: 0 0;
   }
 
   @starting-style {
-    [role='tooltip']:is(:popover-open, [data-hl-tooltip-open]),
-    [data-hl-tooltip]:not([data-hl-tooltip-managed]):is(:hover, :focus-visible) + [role='tooltip'] {
+    .hl-tooltip:is(:popover-open, [data-hl-tooltip-open]),
+    :has(+ .hl-tooltip):not([data-hl-tooltip-managed]):is(:hover, :focus-visible) + .hl-tooltip {
       opacity: 0;
       translate: 0 0.25rem;
     }
   }
 
-  /* Modern placement: pin to the requested side of the trigger via the
-     anchor-name the enhancer sets, flipping when there's no room. The side
-     comes from `data-hl-side` on the tip (enhanced) or `data-hl-placement` on
-     the preceding trigger (no-JS baseline). */
+  /* Modern placement: pin to the requested side of the trigger, flipping when
+     there's no room. Works both for CSS-only pairs and after the enhancer
+     assigns an explicit anchor-name. */
   @supports (anchor-name: --x) {
-    :has(> [data-hl-tooltip]) {
+    :has(> .hl-tooltip) {
       anchor-scope: --hl-tooltip-trigger;
     }
 
-    [data-hl-tooltip] {
+    :has(+ .hl-tooltip) {
       anchor-name: --hl-tooltip-trigger;
     }
 
-    [role='tooltip'] {
+    .hl-tooltip {
       position-anchor: --hl-tooltip-trigger;
       position: fixed;
       inset: auto;
@@ -84,34 +83,33 @@
       margin-block: var(--hl-space-1);
     }
 
-    [role='tooltip'][data-hl-side='bottom'],
-    [data-hl-tooltip][data-hl-placement^='bottom'] + [role='tooltip'] {
+    .hl-tooltip[data-hl-side='bottom'],
+    :has(+ .hl-tooltip)[data-hl-placement^='bottom'] + .hl-tooltip {
       position-area: block-end;
     }
 
-    [role='tooltip']:is([data-hl-side='start'], [data-hl-side='end']),
-    [data-hl-tooltip]:is([data-hl-placement^='start'], [data-hl-placement^='end'])
-      + [role='tooltip'] {
+    .hl-tooltip:is([data-hl-side='start'], [data-hl-side='end']),
+    :has(+ .hl-tooltip):is([data-hl-placement^='start'], [data-hl-placement^='end']) + .hl-tooltip {
       position-try-fallbacks: flip-inline;
       margin-block: 0;
       margin-inline: var(--hl-space-1);
       translate: 0 0;
     }
 
-    [role='tooltip'][data-hl-side='start'],
-    [data-hl-tooltip][data-hl-placement^='start'] + [role='tooltip'] {
+    .hl-tooltip[data-hl-side='start'],
+    :has(+ .hl-tooltip)[data-hl-placement^='start'] + .hl-tooltip {
       position-area: inline-start;
     }
 
-    [role='tooltip'][data-hl-side='end'],
-    [data-hl-tooltip][data-hl-placement^='end'] + [role='tooltip'] {
+    .hl-tooltip[data-hl-side='end'],
+    :has(+ .hl-tooltip)[data-hl-placement^='end'] + .hl-tooltip {
       position-area: inline-end;
     }
   }
 
   /* Inverted colors flatten away; keep a visible edge on the system canvas. */
   @media (forced-colors: active) {
-    [role='tooltip'] {
+    .hl-tooltip {
       border: var(--hl-border-width) solid CanvasText;
     }
   }

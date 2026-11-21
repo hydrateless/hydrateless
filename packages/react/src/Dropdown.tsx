@@ -67,6 +67,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropd
     defaultOpen,
     onOpenChange,
     onSelect,
+    className,
     children,
     ...rest
   },
@@ -74,20 +75,25 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(function Dropd
 ) {
   const ref = useForwardedRef(forwardedRef);
   const menuId = useHlId('dropdown-menu');
-  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const [open, setOpen, syncTick] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
   const api = useEnhancer<EnhanceDropdownOptions, DropdownApi>(
     ref,
     enhanceDropdown,
     { placement, closeOnSelect, defaultOpen: open, onOpenChange: setOpen, onSelect },
     [placement, closeOnSelect],
   );
-  // Only move focus into the menu when this call actually opens it; the echo
-  // of the enhancer's own `onOpenChange` must not yank focus back to item one.
-  useSyncApi(api, openProp, (api, open) => api.setOpen(open, { focus: !api.open }));
+  useSyncApi(
+    api,
+    openProp,
+    (api, open) => {
+      if (api.open !== open) api.setOpen(open, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
     <DropdownContext.Provider value={menuId}>
-      <div {...rest} ref={ref} data-hl-dropdown>
+      <div {...rest} ref={ref} className={cx('hl-dropdown', className)} data-hl-dropdown>
         {children}
       </div>
     </DropdownContext.Provider>
@@ -124,12 +130,19 @@ export type DropdownMenuProps = HTMLAttributes<HTMLUListElement>;
 
 /** The menu surface (a native `popover`); holds items, groups, and separators. */
 export const DropdownMenu = forwardRef<HTMLUListElement, DropdownMenuProps>(function DropdownMenu(
-  { id, children, ...rest },
+  { id, className, children, ...rest },
   ref,
 ) {
   const menuId = useContext(DropdownContext);
   return (
-    <ul {...rest} ref={ref} id={id ?? menuId} popover="auto" data-hl-dropdown-menu>
+    <ul
+      {...rest}
+      ref={ref}
+      id={id ?? menuId}
+      className={cx('hl-dropdown-menu', className)}
+      popover="auto"
+      data-hl-dropdown-menu
+    >
       {children}
     </ul>
   );

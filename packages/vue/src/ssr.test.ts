@@ -3,6 +3,7 @@ import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { Tabs, TabList, Tab, TabPanel } from './components/tabs.js';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from './components/dropdown.js';
+import { ModalTrigger, DrawerTrigger, PopoverTrigger } from './components/overlay.js';
 import { Field, FieldHelp, FieldLabel, Input } from './components/forms.js';
 
 const render = (vnode: ReturnType<typeof h>) =>
@@ -33,7 +34,22 @@ describe('server rendering', () => {
     );
     const id = html.match(/popovertarget="([^"]+)"/)?.[1];
     expect(id).toBeTruthy();
-    expect(html).toContain(`id="${id}" popover="auto" role="menu"`);
+    expect(html).toContain(`id="${id}"`);
+    expect(html).toContain('class="hl-dropdown-menu"');
+    expect(html).toContain('popover="auto" role="menu"');
+  });
+
+  it('Overlay triggers render native commandfor and popovertarget attributes', async () => {
+    const html = await render(
+      h('div', [
+        h(ModalTrigger, { target: 'confirm' }, () => 'Open'),
+        h(DrawerTrigger, { target: 'nav', command: 'close' }, () => 'Close'),
+        h(PopoverTrigger, { target: 'info', action: 'show' }, () => 'Info'),
+      ]),
+    );
+    expect(html).toContain('command="show-modal" commandfor="confirm"');
+    expect(html).toContain('command="close" commandfor="nav"');
+    expect(html).toContain('popovertarget="info" popovertargetaction="show"');
   });
 
   it('Field wires controls to parts rendered later in the slot', async () => {

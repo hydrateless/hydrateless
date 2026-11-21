@@ -18,8 +18,9 @@ import { Menu, MenuItem, MenuSubmenu } from './Menu.js';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb.js';
 import { Combobox, ComboboxInput, ComboboxList, ComboboxOption } from './Combobox.js';
 import { Command, CommandInput, CommandList, CommandItem, CommandEmpty } from './Command.js';
-import { Modal, ModalHeader, ModalBody } from './Modal.js';
-import { Drawer } from './Drawer.js';
+import { Modal, ModalTrigger, ModalHeader, ModalBody } from './Modal.js';
+import { Drawer, DrawerTrigger } from './Drawer.js';
+import { Popover, PopoverTrigger } from './Popover.js';
 import { Switch } from './Switch.js';
 import { Tooltip } from './Tooltip.js';
 import { ToastRegion, useToast } from './Toast.js';
@@ -172,7 +173,9 @@ describe('Dropdown', () => {
     );
     expect(html).toContain('popovertarget="hl-dropdown-menu-');
     const [, id] = html.match(/popovertarget="([^"]+)"/)!;
-    expect(html).toContain(`id="${id}" popover="auto"`);
+    expect(html).toContain(`id="${id}"`);
+    expect(html).toContain('class="hl-dropdown-menu"');
+    expect(html).toContain('popover="auto"');
   });
 
   it('opens on trigger click and wires menuitems', () => {
@@ -597,6 +600,32 @@ describe('useEnhancer', () => {
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledWith('1');
   });
+
+  it('attaches once a late-rendered element appears and a dep changes', () => {
+    let api: { readonly value: string } | null = null;
+    function Late({ ready }: { ready: boolean }) {
+      const ref = useRef<HTMLDivElement>(null);
+      const handle = useEnhancer(ref, enhanceTabs, {}, [ready]);
+      api = handle.current;
+      if (!ready) return null;
+      return (
+        <div data-hl-tabs ref={ref}>
+          <div role="tablist">
+            <button role="tab">A</button>
+            <button role="tab">B</button>
+          </div>
+          <div role="tabpanel">a</div>
+          <div role="tabpanel">b</div>
+        </div>
+      );
+    }
+    const { rerender } = render(<Late ready={false} />);
+    rerender(<Late ready />);
+    // Re-render once more so the component reads the ref the effect filled.
+    rerender(<Late ready />);
+    expect(api).not.toBeNull();
+    expect(screen.getByText('A').getAttribute('aria-selected')).toBe('true');
+  });
 });
 
 describe('misc', () => {
@@ -706,5 +735,71 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('data-hl-orientation')).toBe('horizontal');
     expect(group.getAttribute('aria-orientation')).toBe('horizontal');
     expect((screen.getByLabelText('B') as HTMLInputElement).checked).toBe(true);
+  });
+});
+
+describe('Controlled sync & in-place updates', () => {
+  it('does not echo onValueChange when a controlled Tabs value updates programmatically', () => {
+    const onValueChange = vi.fn();
+    const { rerender } = render(twoTabs({ value: 'one', onValueChange }));
+    rerender(twoTabs({ value: 'two', onValueChange }));
+
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('reconciles the DOM back when a controlled parent rejects a tab change', () => {
+    const onValueChange = vi.fn();
+    render(twoTabs({ value: 'one', onValueChange }));
+    const tabs = screen.getAllByRole('tab');
+
+    fireEvent.click(tabs[1]);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenCalledWith('two');
+    // Parent kept value="one", so the DOM snaps back without echoing.
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('false');
+    expect(screen.getByText('First').hasAttribute('hidden')).toBe(false);
+    expect(screen.getByText('Second').hasAttribute('hidden')).toBe(true);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates enhancer options in place without resetting state', () => {
+    const { rerender } = render(twoTabs({ orientation: 'horizontal' }));
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[1]);
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+
+    rerender(twoTabs({ orientation: 'vertical' }));
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical');
+    // Selection survived the option update.
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+  });
+});
+
+describe('Overlay triggers', () => {
+  it('renders native invoker attributes for ModalTrigger, DrawerTrigger, and PopoverTrigger on SSR', () => {
+    const html = renderToStaticMarkup(
+      <>
+        <ModalTrigger target="confirm">Open modal</ModalTrigger>
+        <Modal id="confirm">
+          <ModalHeader>Title</ModalHeader>
+          <ModalBody>Body</ModalBody>
+        </Modal>
+        <DrawerTrigger target="nav" command="close">
+          Close nav
+        </DrawerTrigger>
+        <Drawer id="nav" />
+        <PopoverTrigger target="info" action="show">
+          Show info
+        </PopoverTrigger>
+        <Popover id="info">Details</Popover>
+      </>,
+    );
+    expect(html).toContain('command="show-modal" commandfor="confirm"');
+    expect(html).toContain('command="close" commandfor="nav"');
+    expect(html).toContain('popovertarget="info" popovertargetaction="show"');
+    expect(html).toContain('class="hl-popover"');
   });
 });

@@ -30,11 +30,13 @@
     placement,
     hover = false,
     id,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (open === undefined) open = defaultOpen;
+  let syncTick = $state(0);
   // An id is required so invokers can target the popover before hydration.
   const generatedId = $props.id();
   const popoverId = $derived(id ?? `hl-popover-${generatedId}`);
@@ -46,14 +48,26 @@
     onOpenChange: (next) => {
       open = next;
       onOpenChange?.(next);
+      syncTick += 1;
     },
   }));
 
   $effect(() => {
-    if (open != null) popover.api?.setOpen(open);
+    void syncTick;
+    if (open != null && popover.api && popover.api.open !== open) {
+      popover.api.setOpen(open, { silent: true });
+    }
   });
 </script>
 
-<div {...rest} id={popoverId} data-hl-popover popover="auto" role="dialog" {@attach popover.attach}>
+<div
+  {...rest}
+  id={popoverId}
+  class={['hl-popover', klass]}
+  data-hl-popover
+  popover="auto"
+  role="dialog"
+  {@attach popover.attach}
+>
   {@render children?.()}
 </div>

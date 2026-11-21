@@ -7,7 +7,7 @@ export const toc: ComponentDoc = {
   importName: 'Toc',
   summary: 'Auto-generated navigation built from page headings.',
   description:
-    "Auto-generated navigation built from the headings on the page, with optional scroll-spy highlighting of the current section. Add an empty `<nav data-hl-toc>` and the enhancer fills it in and keeps it current: headings added, removed, or renamed later rebuild the list automatically, and the heading in view is the component's value.",
+    'Auto-generated navigation built from the headings on the page, with optional scroll-spy highlighting of the current section. Add an empty `<nav class="hl-toc" data-hl-toc>` and the enhancer fills it in and keeps it current: headings added, removed, or renamed later rebuild the list automatically, and the heading in view is the component\'s value.',
   status: 'stable',
   cssOnly: false,
   native: '<nav>',
@@ -27,7 +27,7 @@ export const toc: ComponentDoc = {
       layout: 'fill',
       render: () =>
         `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:1rem;width:100%;align-items:start">
-  <nav data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="On this page"></nav>
+  <nav class="hl-toc" data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="On this page"></nav>
   <article id="toc-demo-content">
     <h2>Introduction</h2>
     <p style="margin:0 0 .75rem">A short overview of the project.</p>

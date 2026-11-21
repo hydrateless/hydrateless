@@ -1,0 +1,213 @@
+/**
+ * Structural-only CSS for headless use (`@import 'hydrateless/behavior.css'`).
+ *
+ * Supplies only the functional rules that no-JS baselines and top-layer anchor
+ * positioning rely on (hidden states, `:not([data-hl-ready])` baselines, and
+ * CSS anchor placement), with zero visual chrome (no colors, borders, radii,
+ * padding, shadows, or typography). Pair this with `@hydrateless/enhancers` or
+ * `@hydrateless/auto` when you style components yourself (for example with
+ * Tailwind or a custom design system) and skip `hydrateless/components.css`.
+ */
+@layer components {
+  /* Alert */
+  [data-hl-alert][hidden] {
+    display: none;
+  }
+
+  /* Tabs: no-JS radio baseline and hidden panels */
+  [data-hl-tabs] [role='tabpanel'][hidden],
+  [data-hl-tabs] .hl-tabpanel[hidden] {
+    display: none;
+  }
+
+  [data-hl-tabs]:not([data-hl-ready]) .hl-tabpanels > .hl-tabpanel {
+    display: none;
+  }
+
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(1) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(1),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(2) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(2),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(3) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(3),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(4) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(4),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(5) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(5),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(6) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(6),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(7) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(7),
+  [data-hl-tabs]:not([data-hl-ready])
+    .hl-tablist:has(.hl-tab:nth-of-type(8) input:checked)
+    ~ .hl-tabpanels
+    > .hl-tabpanel:nth-of-type(8) {
+    display: block;
+  }
+
+  [data-hl-tabs]:not([data-hl-ready]) [role='tabpanel'] ~ [role='tabpanel'] {
+    display: none;
+  }
+
+  /* Popover */
+  [data-hl-popover]:not([popover]) {
+    display: none;
+  }
+
+  @supports (position-area: block-end) {
+    [data-hl-popover] {
+      position: fixed;
+      position-area: block-end;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+  }
+
+  /* Dropdown */
+  [data-hl-dropdown-menu]
+    :is([role='menu'], [data-hl-submenu]):is([hidden], [popover]:not(:popover-open)) {
+    display: none;
+  }
+
+  @supports (position-area: block-end) {
+    [data-hl-dropdown-menu] {
+      position: fixed;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+
+    [data-hl-dropdown-menu] :is([role='menu'], [data-hl-submenu])[popover] {
+      position: fixed;
+      inset: auto;
+      position-area: inline-end span-block-end;
+      position-try-fallbacks: flip-inline, flip-block;
+    }
+  }
+
+  /* Menu */
+  [data-hl-menu] :is([role='menu'], [data-hl-submenu]):is([hidden], [popover]:not(:popover-open)),
+  [data-hl-menu]:not([data-hl-ready]) :is([role='menu'], [data-hl-submenu]) {
+    display: none;
+  }
+
+  [data-hl-menu]:not([data-hl-ready])
+    li:is(:hover, :focus-within)
+    > :is([role='menu'], [data-hl-submenu]) {
+    display: block;
+  }
+
+  @supports (position-area: block-end) {
+    [data-hl-menu] :is([role='menu'], [data-hl-submenu])[popover] {
+      position: fixed;
+      inset: auto;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+
+    [data-hl-menu][aria-orientation='vertical'] :is([role='menu'], [data-hl-submenu])[popover],
+    [data-hl-menu]
+      :is([role='menu'], [data-hl-submenu])
+      :is([role='menu'], [data-hl-submenu])[popover] {
+      position-area: inline-end span-block-end;
+      position-try-fallbacks: flip-inline, flip-block;
+    }
+  }
+
+  /* Tooltip */
+  [data-hl-tooltip] + [role='tooltip'] {
+    display: none;
+  }
+
+  [data-hl-tooltip] + [role='tooltip']:is(:popover-open, [data-hl-tooltip-open]),
+  [data-hl-tooltip]:not([data-hl-tooltip-managed]):is(:hover, :focus-visible) + [role='tooltip'] {
+    display: block;
+  }
+
+  @supports (anchor-name: --x) {
+    :has(> [data-hl-tooltip]) {
+      anchor-scope: --hl-tooltip-trigger;
+    }
+
+    [data-hl-tooltip] {
+      anchor-name: --hl-tooltip-trigger;
+    }
+
+    [data-hl-tooltip] + [role='tooltip'] {
+      position-anchor: --hl-tooltip-trigger;
+      position: fixed;
+      inset: auto;
+      position-area: block-start;
+      position-try-fallbacks: flip-block;
+    }
+
+    [data-hl-tooltip] + [role='tooltip'][data-hl-side='bottom'],
+    [data-hl-tooltip][data-hl-placement^='bottom'] + [role='tooltip'] {
+      position-area: block-end;
+    }
+
+    [data-hl-tooltip] + [role='tooltip']:is([data-hl-side='start'], [data-hl-side='end']),
+    [data-hl-tooltip]:is([data-hl-placement^='start'], [data-hl-placement^='end'])
+      + [role='tooltip'] {
+      position-try-fallbacks: flip-inline;
+    }
+
+    [data-hl-tooltip] + [role='tooltip'][data-hl-side='start'],
+    [data-hl-tooltip][data-hl-placement^='start'] + [role='tooltip'] {
+      position-area: inline-start;
+    }
+
+    [data-hl-tooltip] + [role='tooltip'][data-hl-side='end'],
+    [data-hl-tooltip][data-hl-placement^='end'] + [role='tooltip'] {
+      position-area: inline-end;
+    }
+  }
+
+  /* Combobox */
+  [data-hl-combobox] [role='listbox'][hidden],
+  [data-hl-combobox] [role='option'][hidden],
+  [data-hl-combobox]:not([data-hl-ready]) [role='listbox'] {
+    display: none;
+  }
+
+  [data-hl-combobox]:not([data-hl-ready]):focus-within [role='listbox'] {
+    display: block;
+  }
+
+  @supports (anchor-name: --x) {
+    [data-hl-combobox] {
+      anchor-scope: --hl-combobox-input;
+    }
+
+    [data-hl-combobox] > input {
+      anchor-name: --hl-combobox-input;
+    }
+
+    [data-hl-combobox] [role='listbox'] {
+      position-anchor: --hl-combobox-input;
+      position: fixed;
+      inset: auto;
+      inline-size: anchor-size(width);
+      position-area: block-end;
+      position-try-fallbacks: flip-block;
+    }
+  }
+
+  /* Command palette */
+  [data-hl-command] :is([role='option'], [data-hl-command-group], [data-hl-command-empty])[hidden],
+  [data-hl-command]:not([data-hl-ready]) [data-hl-command-empty] {
+    display: none;
+  }
+}

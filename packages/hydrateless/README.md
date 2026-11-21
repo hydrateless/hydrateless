@@ -28,17 +28,18 @@ Or from a CDN, pinned to a major:
 
 Each layer and each component is also a subpath export, so you can take only what you need. Always include `tokens.css`; the components reference the tokens and nothing else.
 
-| Subpath                                                                                                                                                                                  | Contents                                                |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `hydrateless/reset.css`                                                                                                                                                                  | Border-box sizing, zeroed margins, inherited form fonts |
-| `hydrateless/tokens.css`                                                                                                                                                                 | Palette, scales, and semantic tokens (`--hl-*`)         |
-| `hydrateless/theme.css`                                                                                                                                                                  | Body colors and type built on the tokens                |
-| `hydrateless/components.css`                                                                                                                                                             | Every component below                                   |
-| `hydrateless/accordion.css`, `disclosure.css`, `tabs.css`, `toc.css`, `breadcrumb.css`, `pagination.css`, `separator.css`                                                                | Disclosure and navigation                               |
-| `hydrateless/modal.css`, `drawer.css`, `popover.css`, `tooltip.css`, `dropdown.css`, `menu.css`, `toast.css`, `command-palette.css`                                                      | Overlays                                                |
-| `hydrateless/button.css`, `input.css`, `textarea.css`, `select.css`, `checkbox.css`, `radio-group.css`, `switch.css`, `field.css`, `combobox.css`, `segmented-control.css`, `slider.css` | Forms                                                   |
-| `hydrateless/alert.css`, `badge.css`, `card.css`, `avatar.css`, `progress.css`, `spinner.css`, `skeleton.css`, `kbd.css`, `table.css`                                                    | Feedback and data display                               |
-| `hydrateless/skip-link.css`                                                                                                                                                              | Navigation utility                                      |
+| Subpath                                                                                                                                                                                  | Contents                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `hydrateless/reset.css`                                                                                                                                                                  | Border-box sizing, zeroed margins, inherited form fonts                      |
+| `hydrateless/tokens.css`                                                                                                                                                                 | Palette, scales, and semantic tokens (`--hl-*`)                              |
+| `hydrateless/theme.css`                                                                                                                                                                  | Body colors and type built on the tokens                                     |
+| `hydrateless/components.css`                                                                                                                                                             | Every component below                                                        |
+| `hydrateless/behavior.css`                                                                                                                                                               | Structural-only behavior rules (no visual styling) for headless/Tailwind use |
+| `hydrateless/accordion.css`, `disclosure.css`, `tabs.css`, `toc.css`, `breadcrumb.css`, `pagination.css`, `separator.css`                                                                | Disclosure and navigation                                                    |
+| `hydrateless/modal.css`, `drawer.css`, `popover.css`, `tooltip.css`, `dropdown.css`, `menu.css`, `toast.css`, `command-palette.css`                                                      | Overlays                                                                     |
+| `hydrateless/button.css`, `input.css`, `textarea.css`, `select.css`, `checkbox.css`, `radio-group.css`, `switch.css`, `field.css`, `combobox.css`, `segmented-control.css`, `slider.css` | Forms                                                                        |
+| `hydrateless/alert.css`, `badge.css`, `card.css`, `avatar.css`, `progress.css`, `spinner.css`, `skeleton.css`, `kbd.css`, `table.css`                                                    | Feedback and data display                                                    |
+| `hydrateless/skip-link.css`                                                                                                                                                              | Navigation utility                                                           |
 
 ```js
 import 'hydrateless/tokens.css';
@@ -46,16 +47,16 @@ import 'hydrateless/button.css';
 import 'hydrateless/segmented-control.css';
 ```
 
-Class names don't follow the file names one to one: `segmented-control.css` styles `.hl-segmented`, `radio-group.css` styles `.hl-radio-group` and `.hl-radio`, and `command-palette.css` styles `[data-hl-command]` and `.hl-command-*`.
+Every visual component stylesheet scopes its rules to `.hl-*` classes (`.hl-segmented`, `.hl-radio-group`, `.hl-command`, `.hl-tabs`, `.hl-popover`, `.hl-switch`, `.hl-breadcrumb`, `.hl-tooltip`, and so on). `data-hl-*` attributes are reserved for enhancer opt-in, enhancer options, and visual variants or states.
 
 ## Theming
 
-Every color token is a `light-dark()` pair, resolved by `color-scheme`. The root follows the system preference; set `data-theme` on any element to pin a scheme for that subtree:
+Every color token is a `light-dark()` pair, resolved by `color-scheme`. The root follows the system preference; set `data-hl-theme` on any element to pin a scheme for that subtree:
 
 ```html
-<html data-theme="dark">
+<html data-hl-theme="dark">
   ...
-  <aside data-theme="light">Always light</aside>
+  <aside data-hl-theme="light">Always light</aside>
 </html>
 ```
 
@@ -101,7 +102,7 @@ State and variants are `data-hl-*` attributes rather than modifier classes:
 - `data-hl-orientation` on radio groups and separators; `aria-orientation` on tablists and menus.
 - `data-hl-ready` is set by an enhancer once it owns a component; the CSS no-JS baselines (menu submenus on hover, combobox list on focus, tab panels by radio, command palette empty state) stand down when it's present.
 
-Modal and drawer selectors accept either the class or the data attribute: `:is(.hl-modal, dialog[data-hl-modal])` and `:is(.hl-drawer, dialog[data-hl-drawer])`.
+Every visual component requires its `.hl-*` class (`.hl-modal`, `.hl-drawer`, `.hl-popover`, `.hl-tabs`, and so on). Omit `.hl-*` when using enhancers headlessly with your own stylesheet or `hydrateless/behavior.css`.
 
 ## Right to left
 

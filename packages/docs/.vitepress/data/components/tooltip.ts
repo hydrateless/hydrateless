@@ -27,7 +27,7 @@ export const tooltip: ComponentDoc = {
       layout: 'center',
       render: () =>
         `<button class="hl-button" data-hl-variant="outline" data-hl-tooltip="demo-tip" aria-describedby="demo-tip">Hover or focus me</button>
-<span id="demo-tip" role="tooltip">Helpful tooltip text.</span>`,
+<span id="demo-tip" class="hl-tooltip" role="tooltip" hidden>Helpful tooltip text.</span>`,
       code: {
         react: () =>
           `import { Tooltip } from '@hydrateless/react';\n\n<Tooltip content="Helpful tooltip text." placement="top">\n  <button>Hover me</button>\n</Tooltip>`,

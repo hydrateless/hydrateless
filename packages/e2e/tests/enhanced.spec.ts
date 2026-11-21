@@ -464,4 +464,61 @@ test.describe('enhanced (JS on)', () => {
     await expect(buttons.nth(2)).toHaveAttribute('aria-checked', 'true');
     await expect(result).toHaveText('buttons:month');
   });
+
+  test('contract isolation: CSS-only .hl-popover, third-party [role="tooltip"], and headless [data-hl-tabs]', async ({
+    page,
+  }) => {
+    await gotoFixture(page, 'popover');
+    test.skip(!(await supportsPopover(page)), 'Popover API unsupported');
+
+    // Inject three isolated elements into the live page (with hydrateless.css + auto loader active):
+    // 1. A styled CSS-only popover without data-hl-popover.
+    // 2. A third-party [role="tooltip"] without .hl-tooltip.
+    // 3. A headless [data-hl-tabs] without .hl-tabs.
+    await page.evaluate(() => {
+      const host = document.createElement('section');
+      host.innerHTML = `
+        <button id="css-only-btn" popovertarget="css-only-pop">CSS only</button>
+        <div id="css-only-pop" class="hl-popover" popover="auto">Styled without JS</div>
+        <span id="third-party-tip" role="tooltip">Third-party tooltip</span>
+        <div id="headless-tabs" data-hl-tabs>
+          <div role="tablist">
+            <button role="tab" data-hl-value="a">A</button>
+            <button role="tab" data-hl-value="b">B</button>
+          </div>
+          <div role="tabpanel">Panel A</div>
+          <div role="tabpanel" hidden>Panel B</div>
+        </div>
+      `;
+      document.querySelector('main')?.appendChild(host);
+    });
+
+    // 1. CSS-only .hl-popover gets styling and native popover toggle without enhancer ARIA wiring.
+    const cssBtn = page.locator('#css-only-btn');
+    const cssPop = page.locator('#css-only-pop');
+    await cssBtn.click();
+    await expect(cssPop).toBeVisible();
+    await expect(cssBtn).not.toHaveAttribute('aria-expanded', /.+/);
+    expect(
+      await cssPop.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth)),
+    ).toBeGreaterThan(0);
+    await page.keyboard.press('Escape');
+
+    // 2. Third-party [role="tooltip"] is not hidden or styled by hydrateless.css.
+    const thirdPartyTip = page.locator('#third-party-tip');
+    await expect(thirdPartyTip).toBeVisible();
+    expect(await thirdPartyTip.evaluate((el) => getComputedStyle(el).position)).toBe('static');
+
+    // 3. Headless [data-hl-tabs] gets enhancer behavior without Hydrateless tablist border chrome.
+    const headlessTabs = page.locator('#headless-tabs');
+    const tabs = headlessTabs.locator('[role="tab"]');
+    await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true');
+    await tabs.nth(1).click();
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    expect(
+      await headlessTabs
+        .locator('[role="tablist"]')
+        .evaluate((el) => parseFloat(getComputedStyle(el).borderBottomWidth)),
+    ).toBe(0);
+  });
 });

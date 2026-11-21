@@ -52,8 +52,10 @@ Every stateful component works both ways:
   and let the component own its state.
 - **Controlled**: bind with `v-model`. The primary value uses plain `v-model`
   (`modelValue` + `update:modelValue`); named state uses `v-model:open` and
-  `v-model:query`. Dismissals the user triggers (Escape, backdrop click,
-  outside click) flow back into your ref.
+  `v-model:query`. Programmatic prop changes sync silently without re-emitting
+  updates, while user-driven dismissals (Escape, backdrop click, outside click)
+  flow back into your ref. If the parent rejects an update, the DOM reconciles
+  back to the controlled prop.
 
 ```vue
 <script setup>
@@ -150,18 +152,42 @@ import {
 </template>
 ```
 
+### Pre-hydration overlay triggers
+
+`ModalTrigger`, `DrawerTrigger`, and `PopoverTrigger` render native HTML
+invoker buttons (`command` + `commandfor`, or `popovertarget` +
+`popovertargetaction`), so modals, drawers, and popovers open and close before
+hydration without reactive open state:
+
+```vue
+<script setup>
+import { Modal, ModalTrigger, ModalHeader, ModalBody, ModalFooter } from '@hydrateless/vue';
+</script>
+
+<template>
+  <ModalTrigger target="delete-modal" class="hl-button">Delete</ModalTrigger>
+  <Modal id="delete-modal">
+    <ModalHeader><h2>Delete project?</h2></ModalHeader>
+    <ModalBody>This can't be undone.</ModalBody>
+    <ModalFooter>
+      <ModalTrigger target="delete-modal" command="close" class="hl-button">Cancel</ModalTrigger>
+    </ModalFooter>
+  </Modal>
+</template>
+```
+
 ### Available components
 
-| Group        | Components                                                                                                                                                                                                      |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                                                |
-| Overlays     | `Dropdown` (+ `DropdownTrigger`, `DropdownMenu`, `DropdownGroup`, `DropdownItem`, `DropdownSeparator`), `Menu`, `MenuItem`, `MenuSubmenu`, `Modal`, `Drawer` (+ `Header`/`Body`/`Footer`), `Popover`, `Tooltip` |
-| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button`                                |
-| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                                                   |
-| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                                                         |
-| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                                                              |
-| Data display | `Card` (+ `CardHeader`, `CardBody`, `CardFooter`, `CardTitle`, `CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`, `Table`                                                                         |
-| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                                                 |
+| Group        | Components                                                                                                                                                                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Disclosure   | `Accordion`, `AccordionItem`, `Disclosure`, `Tabs`, `TabList`, `Tab`, `TabPanel`                                                                                                                                                                                   |
+| Overlays     | `Dropdown` (+ `DropdownTrigger`, `DropdownMenu`, `DropdownGroup`, `DropdownItem`, `DropdownSeparator`), `Menu`, `MenuItem`, `MenuSubmenu`, `Modal`, `ModalTrigger`, `Drawer`, `DrawerTrigger` (+ `Header`/`Body`/`Footer`), `Popover`, `PopoverTrigger`, `Tooltip` |
+| Forms        | `Field`, `FieldLabel`, `FieldHelp`, `FieldError`, `Fieldset`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Slider`, `RadioGroup`, `Radio`, `SegmentedControl`, `Button`                                                                                   |
+| Combobox     | `Combobox`, `ComboboxInput`, `ComboboxList`, `ComboboxOption`                                                                                                                                                                                                      |
+| Command      | `Command`, `CommandInput`, `CommandList`, `CommandGroup`, `CommandItem`, `CommandEmpty`                                                                                                                                                                            |
+| Feedback     | `Alert`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `ToastRegion`                                                                                                                                                                                                 |
+| Data display | `Card` (+ `CardHeader`, `CardBody`, `CardFooter`, `CardTitle`, `CardDescription`), `Avatar`, `AvatarGroup`, `Kbd`, `Separator`, `Table`                                                                                                                            |
+| Navigation   | `Breadcrumb`, `BreadcrumbItem`, `Pagination`, `Toc`, `SkipLink`                                                                                                                                                                                                    |
 
 Every component forwards `class`, `id`, and other attributes to its root
 element, and template refs resolve to the root DOM node.
@@ -253,7 +279,7 @@ const api = useEnhancer(host, enhanceTabs, { activation: 'automatic' });
 </script>
 
 <template>
-  <div ref="host" data-hl-tabs>
+  <div ref="host" class="hl-tabs" data-hl-tabs>
     <!-- your own tablist and tabpanel markup -->
   </div>
 </template>
@@ -263,8 +289,9 @@ Signature: `useEnhancer(elRef, enhancer, options?, deps?)`.
 
 - The enhancer runs on the client only (in `onMounted`), so components stay
   SSR-safe, and is destroyed in `onBeforeUnmount`.
-- `options` may be a plain object, a ref, or a getter; it's re-read and the
-  enhancer re-attached whenever the `deps` watch source changes.
+- `options` may be a plain object, a ref, or a getter; when `deps` changes,
+  `options` is re-read and applied in place via `handle.update()`, preserving
+  open overlays and active state.
 
 All shipped components are built on this composable, so custom wrappers behave
 exactly like the built-in ones. See [Composing](/guide/composing#writing-your-own-enhancer)

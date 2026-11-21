@@ -137,4 +137,18 @@ describe('enhanceMenu nested submenus and live items', () => {
     expect(root.getAttribute('aria-orientation')).toBe('vertical');
     expect(api.value).toBe('edit');
   });
+
+  it('reads the position option live when update() turns it off', () => {
+    const handle = enhanceMenu(document);
+    const fileMenu = el('file').nextElementSibling as HTMLElement;
+    const editMenu = el('edit').nextElementSibling as HTMLElement;
+
+    handle.api!.setValue('file');
+    // Positioning stamps the requested side on the open submenu.
+    expect(fileMenu.dataset.hlSide).toBeDefined();
+
+    handle.update({ position: false });
+    handle.api!.setValue('edit');
+    expect(editMenu.dataset.hlSide).toBeUndefined();
+  });
 });

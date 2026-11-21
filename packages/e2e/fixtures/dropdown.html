@@ -14,9 +14,16 @@
         markup (not added by JS) so the menu opens with no JavaScript at all.
         Checkable items carry an explicit `aria-checked` for the same reason.
       -->
-      <div data-hl-dropdown>
+      <div class="hl-dropdown" data-hl-dropdown>
         <button id="dd-trigger" data-hl-dropdown-trigger popovertarget="dd-menu">Actions</button>
-        <ul id="dd-menu" data-hl-dropdown-menu popover role="menu" aria-label="Actions">
+        <ul
+          id="dd-menu"
+          class="hl-dropdown-menu"
+          data-hl-dropdown-menu
+          popover
+          role="menu"
+          aria-label="Actions"
+        >
           <li role="none"><button role="menuitem" data-hl-value="edit">Edit</button></li>
           <li role="none"><button role="menuitem" data-hl-value="duplicate">Duplicate</button></li>
           <li role="none">

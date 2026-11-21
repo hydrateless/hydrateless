@@ -177,9 +177,10 @@ appends one to `<body>`.
 
 Every component is built on one attachment factory, and it's exported so a
 custom wrapper behaves exactly like the shipped ones. Pass an enhancer and a
-function returning its options; the returned `attach` runs the enhancer when the
-element mounts and destroys it when the element leaves or the options change.
-`api` is the enhancer's imperative handle (or `null` while detached).
+function returning its options; the returned `attach` attaches the enhancer
+once on mount, updates options in place via `handle.update()` when reactive
+options change, and destroys it when the element leaves. `api` is the
+enhancer's imperative handle (or `null` while detached).
 
 ```svelte
 <script lang="ts">
@@ -191,12 +192,12 @@ element mounts and destroys it when the element leaves or the options change.
 </script>
 
 <button onclick={() => tabs.api?.setValue('install')}>Jump to Install</button>
-<div data-hl-tabs {@attach tabs.attach}>...</div>
+<div class="hl-tabs" data-hl-tabs {@attach tabs.attach}>...</div>
 ```
 
-Reactive state read inside the options function re-runs the enhancer; wrap
-seed values (like a bound `value` passed as `defaultValue`) in `untrack` to
-keep them from doing so.
+Reactive state read inside the options function triggers an in-place
+`handle.update()` without closing open overlays or resetting state; wrap seed
+values (like a bound `value` passed as `defaultValue`) in `untrack`.
 
 ## Changes from 0.x actions
 

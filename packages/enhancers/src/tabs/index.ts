@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs, isRtl } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { nextIndex, Keys, type MoveDirection } from '../core/keys.js';
@@ -25,8 +25,8 @@ export type EnhanceTabsOptions = {
 export type TabsApi = {
   /** Value of the currently selected tab. */
   readonly value: string;
-  /** Select the tab with `value`. Pass `focus: true` to also move focus. */
-  setValue: (value: string, options?: { focus?: boolean }) => void;
+  /** Select the tab with `value`. Pass `focus: true` to move focus, or `silent: true` to skip notifications. */
+  setValue: (value: string, options?: SetOptions & { focus?: boolean }) => void;
 };
 
 type Tab = {
@@ -62,7 +62,7 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
     orientation: ['horizontal', 'vertical'],
     defaultValue: 'string',
   },
-  setup({ root, options, on, observe, add, emit }) {
+  setup({ root, options, on, observe, add, onUpdate, emit }) {
     const tablist = root.querySelector<HTMLElement>('[role="tablist"], .hl-tablist');
     if (!tablist) return;
     const panelHost = root.querySelector<HTMLElement>('.hl-tabpanels') ?? root;
@@ -94,8 +94,13 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
     let tabs = collect();
     if (tabs.length === 0 || !tabs.some((tab) => tab.panel)) return;
 
-    const vertical = options.orientation === 'vertical';
-    setAttrs(tablist, { role: 'tablist', 'aria-orientation': options.orientation ?? 'horizontal' });
+    const syncOrientation = () =>
+      setAttrs(tablist, {
+        role: 'tablist',
+        'aria-orientation': options.orientation ?? 'horizontal',
+      });
+    syncOrientation();
+    onUpdate(syncOrientation);
 
     // Server-rendered selection: a pre-checked radio (CSS-only baseline) or a
     // pre-set `aria-selected` (button markup) both seed the initial tab.
@@ -159,13 +164,13 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
       if (focus) tabs.find((tab) => tab.value === selected)?.el.focus();
     };
 
-    const select = (index: number, focus = true) => {
+    const select = (index: number, focus = true, silent = false) => {
       const tab = tabs[index];
       if (!tab || tab.disabled) return;
       const changed = tab.value !== selected;
       selected = tab.value;
       paint(focus);
-      if (changed) {
+      if (changed && !silent) {
         options.onValueChange?.(selected);
         emit(Events.change, { value: selected });
       }
@@ -212,6 +217,7 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
       if (current === -1) return;
 
       const rtl = isRtl(root);
+      const vertical = options.orientation === 'vertical';
       const prevKey = vertical ? Keys.ArrowUp : rtl ? Keys.ArrowRight : Keys.ArrowLeft;
       const nextKey = vertical ? Keys.ArrowDown : rtl ? Keys.ArrowLeft : Keys.ArrowRight;
       let direction: MoveDirection | null = null;
@@ -238,9 +244,9 @@ export const enhanceTabs = defineEnhancer<EnhanceTabsOptions, TabsApi>({
       get value() {
         return selected;
       },
-      setValue(value, { focus = false } = {}) {
+      setValue(value, { focus = false, silent = false } = {}) {
         const index = tabs.findIndex((tab) => tab.value === value);
-        if (index !== -1) select(index, focus);
+        if (index !== -1) select(index, focus, silent);
       },
     };
   },

@@ -21,6 +21,7 @@ import TableHarness from './harness/TableHarness.svelte';
 import ToastHarness from './harness/ToastHarness.svelte';
 import TooltipHarness from './harness/TooltipHarness.svelte';
 import DynamicHarness from './harness/DynamicHarness.svelte';
+import ContractHarness from './harness/ContractHarness.svelte';
 import Button from '../src/components/Button.svelte';
 import Drawer from '../src/components/Drawer.svelte';
 import Skeleton from '../src/components/Skeleton.svelte';
@@ -144,7 +145,7 @@ describe('Tooltip', () => {
 });
 
 describe('Modal', () => {
-  it('controlled: opens and closes via bind:open and reports changes', async () => {
+  it('controlled: opens and closes via bind:open without echoing, and reports native closes', async () => {
     const { container, getByText, getByTestId } = render(ModalHarness);
     const dialog = container.querySelector('dialog') as HTMLDialogElement;
     expect(dialog.open).toBe(false);
@@ -152,12 +153,14 @@ describe('Modal', () => {
     expect(dialog.open).toBe(true);
     await fireEvent.click(getByText('close'));
     expect(dialog.open).toBe(false);
-    expect(getByTestId('changes').textContent).toBe('true,false');
-    // Native close (Escape/backdrop) updates the binding too.
+    // Programmatic prop syncs are silent and must not echo onOpenChange.
+    expect(getByTestId('changes').textContent).toBe('');
+    // Native close (Escape/backdrop) updates the binding and fires onOpenChange.
     await fireEvent.click(getByText('open'));
     dialog.close();
     await tick();
     expect(getByTestId('open').textContent).toBe('false');
+    expect(getByTestId('changes').textContent).toBe('false');
   });
 
   it('uncontrolled: honors defaultOpen', () => {
@@ -320,10 +323,10 @@ describe('Combobox', () => {
     // Disabled options can't be selected.
     await fireEvent.click(options[2]);
     expect(getByTestId('value').textContent).toBe('banana');
-    // Driving the binding commits programmatically.
+    // Driving the binding commits programmatically without echoing onValueChange.
     await fireEvent.click(getByText('pick cherry'));
     expect(input.value).toBe('cherry');
-    expect(getByTestId('changes').textContent).toBe('banana,cherry');
+    expect(getByTestId('changes').textContent).toBe('banana');
   });
 
   it('uncontrolled: honors defaultValue', () => {
@@ -489,5 +492,55 @@ describe('misc components', () => {
     await fireEvent.click(grid);
     expect(getByTestId('view').textContent).toBe('grid');
     expect(await violationIds(container)).toEqual([]);
+  });
+});
+
+describe('unified contract & in-place updates', () => {
+  it('reconciles DOM silently when a controlled binding vetoes a change', async () => {
+    const { getByTestId } = render(ContractHarness);
+    const tabs = getByTestId('veto-tabs').querySelectorAll<HTMLElement>('[role="tab"]');
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    await fireEvent.click(tabs[1]);
+    await tick();
+    expect(getByTestId('veto-calls').textContent).toBe('two');
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('updates enhancer options in place without closing an open modal', async () => {
+    const { container, getByText, getByTestId } = render(ContractHarness);
+    const dialog = container.querySelector<HTMLDialogElement>('#contract-modal')!;
+    expect(dialog.open).toBe(true);
+    expect(dialog.getAttribute('closedby')).toBe('any');
+    await fireEvent.click(getByText('toggle backdrop'));
+    await tick();
+    expect(getByTestId('backdrop').textContent).toBe('false');
+    expect(dialog.open).toBe(true);
+    expect(dialog.getAttribute('closedby')).toBeNull();
+  });
+
+  it('renders overlay triggers and unified .hl-* styling classes', () => {
+    const { container, getByText } = render(ContractHarness);
+    const modalTrigger = getByText('Open modal');
+    expect(modalTrigger.getAttribute('command')).toBe('show-modal');
+    expect(modalTrigger.getAttribute('commandfor')).toBe('contract-modal');
+
+    const drawerTrigger = getByText('Close drawer');
+    expect(drawerTrigger.getAttribute('command')).toBe('close');
+    expect(drawerTrigger.getAttribute('commandfor')).toBe('contract-drawer');
+
+    const popoverTrigger = getByText('Show popover');
+    expect(popoverTrigger.getAttribute('popovertarget')).toBe('contract-popover');
+    expect(popoverTrigger.getAttribute('popovertargetaction')).toBe('show');
+
+    expect(container.querySelector('#contract-popover')?.classList.contains('hl-popover')).toBe(
+      true,
+    );
+    const switchLabel = container.querySelector('label.hl-switch');
+    expect(switchLabel).not.toBeNull();
+    expect(switchLabel?.hasAttribute('data-hl-switch')).toBe(false);
+    const breadcrumb = container.querySelector('nav.hl-breadcrumb');
+    expect(breadcrumb).not.toBeNull();
+    expect(breadcrumb?.hasAttribute('data-hl-breadcrumb')).toBe(false);
   });
 });

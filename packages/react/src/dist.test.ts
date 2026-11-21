@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url';
 import * as pkg from './index.js';
 import { missingFromContract, REMOVED_EXPORTS } from '../../../test-setup/component-contract.js';
 
-const dist = fileURLToPath(new URL('../dist/index.js', import.meta.url));
+const distIndex = fileURLToPath(new URL('../dist/index.js', import.meta.url));
+const distServer = fileURLToPath(new URL('../dist/server.js', import.meta.url));
+const distClient = fileURLToPath(new URL('../dist/client.js', import.meta.url));
 
 describe('package surface', () => {
   it('exports every component in the shared contract', () => {
@@ -17,7 +19,18 @@ describe('package surface', () => {
   });
 
   // The bundle is only present after `npm run build` (CI builds before testing).
-  it.skipIf(!existsSync(dist))('starts with the use client directive', () => {
-    expect(readFileSync(dist, 'utf8').startsWith("'use client';")).toBe(true);
-  });
+  it.skipIf(!existsSync(distClient))(
+    'keeps server entry hook-free and client entry marked use client',
+    () => {
+      const indexSrc = readFileSync(distIndex, 'utf8');
+      const serverSrc = readFileSync(distServer, 'utf8');
+      const clientSrc = readFileSync(distClient, 'utf8');
+
+      expect(indexSrc.startsWith("'use client';")).toBe(false);
+      expect(serverSrc.startsWith("'use client';")).toBe(false);
+      expect(serverSrc).not.toMatch(/\b(useState|useEffect|useContext|createContext|useRef)\b/);
+      expect(serverSrc).not.toContain('@hydrateless/enhancers');
+      expect(clientSrc.startsWith("'use client';")).toBe(true);
+    },
+  );
 });

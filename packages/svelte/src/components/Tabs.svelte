@@ -28,11 +28,13 @@
     value = $bindable(),
     defaultValue,
     onValueChange,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (value === undefined) value = defaultValue;
+  let syncTick = $state(0);
 
   // Tabs and panels register in document order so `aria-selected`/`hidden`
   // render on the server and the enhancer finds them already in agreement.
@@ -56,14 +58,24 @@
     onValueChange: (next) => {
       value = next;
       onValueChange?.(next);
+      syncTick += 1;
     },
   }));
 
   $effect(() => {
-    if (value != null) enhanced.api?.setValue(value);
+    void syncTick;
+    if (value != null && enhanced.api && enhanced.api.value !== value) {
+      enhanced.api.setValue(value, { silent: true });
+    }
   });
 </script>
 
-<div {...rest} data-hl-tabs data-hl-orientation={orientation} {@attach enhanced.attach}>
+<div
+  {...rest}
+  class={['hl-tabs', klass]}
+  data-hl-tabs
+  data-hl-orientation={orientation}
+  {@attach enhanced.attach}
+>
   {@render children?.()}
 </div>

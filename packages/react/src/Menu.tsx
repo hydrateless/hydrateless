@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { enhanceMenu, type EnhanceMenuOptions, type MenuApi } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
+import { cx } from './util.js';
 import { useControlled } from './internal/useControlled.js';
 import { useSyncApi } from './internal/useSyncApi.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
@@ -56,13 +57,14 @@ export const Menu = forwardRef<HTMLUListElement, MenuProps>(function Menu(
     defaultValue,
     onValueChange,
     onSelect,
+    className,
     children,
     ...rest
   },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [value, setValue] = useControlled<string | null>(
+  const [value, setValue, syncTick] = useControlled<string | null>(
     valueProp,
     defaultValue ?? null,
     onValueChange,
@@ -73,12 +75,20 @@ export const Menu = forwardRef<HTMLUListElement, MenuProps>(function Menu(
     { orientation, defaultValue: value, onValueChange: setValue, onSelect },
     [orientation],
   );
-  useSyncApi(api, valueProp, (api, value) => api.setValue(value));
+  useSyncApi(
+    api,
+    valueProp,
+    (api, value) => {
+      if (api.value !== value) api.setValue(value, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
     <ul
       {...rest}
       ref={ref}
+      className={cx('hl-menu', className)}
       data-hl-menu
       role={orientation === 'vertical' ? 'menu' : 'menubar'}
       aria-orientation={orientation}

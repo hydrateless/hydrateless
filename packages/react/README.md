@@ -45,25 +45,30 @@ value during render, so server output is correct before hydration.
 
 ### Server Components
 
-The package is a client bundle: `'use client'` is embedded at the top of the
-built module, so you can import any component from a React Server Components
-app (Next.js App Router, for example) without wrapping it yourself.
+Static, hook-free components are split into `@hydrateless/react/server` (no
+`'use client'` directive), while interactive components and hooks live in
+`@hydrateless/react/client` (`'use client'`). The root entry re-exports both
+without `'use client'` on the barrel, so importing static components like
+`Button`, `Card`, `Badge`, `Breadcrumb`, or `ModalTrigger` into a React Server
+Component creates no client boundary.
 
-### Dialogs
+### Dialogs and overlay triggers
 
 `Modal` and `Drawer` are built on the native `<dialog>` element plus the modal
 enhancer (focus trap, scroll-lock, background `inert`). Escape and backdrop
 clicks report back through `onOpenChange`. `Drawer` takes `side="start" | "end"`
-(default `end`), which follows the writing direction.
+(default `end`), which follows the writing direction. Use `ModalTrigger`,
+`DrawerTrigger`, and `PopoverTrigger` for declarative invokers that work before
+React hydrates:
 
 ```tsx
-const [open, setOpen] = useState(false);
-
-<button onClick={() => setOpen(true)}>Open</button>
-<Modal open={open} onOpenChange={setOpen}>
+<ModalTrigger target="confirm" className="hl-button">Open</ModalTrigger>
+<Modal id="confirm">
   <ModalHeader>Title</ModalHeader>
   <ModalBody>Body content.</ModalBody>
-  <ModalFooter><button onClick={() => setOpen(false)}>Close</button></ModalFooter>
+  <ModalFooter>
+    <ModalTrigger target="confirm" command="close" className="hl-button">Close</ModalTrigger>
+  </ModalFooter>
 </Modal>;
 ```
 
@@ -179,10 +184,10 @@ function Save() {
 ## Escape hatch: `useEnhancer`
 
 For your own markup, attach any enhancer with `useEnhancer(ref, enhancer,
-options, deps)`. It returns a ref to the enhancer's imperative API, destroys
-the instance on unmount, and re-creates it when `deps` change. Callback options
-always call the handler from the latest render, so they never need to be
-listed in `deps`.
+options, deps)`. It attaches once on mount, destroys on unmount, and updates
+options in place via `handle.update()` when `deps` change so open overlays and
+active state stay intact. Callback options always call the handler from the
+latest render, so they never need to be listed in `deps`.
 
 ```tsx
 import { useRef } from 'react';
@@ -194,7 +199,7 @@ function CustomTabs() {
   const api = useEnhancer(ref, enhanceTabs, { activation: 'automatic', onValueChange: log });
   // api.current?.setValue('install')
   return (
-    <div data-hl-tabs ref={ref}>
+    <div className="hl-tabs" data-hl-tabs ref={ref}>
       {/* tablist + tabpanels */}
     </div>
   );

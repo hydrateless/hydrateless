@@ -29,6 +29,7 @@
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (open === undefined) open = defaultOpen;
+  let syncTick = $state(0);
 
   const modal = useEnhancer(enhanceModal, () => ({
     closeOnBackdrop,
@@ -36,11 +37,15 @@
     onOpenChange: (next) => {
       open = next;
       onOpenChange?.(next);
+      syncTick += 1;
     },
   }));
 
   $effect(() => {
-    if (open != null) modal.api?.setOpen(open);
+    void syncTick;
+    if (open != null && modal.api && modal.api.open !== open) {
+      modal.api.setOpen(open, { silent: true });
+    }
   });
 </script>
 

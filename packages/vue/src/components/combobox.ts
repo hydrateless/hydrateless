@@ -40,16 +40,24 @@ export const Combobox = defineComponent({
   emits: ['update:modelValue', 'update:open'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value, set } = useControlled<string | undefined, 'update:modelValue'>(props, emit, {
-      prop: 'modelValue',
-      event: 'update:modelValue',
-      default: props.defaultValue,
-    });
-    const { value: open, set: setOpen } = useControlled<boolean | undefined, 'update:open'>(
+    const { value, set, tick } = useControlled<string | undefined, 'update:modelValue'>(
       props,
       emit,
-      { prop: 'open', event: 'update:open', default: props.defaultOpen },
+      {
+        prop: 'modelValue',
+        event: 'update:modelValue',
+        default: props.defaultValue,
+      },
     );
+    const {
+      value: open,
+      set: setOpen,
+      tick: openTick,
+    } = useControlled<boolean | undefined, 'update:open'>(props, emit, {
+      prop: 'open',
+      event: 'update:open',
+      default: props.defaultOpen,
+    });
     const api = useEnhancer(
       host,
       enhanceCombobox,
@@ -57,6 +65,7 @@ export const Combobox = defineComponent({
         filter: props.filter,
         autoHighlight: props.autoHighlight,
         defaultValue: value.value,
+        defaultOpen: open.value,
         onValueChange: set,
         onOpenChange: setOpen,
       }),
@@ -66,15 +75,27 @@ export const Combobox = defineComponent({
       api,
       value,
       (a) => a.value,
-      (a, v) => a.setValue(v),
+      (a, v) => a.setValue(v, { silent: true }),
+      tick,
     );
     useApiSync<ComboboxApi, boolean | undefined>(
       api,
       open,
       (a) => a.open,
-      (a, v) => a.setOpen(v),
+      (a, v) => a.setOpen(v, { silent: true }),
+      openTick,
     );
-    return () => h('div', { ...attrs, 'data-hl-combobox': '', ref: host }, slots.default?.());
+    return () =>
+      h(
+        'div',
+        {
+          ...attrs,
+          class: cx('hl-combobox', attrs.class as string),
+          'data-hl-combobox': '',
+          ref: host,
+        },
+        slots.default?.(),
+      );
   },
 });
 

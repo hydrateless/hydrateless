@@ -38,17 +38,20 @@
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (open === undefined) open = defaultOpen;
+  let syncTick = $state(0);
 
   const disclosure = useEnhancer(enhanceDisclosure, () => ({
     defaultOpen: untrack(() => open),
     onOpenChange: (next) => {
       open = next;
       onOpenChange?.(next);
+      syncTick += 1;
     },
   }));
 
   $effect(() => {
-    if (open != null) disclosure.api?.setOpen(open);
+    void syncTick;
+    if (open != null) disclosure.api?.setOpen(open, { silent: true });
   });
 </script>
 

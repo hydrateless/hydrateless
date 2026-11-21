@@ -143,7 +143,7 @@ const preview = `
       <label class="hl-label" for="studio-workspace">Workspace name</label>
       <input id="studio-workspace" class="hl-input" value="Hydrateless" />
     </div>
-    <label data-hl-switch>
+    <label class="hl-switch">
       <input type="checkbox" role="switch" checked />
       Enable notifications
     </label>
@@ -152,7 +152,7 @@ const preview = `
         <p style="margin:0">Your changes preview live as you edit tokens.</p>
       </div>
     </div>
-    <div data-hl-tabs>
+    <div class="hl-tabs" data-hl-tabs>
       <div role="tablist" aria-label="Project">
         <button role="tab" id="studio-overview" aria-controls="studio-overview-panel" aria-selected="true">Overview</button>
         <button role="tab" id="studio-activity" aria-controls="studio-activity-panel" aria-selected="false" tabindex="-1">Activity</button>
@@ -230,7 +230,7 @@ const preview = `
       :key="revision"
       ref="previewEl"
       class="hl-studio-preview"
-      :data-theme="state.mode"
+      :data-hl-theme="state.mode"
       :style="vars"
       v-html="preview"
     />

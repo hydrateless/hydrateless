@@ -1,13 +1,44 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm'],
+const shared = {
+  format: ['esm'] as ['esm'],
   dts: true,
-  clean: true,
+  treeshake: true,
   external: ['react', 'react-dom', '@hydrateless/enhancers'],
-  // Every component touches the DOM through effects, so the whole bundle is a
-  // client module. Embedding the directive lets React Server Components apps
-  // import from the package root without wrapping each component themselves.
-  banner: { js: "'use client';" },
-});
+};
+
+/**
+ * Split server-safe components (no hooks, no `'use client'`) from interactive
+ * client components (`'use client'`). The root barrel re-exports both without
+ * carrying `'use client'` itself, so React Server Components can import static
+ * primitives (`Button`, `Card`, `ModalTrigger`, etc.) with zero client boundary
+ * while interactive components automatically cross the boundary when imported.
+ */
+export default defineConfig([
+  {
+    ...shared,
+    entry: ['src/server.ts'],
+    clean: true,
+  },
+  {
+    ...shared,
+    entry: ['src/client.ts'],
+    clean: false,
+    // Rollup drops top-level `'use client'` directives during `treeshake`, so
+    // prepend it after the chunk is written.
+    async onSuccess() {
+      const path = 'dist/client.js';
+      const code = readFileSync(path, 'utf8');
+      if (!code.startsWith("'use client';")) {
+        writeFileSync(path, `'use client';\n${code}`);
+      }
+    },
+  },
+  {
+    ...shared,
+    entry: ['src/index.ts'],
+    clean: false,
+    external: [...shared.external, './server.js', './client.js'],
+  },
+]);

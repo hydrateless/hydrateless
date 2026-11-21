@@ -32,8 +32,11 @@ export interface SubmenuLayer {
 export interface SubmenuOptions {
   /** Promote submenus to `popover="manual"` so they render in the top layer. */
   usePopover: boolean;
-  /** Run the JS positioning fallback on engines without CSS anchor positioning. */
-  position: boolean;
+  /**
+   * Run the JS positioning fallback on engines without CSS anchor positioning.
+   * Pass a getter to read the setting each time a submenu opens.
+   */
+  position: boolean | (() => boolean);
   /** Placement of a submenu opened from an item at `depth` (`0` is a top-level trigger). */
   placement: (depth: number) => Placement;
   /** Called after any submenu opens or closes. */
@@ -148,7 +151,9 @@ export function createSubmenus(
       submenu.hidden = false;
       let stop: Disposer = noop;
       if (options.usePopover) submenu.showPopover();
-      if (options.position) {
+      const position =
+        typeof options.position === 'function' ? options.position() : options.position;
+      if (position) {
         stop = keepPositioned(trigger, submenu, { placement: options.placement(depth) });
       }
       setAttrs(trigger, { 'aria-expanded': 'true' });

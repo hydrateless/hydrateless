@@ -60,11 +60,15 @@ export const Accordion = defineComponent({
   emits: ['update:modelValue'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value, set } = useControlled<string[] | undefined, 'update:modelValue'>(props, emit, {
-      prop: 'modelValue',
-      event: 'update:modelValue',
-      default: props.defaultValue,
-    });
+    const { value, set, tick } = useControlled<string[] | undefined, 'update:modelValue'>(
+      props,
+      emit,
+      {
+        prop: 'modelValue',
+        event: 'update:modelValue',
+        default: props.defaultValue,
+      },
+    );
     const api = useEnhancer(
       host,
       enhanceAccordion,
@@ -78,12 +82,23 @@ export const Accordion = defineComponent({
     useApiSync<AccordionApi, string[] | undefined>(
       api,
       value,
-      (a) => a.value,
-      (a, v) => a.setValue(v),
+      null,
+      (a, v) => a.setValue(v, { silent: true }),
+      tick,
     );
     const items = createRegistry();
     provide(AccordionKey, { value, register: () => items.register() });
-    return () => h('div', { ...attrs, 'data-hl-accordion': '', ref: host }, slots.default?.());
+    return () =>
+      h(
+        'div',
+        {
+          ...attrs,
+          class: cx('hl-accordion', attrs.class as string),
+          'data-hl-accordion': '',
+          ref: host,
+        },
+        slots.default?.(),
+      );
   },
 });
 
@@ -149,7 +164,11 @@ export const Disclosure = defineComponent({
   emits: ['update:open'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value: open, set } = useControlled<boolean | undefined, 'update:open'>(props, emit, {
+    const {
+      value: open,
+      set,
+      tick,
+    } = useControlled<boolean | undefined, 'update:open'>(props, emit, {
       prop: 'open',
       event: 'update:open',
       default: props.defaultOpen,
@@ -161,8 +180,9 @@ export const Disclosure = defineComponent({
     useApiSync<DisclosureApi, boolean | undefined>(
       api,
       open,
-      (a) => a.open,
-      (a, v) => a.setOpen(v),
+      null,
+      (a, v) => a.setOpen(v, { silent: true }),
+      tick,
     );
     return () =>
       h(

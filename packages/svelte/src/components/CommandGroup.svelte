@@ -9,10 +9,10 @@
     children?: Snippet;
   }
 
-  let { label, children, ...rest }: Props = $props();
+  let { label, class: klass, children, ...rest }: Props = $props();
 </script>
 
-<div {...rest} data-hl-command-group>
+<div {...rest} class={['hl-command-group', klass]} data-hl-command-group>
   {#if label}<div class="hl-command-group-label" role="presentation">{@render label()}</div>{/if}
   {@render children?.()}
 </div>

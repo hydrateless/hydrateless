@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { Events } from '../core/events.js';
 import { nextIndex, Keys, type MoveDirection } from '../core/keys.js';
 
@@ -21,7 +21,7 @@ export type AccordionApi = {
   /** Values of the currently open items, in document order. */
   readonly value: string[];
   /** Open exactly the items whose values are listed (others close). */
-  setValue: (value: string[]) => void;
+  setValue: (value: string[], options?: SetOptions) => void;
 };
 
 /** `data-hl-default-value="a b"` or `"a,b"` lists the initially open items. */
@@ -43,7 +43,7 @@ export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, Accordio
   selector: '[data-hl-accordion]',
   defaults: { allowMultiple: false },
   attributes: { allowMultiple: 'boolean', defaultValue: parseList },
-  setup({ root, options, on, emit }) {
+  setup({ root, options, on, onUpdate, emit }) {
     const items = () => Array.from(root.querySelectorAll<HTMLDetailsElement>('details'));
     const valueOf = (item: HTMLDetailsElement, i: number) =>
       item.getAttribute('data-hl-value') ?? String(i);
@@ -66,6 +66,10 @@ export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, Accordio
 
     if (options.defaultValue) apply(options.defaultValue);
     else if (!options.allowMultiple) apply(read());
+
+    onUpdate(() => {
+      if (!options.allowMultiple) apply(read());
+    });
 
     // Toggling one item programmatically re-fires `toggle` on the others, so
     // change notifications are coalesced into a single microtask.
@@ -125,9 +129,10 @@ export const enhanceAccordion = defineEnhancer<EnhanceAccordionOptions, Accordio
       get value() {
         return read();
       },
-      setValue(value) {
+      setValue(value, { silent = false } = {}) {
         apply(value);
-        notify();
+        if (silent) lastValue = read().join('\u0000');
+        else notify();
       },
     };
   },

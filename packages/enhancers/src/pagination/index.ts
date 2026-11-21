@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { setAttrs, isRtl } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { Keys } from '../core/keys.js';
@@ -30,7 +30,7 @@ export type PaginationApi = {
   /** The current page (1-based). */
   readonly value: number;
   /** Go to a page. Out-of-range values are clamped. */
-  setValue: (value: number) => void;
+  setValue: (value: number, options?: SetOptions) => void;
   /** Total number of pages. */
   readonly total: number;
 };
@@ -64,7 +64,7 @@ export const enhancePagination = defineEnhancer<EnhancePaginationOptions, Pagina
     prevLabel: 'string',
     nextLabel: 'string',
   },
-  setup({ root, options, on, observe, add, emit }) {
+  setup({ root, options, on, observe, add, onUpdate, emit }) {
     const doc = root.ownerDocument;
     if (!root.hasAttribute('aria-label') && !root.hasAttribute('aria-labelledby')) {
       root.setAttribute('aria-label', 'Pagination');
@@ -172,7 +172,7 @@ export const enhancePagination = defineEnhancer<EnhancePaginationOptions, Pagina
       }
     };
 
-    const set = (next: number, focus = false) => {
+    const set = (next: number, focus = false, silent = false) => {
       const page = clamp(next);
       const changed = page !== value;
       value = page;
@@ -182,7 +182,7 @@ export const enhancePagination = defineEnhancer<EnhancePaginationOptions, Pagina
         numbered()
           .find((item) => pageOf(item) === value)
           ?.focus();
-      if (changed) {
+      if (changed && !silent) {
         options.onValueChange?.(value);
         emit(Events.change, { value });
       }
@@ -234,6 +234,18 @@ export const enhancePagination = defineEnhancer<EnhancePaginationOptions, Pagina
       paint();
     });
 
+    onUpdate(() => {
+      total = Math.max(
+        1,
+        Math.floor(
+          options.total ?? numbered().reduce((max, item) => Math.max(max, pageOf(item)!), 1),
+        ),
+      );
+      value = clamp(value);
+      render();
+      paint();
+    });
+
     render();
     paint();
 
@@ -241,7 +253,7 @@ export const enhancePagination = defineEnhancer<EnhancePaginationOptions, Pagina
       get value() {
         return value;
       },
-      setValue: (next) => set(next),
+      setValue: (next, { silent = false } = {}) => set(next, false, silent),
       get total() {
         return total;
       },

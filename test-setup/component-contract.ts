@@ -30,14 +30,17 @@ export const COMPONENT_CONTRACT = [
   'MenuSubmenu',
   // Overlays
   'Modal',
+  'ModalTrigger',
   'ModalHeader',
   'ModalBody',
   'ModalFooter',
   'Drawer',
+  'DrawerTrigger',
   'DrawerHeader',
   'DrawerBody',
   'DrawerFooter',
   'Popover',
+  'PopoverTrigger',
   'Tooltip',
   // Breadcrumb
   'Breadcrumb',

@@ -33,11 +33,13 @@
     onSelect,
     closeOnSelect = true,
     placement,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (open === undefined) open = defaultOpen;
+  let syncTick = $state(0);
 
   // The trigger's `popovertarget` must name the menu in server-rendered
   // markup so the menu opens before (or without) JavaScript.
@@ -57,15 +59,19 @@
     onOpenChange: (next) => {
       open = next;
       onOpenChange?.(next);
+      syncTick += 1;
     },
     onSelect: (value, item, checked) => onSelect?.(value, item, checked),
   }));
 
   $effect(() => {
-    if (open != null) dropdown.api?.setOpen(open);
+    void syncTick;
+    if (open != null && dropdown.api && dropdown.api.open !== open) {
+      dropdown.api.setOpen(open, { silent: true });
+    }
   });
 </script>
 
-<div {...rest} data-hl-dropdown {@attach dropdown.attach}>
+<div {...rest} class={['hl-dropdown', klass]} data-hl-dropdown {@attach dropdown.attach}>
   {@render children?.()}
 </div>

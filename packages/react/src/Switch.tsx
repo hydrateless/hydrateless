@@ -1,4 +1,5 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
+import { cx } from './util.js';
 import { useFieldControl } from './internal/useFieldControl.js';
 
 /** Props for {@link Switch}. */
@@ -17,7 +18,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
 ) {
   const props = useFieldControl(rest);
   return (
-    <label data-hl-switch className={className}>
+    <label className={cx('hl-switch', className)}>
       <input {...props} ref={ref} type="checkbox" role="switch" />
       {children}
     </label>

@@ -170,4 +170,65 @@ describe('defineEnhancer', () => {
     expect(event.bubbles).toBe(true);
     document.removeEventListener(Events.change, spy);
   });
+
+  it('update() refreshes options in place and runs onUpdate listeners without tearing down', () => {
+    const updated = vi.fn();
+    const enhanceLive = defineEnhancer<{ step?: number }, { count: () => number }>({
+      name: 'live-counter',
+      selector: '[data-counter]',
+      defaults: { step: 1 },
+      setup({ root, options, on, onUpdate }) {
+        let count = 0;
+        on(root, 'click', () => {
+          count += options.step!;
+        });
+        onUpdate(() => updated(options.step));
+        return { count: () => count };
+      },
+    });
+
+    const a = document.getElementById('a')!;
+    const handle = enhanceLive(a, { step: 2 });
+    a.click();
+    expect(handle.api!.count()).toBe(2);
+
+    handle.update({ step: 10 });
+    expect(updated).toHaveBeenCalledWith(10);
+    a.click();
+    // Internal state survived the option update (2 + 10 = 12).
+    expect(handle.api!.count()).toBe(12);
+
+    // Updating after destroy is a safe no-op.
+    handle.destroy();
+    handle.update({ step: 5 });
+    expect(updated).toHaveBeenCalledTimes(1);
+  });
+
+  it('update() merges into earlier caller options and undefined reverts a key', () => {
+    const seen: number[] = [];
+    const enhanceMerge = defineEnhancer<
+      { step?: number; label?: string; onStep?: (step: number) => void },
+      { read: () => { step?: number; label?: string } }
+    >({
+      name: 'merge-counter',
+      selector: '[data-counter]',
+      defaults: { step: 1, label: 'default' },
+      setup({ root, options, on }) {
+        on(root, 'click', () => options.onStep?.(options.step!));
+        return { read: () => ({ step: options.step, label: options.label }) };
+      },
+    });
+
+    const a = document.getElementById('a')!;
+    const handle = enhanceMerge(a, { step: 2, label: 'custom', onStep: (s) => seen.push(s) });
+
+    handle.update({ step: 10 });
+    a.click();
+    // The callback and `label` passed at creation survive a partial update.
+    expect(seen).toEqual([10]);
+    expect(handle.api!.read()).toEqual({ step: 10, label: 'custom' });
+
+    handle.update({ label: undefined });
+    expect(handle.api!.read()).toEqual({ step: 10, label: 'default' });
+  });
 });

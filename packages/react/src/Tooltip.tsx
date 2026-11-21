@@ -63,14 +63,21 @@ export const Tooltip = forwardRef<HTMLSpanElement, TooltipProps>(function Toolti
 ) {
   const ref = useForwardedRef(forwardedRef);
   const tipId = useHlId('tip');
-  const [, setOpen] = useControlled(openProp, false, onOpenChange);
+  const [, setOpen, syncTick] = useControlled(openProp, false, onOpenChange);
   const api = useEnhancer<EnhanceTooltipOptions, TooltipApi>(
     ref,
     enhanceTooltip,
     { placement, showDelay, hideDelay, onOpenChange: setOpen },
     [placement, showDelay, hideDelay],
   );
-  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
+  useSyncApi(
+    api,
+    openProp,
+    (api, open) => {
+      if (api.open !== open) api.setOpen(open, { silent: true });
+    },
+    syncTick,
+  );
 
   const trigger = isValidElement(children)
     ? cloneElement(children as ReactElement<Record<string, unknown>>, {
@@ -87,7 +94,7 @@ export const Tooltip = forwardRef<HTMLSpanElement, TooltipProps>(function Toolti
       style={{ position: 'relative', display: 'inline-block', ...style }}
     >
       {trigger}
-      <span id={tipId} role="tooltip">
+      <span id={tipId} className="hl-tooltip" role="tooltip">
         {content}
       </span>
     </span>

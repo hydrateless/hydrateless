@@ -46,7 +46,7 @@ export const slider: ComponentDoc = {
       layout: 'fill',
       render: () =>
         `<label class="hl-label" for="volume-demo">Volume</label>
-<div data-hl-slider data-hl-unit="%" style="width:100%">
+<div class="hl-slider-group" data-hl-slider data-hl-unit="%" style="width:100%">
   <input type="range" class="hl-slider" id="volume-demo" min="0" max="100" value="35" />
   <output for="volume-demo">35%</output>
 </div>`,

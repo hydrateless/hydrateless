@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { Events } from '../core/events.js';
 import { noop, type Disposer } from '../core/lifecycle.js';
 import { afterTransition } from '../core/motion.js';
@@ -16,7 +16,7 @@ export type AlertApi = {
   /** Whether the alert is currently shown. */
   readonly open: boolean;
   /** Show or dismiss the alert. Dismissal waits for the CSS exit transition. */
-  setOpen: (open: boolean) => void;
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /**
@@ -49,36 +49,36 @@ export const enhanceAlert = defineEnhancer<EnhanceAlertOptions, AlertApi>({
       emit(Events.openChange, { open });
     };
 
-    const show = () => {
+    const show = (silent = false) => {
       cancel();
       cancel = noop;
       root.removeAttribute('data-hl-alert-closing');
       if (!root.hidden) return;
       root.hidden = false;
-      notify(true);
+      if (!silent) notify(true);
     };
-    const hide = () => {
+    const hide = (silent = false) => {
       if (!isOpen()) return;
       root.setAttribute('data-hl-alert-closing', '');
       cancel = afterTransition(root, () => {
         root.removeAttribute('data-hl-alert-closing');
         root.hidden = true;
-        notify(false);
+        if (!silent) notify(false);
       });
     };
 
     if (options.defaultOpen === true) root.hidden = false;
     else if (options.defaultOpen === false) root.hidden = true;
 
-    if (button) on(button, 'click', hide);
+    if (button) on(button, 'click', () => hide());
 
     return {
       get open() {
         return isOpen();
       },
-      setOpen(next) {
-        if (next) show();
-        else hide();
+      setOpen(next, { silent = false } = {}) {
+        if (next) show(silent);
+        else hide(silent);
       },
     };
   },

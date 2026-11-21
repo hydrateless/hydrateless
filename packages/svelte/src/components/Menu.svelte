@@ -33,11 +33,13 @@
     defaultValue = null,
     onValueChange,
     onSelect,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (value === undefined) value = defaultValue;
+  let syncTick = $state(0);
 
   const menu = useEnhancer(enhanceMenu, () => ({
     orientation,
@@ -45,17 +47,22 @@
     onValueChange: (next) => {
       value = next;
       onValueChange?.(next);
+      syncTick += 1;
     },
     onSelect: (itemValue, item, checked) => onSelect?.(itemValue, item, checked),
   }));
 
   $effect(() => {
-    if (value !== undefined) menu.api?.setValue(value);
+    void syncTick;
+    if (value !== undefined && menu.api && menu.api.value !== value) {
+      menu.api.setValue(value, { silent: true });
+    }
   });
 </script>
 
 <ul
   {...rest}
+  class={['hl-menu', klass]}
   data-hl-menu
   role={orientation === 'vertical' ? 'menu' : 'menubar'}
   aria-orientation={orientation}

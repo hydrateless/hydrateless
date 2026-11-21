@@ -162,5 +162,33 @@ describe('enhanceTabs', () => {
       const api = enhanceTabs(document).api!;
       expect(api.value).toBe('1');
     });
+
+    it('setValue with silent: true updates the DOM without echoing notifications', () => {
+      const seen: string[] = [];
+      const events: string[] = [];
+      document
+        .querySelector('[data-hl-tabs]')!
+        .addEventListener('hl:change', (e) => events.push((e as CustomEvent).detail.value));
+      const handle = enhanceTabs(document, { onValueChange: (value) => seen.push(value) });
+
+      handle.api!.setValue('two', { silent: true });
+      expect(handle.api!.value).toBe('two');
+      expect(document.querySelectorAll('[role="tab"]')[1].getAttribute('aria-selected')).toBe(
+        'true',
+      );
+      expect(seen).toEqual([]);
+      expect(events).toEqual([]);
+    });
+
+    it('update() changes orientation in place without resetting selection', () => {
+      const handle = enhanceTabs(document, { orientation: 'horizontal' });
+      handle.api!.setValue('two');
+      handle.update({ orientation: 'vertical' });
+
+      expect(handle.api!.value).toBe('two');
+      expect(document.querySelector('[role="tablist"]')!.getAttribute('aria-orientation')).toBe(
+        'vertical',
+      );
+    });
   });
 });

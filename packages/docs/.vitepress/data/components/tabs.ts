@@ -25,7 +25,7 @@ export const tabs: ComponentDoc = {
         'Render `aria-selected`, `tabindex`, and `hidden` on the server so the selected tab shows before any JavaScript runs. `Left`/`Right` move focus, `Home`/`End` jump to the ends, and `Enter`/`Space` activate (manual activation is the default).',
       layout: 'fill',
       render: () =>
-        `<div data-hl-tabs style="width:100%">
+        `<div class="hl-tabs" data-hl-tabs style="width:100%">
   <div role="tablist" aria-label="Product">
     <button role="tab" id="tab-overview" aria-selected="true" aria-controls="panel-overview" data-hl-value="overview">Overview</button>
     <button role="tab" id="tab-features" aria-selected="false" tabindex="-1" aria-controls="panel-features" data-hl-value="features">Features</button>
@@ -51,7 +51,7 @@ export const tabs: ComponentDoc = {
         'Each tab is a `<label class="hl-tab">` wrapping a radio, and `:has(input:checked)` reveals the matching panel. Panels switch with no JavaScript; the enhancer upgrades the same markup to the full ARIA pattern when it runs.',
       layout: 'fill',
       render: () =>
-        `<div data-hl-tabs style="width:100%">
+        `<div class="hl-tabs" data-hl-tabs style="width:100%">
   <div class="hl-tablist">
     <label class="hl-tab"><input type="radio" name="tabs-baseline" value="overview" checked /> Overview</label>
     <label class="hl-tab"><input type="radio" name="tabs-baseline" value="features" /> Features</label>

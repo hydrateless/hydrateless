@@ -27,6 +27,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  ModalTrigger,
   Pagination,
   Tab,
   TabList,
@@ -36,7 +37,6 @@ import {
 } from '@hydrateless/vue';
 
 const toast = useToast();
-const open = ref(false);
 const page = ref(3);
 const fruit = ref('');
 const email = ref('');
@@ -88,7 +88,7 @@ function onAction(value: string) {
           </CardHeader>
           <CardBody>
             <p>Accessible primitives built on semantic HTML and modern CSS.</p>
-            <Button @click="open = true">Open modal</Button>
+            <ModalTrigger target="confirm-modal" class="hl-button">Open modal</ModalTrigger>
           </CardBody>
         </Card>
       </TabPanel>
@@ -116,12 +116,19 @@ function onAction(value: string) {
 
     <Pagination v-model:page="page" :count="10" />
 
-    <Modal v-model:open="open">
+    <Modal id="confirm-modal">
       <ModalHeader><h2>Confirm</h2></ModalHeader>
       <ModalBody><p>Are you sure you want to continue?</p></ModalBody>
       <ModalFooter>
-        <Button @click="open = false">Cancel</Button>
-        <Button intent="primary" @click="open = false">Confirm</Button>
+        <ModalTrigger target="confirm-modal" command="close" class="hl-button">Cancel</ModalTrigger>
+        <ModalTrigger
+          target="confirm-modal"
+          command="close"
+          class="hl-button"
+          data-hl-intent="primary"
+        >
+          Confirm
+        </ModalTrigger>
       </ModalFooter>
     </Modal>
   </main>

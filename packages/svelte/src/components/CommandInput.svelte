@@ -9,4 +9,4 @@
   let { styled = true, class: klass, ...rest }: Props = $props();
 </script>
 
-<input {...rest} class={[styled && 'hl-input', klass]} data-hl-command-input />
+<input {...rest} class={['hl-command-input', styled && 'hl-input', klass]} data-hl-command-input />

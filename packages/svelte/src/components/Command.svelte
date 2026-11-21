@@ -26,11 +26,13 @@
     onQueryChange,
     onCommand,
     hotkey,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (query === undefined) query = defaultQuery;
+  let syncTick = $state(0);
 
   const command = useEnhancer(enhanceCommand, () => ({
     hotkey,
@@ -38,15 +40,25 @@
     onValueChange: (next) => {
       query = next;
       onQueryChange?.(next);
+      syncTick += 1;
     },
     onCommand: (value, item) => onCommand?.(value, item),
   }));
 
   $effect(() => {
-    if (query != null) command.api?.setValue(query);
+    void syncTick;
+    if (query != null && command.api && command.api.value !== query) {
+      command.api.setValue(query, { silent: true });
+    }
   });
 </script>
 
-<div {...rest} data-hl-command data-hl-hotkey={hotkey} {@attach command.attach}>
+<div
+  {...rest}
+  class={['hl-command', klass]}
+  data-hl-command
+  data-hl-hotkey={hotkey}
+  {@attach command.attach}
+>
   {@render children?.()}
 </div>

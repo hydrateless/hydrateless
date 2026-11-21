@@ -15,7 +15,7 @@
     children?: Snippet;
   }
 
-  let { contentSelector, headings, scrollSpy, children, ...rest }: Props = $props();
+  let { contentSelector, headings, scrollSpy, class: klass, children, ...rest }: Props = $props();
 
   // The headings live outside the nav, so the enhancer scans the document and
   // finds this nav as the `[data-hl-toc]` root within it.
@@ -26,6 +26,6 @@
   );
 </script>
 
-<nav {...rest} data-hl-toc {@attach toc.attach}>
+<nav {...rest} class={['hl-toc', klass]} data-hl-toc {@attach toc.attach}>
   {@render children?.()}
 </nav>

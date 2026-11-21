@@ -40,7 +40,8 @@ Hydrateless is a lightweight component library that delivers accessible, themeab
 - **Controlled or uncontrolled:** Framework components support both modes: `defaultValue`/`defaultOpen` for hands-off use, `value`/`open` with change callbacks (or `v-model` / `bind:`) for full control.
 - **Auto-initialization:** The `@hydrateless/auto` package detects `data-hl-*` attributes, lazy-loads the right enhancers, keeps watching the DOM so dynamic content is enhanced automatically, and isolates failures so one broken component never takes down the rest. Opt out with `<html data-hl-manual>` to call it yourself.
 - **Design tokens:** Theme every component through CSS variables for colors, spacing, radii, typography, motion, focus rings, and overlay sizes.
-- **Dark mode:** Colors are defined once with `light-dark()`; the system preference applies automatically, and `data-theme="light|dark"` overrides it for the page or any subtree.
+- **Clean styling and behavior separation:** Visual styles attach strictly to `.hl-*` classes, while `data-hl-*` attributes own enhancer opt-in, configuration, and visual variants. Drop `data-hl-*` for pure CSS components with zero JS, or drop `.hl-*` (and optionally import `hydrateless/behavior.css`) for headless enhancers with your own design system or Tailwind.
+- **Dark mode:** Colors are defined once with `light-dark()`; the system preference applies automatically, and `data-hl-theme="light|dark"` overrides it for the page or any subtree.
 - **CSS layers:** All styles use `@layer`, so your custom CSS can override defaults without specificity battles.
 - **Accessible by default:** ARIA roles, keyboard support, focus management, forced-colors support, reduced-motion handling, and skip links are built in.
 - **RTL ready:** Every stylesheet uses logical properties, so drawers, switches, breadcrumbs, and menus mirror correctly under `dir="rtl"`.
@@ -63,7 +64,7 @@ npm install hydrateless @hydrateless/auto
 <script type="module" src="node_modules/@hydrateless/auto/dist/index.js"></script>
 
 <!-- Options live in the markup: data-hl-allow-multiple lets both panels stay open. -->
-<div data-hl-accordion data-hl-allow-multiple>
+<div class="hl-accordion" data-hl-accordion data-hl-allow-multiple>
   <details>
     <summary>Section one</summary>
     <div class="hl-accordion-panel">First panel content.</div>

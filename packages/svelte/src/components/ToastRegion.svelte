@@ -10,7 +10,7 @@
     onOpenChange?: EnhanceToastOptions['onOpenChange'];
   }
 
-  let { duration, onOpenChange, ...rest }: Props = $props();
+  let { duration, onOpenChange, class: klass, ...rest }: Props = $props();
 
   // Enhanced on mount so `useToast()` adopts this region (and its defaults)
   // instead of appending its own to <body>.
@@ -20,4 +20,4 @@
   }));
 </script>
 
-<div {...rest} data-hl-toast-region {@attach toast.attach}></div>
+<div {...rest} class={['hl-toast-region', klass]} data-hl-toast-region {@attach toast.attach}></div>

@@ -213,4 +213,20 @@ describe('enhanceToast', () => {
     first.api!.show('Still alive', { duration: 0 });
     expect(document.querySelectorAll('[data-hl-toast]')).toHaveLength(2);
   });
+
+  it('adds hl-toast classes only when the region carries hl-toast-region', () => {
+    document.body.innerHTML = `<div class="hl-toast-region" data-hl-toast-region></div>`;
+    const styled = api().show('Styled', { duration: 0 });
+    expect(styled.classList.contains('hl-toast')).toBe(true);
+    expect(
+      styled.querySelector('[data-hl-toast-close]')!.classList.contains('hl-toast-close'),
+    ).toBe(true);
+
+    document.body.innerHTML = `<div data-hl-toast-region></div>`;
+    const headless = api().show('Headless', { duration: 0 });
+    expect(headless.classList.contains('hl-toast')).toBe(false);
+    expect(
+      headless.querySelector('[data-hl-toast-close]')!.classList.contains('hl-toast-close'),
+    ).toBe(false);
+  });
 });

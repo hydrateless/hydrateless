@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { setAttrs } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { Keys } from '../core/keys.js';
@@ -34,7 +34,7 @@ export type TableApi = {
   /** The active sort, or `null` when the rows are in authored order. */
   readonly value: SortState | null;
   /** Sort by a column, or pass `null` to restore the authored order. */
-  setValue: (value: SortState | null) => void;
+  setValue: (value: SortState | null, options?: SetOptions) => void;
 };
 
 const SORTABLE = 'th[data-hl-sort]';
@@ -71,7 +71,7 @@ export const enhanceTable = defineEnhancer<EnhanceTableOptions, TableApi>({
   selector: 'table[data-hl-table]',
   defaults: {},
   attributes: { defaultValue: parseSort },
-  setup({ root, options, on, observe, add, emit }) {
+  setup({ root, options, on, observe, add, onUpdate, emit }) {
     const table = root as HTMLTableElement;
     const headers = () => Array.from(table.querySelectorAll<HTMLTableCellElement>(SORTABLE));
     if (headers().length === 0) return;
@@ -80,7 +80,8 @@ export const enhanceTable = defineEnhancer<EnhanceTableOptions, TableApi>({
     if (!body) return;
 
     const keyOf = (th: HTMLTableCellElement) => th.dataset.hlSort || String(th.cellIndex);
-    const compare = options.compare ?? ((a, b) => defaultCompare(a, b));
+    const compare = (a: string, b: string, col: string) =>
+      options.compare ? options.compare(a, b, col) : defaultCompare(a, b);
 
     // Authored order, so clearing the sort can put the rows back.
     const original: HTMLTableRowElement[] = Array.from(body.rows);
@@ -142,7 +143,7 @@ export const enhanceTable = defineEnhancer<EnhanceTableOptions, TableApi>({
       paint();
     };
 
-    const set = (next: SortState | null) => {
+    const set = (next: SortState | null, silent = false) => {
       const same =
         (next === null && value === null) ||
         (next !== null &&
@@ -151,7 +152,7 @@ export const enhanceTable = defineEnhancer<EnhanceTableOptions, TableApi>({
           next.direction === value.direction);
       value = next ? { ...next } : null;
       apply();
-      if (!same) {
+      if (!same && !silent) {
         options.onValueChange?.(value);
         emit(Events.change, { value });
       }
@@ -205,11 +206,15 @@ export const enhanceTable = defineEnhancer<EnhanceTableOptions, TableApi>({
     else paint();
     add(() => body.append(...original));
 
+    onUpdate(() => {
+      if (value) apply();
+    });
+
     return {
       get value() {
         return value ? { ...value } : null;
       },
-      setValue: set,
+      setValue: (next, { silent = false } = {}) => set(next, silent),
     };
   },
 });

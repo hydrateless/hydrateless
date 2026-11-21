@@ -1,7 +1,7 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs } from '../core/dom.js';
 import { keepPositioned, parsePlacement, type Placement } from '../core/platform.js';
-import { noop, type Disposer } from '../core/lifecycle.js';
+import { combine, noop, on as listen, type Disposer } from '../core/lifecycle.js';
 import { Events } from '../core/events.js';
 
 /** Options for {@link enhancePopover}. */
@@ -24,8 +24,8 @@ export type EnhancePopoverOptions = {
 export type PopoverApi = {
   /** Whether the popover is currently shown. */
   readonly open: boolean;
-  /** Show or hide the popover. */
-  setOpen: (open: boolean) => void;
+  /** Show or hide the popover. Pass `silent: true` to skip change notifications. */
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /**
@@ -59,7 +59,7 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
     hoverCloseDelay: 'number',
     defaultOpen: 'boolean',
   },
-  setup({ root, options, on, add, emit }) {
+  setup({ root, options, on, add, onUpdate, emit }) {
     const popover = root;
     const doc = popover.ownerDocument;
     const win = doc.defaultView;
@@ -78,30 +78,55 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
     let stopPositioning: Disposer = noop;
     add(() => stopPositioning());
 
+    const isOpen = () => popover.matches(':popover-open');
+    let suppressNotify = false;
+
+    const position = () => {
+      stopPositioning();
+      stopPositioning =
+        isOpen() && options.position
+          ? keepPositioned(anchor, popover, { placement: options.placement })
+          : noop;
+    };
+
     // The native `toggle` event is the single source of truth for open state.
     on(popover, 'toggle', (e) => {
       const open = (e as ToggleEvent).newState === 'open';
-      stopPositioning();
-      stopPositioning =
-        open && options.position
-          ? keepPositioned(anchor, popover, { placement: options.placement })
-          : noop;
+      const silent = suppressNotify;
+      suppressNotify = false;
+      position();
       for (const opener of openers) {
         setAttrs(opener, { 'aria-expanded': open ? 'true' : 'false' });
       }
-      options.onOpenChange?.(open);
-      emit(Events.openChange, { open });
+      if (!silent) {
+        options.onOpenChange?.(open);
+        emit(Events.openChange, { open });
+      }
     });
 
-    const isOpen = () => popover.matches(':popover-open');
-    const show = () => {
-      if (!isOpen()) popover.showPopover();
+    const show = (silent = false) => {
+      if (isOpen()) return;
+      if (silent) suppressNotify = true;
+      popover.showPopover();
     };
-    const hide = () => {
-      if (isOpen()) popover.hidePopover();
+    const hide = (silent = false) => {
+      if (!isOpen()) return;
+      if (silent) suppressNotify = true;
+      popover.hidePopover();
     };
 
-    if (options.triggerEvent === 'hover') {
+    let unbindHover: Disposer = noop;
+    let hoverBound = false;
+    // Rebind only when the trigger mode changes: rebinding cancels a pending
+    // hover close, which would leave the popover open after the pointer left.
+    // The listeners read `hoverCloseDelay` live, so other updates need nothing.
+    const syncHover = () => {
+      const wantHover = options.triggerEvent === 'hover';
+      if (wantHover === hoverBound) return;
+      unbindHover();
+      unbindHover = noop;
+      hoverBound = wantHover;
+      if (!wantHover) return;
       let closeTimer: number | undefined;
       const cancelClose = () => {
         if (closeTimer !== undefined) win?.clearTimeout(closeTimer);
@@ -109,18 +134,30 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
       };
       const scheduleHide = () => {
         cancelClose();
-        closeTimer = win?.setTimeout(hide, options.hoverCloseDelay);
+        closeTimer = win?.setTimeout(() => hide(), options.hoverCloseDelay);
       };
-      add(cancelClose);
+      const bag: Disposer[] = [cancelClose];
       for (const opener of openers) {
-        on(opener, 'mouseenter', show);
-        on(opener, 'mouseleave', scheduleHide);
-        on(opener, 'focus', show);
-        on(opener, 'blur', scheduleHide);
+        bag.push(
+          listen(opener, 'mouseenter', () => show()),
+          listen(opener, 'mouseleave', scheduleHide),
+          listen(opener, 'focus', () => show()),
+          listen(opener, 'blur', scheduleHide),
+        );
       }
-      on(popover, 'mouseenter', cancelClose);
-      on(popover, 'mouseleave', scheduleHide);
-    }
+      bag.push(
+        listen(popover, 'mouseenter', cancelClose),
+        listen(popover, 'mouseleave', scheduleHide),
+      );
+      unbindHover = combine(bag);
+    };
+    add(() => unbindHover());
+    syncHover();
+
+    onUpdate(() => {
+      syncHover();
+      position();
+    });
 
     if (options.defaultOpen) show();
 
@@ -128,9 +165,9 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
       get open() {
         return isOpen();
       },
-      setOpen(next) {
-        if (next) show();
-        else hide();
+      setOpen(next, { silent = false } = {}) {
+        if (next) show(silent);
+        else hide(silent);
       },
     };
   },

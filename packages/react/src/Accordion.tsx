@@ -5,6 +5,7 @@ import {
   type EnhanceAccordionOptions,
 } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
+import { cx } from './util.js';
 import { useControlled } from './internal/useControlled.js';
 import { useSyncApi } from './internal/useSyncApi.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
@@ -32,22 +33,39 @@ export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
  * (`value` + `onValueChange`).
  */
 export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Accordion(
-  { allowMultiple = false, value: valueProp, defaultValue, onValueChange, children, ...rest },
+  {
+    allowMultiple = false,
+    value: valueProp,
+    defaultValue,
+    onValueChange,
+    className,
+    children,
+    ...rest
+  },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [value = [], setValue] = useControlled(valueProp, defaultValue, onValueChange);
+  const [value = [], setValue, syncTick] = useControlled(valueProp, defaultValue, onValueChange);
   const api = useEnhancer<EnhanceAccordionOptions, AccordionApi>(
     ref,
     enhanceAccordion,
     { allowMultiple, defaultValue: value, onValueChange: setValue },
     [allowMultiple],
   );
-  useSyncApi(api, valueProp, (api, value) => api.setValue(value));
+  useSyncApi(
+    api,
+    valueProp,
+    (api, next) => {
+      // Always sync silently even when `<details open>` was already patched by
+      // React, so the enhancer's internal `lastValue` tracker stays in step.
+      api.setValue(next, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
     <AccordionContext.Provider value={value}>
-      <div {...rest} ref={ref} data-hl-accordion>
+      <div {...rest} ref={ref} className={cx('hl-accordion', className)} data-hl-accordion>
         {indexChildren(children, AccordionItem)}
       </div>
     </AccordionContext.Provider>

@@ -111,4 +111,28 @@ describe('enhancePopover', () => {
     document.body.innerHTML = '<div>Nothing</div>';
     expect(() => enhancePopover(document)).not.toThrow();
   });
+
+  it('keeps a pending hover close when options update mid-delay', () => {
+    vi.useFakeTimers();
+    const handle = enhancePopover(document, { triggerEvent: 'hover', hoverCloseDelay: 100 });
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
+    const popover = document.getElementById('pop1')!;
+
+    opener.dispatchEvent(new Event('mouseenter'));
+    opener.dispatchEvent(new Event('mouseleave'));
+    handle.update({ triggerEvent: 'hover', hoverCloseDelay: 100, placement: 'top' });
+    vi.advanceTimersByTime(100);
+    expect(popover.matches(':popover-open')).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('stops hover handling when update() switches to click mode', () => {
+    const handle = enhancePopover(document, { triggerEvent: 'hover' });
+    const opener = document.querySelector<HTMLElement>('[popovertarget]')!;
+    const popover = document.getElementById('pop1')!;
+
+    handle.update({ triggerEvent: 'click' });
+    opener.dispatchEvent(new Event('mouseenter'));
+    expect(popover.matches(':popover-open')).toBe(false);
+  });
 });

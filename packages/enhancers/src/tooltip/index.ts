@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs, resolveRef } from '../core/dom.js';
 import { Events } from '../core/events.js';
 import { Keys } from '../core/keys.js';
@@ -33,8 +33,8 @@ export type EnhanceTooltipOptions = {
 export type TooltipApi = {
   /** Whether the tooltip is currently shown. */
   readonly open: boolean;
-  /** Show or hide the tooltip immediately (no delays). */
-  setOpen: (open: boolean) => void;
+  /** Show or hide the tooltip immediately (no delays). Pass `silent: true` to skip notifications. */
+  setOpen: (open: boolean, options?: SetOptions) => void;
 };
 
 /**
@@ -65,7 +65,7 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     hideDelay: 'number',
     defaultOpen: 'boolean',
   },
-  setup({ root, options, on, add, emit }) {
+  setup({ root, options, on, add, onUpdate, emit }) {
     const ref = root.getAttribute('aria-describedby') || root.getAttribute('data-hl-tooltip');
     const tip = resolveRef(root.ownerDocument, ref);
     if (!tip) return;
@@ -105,8 +105,10 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
     const anchorName = `--${ensureId(root, 'hl-tooltip-anchor')}`;
     root.style.setProperty('anchor-name', anchorName);
     tip.style.setProperty('position-anchor', anchorName);
-    const placement = options.placement!;
-    tip.dataset.hlSide = placement.split('-')[0];
+    const syncSide = () => {
+      tip.dataset.hlSide = options.placement!.split('-')[0];
+    };
+    syncSide();
     add(() => delete tip.dataset.hlSide);
 
     let showTimer: number | undefined;
@@ -126,18 +128,31 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
       emit(Events.openChange, { open });
     };
 
+    const position = () => {
+      stopPositioning();
+      stopPositioning =
+        isOpen() && options.position
+          ? keepPositioned(root, tip, { placement: options.placement })
+          : noop;
+    };
+
+    onUpdate(() => {
+      syncSide();
+      position();
+    });
+
     // `data-hl-tooltip-open` is the CSS-first hook (transitionable) and always
     // moves together with the popover/hidden state.
-    const show = () => {
+    const show = (silent = false) => {
       clearTimers();
       if (isOpen()) return;
       if (usePopover) tip.showPopover();
       else tip.removeAttribute('hidden');
       tip.setAttribute('data-hl-tooltip-open', '');
-      if (options.position) stopPositioning = keepPositioned(root, tip, { placement });
-      notify(true);
+      position();
+      if (!silent) notify(true);
     };
-    const hide = () => {
+    const hide = (silent = false) => {
       clearTimers();
       if (!isOpen()) return;
       stopPositioning();
@@ -145,23 +160,23 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
       tip.removeAttribute('data-hl-tooltip-open');
       if (usePopover) tip.hidePopover();
       else tip.setAttribute('hidden', '');
-      notify(false);
+      if (!silent) notify(false);
     };
     const scheduleShow = () => {
       clearTimers();
       if (!win || !options.showDelay) return show();
-      showTimer = win.setTimeout(show, options.showDelay);
+      showTimer = win.setTimeout(() => show(), options.showDelay);
     };
     const scheduleHide = () => {
       clearTimers();
       if (!win || !options.hideDelay) return hide();
-      hideTimer = win.setTimeout(hide, options.hideDelay);
+      hideTimer = win.setTimeout(() => hide(), options.hideDelay);
     };
 
     on(root, 'mouseenter', scheduleShow);
     on(root, 'mouseleave', scheduleHide);
-    on(root, 'focus', show);
-    on(root, 'blur', hide);
+    on(root, 'focus', () => show());
+    on(root, 'blur', () => hide());
     on(tip, 'mouseenter', clearTimers);
     on(tip, 'mouseleave', scheduleHide);
     // Escape dismisses a visible tooltip wherever focus is (WCAG 1.4.13).
@@ -175,9 +190,9 @@ export const enhanceTooltip = defineEnhancer<EnhanceTooltipOptions, TooltipApi>(
       get open() {
         return isOpen();
       },
-      setOpen(next) {
-        if (next) show();
-        else hide();
+      setOpen(next, { silent = false } = {}) {
+        if (next) show(silent);
+        else hide(silent);
       },
     };
   },

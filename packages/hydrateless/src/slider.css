@@ -4,8 +4,8 @@
  * and RTL direction. Firefox paints the filled part of the track natively
  * (`::-moz-range-progress`); other engines get it from the
  * `--hl-slider-progress` custom property the enhancer keeps in sync when the
- * input sits inside a `[data-hl-slider]` wrapper (with an optional `<output>`).
- *   data-hl-slider: wrapper around the input (and output) for the enhancer
+ * input sits inside a `[data-hl-slider]` wrapper (style the wrapper + `<output>`
+ * pair with `.hl-slider-group`).
  */
 @layer components {
   .hl-slider {
@@ -46,13 +46,13 @@
     );
   }
 
-  [data-hl-slider] {
+  .hl-slider-group {
     display: flex;
     align-items: center;
     gap: var(--hl-space-3);
   }
 
-  [data-hl-slider] > output {
+  .hl-slider-group > output {
     min-inline-size: 3ch;
     font-size: var(--hl-text-sm);
     font-variant-numeric: tabular-nums;

@@ -5,9 +5,12 @@ import {
   type PopoverApi,
 } from '@hydrateless/enhancers';
 import { useEnhancer } from './useEnhancer.js';
+import { cx } from './util.js';
 import { useControlled } from './internal/useControlled.js';
 import { useSyncApi } from './internal/useSyncApi.js';
 import { useForwardedRef } from './internal/useForwardedRef.js';
+
+export { PopoverTrigger, type PopoverTriggerProps } from './OverlayParts.js';
 
 /** Props for {@link Popover}. */
 export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
@@ -26,16 +29,16 @@ export interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
 /**
  * Floating content built on the native Popover API. The surface lives in the
  * top layer with light-dismiss and Escape handled by the browser; visibility
- * works uncontrolled (`defaultOpen`, or a `popovertarget` trigger button) or
+ * works uncontrolled (`defaultOpen`, or a `<PopoverTrigger>` button) or
  * controlled (`open` + `onOpenChange`). Position it with the
  * `hydrateless/popover.css` styles.
  */
 export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
-  { open: openProp, defaultOpen, onOpenChange, placement, hover, children, ...rest },
+  { open: openProp, defaultOpen, onOpenChange, placement, hover, className, children, ...rest },
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const [open, setOpen, syncTick] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
   const api = useEnhancer<EnhancePopoverOptions, PopoverApi>(
     ref,
     enhancePopover,
@@ -47,10 +50,24 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     },
     [placement, hover],
   );
-  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
+  useSyncApi(
+    api,
+    openProp,
+    (api, open) => {
+      if (api.open !== open) api.setOpen(open, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
-    <div {...rest} ref={ref} data-hl-popover popover="auto" role="dialog">
+    <div
+      {...rest}
+      ref={ref}
+      className={cx('hl-popover', className)}
+      data-hl-popover
+      popover="auto"
+      role="dialog"
+    >
       {children}
     </div>
   );

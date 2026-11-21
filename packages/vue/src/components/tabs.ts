@@ -14,6 +14,7 @@ import {
 import { enhanceTabs, type EnhanceTabsOptions, type TabsApi } from '@hydrateless/enhancers';
 import {
   createRegistry,
+  cx,
   useApiSync,
   useControlled,
   useRegistration,
@@ -74,11 +75,15 @@ export const Tabs = defineComponent({
   emits: ['update:modelValue'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value, set } = useControlled<string | undefined, 'update:modelValue'>(props, emit, {
-      prop: 'modelValue',
-      event: 'update:modelValue',
-      default: props.defaultValue,
-    });
+    const { value, set, tick } = useControlled<string | undefined, 'update:modelValue'>(
+      props,
+      emit,
+      {
+        prop: 'modelValue',
+        event: 'update:modelValue',
+        default: props.defaultValue,
+      },
+    );
     const api = useEnhancer(
       host,
       enhanceTabs,
@@ -94,7 +99,8 @@ export const Tabs = defineComponent({
       api,
       value,
       (a) => a.value,
-      (a, v) => a.setValue(v),
+      (a, v) => a.setValue(v, { silent: true }),
+      tick,
     );
     // Tabs register a value getter so `values` stays in DOM order even when
     // a `v-for` inserts or removes tabs after mount.
@@ -108,7 +114,12 @@ export const Tabs = defineComponent({
       tab: (getValue) => tabs.register(getValue),
       panel: () => panels.register(),
     });
-    return () => h('div', { ...attrs, 'data-hl-tabs': '', ref: host }, slots.default?.());
+    return () =>
+      h(
+        'div',
+        { ...attrs, class: cx('hl-tabs', attrs.class as string), 'data-hl-tabs': '', ref: host },
+        slots.default?.(),
+      );
   },
 });
 

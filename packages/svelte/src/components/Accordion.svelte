@@ -25,11 +25,13 @@
     value = $bindable(),
     defaultValue,
     onValueChange,
+    class: klass,
     children,
     ...rest
   }: Props = $props();
   // svelte-ignore state_referenced_locally -- seeds the uncontrolled initial value once
   if (value === undefined) value = defaultValue ?? [];
+  let syncTick = $state(0);
 
   // Items register in document order so each `<details>` can render `open`
   // on the server from the shared value; indexes stay live for `{#each}`.
@@ -47,14 +49,16 @@
     onValueChange: (next) => {
       value = next;
       onValueChange?.(next);
+      syncTick += 1;
     },
   }));
 
   $effect(() => {
-    if (value != null) accordion.api?.setValue(value);
+    void syncTick;
+    if (value != null) accordion.api?.setValue(value, { silent: true });
   });
 </script>
 
-<div {...rest} data-hl-accordion {@attach accordion.attach}>
+<div {...rest} class={['hl-accordion', klass]} data-hl-accordion {@attach accordion.attach}>
   {@render children?.()}
 </div>

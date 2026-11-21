@@ -7,9 +7,9 @@
     children?: Snippet;
   }
 
-  let { children, ...rest }: Props = $props();
+  let { class: klass, children, ...rest }: Props = $props();
 </script>
 
-<div {...rest} data-hl-command-empty hidden>
+<div {...rest} class={['hl-command-empty', klass]} data-hl-command-empty hidden>
   {#if children}{@render children()}{:else}No results found.{/if}
 </div>

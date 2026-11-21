@@ -5,6 +5,7 @@ import {
   type LiHTMLAttributes,
   type ReactNode,
 } from 'react';
+import { cx } from './util.js';
 
 /** Props for {@link Breadcrumb}. */
 export type BreadcrumbProps = HTMLAttributes<HTMLElement>;
@@ -21,11 +22,16 @@ export type BreadcrumbProps = HTMLAttributes<HTMLElement>;
  * ```
  */
 export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb(
-  { children, ...rest },
+  { className, children, ...rest },
   ref,
 ) {
   return (
-    <nav {...rest} ref={ref} data-hl-breadcrumb aria-label={rest['aria-label'] ?? 'Breadcrumb'}>
+    <nav
+      {...rest}
+      ref={ref}
+      className={cx('hl-breadcrumb', className)}
+      aria-label={rest['aria-label'] ?? 'Breadcrumb'}
+    >
       <ol>{children}</ol>
     </nav>
   );

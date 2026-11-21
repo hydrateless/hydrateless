@@ -73,10 +73,11 @@ modal.api?.setOpen(true);
 
 ## Write semantic HTML
 
-Components use standard HTML elements with `data-hl-*` attributes:
+Components use standard HTML elements with `.hl-*` classes for visual styling
+and optional `data-hl-*` attributes to opt into JavaScript enhancers:
 
 <Demo layout="fill">
-  <div data-hl-tabs style="width:100%">
+  <div class="hl-tabs" data-hl-tabs style="width:100%">
     <div role="tablist" aria-label="Hydrateless overview">
       <button role="tab" aria-selected="true" id="intro-overview" aria-controls="intro-overview-panel">Overview</button>
       <button role="tab" aria-selected="false" tabindex="-1">Features</button>
@@ -89,7 +90,7 @@ Components use standard HTML elements with `data-hl-*` attributes:
 </Demo>
 
 ```html
-<div data-hl-tabs>
+<div class="hl-tabs" data-hl-tabs>
   <div role="tablist" aria-label="Hydrateless overview">
     <button
       role="tab"
@@ -103,10 +104,10 @@ Components use standard HTML elements with `data-hl-*` attributes:
     <button role="tab" aria-selected="false" tabindex="-1">Install</button>
   </div>
   <div role="tabpanel" id="intro-overview-panel" aria-labelledby="intro-overview" tabindex="0">
-    …
+    ...
   </div>
-  <div role="tabpanel" tabindex="0" hidden>…</div>
-  <div role="tabpanel" tabindex="0" hidden>…</div>
+  <div role="tabpanel" tabindex="0" hidden>...</div>
+  <div role="tabpanel" tabindex="0" hidden>...</div>
 </div>
 ```
 

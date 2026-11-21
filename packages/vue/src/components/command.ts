@@ -29,7 +29,11 @@ export const Command = defineComponent({
   emits: ['update:query', 'command'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value: query, set } = useControlled<string | undefined, 'update:query'>(props, emit, {
+    const {
+      value: query,
+      set,
+      tick,
+    } = useControlled<string | undefined, 'update:query'>(props, emit, {
       prop: 'query',
       event: 'update:query',
       default: props.defaultQuery,
@@ -49,12 +53,19 @@ export const Command = defineComponent({
       api,
       query,
       (a) => a.value,
-      (a, v) => a.setValue(v),
+      (a, v) => a.setValue(v, { silent: true }),
+      tick,
     );
     return () =>
       h(
         'div',
-        { ...attrs, 'data-hl-command': '', 'data-hl-hotkey': props.hotkey, ref: host },
+        {
+          ...attrs,
+          class: cx('hl-command', attrs.class as string),
+          'data-hl-command': '',
+          'data-hl-hotkey': props.hotkey,
+          ref: host,
+        },
         slots.default?.(),
       );
   },
@@ -76,7 +87,7 @@ export const CommandInput = defineComponent({
     return () =>
       h('input', {
         ...attrs,
-        class: cx(props.styled && 'hl-input', attrs.class as string),
+        class: cx(props.styled && 'hl-command-input', attrs.class as string),
         'data-hl-command-input': '',
       });
   },
@@ -91,7 +102,16 @@ export const CommandList = defineComponent({
   inheritAttrs: false,
   setup(_, { slots, attrs }) {
     return () =>
-      h('div', { ...attrs, 'data-hl-command-list': '', role: 'listbox' }, slots.default?.());
+      h(
+        'div',
+        {
+          ...attrs,
+          class: cx('hl-command-list', attrs.class as string),
+          'data-hl-command-list': '',
+          role: 'listbox',
+        },
+        slots.default?.(),
+      );
   },
 });
 
@@ -111,10 +131,18 @@ export const CommandGroup = defineComponent({
   setup(props, { slots, attrs }) {
     return () => {
       const label = slots.label?.() ?? props.label;
-      return h('div', { ...attrs, 'data-hl-command-group': '' }, [
-        label ? h('div', { class: 'hl-command-group-label', role: 'presentation' }, label) : null,
-        slots.default?.(),
-      ]);
+      return h(
+        'div',
+        {
+          ...attrs,
+          class: cx('hl-command-group', attrs.class as string),
+          'data-hl-command-group': '',
+        },
+        [
+          label ? h('div', { class: 'hl-command-group-label', role: 'presentation' }, label) : null,
+          slots.default?.(),
+        ],
+      );
     };
   },
 });
@@ -159,7 +187,12 @@ export const CommandEmpty = defineComponent({
     return () =>
       h(
         'div',
-        { ...attrs, 'data-hl-command-empty': '', hidden: true },
+        {
+          ...attrs,
+          class: cx('hl-command-empty', attrs.class as string),
+          'data-hl-command-empty': '',
+          hidden: true,
+        },
         slots.default?.() ?? 'No results found.',
       );
   },

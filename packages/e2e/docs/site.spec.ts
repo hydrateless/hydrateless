@@ -173,7 +173,10 @@ test('homepage and guide slot demos reset, preserve the selected panel, and pass
       .include('.hl-demo-block')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();
-    expect(result.violations.map((v) => v.id)).toEqual([]);
+    expect(
+      result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.html) })),
+      path,
+    ).toEqual([]);
   }
 });
 
@@ -222,7 +225,7 @@ test('every button and badge color combination has readable text in light and da
     }, markup);
     for (const theme of ['light', 'dark']) {
       await demo.locator('.hl-demo-preview').evaluate(async (element, mode) => {
-        (element as HTMLElement).dataset.theme = mode;
+        (element as HTMLElement).dataset.hlTheme = mode;
         // Contrast applies to the settled theme, not interpolated transition colors.
         await Promise.all(
           element.getAnimations({ subtree: true }).map((animation) => animation.finished),

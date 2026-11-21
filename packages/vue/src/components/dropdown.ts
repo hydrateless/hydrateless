@@ -52,7 +52,11 @@ export const Dropdown = defineComponent({
   emits: ['update:open', 'select'],
   setup(props, { slots, attrs, emit }) {
     const host = ref<HTMLElement | null>(null);
-    const { value: open, set } = useControlled<boolean | undefined, 'update:open'>(props, emit, {
+    const {
+      value: open,
+      set,
+      tick,
+    } = useControlled<boolean | undefined, 'update:open'>(props, emit, {
       prop: 'open',
       event: 'update:open',
       default: props.defaultOpen,
@@ -73,10 +77,21 @@ export const Dropdown = defineComponent({
       api,
       open,
       (a) => a.open,
-      (a, v) => a.setOpen(v),
+      (a, v) => a.setOpen(v, { silent: true }),
+      tick,
     );
     provide(DropdownKey, { menuId: useId(), open });
-    return () => h('div', { ...attrs, 'data-hl-dropdown': '', ref: host }, slots.default?.());
+    return () =>
+      h(
+        'div',
+        {
+          ...attrs,
+          class: cx('hl-dropdown', attrs.class as string),
+          'data-hl-dropdown': '',
+          ref: host,
+        },
+        slots.default?.(),
+      );
   },
 });
 
@@ -117,7 +132,14 @@ export const DropdownMenu = defineComponent({
     return () =>
       h(
         'ul',
-        { ...attrs, id: ctx?.menuId, popover: 'auto', role: 'menu', 'data-hl-dropdown-menu': '' },
+        {
+          ...attrs,
+          id: ctx?.menuId,
+          class: cx('hl-dropdown-menu', attrs.class as string),
+          popover: 'auto',
+          role: 'menu',
+          'data-hl-dropdown-menu': '',
+        },
         slots.default?.(),
       );
   },

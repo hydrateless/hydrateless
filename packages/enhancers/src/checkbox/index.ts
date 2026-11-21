@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { Events } from '../core/events.js';
 
 /** Options for {@link enhanceCheckbox}. */
@@ -14,7 +14,7 @@ export type CheckboxApi = {
   /** Values of the checked boxes, in document order. */
   readonly value: string[];
   /** Check exactly the boxes whose values are listed. */
-  setValue: (value: string[]) => void;
+  setValue: (value: string[], options?: SetOptions) => void;
 };
 
 const ALL = '[data-hl-checkbox-all]';
@@ -117,9 +117,10 @@ export const enhanceCheckbox = defineEnhancer<EnhanceCheckboxOptions, CheckboxAp
       get value() {
         return read();
       },
-      setValue(value) {
+      setValue(value, { silent = false } = {}) {
         apply(value);
-        notify();
+        if (silent) last = read().join('\u0000');
+        else notify();
       },
     };
   },

@@ -7,9 +7,9 @@
     children?: Snippet;
   }
 
-  let { 'aria-label': ariaLabel = 'Breadcrumb', children, ...rest }: Props = $props();
+  let { 'aria-label': ariaLabel = 'Breadcrumb', class: klass, children, ...rest }: Props = $props();
 </script>
 
-<nav {...rest} data-hl-breadcrumb aria-label={ariaLabel}>
+<nav {...rest} class={['hl-breadcrumb', klass]} aria-label={ariaLabel}>
   <ol>{@render children?.()}</ol>
 </nav>

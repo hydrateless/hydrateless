@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { ensureId, setAttrs } from '../core/dom.js';
 import { Events } from '../core/events.js';
 
@@ -22,7 +22,7 @@ export type SliderApi = {
   /** The current numeric value. */
   readonly value: number;
   /** Set the value (clamped to `min`/`max`) and update the output. */
-  setValue: (value: number) => void;
+  setValue: (value: number, options?: SetOptions) => void;
 };
 
 /**
@@ -42,7 +42,7 @@ export const enhanceSlider = defineEnhancer<EnhanceSliderOptions, SliderApi>({
   selector: '[data-hl-slider]',
   defaults: {},
   attributes: { defaultValue: 'number', unit: 'string' },
-  setup({ root, options, on, add, emit }) {
+  setup({ root, options, on, add, onUpdate, emit }) {
     const input = root.querySelector<HTMLInputElement>('input[type="range"]');
     if (!input) return;
     const output = root.querySelector<HTMLOutputElement>('output');
@@ -80,6 +80,7 @@ export const enhanceSlider = defineEnhancer<EnhanceSliderOptions, SliderApi>({
     if (options.defaultValue !== undefined) input.value = String(options.defaultValue);
     last = read();
     paint();
+    onUpdate(paint);
 
     on(input, 'input', () => {
       paint();
@@ -90,10 +91,11 @@ export const enhanceSlider = defineEnhancer<EnhanceSliderOptions, SliderApi>({
       get value() {
         return read();
       },
-      setValue(value) {
+      setValue(value, { silent = false } = {}) {
         input.value = String(value);
         paint();
-        notify();
+        if (silent) last = read();
+        else notify();
       },
     };
   },

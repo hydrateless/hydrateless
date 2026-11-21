@@ -19,7 +19,7 @@ const RENDER_CHECKS: Record<StaticFixture, string> = {
   alert: '.hl-alert[role="alert"]',
   avatar: '.hl-avatar',
   badge: '.hl-badge',
-  breadcrumb: 'nav[data-hl-breadcrumb] a[aria-current="page"]',
+  breadcrumb: 'nav.hl-breadcrumb a[aria-current="page"]',
   button: '.hl-button',
   card: '.hl-card .hl-card-title',
   checkbox: '.hl-checkbox input[type="checkbox"]',
@@ -36,7 +36,7 @@ const RENDER_CHECKS: Record<StaticFixture, string> = {
   'skip-link': '.hl-skip-link',
   slider: '.hl-slider',
   spinner: '.hl-spinner[role="status"]',
-  switch: '[data-hl-switch] input[role="switch"]',
+  switch: '.hl-switch input[role="switch"]',
   table: '.hl-table caption',
   textarea: '.hl-textarea',
 };

@@ -1,4 +1,4 @@
-import { defineEnhancer } from '../core/define.js';
+import { defineEnhancer, type SetOptions } from '../core/define.js';
 import { setAttrs, isRtl } from '../core/dom.js';
 import { createTypeahead, isTypeaheadKey, Keys, type MoveDirection } from '../core/keys.js';
 import { supportsPopover } from '../core/platform.js';
@@ -36,7 +36,7 @@ export type MenuApi = {
   /** Value of the currently open top-level submenu, or `null` when all are closed. */
   readonly value: string | null;
   /** Open the top-level submenu with `value` (closing any other), or pass `null` to close. */
-  setValue: (value: string | null) => void;
+  setValue: (value: string | null, options?: SetOptions) => void;
 };
 
 /**
@@ -68,12 +68,17 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
     position: 'boolean',
     defaultValue: 'string',
   },
-  setup({ root, options, on, observe, add, emit }) {
-    const vertical =
-      root.getAttribute('aria-orientation') === 'vertical' || options.orientation === 'vertical';
+  setup({ root, options, on, observe, add, onUpdate, emit }) {
+    // Authored `aria-orientation="vertical"` stays vertical across updates.
+    const authoredVertical = root.getAttribute('aria-orientation') === 'vertical';
+    let vertical = authoredVertical || options.orientation === 'vertical';
     setAttrs(root, {
       role: root.getAttribute('role') || 'menubar',
       'aria-orientation': vertical ? 'vertical' : 'horizontal',
+    });
+    onUpdate(() => {
+      vertical = authoredVertical || options.orientation === 'vertical';
+      setAttrs(root, { 'aria-orientation': vertical ? 'vertical' : 'horizontal' });
     });
 
     const topItems = () => menuItemsOf(root);
@@ -92,10 +97,12 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
     };
 
     let lastValue: string | null = null;
+    let suppressNotify = false;
     const notify = () => {
       const value = currentValue();
       if (value === lastValue) return;
       lastValue = value;
+      if (suppressNotify) return;
       options.onValueChange?.(value);
       emit(Events.change, { value });
     };
@@ -104,7 +111,8 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       { add },
       {
         usePopover: supportsPopover(),
-        position: options.position!,
+        // A getter so `update({ position })` reaches submenus opened later.
+        position: () => options.position!,
         placement: (depth) => (depth === 0 && !vertical ? 'bottom-start' : 'end-start'),
         onChange: notify,
       },
@@ -351,9 +359,14 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       get value() {
         return currentValue();
       },
-      setValue(value) {
-        if (value === null) submenus.close(0);
-        else openByValue(value);
+      setValue(value, { silent = false } = {}) {
+        suppressNotify = silent;
+        try {
+          if (value === null) submenus.close(0);
+          else openByValue(value);
+        } finally {
+          suppressNotify = false;
+        }
       },
     };
   },

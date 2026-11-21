@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { defineComponent, h, nextTick, type Component } from 'vue';
+import { defineComponent, h, nextTick, ref, type Component } from 'vue';
+import { enhanceTabs } from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
 import { mount } from '@vue/test-utils';
 import { axe } from 'vitest-axe';
 import { Tabs, TabList, Tab, TabPanel } from './components/tabs.js';
@@ -579,5 +581,80 @@ describe('primitives', () => {
       slots: { default: () => 'Body' },
     });
     expect(await violationIds(alert.element)).toEqual([]);
+  });
+
+  it('reconciles DOM back on vetoed controlled Tabs updates and updates options in place', async () => {
+    const emitted: string[] = [];
+    const { wrapper, state } = mountWith(
+      { value: 'a', orientation: 'horizontal' as 'horizontal' | 'vertical' },
+      (s) =>
+        h(
+          Tabs,
+          {
+            modelValue: s.value,
+            orientation: s.orientation,
+            'onUpdate:modelValue': (v: string) => emitted.push(v),
+          },
+          () => [
+            h(TabList, () => [
+              h(Tab, { value: 'a' }, () => 'A'),
+              h(Tab, { value: 'b' }, () => 'B'),
+            ]),
+            h(TabPanel, () => 'Alpha'),
+            h(TabPanel, () => 'Beta'),
+          ],
+        ),
+    );
+
+    // Click tab B while parent rejects the update (keeps modelValue = 'a').
+    await wrapper.findAll('[role="tab"]')[1].trigger('click');
+    await nextTick();
+    expect(emitted).toEqual(['b']);
+    expect(wrapper.findAll('[role="tab"]')[0].attributes('aria-selected')).toBe('true');
+
+    // Programmatic value change updates DOM without echoing update:modelValue.
+    state.value = 'b';
+    await nextTick();
+    expect(wrapper.findAll('[role="tab"]')[1].attributes('aria-selected')).toBe('true');
+    expect(emitted).toEqual(['b']);
+
+    // Orientation updates in place without resetting selection.
+    state.orientation = 'vertical';
+    await nextTick();
+    expect(wrapper.get('[role="tablist"]').attributes('aria-orientation')).toBe('vertical');
+    expect(wrapper.findAll('[role="tab"]')[1].attributes('aria-selected')).toBe('true');
+    wrapper.unmount();
+  });
+});
+
+describe('useEnhancer', () => {
+  it('attaches when a late-rendered element appears and deps change', async () => {
+    const Late = defineComponent({
+      setup() {
+        const ready = ref(false);
+        const host = ref<HTMLElement | null>(null);
+        const api = useEnhancer(host, enhanceTabs, {}, ready);
+        return { ready, host, api };
+      },
+      render() {
+        if (!this.ready) return h('div');
+        return h('div', { 'data-hl-tabs': '', ref: 'host' }, [
+          h('div', { role: 'tablist' }, [
+            h('button', { role: 'tab' }, 'A'),
+            h('button', { role: 'tab' }, 'B'),
+          ]),
+          h('div', { role: 'tabpanel' }, 'a'),
+          h('div', { role: 'tabpanel' }, 'b'),
+        ]);
+      },
+    });
+    const wrapper = mount(Late, { attachTo: document.body });
+    expect(wrapper.vm.api).toBeNull();
+    wrapper.vm.ready = true;
+    await nextTick();
+    await nextTick();
+    expect(wrapper.vm.api).not.toBeNull();
+    expect(wrapper.findAll('[role="tab"]')[0].attributes('aria-selected')).toBe('true');
+    wrapper.unmount();
   });
 });

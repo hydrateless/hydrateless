@@ -38,12 +38,21 @@ export const Disclosure = forwardRef<HTMLDetailsElement, DisclosureProps>(functi
   forwardedRef,
 ) {
   const ref = useForwardedRef(forwardedRef);
-  const [open, setOpen] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
+  const [open, setOpen, syncTick] = useControlled(openProp, defaultOpen ?? false, onOpenChange);
   const api = useEnhancer<EnhanceDisclosureOptions, DisclosureApi>(ref, enhanceDisclosure, {
     defaultOpen: open,
     onOpenChange: setOpen,
   });
-  useSyncApi(api, openProp, (api, open) => api.setOpen(open));
+  useSyncApi(
+    api,
+    openProp,
+    (api, open) => {
+      // Always sync silently so the enhancer's `last` tracker matches the
+      // `<details open>` attribute React just committed.
+      api.setOpen(open, { silent: true });
+    },
+    syncTick,
+  );
 
   return (
     <details
