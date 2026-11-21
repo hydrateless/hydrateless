@@ -79,7 +79,9 @@ host apps:
 - `EnhancerHandle` and `EnhancerInstance` now expose `update(options?)` (and
   `defineEnhancer`'s `setup` context exposes `onUpdate(listener)`), letting
   option changes update a live enhancer in place without tearing down open
-  overlays or resetting state.
+  overlays or resetting state. `update()` merges into the options already in
+  effect: keys you omit keep their value, and a key passed as `undefined`
+  reverts to its `data-hl-*` attribute or default.
 - Every stateful `setValue` and `setOpen` method now accepts an optional
   `{ silent?: boolean }` option (`SetOptions`) to update DOM state without
   invoking `onValueChange`/`onOpenChange` or dispatching `hl:*` events.

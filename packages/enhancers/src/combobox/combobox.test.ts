@@ -183,4 +183,26 @@ describe('enhanceCombobox', () => {
       expect(listbox.hidden).toBe(true);
     });
   });
+
+  it('unhides filtered options when update() turns filtering off', () => {
+    document.body.innerHTML = `
+      <div data-hl-combobox>
+        <input />
+        <ul role="listbox">
+          <li role="option" data-hl-value="apple">Apple</li>
+          <li role="option" data-hl-value="cherry">Cherry</li>
+        </ul>
+      </div>
+    `;
+    const handle = enhanceCombobox(document);
+    const input = document.querySelector<HTMLInputElement>('input')!;
+    const options = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]'));
+
+    input.value = 'ch';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(options[0].hidden).toBe(true);
+
+    handle.update({ filter: false });
+    expect(options.map((option) => option.hidden)).toEqual([false, false]);
+  });
 });

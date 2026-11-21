@@ -150,6 +150,10 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
         isOpen() && options.position
           ? keepPositioned(input, listbox, { placement: 'bottom-start' })
           : noop;
+      // Turning filtering off must not leave options hidden by an earlier query.
+      if (!options.filter) {
+        for (const option of allOptions()) option.hidden = false;
+      }
     });
 
     const filter = (query: string) => {

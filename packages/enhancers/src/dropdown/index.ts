@@ -101,7 +101,12 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
 
     const submenus = createSubmenus(
       { add },
-      { usePopover: supportsPopover(), position: options.position!, placement: () => 'end-start' },
+      {
+        usePopover: supportsPopover(),
+        // A getter so `update({ position })` reaches submenus opened later.
+        position: () => options.position!,
+        placement: () => 'end-start',
+      },
     );
 
     // Items are re-read on every interaction, and re-prepared whenever the

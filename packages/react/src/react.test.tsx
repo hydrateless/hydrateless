@@ -600,6 +600,32 @@ describe('useEnhancer', () => {
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledWith('1');
   });
+
+  it('attaches once a late-rendered element appears and a dep changes', () => {
+    let api: { readonly value: string } | null = null;
+    function Late({ ready }: { ready: boolean }) {
+      const ref = useRef<HTMLDivElement>(null);
+      const handle = useEnhancer(ref, enhanceTabs, {}, [ready]);
+      api = handle.current;
+      if (!ready) return null;
+      return (
+        <div data-hl-tabs ref={ref}>
+          <div role="tablist">
+            <button role="tab">A</button>
+            <button role="tab">B</button>
+          </div>
+          <div role="tabpanel">a</div>
+          <div role="tabpanel">b</div>
+        </div>
+      );
+    }
+    const { rerender } = render(<Late ready={false} />);
+    rerender(<Late ready />);
+    // Re-render once more so the component reads the ref the effect filled.
+    rerender(<Late ready />);
+    expect(api).not.toBeNull();
+    expect(screen.getByText('A').getAttribute('aria-selected')).toBe('true');
+  });
 });
 
 describe('misc', () => {

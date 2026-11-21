@@ -87,7 +87,11 @@ export interface EnhancerContext<Options extends object> {
 export interface EnhancerInstance<Api = null, Options extends object = never> {
   root: HTMLElement;
   api: Api;
-  /** Re-merge options in place and notify the enhancer without tearing it down. */
+  /**
+   * Merge `options` into the caller options in place and notify the enhancer
+   * without tearing it down. Omitted keys keep their value; keys passed as
+   * `undefined` revert to the `data-hl-*` attribute or default.
+   */
   update: (options?: Partial<Options>) => void;
   destroy: Disposer;
 }
@@ -101,7 +105,10 @@ export interface EnhancerInstance<Api = null, Options extends object = never> {
 export interface EnhancerHandle<Api = null, Options extends object = never> {
   /** Tear down every instance this call created. */
   destroy: Disposer;
-  /** Update options on every enhanced instance in place without destroying it. */
+  /**
+   * Merge `options` into every enhanced instance in place without destroying
+   * it. Omitted keys keep their value; `undefined` reverts a key to its default.
+   */
   update: (options?: Partial<Options>) => void;
   /** The first enhanced root's API, or `null` when nothing matched. */
   api: Api | null;
@@ -250,7 +257,10 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
           ...omitUndefined(caller),
         }) as Options;
 
-      const currentOptions = mergeOptions(options);
+      // Caller options accumulate across `update()` calls, so a partial update
+      // never drops callbacks or settings passed earlier.
+      const callerOptions: Partial<Options> = omitUndefined(options);
+      const currentOptions = mergeOptions(callerOptions);
 
       const ctx: EnhancerContext<Options> = {
         root,
@@ -282,7 +292,13 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
         api,
         update: (next) => {
           if (!alive) return;
-          const merged = mergeOptions(next);
+          // Keys omitted from `next` keep their current value; keys passed as
+          // `undefined` fall back to the attribute or default again.
+          for (const [key, entry] of Object.entries(next ?? {})) {
+            if (entry === undefined) delete (callerOptions as Record<string, unknown>)[key];
+            else (callerOptions as Record<string, unknown>)[key] = entry;
+          }
+          const merged = mergeOptions(callerOptions);
           for (const key of Object.keys(currentOptions)) {
             delete (currentOptions as Record<string, unknown>)[key];
           }

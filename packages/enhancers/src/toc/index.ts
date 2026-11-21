@@ -48,7 +48,7 @@ export const enhanceToc = defineEnhancer<EnhanceTocOptions, TocApi>({
     scrollSpy: 'boolean',
     watch: 'boolean',
   },
-  setup({ root, container, options, observe, add, onUpdate, emit }) {
+  setup({ root, container, options, add, onUpdate, emit }) {
     const doc = root.ownerDocument;
     const scope: ParentNode = container instanceof Document ? doc : container;
 
@@ -147,19 +147,32 @@ export const enhanceToc = defineEnhancer<EnhanceTocOptions, TocApi>({
 
     build();
 
-    if (options.watch) {
+    // Watch the current content region. Re-run on every update so a changed
+    // `contentSelector` or `watch` option moves or stops the observer.
+    let stopWatch: Disposer | null = null;
+    let watched: HTMLElement | null = null;
+    const syncWatch = () => {
+      const target = options.watch ? contentRoot() : null;
+      if (target === watched) return;
+      stopWatch?.();
+      stopWatch = null;
+      watched = target;
+      if (!target || typeof MutationObserver === 'undefined') return;
       // The nav often lives inside the content region it indexes, so ignore
       // our own rebuilds: only mutations outside the root count.
-      observe(
-        contentRoot(),
-        (records) => {
-          if (records.some((record) => !root.contains(record.target))) build();
-        },
-        { childList: true, subtree: true, characterData: true },
-      );
-    }
+      const observer = new MutationObserver((records) => {
+        if (records.some((record) => !root.contains(record.target))) build();
+      });
+      observer.observe(target, { childList: true, subtree: true, characterData: true });
+      stopWatch = () => observer.disconnect();
+    };
+    syncWatch();
+    add(() => stopWatch?.());
 
-    onUpdate(build);
+    onUpdate(() => {
+      syncWatch();
+      build();
+    });
 
     return {
       get value() {

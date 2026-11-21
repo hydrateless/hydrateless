@@ -51,4 +51,23 @@ describe('enhanceToc contract', () => {
     await settle();
     expect(links()).toEqual(['Intro', 'Usage']);
   });
+
+  it('moves the watcher to the new content region on update()', async () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<article id="other"><h2 id="alpha">Alpha</h2></article>',
+    );
+    const handle = enhanceToc(document, { scrollSpy: false });
+    handle.update({ contentSelector: '#other' });
+    expect(links()).toEqual(['Alpha']);
+
+    document.getElementById('other')!.insertAdjacentHTML('beforeend', '<h2 id="beta">Beta</h2>');
+    await settle();
+    expect(links()).toEqual(['Alpha', 'Beta']);
+
+    // Edits in the old region no longer trigger rebuilds.
+    document.querySelector('main')!.insertAdjacentHTML('beforeend', '<h2 id="old">Old</h2>');
+    await settle();
+    expect(links()).toEqual(['Alpha', 'Beta']);
+  });
 });

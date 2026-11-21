@@ -78,7 +78,8 @@ export function useEnhancer<Options extends object, Api>(
   };
 
   $effect(() => {
-    const next = defined(getOptions());
+    // Keep `undefined` entries: on update they revert an option to its default.
+    const next = getOptions();
     if (!initialized) {
       initialized = true;
       return;

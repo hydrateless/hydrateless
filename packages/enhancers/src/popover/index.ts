@@ -120,10 +120,17 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
     };
 
     let unbindHover: Disposer = noop;
+    let hoverBound = false;
+    // Rebind only when the trigger mode changes: rebinding cancels a pending
+    // hover close, which would leave the popover open after the pointer left.
+    // The listeners read `hoverCloseDelay` live, so other updates need nothing.
     const syncHover = () => {
+      const wantHover = options.triggerEvent === 'hover';
+      if (wantHover === hoverBound) return;
       unbindHover();
       unbindHover = noop;
-      if (options.triggerEvent !== 'hover') return;
+      hoverBound = wantHover;
+      if (!wantHover) return;
       let closeTimer: number | undefined;
       const cancelClose = () => {
         if (closeTimer !== undefined) win?.clearTimeout(closeTimer);

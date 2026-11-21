@@ -69,14 +69,15 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
     defaultValue: 'string',
   },
   setup({ root, options, on, observe, add, onUpdate, emit }) {
-    let vertical =
-      root.getAttribute('aria-orientation') === 'vertical' || options.orientation === 'vertical';
+    // Authored `aria-orientation="vertical"` stays vertical across updates.
+    const authoredVertical = root.getAttribute('aria-orientation') === 'vertical';
+    let vertical = authoredVertical || options.orientation === 'vertical';
     setAttrs(root, {
       role: root.getAttribute('role') || 'menubar',
       'aria-orientation': vertical ? 'vertical' : 'horizontal',
     });
     onUpdate(() => {
-      vertical = options.orientation === 'vertical';
+      vertical = authoredVertical || options.orientation === 'vertical';
       setAttrs(root, { 'aria-orientation': vertical ? 'vertical' : 'horizontal' });
     });
 
@@ -110,7 +111,8 @@ export const enhanceMenu = defineEnhancer<EnhanceMenuOptions, MenuApi>({
       { add },
       {
         usePopover: supportsPopover(),
-        position: options.position!,
+        // A getter so `update({ position })` reaches submenus opened later.
+        position: () => options.position!,
         placement: (depth) => (depth === 0 && !vertical ? 'bottom-start' : 'end-start'),
         onChange: notify,
       },

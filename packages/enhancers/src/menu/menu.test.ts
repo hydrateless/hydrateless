@@ -192,4 +192,23 @@ describe('enhanceMenu', () => {
     document.body.innerHTML = '<div>Nothing</div>';
     expect(() => enhanceMenu(document)).not.toThrow();
   });
+
+  it('keeps an authored vertical orientation across update()', () => {
+    document.body.innerHTML = `
+      <ul data-hl-menu role="menu" aria-orientation="vertical">
+        <li><button role="menuitem" data-hl-value="a">A</button></li>
+        <li><button role="menuitem" data-hl-value="b">B</button></li>
+      </ul>
+    `;
+    const handle = enhanceMenu(document);
+    const root = document.querySelector<HTMLElement>('[data-hl-menu]')!;
+    const [a, b] = Array.from(root.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+
+    handle.update({ position: false });
+    expect(root.getAttribute('aria-orientation')).toBe('vertical');
+
+    a.focus();
+    a.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(document.activeElement).toBe(b);
+  });
 });

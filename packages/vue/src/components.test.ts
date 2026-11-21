@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { defineComponent, h, nextTick, type Component } from 'vue';
+import { defineComponent, h, nextTick, ref, type Component } from 'vue';
+import { enhanceTabs } from '@hydrateless/enhancers';
+import { useEnhancer } from './useEnhancer.js';
 import { mount } from '@vue/test-utils';
 import { axe } from 'vitest-axe';
 import { Tabs, TabList, Tab, TabPanel } from './components/tabs.js';
@@ -621,6 +623,38 @@ describe('primitives', () => {
     await nextTick();
     expect(wrapper.get('[role="tablist"]').attributes('aria-orientation')).toBe('vertical');
     expect(wrapper.findAll('[role="tab"]')[1].attributes('aria-selected')).toBe('true');
+    wrapper.unmount();
+  });
+});
+
+describe('useEnhancer', () => {
+  it('attaches when a late-rendered element appears and deps change', async () => {
+    const Late = defineComponent({
+      setup() {
+        const ready = ref(false);
+        const host = ref<HTMLElement | null>(null);
+        const api = useEnhancer(host, enhanceTabs, {}, ready);
+        return { ready, host, api };
+      },
+      render() {
+        if (!this.ready) return h('div');
+        return h('div', { 'data-hl-tabs': '', ref: 'host' }, [
+          h('div', { role: 'tablist' }, [
+            h('button', { role: 'tab' }, 'A'),
+            h('button', { role: 'tab' }, 'B'),
+          ]),
+          h('div', { role: 'tabpanel' }, 'a'),
+          h('div', { role: 'tabpanel' }, 'b'),
+        ]);
+      },
+    });
+    const wrapper = mount(Late, { attachTo: document.body });
+    expect(wrapper.vm.api).toBeNull();
+    wrapper.vm.ready = true;
+    await nextTick();
+    await nextTick();
+    expect(wrapper.vm.api).not.toBeNull();
+    expect(wrapper.findAll('[role="tab"]')[0].attributes('aria-selected')).toBe('true');
     wrapper.unmount();
   });
 });

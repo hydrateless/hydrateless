@@ -20,6 +20,7 @@ import type { EnhancerHandle } from '@hydrateless/enhancers';
  * mounted. The enhancer runs client-side only, so components stay SSR-safe,
  * and is destroyed on unmount. When `deps` changes, `options` is re-read and
  * applied in place via `handle.update()`, preserving open overlays and state.
+ * If the element wasn't rendered on mount, a `deps` change attaches it.
  */
 export function useEnhancer<Options extends object, Api>(
   el: Ref<HTMLElement | null>,
@@ -43,7 +44,12 @@ export function useEnhancer<Options extends object, Api>(
   };
 
   onMounted(attach);
-  if (deps) watch(deps, () => handle?.update(toValue(options)));
+  // Attach late if the element wasn't rendered on mount; otherwise update in
+  // place. `post` flush runs after the DOM patch, so a newly rendered element
+  // is already in the template ref.
+  if (deps) {
+    watch(deps, () => (handle ? handle.update(toValue(options)) : attach()), { flush: 'post' });
+  }
   onBeforeUnmount(detach);
 
   return api;
