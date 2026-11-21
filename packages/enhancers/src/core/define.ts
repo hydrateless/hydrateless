@@ -259,7 +259,7 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
 
       // Caller options accumulate across `update()` calls, so a partial update
       // never drops callbacks or settings passed earlier.
-      const callerOptions: Partial<Options> = omitUndefined(options);
+      const callerOptions: Partial<Options> = { ...options };
       const currentOptions = mergeOptions(callerOptions);
 
       const ctx: EnhancerContext<Options> = {
@@ -293,11 +293,9 @@ export function defineEnhancer<Options extends object = Record<string, never>, A
         update: (next) => {
           if (!alive) return;
           // Keys omitted from `next` keep their current value; keys passed as
-          // `undefined` fall back to the attribute or default again.
-          for (const [key, entry] of Object.entries(next ?? {})) {
-            if (entry === undefined) delete (callerOptions as Record<string, unknown>)[key];
-            else (callerOptions as Record<string, unknown>)[key] = entry;
-          }
+          // `undefined` are dropped by `mergeOptions`, so they fall back to
+          // the attribute or default again.
+          Object.assign(callerOptions, next);
           const merged = mergeOptions(callerOptions);
           for (const key of Object.keys(currentOptions)) {
             delete (currentOptions as Record<string, unknown>)[key];

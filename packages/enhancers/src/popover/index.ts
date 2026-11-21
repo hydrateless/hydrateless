@@ -94,11 +94,7 @@ export const enhancePopover = defineEnhancer<EnhancePopoverOptions, PopoverApi>(
       const open = (e as ToggleEvent).newState === 'open';
       const silent = suppressNotify;
       suppressNotify = false;
-      stopPositioning();
-      stopPositioning =
-        open && options.position
-          ? keepPositioned(anchor, popover, { placement: options.placement })
-          : noop;
+      position();
       for (const opener of openers) {
         setAttrs(opener, { 'aria-expanded': open ? 'true' : 'false' });
       }

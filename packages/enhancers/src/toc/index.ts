@@ -150,20 +150,16 @@ export const enhanceToc = defineEnhancer<EnhanceTocOptions, TocApi>({
     // Watch the current content region. Re-run on every update so a changed
     // `contentSelector` or `watch` option moves or stops the observer.
     let stopWatch: Disposer | null = null;
-    let watched: HTMLElement | null = null;
     const syncWatch = () => {
-      const target = options.watch ? contentRoot() : null;
-      if (target === watched) return;
       stopWatch?.();
       stopWatch = null;
-      watched = target;
-      if (!target || typeof MutationObserver === 'undefined') return;
+      if (!options.watch || typeof MutationObserver === 'undefined') return;
       // The nav often lives inside the content region it indexes, so ignore
       // our own rebuilds: only mutations outside the root count.
       const observer = new MutationObserver((records) => {
         if (records.some((record) => !root.contains(record.target))) build();
       });
-      observer.observe(target, { childList: true, subtree: true, characterData: true });
+      observer.observe(contentRoot(), { childList: true, subtree: true, characterData: true });
       stopWatch = () => observer.disconnect();
     };
     syncWatch();

@@ -125,13 +125,18 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
       options.onOpenChange?.(open);
       emit(Events.openChange, { open });
     };
+    const position = () => {
+      stopPositioning();
+      stopPositioning =
+        isOpen() && options.position
+          ? keepPositioned(input, listbox, { placement: 'bottom-start' })
+          : noop;
+    };
     const open = (silent = false) => {
       if (isOpen()) return;
       listbox.hidden = false;
       setAttrs(input, { 'aria-expanded': 'true' });
-      if (options.position) {
-        stopPositioning = keepPositioned(input, listbox, { placement: 'bottom-start' });
-      }
+      position();
       if (!silent) notifyOpen(true);
     };
     const close = (silent = false) => {
@@ -145,11 +150,7 @@ export const enhanceCombobox = defineEnhancer<EnhanceComboboxOptions, ComboboxAp
     };
 
     onUpdate(() => {
-      stopPositioning();
-      stopPositioning =
-        isOpen() && options.position
-          ? keepPositioned(input, listbox, { placement: 'bottom-start' })
-          : noop;
+      position();
       // Turning filtering off must not leave options hidden by an earlier query.
       if (!options.filter) {
         for (const option of allOptions()) option.hidden = false;

@@ -155,12 +155,8 @@ export const enhanceDropdown = defineEnhancer<EnhanceDropdownOptions, DropdownAp
       const silent = suppressNotify;
       suppressNotify = false;
       setAttrs(trigger, { 'aria-expanded': open ? 'true' : 'false' });
-      stopPositioning();
-      stopPositioning = noop;
+      position();
       if (open) {
-        if (options.position) {
-          stopPositioning = keepPositioned(trigger, menu, { placement: options.placement });
-        }
         const which = requestedFocus ?? 'first';
         requestedFocus = null;
         if (which !== 'none' && !menu.contains(doc.activeElement)) focusEdge(which);
