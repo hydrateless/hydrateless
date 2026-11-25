@@ -1,3 +1,7 @@
+---
+description: Pair Hydrateless semantic HTML and lazy enhancers with Astro static pages and framework islands.
+---
+
 # Astro
 
 Astro and Hydrateless share the same philosophy: ship HTML and CSS, send

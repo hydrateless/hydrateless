@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { getComponent } from '../../data/registry';
+import { renderInline } from '../lib/inline';
 
 const props = defineProps<{ slug: string }>();
 const rows = computed(() => getComponent(props.slug)?.tokens ?? []);
@@ -14,7 +15,11 @@ const rows = computed(() => getComponent(props.slug)?.tokens ?? []);
     tabindex="0"
     aria-label="CSS variables"
   >
-    <table class="hl-api-table">
+    <table class="hl-api-table hl-api-table--tokens">
+      <colgroup>
+        <col class="hl-col-token" />
+        <col class="hl-col-desc" />
+      </colgroup>
       <thead>
         <tr>
           <th>CSS variable</th>
@@ -26,7 +31,7 @@ const rows = computed(() => getComponent(props.slug)?.tokens ?? []);
           <td>
             <code>{{ row.name }}</code>
           </td>
-          <td>{{ row.description }}</td>
+          <td v-html="renderInline(row.description)" />
         </tr>
       </tbody>
     </table>

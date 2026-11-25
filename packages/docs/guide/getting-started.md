@@ -1,3 +1,7 @@
+---
+description: Install Hydrateless, import the layered CSS, and add optional JavaScript enhancers in minutes.
+---
+
 # Getting Started
 
 Hydrateless is a lightweight component library that delivers accessible,

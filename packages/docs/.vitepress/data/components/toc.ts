@@ -27,7 +27,7 @@ export const toc: ComponentDoc = {
       layout: 'fill',
       render: () =>
         `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:1rem;width:100%;align-items:start">
-  <nav class="hl-toc" data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="On this page"></nav>
+  <nav class="hl-toc" data-hl-toc data-hl-content-selector="#toc-demo-content" aria-label="Article sections"></nav>
   <article id="toc-demo-content">
     <h2>Introduction</h2>
     <p style="margin:0 0 .75rem">A short overview of the project.</p>

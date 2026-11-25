@@ -1,3 +1,7 @@
+---
+description: Complete API reference for Hydrateless enhancers, options, imperative handles, custom events, and framework bindings.
+---
+
 # API Reference
 
 The full, type-level API documentation for every Hydrateless package is generated

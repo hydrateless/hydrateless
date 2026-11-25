@@ -1,3 +1,7 @@
+---
+description: Built-in right-to-left layout and keyboard mirroring using CSS logical properties and dir attributes.
+---
+
 # Right-to-Left
 
 Hydrateless is written with CSS logical properties, so every component mirrors

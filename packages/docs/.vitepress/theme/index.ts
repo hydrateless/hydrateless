@@ -1,3 +1,4 @@
+import { h } from 'vue';
 import DefaultTheme from 'vitepress/theme';
 import type { Theme } from 'vitepress';
 import 'hydrateless/hydrateless.css';
@@ -15,12 +16,18 @@ import ComponentDoc from './components/ComponentDoc.vue';
 import ComponentGallery from './components/ComponentGallery.vue';
 import ThemeStudio from './components/ThemeStudio.vue';
 import InstallTabs from './components/InstallTabs.vue';
+import HomeHeroPreview from './components/HomeHeroPreview.vue';
 
 // Note: unlike before, the docs do not call `auto(document)` globally. Each
 // `<Demo>` owns its own scoped enhancement, which is what makes the per-demo
 // "disable JS" toggle meaningful (no global watcher races to re-enhance).
 export default {
   extends: DefaultTheme,
+  Layout() {
+    return h(DefaultTheme.Layout, null, {
+      'home-hero-image': () => h(HomeHeroPreview),
+    });
+  },
   enhanceApp({ app }) {
     app.component('Demo', Demo);
     app.component('CodeView', CodeView);

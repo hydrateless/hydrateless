@@ -1,3 +1,7 @@
+---
+description: Automatic and manual dark mode powered by CSS light-dark() tokens and color-scheme.
+---
+
 # Dark Mode
 
 Hydrateless supports dark mode out of the box. There's nothing to configure for

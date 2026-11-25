@@ -1,3 +1,7 @@
+---
+description: Duration tokens, @starting-style entry transitions, and automatic prefers-reduced-motion support.
+---
+
 # Motion
 
 Motion in Hydrateless is short, purposeful, and entirely opt-out. Every

@@ -1,3 +1,7 @@
+---
+description: Use @hydrateless/react with React 18+, Server Components, controlled and uncontrolled state, and useEnhancer.
+---
+
 # React
 
 `@hydrateless/react` wraps every Hydrateless component in an idiomatic React

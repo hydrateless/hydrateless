@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-import { useData } from 'vitepress';
 import type { Disposer } from '@hydrateless/enhancers';
 import type { DemoDef, KnobValues } from '../../data/types';
 import { FRAMEWORK_LANGS, useFramework } from '../../shared/framework';
 import { enhanceDemo } from '../lib/demo-runtime';
+import { renderInline } from '../lib/inline';
 import Knobs from './Knobs.vue';
 import CodeView from './CodeView.vue';
 import FrameworkSwitcher from './FrameworkSwitcher.vue';
 
 // `demo` drives the rich, data-driven mode (knobs + per-framework code). With
 // no `demo`, the default slot is rendered as the live preview, which lets the
-// guide pages wrap raw markup in the same controllable frame.
-const props = defineProps<{ demo?: DemoDef; layout?: string }>();
+// guide pages wrap raw markup in the same controllable frame (optionally with
+// a static `code` snippet).
+const props = defineProps<{ demo?: DemoDef; layout?: string; code?: string; lang?: string }>();
 
-const { isDark } = useData();
 const { framework } = useFramework();
 
 const defaults = (): KnobValues => {
@@ -38,10 +38,12 @@ let disposer: Disposer | undefined;
 const layout = computed(() => props.demo?.layout ?? props.layout ?? 'row');
 const previewHtml = computed(() => (props.demo ? props.demo.render({ ...values }) : ''));
 
-const effectiveTheme = computed(() =>
-  theme.value === 'auto' ? (isDark.value ? 'dark' : 'light') : theme.value,
-);
+// In 'auto' mode, omit `data-hl-theme` so the preview inherits `color-scheme`
+// directly from `html.dark` / `html:not(.dark)` before Vue hydrates (avoiding
+// SSR hydration mismatches when the page loads in dark mode).
+const effectiveTheme = computed(() => (theme.value === 'auto' ? undefined : theme.value));
 
+const hasCode = computed(() => Boolean(props.demo || props.code));
 const hasFrameworkCode = computed(() => {
   const code = props.demo?.code;
   return Boolean(code && (code.react || code.vue || code.svelte));
@@ -49,11 +51,21 @@ const hasFrameworkCode = computed(() => {
 const displayFramework = computed(() => (hasFrameworkCode.value ? framework.value : 'html'));
 
 const snippet = computed(() => {
-  if (!props.demo) return '';
-  const fn = props.demo.code?.[displayFramework.value];
-  return fn ? fn({ ...values }) : props.demo.render({ ...values });
+  if (props.demo) {
+    const fn = props.demo.code?.[displayFramework.value];
+    return fn ? fn({ ...values }) : props.demo.render({ ...values });
+  }
+  return props.code ?? '';
 });
-const snippetLang = computed(() => FRAMEWORK_LANGS[displayFramework.value]);
+const snippetLang = computed(() =>
+  props.demo ? FRAMEWORK_LANGS[displayFramework.value] : (props.lang ?? 'html'),
+);
+
+function markDemoHeadings(root: HTMLElement) {
+  for (const heading of root.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+    heading.classList.add('ignore-header');
+  }
+}
 
 function teardown() {
   disposer?.();
@@ -63,7 +75,9 @@ function teardown() {
 
 function applyEnhancers() {
   const root = stageEl.value;
-  if (!root || !jsEnabled.value) return;
+  if (!root) return;
+  markDemoHeadings(root);
+  if (!jsEnabled.value) return;
   const report = (event: Event) => {
     const { value, checked } = (event as CustomEvent).detail ?? {};
     if (value == null) return;
@@ -72,6 +86,8 @@ function applyEnhancers() {
   root.addEventListener('hl:select', report);
   root.addEventListener('hl:command', report);
   const destroy = enhanceDemo(root);
+  // Re-mark after enhancers run (for example, enhanceToc adds ids to sample headings).
+  markDemoHeadings(root);
   disposer = () => {
     root.removeEventListener('hl:select', report);
     root.removeEventListener('hl:command', report);
@@ -103,19 +119,20 @@ function reset() {
 function cycleTheme() {
   theme.value = theme.value === 'auto' ? 'light' : theme.value === 'light' ? 'dark' : 'auto';
 }
-function renderInline(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
-}
 </script>
 
 <template>
   <section class="hl-demo-block" :data-demo-ready="mounted ? '' : undefined">
     <header v-if="demo?.title || demo?.description" class="hl-demo-head">
-      <h3 v-if="demo?.title" :id="`demo-${demo.id}`">{{ demo.title }}</h3>
+      <h3 v-if="demo?.title" :id="`demo-${demo.id}`">
+        {{ demo.title
+        }}<a
+          class="header-anchor"
+          :href="`#demo-${demo.id}`"
+          :aria-label="`Permalink to &quot;${demo.title}&quot;`"
+          >&#8203;</a
+        >
+      </h3>
       <p v-if="demo?.description" v-html="renderInline(demo.description)" />
     </header>
 
@@ -180,7 +197,7 @@ function renderInline(text: string): string {
       />
     </div>
 
-    <div v-if="demo" class="hl-demo-code">
+    <div v-if="hasCode" class="hl-demo-code">
       <div class="hl-demo-code-bar">
         <button
           type="button"

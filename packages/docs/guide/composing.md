@@ -1,3 +1,7 @@
+---
+description: Extend Hydrateless components, use headless behavior.css, or build custom enhancers with defineEnhancer.
+---
+
 # Composing and Extending
 
 Hydrateless is designed to be built on. Tokens are plain custom properties,

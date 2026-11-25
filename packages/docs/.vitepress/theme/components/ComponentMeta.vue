@@ -4,11 +4,14 @@ import { getComponent } from '../../data/registry';
 
 const props = defineProps<{ slug: string }>();
 const doc = computed(() => getComponent(props.slug));
+const statusLabel = computed(() =>
+  doc.value?.status ? doc.value.status.charAt(0).toUpperCase() + doc.value.status.slice(1) : '',
+);
 </script>
 
 <template>
   <div v-if="doc" class="hl-meta">
-    <span v-if="doc.status" class="hl-chip" :class="`is-${doc.status}`">{{ doc.status }}</span>
+    <span v-if="doc.status" class="hl-chip" :class="`is-${doc.status}`">{{ statusLabel }}</span>
     <!-- A component can be fully usable with CSS alone and still ship an
          optional enhancer (e.g. Disclosure), so both chips can appear. -->
     <span v-if="doc.cssOnly" class="hl-chip is-css">CSS only</span>

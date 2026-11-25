@@ -1,3 +1,7 @@
+---
+description: Use @hydrateless/vue with Vue 3, v-model bindings, pre-hydration triggers, and useEnhancer.
+---
+
 # Vue
 
 `@hydrateless/vue` ships first-class Vue components for every Hydrateless

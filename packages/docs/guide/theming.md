@@ -1,3 +1,7 @@
+---
+description: Theme every Hydrateless component with palette, scale, and semantic CSS custom properties.
+---
+
 # Theming
 
 Every Hydrateless component is driven by CSS custom properties. Override them

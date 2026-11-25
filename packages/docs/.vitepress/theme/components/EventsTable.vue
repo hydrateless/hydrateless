@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { getComponent } from '../../data/registry';
+import { renderInline } from '../lib/inline';
 
 const props = defineProps<{ slug: string }>();
 const rows = computed(() => getComponent(props.slug)?.events ?? []);
@@ -14,7 +15,12 @@ const rows = computed(() => getComponent(props.slug)?.events ?? []);
     tabindex="0"
     aria-label="Component events"
   >
-    <table class="hl-api-table">
+    <table class="hl-api-table hl-api-table--events">
+      <colgroup>
+        <col class="hl-col-event" />
+        <col class="hl-col-payload" />
+        <col class="hl-col-desc" />
+      </colgroup>
       <thead>
         <tr>
           <th>Event / Callback</th>
@@ -29,9 +35,9 @@ const rows = computed(() => getComponent(props.slug)?.events ?? []);
           </td>
           <td>
             <code v-if="row.detail" class="hl-type">{{ row.detail }}</code>
-            <span v-else class="hl-muted">&mdash;</span>
+            <span v-else class="hl-muted">None</span>
           </td>
-          <td>{{ row.description }}</td>
+          <td v-html="renderInline(row.description)" />
         </tr>
       </tbody>
     </table>

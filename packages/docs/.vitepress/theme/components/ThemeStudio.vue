@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { useData } from 'vitepress';
 import type { Disposer } from '@hydrateless/enhancers';
 import { enhanceDemo } from '../lib/demo-runtime';
 import CodeView from './CodeView.vue';
@@ -13,6 +14,11 @@ interface ThemeState {
   mode: 'light' | 'dark';
 }
 
+const DEFAULT_BORDERS: Record<'light' | 'dark', string> = {
+  light: '#e2e8f0',
+  dark: '#1e293b',
+};
+
 const FONTS: Record<string, string> = {
   System: `ui-sans-serif, system-ui, -apple-system, 'Segoe UI', roboto, helvetica, arial, sans-serif`,
   Geometric: `'Avenir Next', 'Segoe UI', system-ui, sans-serif`,
@@ -20,16 +26,31 @@ const FONTS: Record<string, string> = {
   Mono: `ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, monospace`,
 };
 
-const defaults = (): ThemeState => ({
+const defaults = (mode: 'light' | 'dark' = 'light'): ThemeState => ({
   primary: '#3b82f6',
-  border: '#e2e8f0',
+  border: DEFAULT_BORDERS[mode],
   radius: 8,
   size: 16,
   font: 'System',
-  mode: 'light',
+  mode,
 });
 
-const state = reactive<ThemeState>(defaults());
+const { isDark } = useData();
+const state = reactive<ThemeState>(defaults('light'));
+const modeLocked = ref(false);
+
+function setMode(next: 'light' | 'dark', userInitiated: boolean) {
+  const prev = state.mode;
+  if (userInitiated) modeLocked.value = true;
+  state.mode = next;
+  if (state.border.toLowerCase() === DEFAULT_BORDERS[prev]) {
+    state.border = DEFAULT_BORDERS[next];
+  }
+}
+
+watch(isDark, (dark) => {
+  if (!modeLocked.value) setMode(dark ? 'dark' : 'light', false);
+});
 
 function hexToHsl(hex: string): [number, number, number] {
   const m = hex.replace('#', '');
@@ -113,6 +134,7 @@ function enhance() {
   if (previewEl.value) disposer = enhanceDemo(previewEl.value);
 }
 onMounted(() => {
+  if (isDark.value && !modeLocked.value) setMode('dark', false);
   enhance();
   mounted.value = true;
 });
@@ -121,7 +143,8 @@ watch(revision, () => disposer?.(), { flush: 'pre' });
 watch(revision, enhance, { flush: 'post' });
 
 function reset() {
-  Object.assign(state, defaults());
+  modeLocked.value = false;
+  Object.assign(state, defaults(isDark.value ? 'dark' : 'light'));
   revision.value += 1;
 }
 
@@ -218,7 +241,13 @@ const preview = `
       </label>
       <label class="hl-knob">
         <span class="hl-knob-label">Mode</span>
-        <select :disabled="!mounted" class="hl-knob-select" aria-label="Mode" v-model="state.mode">
+        <select
+          :disabled="!mounted"
+          class="hl-knob-select"
+          aria-label="Mode"
+          :value="state.mode"
+          @change="setMode(($event.target as HTMLSelectElement).value as 'light' | 'dark', true)"
+        >
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>

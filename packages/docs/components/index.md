@@ -1,6 +1,7 @@
 ---
 title: Components
 aside: false
+description: Browse all 36 Hydrateless UI primitives across forms, overlays, disclosure, feedback, data display, and navigation.
 ---
 
 # Components
