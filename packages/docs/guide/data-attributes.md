@@ -1,3 +1,7 @@
+---
+description: Configure every Hydrateless enhancer declaratively in HTML with data-hl-* attributes and zero JavaScript.
+---
+
 # Configuring with Data Attributes
 
 Every enhancer can be configured from the markup it enhances. Any option that

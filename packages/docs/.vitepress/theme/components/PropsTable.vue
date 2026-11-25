@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { getComponent } from '../../data/registry';
+import { renderInline } from '../lib/inline';
 
 const props = defineProps<{ slug: string }>();
 const rows = computed(() => getComponent(props.slug)?.props ?? []);
@@ -14,7 +15,13 @@ const rows = computed(() => getComponent(props.slug)?.props ?? []);
     tabindex="0"
     aria-label="Component props"
   >
-    <table class="hl-api-table">
+    <table class="hl-api-table hl-api-table--props">
+      <colgroup>
+        <col class="hl-col-name" />
+        <col class="hl-col-type" />
+        <col class="hl-col-default" />
+        <col class="hl-col-desc" />
+      </colgroup>
       <thead>
         <tr>
           <th>Prop</th>
@@ -36,7 +43,7 @@ const rows = computed(() => getComponent(props.slug)?.props ?? []);
             <code v-if="row.default">{{ row.default }}</code>
             <span v-else class="hl-muted">Not set</span>
           </td>
-          <td>{{ row.description }}</td>
+          <td v-html="renderInline(row.description)" />
         </tr>
       </tbody>
     </table>

@@ -1,3 +1,7 @@
+---
+description: How Hydrateless structures @layer declarations so your own CSS overrides component styles cleanly.
+---
+
 # CSS Layers
 
 All Hydrateless styles are wrapped in CSS [`@layer`](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)

@@ -1,6 +1,7 @@
 ---
 title: Theme Studio
 aside: false
+description: Customize Hydrateless CSS variables live across real components and copy the generated theme stylesheet.
 ---
 
 # Theme Studio

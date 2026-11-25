@@ -1,3 +1,7 @@
+---
+description: Upgrade notes and breaking changes for moving between Hydrateless minor releases.
+---
+
 # Migration Guide
 
 ## Migrating to 0.11

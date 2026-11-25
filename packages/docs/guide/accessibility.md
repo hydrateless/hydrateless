@@ -1,3 +1,7 @@
+---
+description: WAI-ARIA Authoring Practices mapping, keyboard navigation tables, focus return, and forced-colors support.
+---
+
 # Accessibility
 
 Hydrateless starts from the platform: native elements carry their own roles,

@@ -311,3 +311,87 @@ test('theme studio keeps generated text readable and focus colors in sync', asyn
   await expect(preview.getByRole('switch')).toHaveCSS('outline-color', 'rgb(255, 0, 0)');
   await expect(studio.locator('.hl-code code')).toContainText('--hl-focus-shadow:');
 });
+
+test('local search indexes component pages and component outlines exclude demo headings', async ({
+  page,
+}) => {
+  await page.goto('/components/button');
+  const outline = page.locator('.VPDocAsideOutline');
+  await expect(outline).toBeVisible();
+  await expect(outline.getByRole('link', { name: 'Examples', exact: true })).toBeVisible();
+  await expect(outline.getByRole('link', { name: 'Props', exact: true })).toBeVisible();
+  await expect(outline.getByRole('link', { name: 'CSS variables', exact: true })).toBeVisible();
+  await expect(outline.getByRole('link', { name: 'Accessibility', exact: true })).toBeVisible();
+
+  await page.goto('/components/toc');
+  await expect(page.locator('.hl-demo-block')).toHaveAttribute('data-demo-ready', '');
+  await expect(outline.getByRole('link', { name: 'Examples', exact: true })).toBeVisible();
+  await expect(outline.getByRole('link', { name: 'Introduction', exact: true })).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Search' }).click();
+  const searchInput = page.locator('#localsearch-input');
+  await searchInput.fill('enhanceModal');
+  await expect(
+    page.locator('.VPLocalSearchBox a[href^="/components/modal"]').first(),
+  ).toBeVisible();
+});
+
+test('navbar active states, inline API code, related cards, and dark-mode studio defaults work', async ({
+  page,
+}) => {
+  for (const [path, navLabel] of [
+    ['/components/modal', 'Components'],
+    ['/guide/theming', 'Guide'],
+    ['/frameworks/vue', 'Frameworks'],
+  ]) {
+    await page.goto(path);
+    await expect(page.locator('.VPNavBarMenu a.active', { hasText: navLabel }), path).toBeVisible();
+  }
+
+  await page.goto('/components/modal');
+  await expect(
+    page.locator('.hl-api-table td:last-child code', { hasText: 'onOpenChange' }),
+  ).toBeVisible();
+  for (const text of await page.locator('.hl-api-table td').allTextContents()) {
+    expect(text).not.toContain('`');
+  }
+  await expect(page.locator('.hl-related-card').first()).toHaveCSS('text-decoration-line', 'none');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/');
+  await expect(page.locator('.hl-hero-preview')).toHaveCSS('color-scheme', 'dark');
+  await expect(page.locator('.hl-demo-preview').first()).toHaveCSS('color-scheme', 'dark');
+  await page.goto('/components/button');
+  await expect(page.locator('.hl-demo-preview').first()).toHaveCSS('color-scheme', 'dark');
+
+  await page.goto('/playground/theme');
+  await expect(page.locator('.hl-studio').getByLabel('Mode', { exact: true })).toHaveValue('dark');
+  await expect(page.locator('.hl-studio').getByLabel('Border color', { exact: true })).toHaveValue(
+    '#1e293b',
+  );
+});
+
+test('homepage hero preview and showcase pass accessibility and fit narrow screens', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('.hl-hero-card')).toBeVisible();
+  for (const colorScheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme });
+    const result = await new AxeBuilder({ page })
+      .include('.VPHero')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      .analyze();
+    expect(
+      result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.html) })),
+      colorScheme,
+    ).toEqual([]);
+  }
+  for (const width of [375, 320]) {
+    await page.setViewportSize({ width, height: 850 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      `homepage fits ${width}px`,
+    ).toBe(true);
+  }
+});

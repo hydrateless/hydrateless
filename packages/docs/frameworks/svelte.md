@@ -1,3 +1,7 @@
+---
+description: Use @hydrateless/svelte with Svelte 5 runes, bindable state, attachments, and SSR-ready markup.
+---
+
 # Svelte
 
 `@hydrateless/svelte` ships first-class Svelte 5 components for every

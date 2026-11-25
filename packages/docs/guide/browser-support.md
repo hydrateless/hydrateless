@@ -1,3 +1,7 @@
+---
+description: Modern Baseline browser requirements, progressive enhancement fallbacks, and cross-engine testing matrix.
+---
+
 # Browser Support
 
 Hydrateless targets the modern Baseline: the current and previous major

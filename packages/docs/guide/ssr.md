@@ -1,3 +1,7 @@
+---
+description: Render functional, accessible Hydrateless markup on the server with progressive client enhancement.
+---
+
 # Server-Side Rendering
 
 Hydrateless is a natural fit for server-side rendering (SSR) and static site
